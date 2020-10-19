@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'PayMESDK'
   s.version          = '0.1.0'
-  s.summary          = 'Đây là tóm tắt của SDK'
+  s.summary          = 'PayME SDK là bộ thư viện để các app có thể tương tác với PayME Platform. PayME SDK bao gồm các chức năng chính như sau.'
   s.swift_versions   = '4.0'
 
 # This description is used to generate tags and improve search results.
@@ -19,7 +19,10 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+  PayME SDK là bộ thư viện để các app có thể tương tác với PayME Platform. PayME SDK bao gồm các chức năng chính như sau:
+  + Hệ thống đăng ký, đăng nhập, eKYC thông qua tài khoản ví PayME
+  + Chức năng nạp rút chuyển tiền từ ví PayME.
+  + Tích hợp các dịch vụ của PayME Platform.
                        DESC
 
   s.homepage         = 'https://payme.vn/'
