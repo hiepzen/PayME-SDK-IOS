@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '10.0'
 
-  s.source_files = 'PayMESDK/Classes/**/*'
+  s.source_files = 'PayMESDK/Classes/PayME/PayME.swift'
   
   # s.resource_bundles = {
   #   'PayMESDK' => ['PayMESDK/Assets/*.png']

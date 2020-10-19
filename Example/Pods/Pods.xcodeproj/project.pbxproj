@@ -35,7 +35,6 @@
 		2D5CB8BF3AE5FF09A2AB2268EF244750 /* ClearMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF532D8AC33DDE9CD174C6509463E55 /* ClearMessage.swift */; };
 		2DA1E1E9B3BCC49AAF9DCECE717B9E3B /* SwiftyRSAError.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0FB1ABBD74CB33C5246C2C5568A59A /* SwiftyRSAError.swift */; };
 		2E28EE7CE868D1CA09319861EF52CEEE /* SwiftyRSA-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 09615E3317D1C1CD43C9CABEE889409D /* SwiftyRSA-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		2E363A1811A66258BCD59934BBCA899E /* ReplaceMe.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF5525DC97ED9B0E067F4057D777237 /* ReplaceMe.swift */; };
 		2F976C658FF0262E304B856D6E9996C8 /* SwiftyRSA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0672A4382F6A2F3E2E82440E6B978BC9 /* SwiftyRSA.swift */; };
 		305BBF32D9E3A576426E12CF6C0FE58E /* PrivateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A589BC19BC952A65CF12E0AD50F6302 /* PrivateKey.swift */; };
 		30FFC4B71D4DCEFADC7C958E1190A161 /* MD5.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE4477DAE41E9D8A64B6F8E4D87C361 /* MD5.swift */; };
@@ -50,13 +49,13 @@
 		4B142B035F2395B9F639A9132EA45E13 /* UInt128.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10F0CFAFEC5F9249C7FC4B805F5F6A8 /* UInt128.swift */; };
 		4BA09DD20F30ABB2BCE71C15AC7713D3 /* ChaCha20.swift in Sources */ = {isa = PBXBuildFile; fileRef = 218C671D746A9B5856C75656418B1B3F /* ChaCha20.swift */; };
 		50A90B2D4FA3EBFF26D653873734FEF7 /* Authenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155012162A600D4181B2C0E2C09CA349 /* Authenticator.swift */; };
-		521BC92A253D7E58007B89A7 /* PayME.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC91F253D7E57007B89A7 /* PayME.swift */; };
-		521BC92B253D7E58007B89A7 /* WebView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 521BC921253D7E57007B89A7 /* WebView.xib */; };
-		521BC92C253D7E58007B89A7 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC922253D7E57007B89A7 /* WebViewController.swift */; };
-		521BC92D253D7E58007B89A7 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC924253D7E57007B89A7 /* UserInfo.swift */; };
-		521BC92E253D7E58007B89A7 /* NetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC926253D7E57007B89A7 /* NetworkRequest.swift */; };
-		521BC92F253D7E58007B89A7 /* CryptoRSA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC928253D7E57007B89A7 /* CryptoRSA.swift */; };
-		521BC930253D7E58007B89A7 /* CryptoAES.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC929253D7E57007B89A7 /* CryptoAES.swift */; };
+		521BC952253D9780007B89A7 /* PayME.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC947253D9780007B89A7 /* PayME.swift */; };
+		521BC953253D9780007B89A7 /* WebView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 521BC949253D9780007B89A7 /* WebView.xib */; };
+		521BC954253D9780007B89A7 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC94A253D9780007B89A7 /* WebViewController.swift */; };
+		521BC955253D9780007B89A7 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC94C253D9780007B89A7 /* UserInfo.swift */; };
+		521BC956253D9780007B89A7 /* NetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC94E253D9780007B89A7 /* NetworkRequest.swift */; };
+		521BC957253D9780007B89A7 /* CryptoRSA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC950253D9780007B89A7 /* CryptoRSA.swift */; };
+		521BC958253D9780007B89A7 /* CryptoAES.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521BC951253D9780007B89A7 /* CryptoAES.swift */; };
 		56782173293488FE6042FBA164F66AD7 /* Data+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D728862C33634C3E5EB6B7D8520A8EDE /* Data+Extension.swift */; };
 		58CB7E76BCA07CE7B50BAF3053896251 /* Signature.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4E0F621C134FAF8C6D5DF6633549414 /* Signature.swift */; };
 		58E922B0E45D494152E7BEA5FF41264C /* Array+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB0D7C12F823B93CCAE8A3B3ED2E423 /* Array+Foundation.swift */; };
@@ -236,13 +235,13 @@
 		4ECC0A45EB70C6506FC5034F82281ACA /* Pods-PayMESDK_Tests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-PayMESDK_Tests-dummy.m"; sourceTree = "<group>"; };
 		4ED9721D49F581CECABA21010A7F9B85 /* String+FoundationExtension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "String+FoundationExtension.swift"; path = "Sources/CryptoSwift/Foundation/String+FoundationExtension.swift"; sourceTree = "<group>"; };
 		4FF16EB399CDEE1E5F546F61CE11FF9E /* Int+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Int+Extension.swift"; path = "Sources/CryptoSwift/Int+Extension.swift"; sourceTree = "<group>"; };
-		521BC91F253D7E57007B89A7 /* PayME.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PayME.swift; sourceTree = "<group>"; };
-		521BC921253D7E57007B89A7 /* WebView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WebView.xib; sourceTree = "<group>"; };
-		521BC922253D7E57007B89A7 /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
-		521BC924253D7E57007B89A7 /* UserInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
-		521BC926253D7E57007B89A7 /* NetworkRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkRequest.swift; sourceTree = "<group>"; };
-		521BC928253D7E57007B89A7 /* CryptoRSA.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptoRSA.swift; sourceTree = "<group>"; };
-		521BC929253D7E57007B89A7 /* CryptoAES.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptoAES.swift; sourceTree = "<group>"; };
+		521BC947253D9780007B89A7 /* PayME.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PayME.swift; sourceTree = "<group>"; };
+		521BC949253D9780007B89A7 /* WebView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WebView.xib; sourceTree = "<group>"; };
+		521BC94A253D9780007B89A7 /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
+		521BC94C253D9780007B89A7 /* UserInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
+		521BC94E253D9780007B89A7 /* NetworkRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkRequest.swift; sourceTree = "<group>"; };
+		521BC950253D9780007B89A7 /* CryptoRSA.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptoRSA.swift; sourceTree = "<group>"; };
+		521BC951253D9780007B89A7 /* CryptoAES.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptoAES.swift; sourceTree = "<group>"; };
 		531056057EEA54E41CAA579164C4082F /* Pods-PayMESDK_Tests-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-PayMESDK_Tests-umbrella.h"; sourceTree = "<group>"; };
 		564F05B6A789890E0143FED9843EA439 /* SwiftyRSA.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftyRSA.release.xcconfig; sourceTree = "<group>"; };
 		58BA979AE069CA37244898B984E75C65 /* Cryptors.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Cryptors.swift; path = Sources/CryptoSwift/Cryptors.swift; sourceTree = "<group>"; };
@@ -311,7 +310,6 @@
 		CD7ACD4C009BF2B51F119685DC2A6D41 /* Pods-PayMESDK_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-PayMESDK_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		CF4CDA881315D5AB15B2D285B219DD74 /* ECB.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ECB.swift; path = Sources/CryptoSwift/BlockMode/ECB.swift; sourceTree = "<group>"; };
 		CFB0D7C12F823B93CCAE8A3B3ED2E423 /* Array+Foundation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Array+Foundation.swift"; path = "Sources/CryptoSwift/Foundation/Array+Foundation.swift"; sourceTree = "<group>"; };
-		CFF5525DC97ED9B0E067F4057D777237 /* ReplaceMe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ReplaceMe.swift; path = PayMESDK/Classes/ReplaceMe.swift; sourceTree = "<group>"; };
 		D0A51DA770E719A448F8315D762F68FB /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		D334B87E81C1637EEA2E802EBDB48690 /* PayMESDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PayMESDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3F740B015E8625615788BBBC68000DD /* SHA2.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SHA2.swift; path = Sources/CryptoSwift/SHA2.swift; sourceTree = "<group>"; };
@@ -500,56 +498,57 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		521BC91D253D7E57007B89A7 /* Source */ = {
+		521BC945253D9780007B89A7 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				521BC91E253D7E57007B89A7 /* PayME */,
-				521BC920253D7E57007B89A7 /* WebView */,
-				521BC923253D7E57007B89A7 /* model */,
-				521BC925253D7E57007B89A7 /* service */,
-				521BC927253D7E57007B89A7 /* utility */,
+				521BC946253D9780007B89A7 /* PayME */,
+				521BC948253D9780007B89A7 /* WebView */,
+				521BC94B253D9780007B89A7 /* model */,
+				521BC94D253D9780007B89A7 /* service */,
+				521BC94F253D9780007B89A7 /* utility */,
 			);
-			path = Source;
+			name = Source;
+			path = PayMESDK/Classes/Source;
 			sourceTree = "<group>";
 		};
-		521BC91E253D7E57007B89A7 /* PayME */ = {
+		521BC946253D9780007B89A7 /* PayME */ = {
 			isa = PBXGroup;
 			children = (
-				521BC91F253D7E57007B89A7 /* PayME.swift */,
+				521BC947253D9780007B89A7 /* PayME.swift */,
 			);
 			path = PayME;
 			sourceTree = "<group>";
 		};
-		521BC920253D7E57007B89A7 /* WebView */ = {
+		521BC948253D9780007B89A7 /* WebView */ = {
 			isa = PBXGroup;
 			children = (
-				521BC921253D7E57007B89A7 /* WebView.xib */,
-				521BC922253D7E57007B89A7 /* WebViewController.swift */,
+				521BC949253D9780007B89A7 /* WebView.xib */,
+				521BC94A253D9780007B89A7 /* WebViewController.swift */,
 			);
 			path = WebView;
 			sourceTree = "<group>";
 		};
-		521BC923253D7E57007B89A7 /* model */ = {
+		521BC94B253D9780007B89A7 /* model */ = {
 			isa = PBXGroup;
 			children = (
-				521BC924253D7E57007B89A7 /* UserInfo.swift */,
+				521BC94C253D9780007B89A7 /* UserInfo.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
 		};
-		521BC925253D7E57007B89A7 /* service */ = {
+		521BC94D253D9780007B89A7 /* service */ = {
 			isa = PBXGroup;
 			children = (
-				521BC926253D7E57007B89A7 /* NetworkRequest.swift */,
+				521BC94E253D9780007B89A7 /* NetworkRequest.swift */,
 			);
 			path = service;
 			sourceTree = "<group>";
 		};
-		521BC927253D7E57007B89A7 /* utility */ = {
+		521BC94F253D9780007B89A7 /* utility */ = {
 			isa = PBXGroup;
 			children = (
-				521BC928253D7E57007B89A7 /* CryptoRSA.swift */,
-				521BC929253D7E57007B89A7 /* CryptoAES.swift */,
+				521BC950253D9780007B89A7 /* CryptoRSA.swift */,
+				521BC951253D9780007B89A7 /* CryptoAES.swift */,
 			);
 			path = utility;
 			sourceTree = "<group>";
@@ -593,8 +592,7 @@
 		8CA0BBC124FB0F29FE7672F3046D3ECD /* PayMESDK */ = {
 			isa = PBXGroup;
 			children = (
-				521BC91D253D7E57007B89A7 /* Source */,
-				CFF5525DC97ED9B0E067F4057D777237 /* ReplaceMe.swift */,
+				521BC945253D9780007B89A7 /* Source */,
 				E7B5B768143D736261AB7CD4B9510FF8 /* Pod */,
 				D193D95A7F01FAD6DF344A0608CE3588 /* Support Files */,
 			);
@@ -911,7 +909,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				521BC92B253D7E58007B89A7 /* WebView.xib in Resources */,
+				521BC953253D9780007B89A7 /* WebView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1061,14 +1059,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				521BC92A253D7E58007B89A7 /* PayME.swift in Sources */,
+				521BC952253D9780007B89A7 /* PayME.swift in Sources */,
 				67046138B9B0E12F08732C7A6755796B /* PayMESDK-dummy.m in Sources */,
-				2E363A1811A66258BCD59934BBCA899E /* ReplaceMe.swift in Sources */,
-				521BC92D253D7E58007B89A7 /* UserInfo.swift in Sources */,
-				521BC930253D7E58007B89A7 /* CryptoAES.swift in Sources */,
-				521BC92F253D7E58007B89A7 /* CryptoRSA.swift in Sources */,
-				521BC92E253D7E58007B89A7 /* NetworkRequest.swift in Sources */,
-				521BC92C253D7E58007B89A7 /* WebViewController.swift in Sources */,
+				521BC955253D9780007B89A7 /* UserInfo.swift in Sources */,
+				521BC958253D9780007B89A7 /* CryptoAES.swift in Sources */,
+				521BC957253D9780007B89A7 /* CryptoRSA.swift in Sources */,
+				521BC956253D9780007B89A7 /* NetworkRequest.swift in Sources */,
+				521BC954253D9780007B89A7 /* WebViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
