@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
 
   s.homepage         = 'https://payme.vn/'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.license          = { :type => 'payme.vn', :file => 'LICENSE' }
+  s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'HuyOpen' => 'huytq@payme.vn' }
   s.source           = { :git => 'https://gitlab.com/paymesdk/paymesdk-ios.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
