@@ -1,0 +1,36 @@
+{
+  "name": "PayMESDK",
+  "version": "0.1.0",
+  "summary": "A short description of PayMESDK.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://payme.vn/",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "HuyOpen": "huytq@payme.vn"
+  },
+  "source": {
+    "git": "https://gitlab.com/huyopen/anotherfakeproject.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "PayMESDK/Classes/**/*",
+  "frameworks": [
+    "UIKit",
+    "WebKit",
+    "Foundation",
+    "Security"
+  ],
+  "dependencies": {
+    "CryptoSwift": [
+      "~> 1.0"
+    ],
+    "SwiftyRSA": [
+      "1.5"
+    ]
+  }
+}
