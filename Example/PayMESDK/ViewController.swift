@@ -16,7 +16,7 @@ class ViewController: UIViewController {
     @IBAction func click(_ sender: Any) {
         print("abc")
         var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: "U2FsdGVkX1+0GEZ1n1pGQzYdSFjrqXQa8Ys8syosEEgBycvgRbZ/5ZJLxCtrDfzrqMr0ot1TfYWOAQhTLytC21fYVoydyaWponQoGOQMOVEqhkldTiQS7xUV2VrogtXou0WEMSDieyICUsAZ3SE0wA==", appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b"])
-        payME.openWallet(currentVC: self, action: Action.Open, amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in})
+        payME.openWallet(currentVC: self, action: "open", amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in})
     }
     override func viewDidLoad() {
         super.viewDidLoad()

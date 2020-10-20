@@ -9,12 +9,6 @@
 import Foundation
 import UIKit
 
-public enum Action : String{
-    case Open = "open"
-    case Deposit = "deposit"
-    case Withdraw = "withdraw"
-}
-
 public class PayME {
     private var appPrivateKey: String
     private var appID: String
@@ -67,7 +61,7 @@ public class PayME {
     public func isConnected() -> Bool {
         return false
     }
-    public func openWallet(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?,
+    public func openWallet(currentVC : UIViewController, action : String, amount: Int?, description: String?, extraData: String?,
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                            onError: @escaping (String) -> ()
     )-> () {
