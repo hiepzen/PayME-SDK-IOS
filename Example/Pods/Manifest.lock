@@ -1,16 +1,14 @@
 PODS:
-  - CryptoSwift (1.3.2)
-  - PayMESDK (0.1.0):
-    - CryptoSwift (~> 1.0)
+  - CryptoSwift (1.0.0)
+  - PayMESDK (0.0.2):
+    - CryptoSwift (= 1.0)
     - SwiftyRSA (= 1.5)
   - SwiftyRSA (1.5.0):
     - SwiftyRSA/ObjC (= 1.5.0)
   - SwiftyRSA/ObjC (1.5.0)
 
 DEPENDENCIES:
-  - CryptoSwift (~> 1.0)
   - PayMESDK (from `../`)
-  - SwiftyRSA (= 1.5)
 
 SPEC REPOS:
   trunk:
@@ -22,10 +20,10 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
-  PayMESDK: 1ec0db0734b1e20c6ea6e6e679b766fe1a71d9d5
+  CryptoSwift: d81eeaa59dc5a8d03720fe919a6fd07b51f7439f
+  PayMESDK: adf226f15ad723ea571f55a7e880c6cfe881df34
   SwiftyRSA: 6e528fb1b1a87d5111c48081083b141d6d65f1cf
 
-PODFILE CHECKSUM: 7d200d2352b9d93ba3a1fa13a078bb8623ecf2b9
+PODFILE CHECKSUM: dd49d43a514849d681e35d3453632c130cbe3362
 
 COCOAPODS: 1.9.3
