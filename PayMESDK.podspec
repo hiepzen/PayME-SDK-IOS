@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.name             = 'PayMESDK'
   s.version          = '0.0.5'
   s.summary          = 'PayME SDK là bộ thư viện để các app có thể tương tác với PayME Platform. PayME SDK bao gồm các chức năng chính như sau.'
-  s.swift_versions   = '4.0'
+  s.swift_versions   = '4.2'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -36,9 +36,9 @@ Pod::Spec.new do |s|
 
   s.source_files = 'PayMESDK/Classes/**/*'
   
-  # s.resource_bundles = {
-  #   'PayMESDK' => ['PayMESDK/Assets/*.png']
-  # }
+  s.resource_bundles = {
+    'PayMESDK' => ['PayMESDK/Assets/*.png']
+  }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   s.frameworks = 'UIKit', 'WebKit', 'Foundation', 'Security'

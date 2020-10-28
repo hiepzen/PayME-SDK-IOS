@@ -9,7 +9,12 @@
 import Foundation
 import UIKit
 
-public class PayME {
+protocol StarNodeDelegate: class {
+    func endGame()
+}
+
+public class PayME{
+    var delegate : StarNodeDelegate?
     private var appPrivateKey: String
     private var appID: String
     private var publicKey: String
@@ -19,7 +24,20 @@ public class PayME {
     private let packageName = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
     private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     private let deviceID = UIDevice.current.identifierForVendor!.uuidString
+    var currentVC : UIViewController?
 
+    
+    public func showModal(currentVC : UIViewController){
+        self.currentVC = currentVC
+        currentVC.presentPanModal(QRNotFound())
+    }
+    
+    public func closeModal() {
+        self.currentVC!.dismiss(animated: true, completion: nil)
+    }
+    
+    
+    
     public init(appID: String, publicKey: String, connectToken: String, appPrivateKey: String, env: String, configColor: [String]) {
         self.appPrivateKey = appPrivateKey;
         self.appID = appID;
@@ -28,6 +46,7 @@ public class PayME {
         self.env = env;
         self.configColor = configColor
     }
+    
     public func setPrivateKey(appPrivateKey : String) {
         self.appPrivateKey = appPrivateKey
     }
@@ -65,9 +84,18 @@ public class PayME {
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                            onError: @escaping (String) -> ()
     )-> () {
-        var data =
+        let topSafeArea: CGFloat
+        let bottomSafeArea: CGFloat
+        if #available(iOS 11.0, *) {
+            topSafeArea = currentVC.view.safeAreaInsets.top
+            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
+        } else {
+            topSafeArea = currentVC.topLayoutGuide.length
+            bottomSafeArea = currentVC.bottomLayoutGuide.length
+        }
+        let data =
         """
-        {"connectToken":"\(self.connectToken)","appToken":"\(self.appID)","clientInfo":{"clientId":"\(self.deviceID)","platform":"IOS","appVersion":"\(self.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(self.packageName!)"},"partner":"IOS","configColor":["\(handleColor(input:self.configColor))"]}
+        {"connectToken":"\(self.connectToken)","appToken":"\(self.appID)","clientInfo":{"clientId":"\(self.deviceID)","platform":"IOS","appVersion":"\(self.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(self.packageName!)"},"partner":"IOS","partnerTop":"\(topSafeArea)","configColor":["\(handleColor(input:self.configColor))"]}
         """
         let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         let url = urlWebview(env: self.env)
@@ -79,9 +107,23 @@ public class PayME {
         currentVC.navigationController?.isNavigationBarHidden = true
         currentVC.navigationController?.pushViewController(webViewController, animated: true)
     }
+    
+    public func deposit(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
+    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+    onError: @escaping (String) -> ()) {
+        self.openWallet(currentVC: currentVC, action: "DEPOSIT", amount: amount, description: description, extraData: extraData, onSuccess: onSuccess, onError: onError)
+    }
+    
+    public func withdraw(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
+    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+    onError: @escaping (String) -> ()) {
+        self.openWallet(currentVC: currentVC, action: "WITHDRAW", amount: amount, description: description, extraData: extraData, onSuccess: onSuccess, onError: onError)
+    }
+    
+    
+    
     private func handleColor(input: [String]) -> String {
         let newString = input.joined(separator: "\",\"")
-        print(newString)
         return newString
     }
     private func checkDoubleNil(input: Double?) -> String {
@@ -149,3 +191,4 @@ public class PayME {
     }
     
 }
+
