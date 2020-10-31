@@ -16,22 +16,20 @@ extension UIColor {
 }
 
 class QRNotFound: UIViewController, PanModalPresentable {
-
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        view.addSubview(avatarView)
         view.addSubview(nameLabel)
         view.addSubview(roleLabel)
         view.addSubview(button)
+        view.addSubview(image)
+        view.addSubview(closeButton)
         nameLabel.text = "Không tìm thấy"
         roleLabel.text = "QRCode không đúng định dạng hoặc không tồn tại. Vui lòng kiểm tra và quét lại"
         button.setTitle("Đóng", for: .normal)
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
-        avatarView.backgroundColor = .red
         setupConstraints()
     }
     
@@ -53,29 +51,25 @@ class QRNotFound: UIViewController, PanModalPresentable {
     
 
     func setupConstraints() {
-        
-        avatarView.widthAnchor.constraint(equalToConstant: 200.0).isActive = true
-        avatarView.heightAnchor.constraint(equalToConstant: 200.0).isActive = true
-        avatarView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        avatarView.topAnchor.constraint(equalTo: view.topAnchor, constant: 25.0).isActive = true
-
+        closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 19).isActive = true
+        closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
+        image.topAnchor.constraint(equalTo: view.topAnchor, constant: 30).isActive = true
+        image.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        nameLabel.topAnchor.constraint(equalTo: avatarView.bottomAnchor, constant: 20.0).isActive = true
-
+        nameLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 20.0).isActive = true
         roleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         roleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4.0).isActive = true
         roleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
         roleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
-        
         button.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         button.heightAnchor.constraint(equalToConstant: 45).isActive = true
         button.topAnchor.constraint(equalTo: roleLabel.bottomAnchor, constant: 20).isActive = true
         button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
         button.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
-        
         button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor, constant: 10).isActive = true
 
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor).isActive = true
     }
     
     @objc
@@ -84,14 +78,28 @@ class QRNotFound: UIViewController, PanModalPresentable {
         self.dismiss(animated: true, completion: nil)
     }
     
-    
-    
-    let avatarView: UIView = {
-        let view = UIView()
-        view.layer.cornerRadius = 6.0
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    let closeButton : UIButton = {
+        let button = UIButton()
+        let bundle = Bundle(for: QRNotFound.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let image = UIImage(named: "16Px", in: resourceBundle, compatibleWith: nil)
+        button.setImage(image, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
+    
+    let image: UIImageView = {
+        let bundle = Bundle(for: QRNotFound.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let image = UIImage(named: "qrCodeNotFound", in: resourceBundle, compatibleWith: nil)
+        var bgImage = UIImageView(image: image)
+        bgImage.translatesAutoresizingMaskIntoConstraints = false
+        return bgImage
+    }()
+    
+    
     
     let nameLabel: UILabel = {
         let label = UILabel()

@@ -29,11 +29,16 @@ public class PayME{
     
     public func showModal(currentVC : UIViewController){
         self.currentVC = currentVC
-        currentVC.presentPanModal(QRNotFound())
+        currentVC.presentPanModal(Methods())
     }
     
     public func closeModal() {
         self.currentVC!.dismiss(animated: true, completion: nil)
+    }
+    
+    public func openCamera( currentVC: UIViewController) {
+        let vc = CameraViewController()
+        vc.setupCamera(currentVC: currentVC)
     }
     
     
@@ -144,6 +149,7 @@ public class PayME{
         }
         return ""
     }
+
 
     private func urlFeENV(env: String?) -> String {
         if (env == "sandbox") {

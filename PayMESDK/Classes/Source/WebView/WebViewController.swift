@@ -9,7 +9,7 @@
 import UIKit
 import  WebKit
 
-class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler {
+class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
     /*
      var urlRequest : String = ""
      var webView : WKWebView!
@@ -49,10 +49,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler 
      webView.load(myRequest)
      }
      */
+    var vc : UIImagePickerController!
     var urlRequest : String = ""
     var webView : WKWebView!
-    var communicate: String = "onCommunicate"
-    var close: String = "onClose"
+    var onCommunicate: String = "onCommunicate"
+    var onClose: String = "onClose"
+    var openCamera : String = "openCamera"
+    var onErrorBack : String = "onErrors"
     let content = """
           <!DOCTYPE html><html><body>
           <button onclick="onClick()">Click me</button>
@@ -65,13 +68,16 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler 
           </body></html>
           """
     
+
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
     private var onError: ((String) -> ())? = nil
     
     override func loadView() {
         let userController: WKUserContentController = WKUserContentController()
-        userController.add(self, name: communicate)
-        userController.add(self, name: close)
+        userController.add(self, name: onCommunicate)
+        userController.add(self, name: onClose)
+        userController.add(self, name: openCamera)
+        userController.add(self, name: onErrorBack)
         let config = WKWebViewConfiguration()
         config.userContentController = userController
         webView = WKWebView(frame: .zero, configuration: config)
@@ -85,16 +91,14 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler 
     */
     
      override func viewDidLoad() {
-        print(self.urlRequest)
         let urlString = urlRequest.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-        print(urlString)
         let  myURL = URL(string: urlString!)
         let myRequest : URLRequest
         if myURL != nil
         {
-            myRequest = URLRequest(url: myURL!)
+            myRequest = URLRequest(url: URL(string: "https://sbx-sdk.payme.com.vn/test")!)
         } else {
-            myRequest = URLRequest(url: URL(string: "https://www.payme.vn/")!)
+            myRequest = URLRequest(url: URL(string: "http://localhost:3000/")!)
         }
         if #available(iOS 11.0, *) {
             webView.scrollView.contentInsetAdjustmentBehavior = .never;
@@ -109,19 +113,54 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler 
     
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        if message.name == communicate {
+        if message.name == openCamera {
+            setupCamera()
+            
+        }
+        if message.name == onCommunicate {
+            print("ABC")
             if let dictionary = message.body as? [String: AnyObject] {
                 self.onSuccess!(dictionary)
                 print("zooo call back message")
                 print(dictionary)
             }
         }
-        if message.name == close {
-            self.onClose()
+        
+        /*if message.name == onErrorBack {
+            if let dictionary = message.body as? [String: AnyObject] {
+                print("zooo call back message")
+                print(dictionary)
+            }
+        }
+         */
+        if message.name == onClose {
+            self.onCloseWebview()
         }
     }
     
-    func onClose() {
+
+    func setupCamera() {
+        vc = UIImagePickerController()
+        vc.sourceType = .camera
+        vc.allowsEditing = true
+        vc.delegate = self
+        self.present(vc, animated: true)
+    }
+    @objc override func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        guard let image = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else { return }
+        let resizeImage = image.resizeImage(targetSize: CGSize(width:1024, height: 1024))
+        let imageData:Data =  resizeImage.pngData()!
+        let base64String = imageData.base64EncodedString()
+        print(base64String)
+        print("Em Huy")
+        webView?.evaluateJavaScript("window.settings.setImageBase64FromiOS()") { (result, error) in
+            print(result)
+        }
+        picker.dismiss(animated: true, completion: nil)
+    }
+
+    
+    func onCloseWebview() {
         navigationController?.popViewController(animated: true)
     }
     
@@ -130,5 +169,16 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler 
     }
     public func setOnErrorCallback(onError: @escaping (String) -> ()) {
         self.onError = onError
+    }
+}
+extension UIViewController : UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        guard let image = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else { return }
+        let resizeImage = image.resizeImage(targetSize: CGSize(width:1024, height: 1024))
+        let imageData:Data =  resizeImage.pngData()!
+        let base64String = imageData.base64EncodedString()
+        print(base64String)
+        picker.dismiss(animated: true, completion: nil)
     }
 }

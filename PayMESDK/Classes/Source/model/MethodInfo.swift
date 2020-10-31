@@ -1,8 +1,18 @@
 //
-//  File.swift
+//  UserInfo.swift
 //  PayMESDK
 //
-//  Created by HuyOpen on 10/28/20.
+//  Created by HuyOpen on 9/29/20.
+//  Copyright © 2020 PayME. All rights reserved.
 //
 
-import Foundation
+import UIKit
+
+struct MethodInfo: Equatable {
+
+    let name: String
+    let role: String
+    let avatarBackgroundColor: UIColor
+
+}
+
