@@ -36,13 +36,6 @@ public class PayME{
         self.currentVC!.dismiss(animated: true, completion: nil)
     }
     
-    public func openCamera( currentVC: UIViewController) {
-        let vc = CameraViewController()
-        vc.setupCamera(currentVC: currentVC)
-    }
-    
-    
-    
     public init(appID: String, publicKey: String, connectToken: String, appPrivateKey: String, env: String, configColor: [String]) {
         self.appPrivateKey = appPrivateKey;
         self.appID = appID;
@@ -117,6 +110,33 @@ public class PayME{
     onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
     onError: @escaping (String) -> ()) {
         self.openWallet(currentVC: currentVC, action: "DEPOSIT", amount: amount, description: description, extraData: extraData, onSuccess: onSuccess, onError: onError)
+    }
+    
+    public func goToTest(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
+                     onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+                     onError: @escaping (String) -> ()
+    ){
+        let topSafeArea: CGFloat
+        let bottomSafeArea: CGFloat
+        if #available(iOS 11.0, *) {
+            topSafeArea = currentVC.view.safeAreaInsets.top
+            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
+        } else {
+            topSafeArea = currentVC.topLayoutGuide.length
+            bottomSafeArea = currentVC.bottomLayoutGuide.length
+        }
+        let data =
+        """
+        {"connectToken":"\(self.connectToken)","appToken":"\(self.appID)","clientInfo":{"clientId":"\(self.deviceID)","platform":"IOS","appVersion":"\(self.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(self.packageName!)"},"partner":"IOS","partnerTop":"\(topSafeArea)","configColor":["\(handleColor(input:self.configColor))"]}
+        """
+        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
+        webViewController.urlRequest = "https://sbx-sdk.payme.com.vn/test"
+        //webViewController.urlRequest = "https://tuoitre.vn/"
+        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
+        webViewController.setOnErrorCallback(onError: onError)
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        currentVC.navigationController?.pushViewController(webViewController, animated: true)
     }
     
     public func withdraw(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,

@@ -53,7 +53,6 @@
 		52010609254974A500179E7F /* Method.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52010608254974A500179E7F /* Method.swift */; };
 		5201060B254982A800179E7F /* MethodInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5201060A254982A800179E7F /* MethodInfo.swift */; };
 		5201060D254987C500179E7F /* MethodsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5201060C254987C500179E7F /* MethodsViewController.swift */; };
-		52010610254A9C5900179E7F /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5201060F254A9C5900179E7F /* CameraViewController.swift */; };
 		5300EB86348ED2DD35A9339104F21842 /* CBC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88927A54329697F0FAFEFE9F5E3F2E8 /* CBC.swift */; };
 		53E2FC9FC9B82775C3B4987D5A2C6227 /* ClearMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF532D8AC33DDE9CD174C6509463E55 /* ClearMessage.swift */; };
 		54BDD3BC1B92330FEF7F64FA1660BB13 /* AES.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A2A0DB1C91DAD24A0ACCCBC4D0B4F3 /* AES.swift */; };
@@ -263,7 +262,6 @@
 		52010608254974A500179E7F /* Method.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Method.swift; sourceTree = "<group>"; };
 		5201060A254982A800179E7F /* MethodInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodInfo.swift; sourceTree = "<group>"; };
 		5201060C254987C500179E7F /* MethodsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodsViewController.swift; sourceTree = "<group>"; };
-		5201060F254A9C5900179E7F /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		52DB32D1E76C6ACE25767601F950D1EC /* AES+Foundation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "AES+Foundation.swift"; path = "Sources/CryptoSwift/Foundation/AES+Foundation.swift"; sourceTree = "<group>"; };
 		52E97D384AF39AD8696F6A6E95A28C71 /* ZeroPadding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ZeroPadding.swift; path = Sources/CryptoSwift/ZeroPadding.swift; sourceTree = "<group>"; };
 		564F05B6A789890E0143FED9843EA439 /* SwiftyRSA.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftyRSA.release.xcconfig; sourceTree = "<group>"; };
@@ -506,7 +504,6 @@
 		3562EF3449EC41E6EB78CB5A6C69CF60 /* PayMESDK */ = {
 			isa = PBXGroup;
 			children = (
-				5201060E254A9BA000179E7F /* camera */,
 				EF424899F2FEDC0D2F862548A8FE950F /* modal */,
 				61BBE4EFEC9F59B0790FD34C434A4D85 /* model */,
 				79D6D8D1CD9199EA691B8970626B82B6 /* PanModal */,
@@ -558,14 +555,6 @@
 				D63CAC396E8162AD605F54990A503D85 /* README.md */,
 			);
 			name = Pod;
-			sourceTree = "<group>";
-		};
-		5201060E254A9BA000179E7F /* camera */ = {
-			isa = PBXGroup;
-			children = (
-				5201060F254A9C5900179E7F /* CameraViewController.swift */,
-			);
-			path = camera;
 			sourceTree = "<group>";
 		};
 		532C9CD02DE5404036A8F9B5A78A9ACF /* Resources */ = {
@@ -1284,7 +1273,6 @@
 				037B12FB0B1C74FBBA411BDB832D1F0A /* PanModalPresentable+UIViewController.swift in Sources */,
 				52010605254932BA00179E7F /* OneTimeCodeTextField.swift in Sources */,
 				E13799DD69A7BDCE4C5B7F86E157D074 /* PanModalPresentable.swift in Sources */,
-				52010610254A9C5900179E7F /* CameraViewController.swift in Sources */,
 				62D1A223FD2770CB7D1B4E386DBEB7DC /* PanModalPresentationAnimator.swift in Sources */,
 				52010609254974A500179E7F /* Method.swift in Sources */,
 				02EFC7893CC896C0B4E2D096FC94E911 /* PanModalPresentationController.swift in Sources */,
