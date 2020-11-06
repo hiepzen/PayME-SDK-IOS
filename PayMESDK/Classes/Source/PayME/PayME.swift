@@ -15,65 +15,62 @@ protocol StarNodeDelegate: class {
 
 public class PayME{
     var delegate : StarNodeDelegate?
-    private var appPrivateKey: String
-    private var appID: String
-    private var publicKey: String
-    private var connectToken : String
-    private var env : String
-    private var configColor : [String]
-    private let packageName = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
-    private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    private let deviceID = UIDevice.current.identifierForVendor!.uuidString
-    var currentVC : UIViewController?
+    private static var appPrivateKey: String = ""
+    private static var appID: String = ""
+    private static var publicKey: String = ""
+    private static var connectToken : String = ""
+    private static var env : String = ""
+    private static var configColor : [String] = [""]
+    public static var amount : Int = 0
+    private static let packageName = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
+    private static let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    private static let deviceID = UIDevice.current.identifierForVendor!.uuidString
+    static var currentVC : UIViewController?
 
     
     public func showModal(currentVC : UIViewController){
-        self.currentVC = currentVC
+        PayME.currentVC = currentVC
         currentVC.presentPanModal(Methods())
     }
     
-    public func closeModal() {
-        self.currentVC!.dismiss(animated: true, completion: nil)
-    }
-    
     public init(appID: String, publicKey: String, connectToken: String, appPrivateKey: String, env: String, configColor: [String]) {
-        self.appPrivateKey = appPrivateKey;
-        self.appID = appID;
-        self.connectToken = connectToken;
-        self.publicKey = publicKey;
-        self.env = env;
-        self.configColor = configColor
+        PayME.appPrivateKey = appPrivateKey;
+        PayME.appID = appID;
+        PayME.connectToken = connectToken;
+        PayME.publicKey = publicKey;
+        PayME.env = env;
+        PayME.configColor = configColor
     }
     
     public func setPrivateKey(appPrivateKey : String) {
-        self.appPrivateKey = appPrivateKey
+        PayME.appPrivateKey = appPrivateKey
     }
     public func setAppID(appID : String) {
-        self.appID = appID
+        PayME.appID = appID
     }
     public func setPublicKey(publicKey: String) {
-        self.publicKey = publicKey
+        PayME.publicKey = publicKey
     }
     public func setAppPrivateKey(appPrivateKey: String) {
-        self.appPrivateKey = appPrivateKey
+        PayME.appPrivateKey = appPrivateKey
     }
     public func getAppID() -> String {
-        return self.appID
+        return PayME.appID
     }
     public func getPublicKey() -> String{
-        return self.publicKey
+        return PayME.publicKey
     }
     public func getConnectToken() -> String{
-        return self.connectToken
+        return PayME.connectToken
     }
     public func getAppPrivateKey() -> String {
-        return self.appPrivateKey
+        return PayME.appPrivateKey
     }
     public func getEnv() -> String {
-        return self.env
+        return PayME.env
     }
     public func setEnv(env: String) {
-        self.env = env
+        PayME.env = env
     }
     public func isConnected() -> Bool {
         return false
@@ -93,10 +90,10 @@ public class PayME{
         }
         let data =
         """
-        {"connectToken":"\(self.connectToken)","appToken":"\(self.appID)","clientInfo":{"clientId":"\(self.deviceID)","platform":"IOS","appVersion":"\(self.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(self.packageName!)"},"partner":"IOS","partnerTop":"\(topSafeArea)","configColor":["\(handleColor(input:self.configColor))"]}
+        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":"IOS","partnerTop":"\(topSafeArea)","configColor":["\(handleColor(input:PayME.configColor))"],"action":"\(action)","amount":"\(checkIntNil(input: amount))","description":"\(checkStringNil(input: description))","extraData":"\(checkStringNil(input:extraData))"}
         """
         let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        let url = urlWebview(env: self.env)
+        let url = PayME.urlWebview(env: PayME.env)
         webViewController.urlRequest = url + "\(data)"
         //webViewController.urlRequest = "https://tuoitre.vn/"
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
@@ -127,7 +124,7 @@ public class PayME{
         }
         let data =
         """
-        {"connectToken":"\(self.connectToken)","appToken":"\(self.appID)","clientInfo":{"clientId":"\(self.deviceID)","platform":"IOS","appVersion":"\(self.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(self.packageName!)"},"partner":"IOS","partnerTop":"\(topSafeArea)","configColor":["\(handleColor(input:self.configColor))"]}
+        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":"IOS","partnerTop":"\(topSafeArea)","configColor":["\(handleColor(input:PayME.configColor))"]}
         """
         let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         webViewController.urlRequest = "https://sbx-sdk.payme.com.vn/test"
@@ -145,13 +142,19 @@ public class PayME{
         self.openWallet(currentVC: currentVC, action: "WITHDRAW", amount: amount, description: description, extraData: extraData, onSuccess: onSuccess, onError: onError)
     }
     
+    public func pay(currentVC : UIViewController, amount: Int) {
+        PayME.currentVC = currentVC
+        PayME.amount = amount
+        PayME.currentVC!.presentPanModal(Methods())
+    }
+    
     
     
     private func handleColor(input: [String]) -> String {
         let newString = input.joined(separator: "\",\"")
         return newString
     }
-    private func checkDoubleNil(input: Double?) -> String {
+    private func checkIntNil(input: Int?) -> String {
         if input != nil {
             return String(input!)
         }
@@ -171,13 +174,13 @@ public class PayME{
     }
 
 
-    private func urlFeENV(env: String?) -> String {
+    private static func  urlFeENV(env: String?) -> String {
         if (env == "sandbox") {
             return "https://sbx-wam.payme.vn/v1/"
         }
         return "https://wam.payme.vn/v1/"
     }
-    private func urlWebview(env: String?) -> String {
+    private static func  urlWebview(env: String?) -> String {
         if (env == "sandbox") {
             return "https://sbx-sdk.payme.com.vn/active/"
         }
@@ -187,34 +190,96 @@ public class PayME{
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onError: @escaping ([Int:Any]) -> ()
     ) {
-        let url = urlFeENV(env: self.env)
+        let url = PayME.urlFeENV(env: PayME.env)
         let path = "/Wallet/Information"
         let clientInfo: [String: String] = [
-            "clientId": self.deviceID,
+            "clientId": PayME.deviceID,
             "platform": "IOS",
-            "appVersion": self.appVersion!,
+            "appVersion": PayME.appVersion!,
             "sdkType" : "IOS",
             "sdkVesion": "0.1",
-            "appPackageName": self.packageName!
+            "appPackageName": PayME.packageName!
         ]
         let data: [String: Any] = [
-            "connectToken": self.connectToken,
+            "connectToken": PayME.connectToken,
             "clientInfo": clientInfo
         ]
         let params = try? JSONSerialization.data(withJSONObject: data)
-        let request = NetworkRequest(url : url, path :path, token: self.appID, params: params, publicKey: self.publicKey, privateKey: self.appPrivateKey)
+        let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
         request.setOnRequestCrypto(
         onStart: {},
         onError: {(error) in
-            print(error)
             onError(error)
         },
        onSuccess : {(response) in
-            print(response)
             onSuccess(response)
         },
        onFinally: {}, onExpired: {})
     }
+    
+    public static func getTransferMethods(
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+        onError: @escaping ([Int:Any]) -> ()
+    ) {
+        let url = urlFeENV(env: PayME.env)
+        let path = "/Transfer/GetMethods"
+        let clientInfo: [String: String] = [
+            "clientId": PayME.deviceID,
+            "platform": "IOS",
+            "appVersion": PayME.appVersion!,
+            "sdkType" : "IOS",
+            "sdkVesion": "0.1",
+            "appPackageName": PayME.packageName!
+        ]
+        let data: [String: Any] = [
+            "connectToken": PayME.connectToken,
+            "clientInfo": clientInfo
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: data)
+        let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+        request.setOnRequestCrypto(
+        onStart: {},
+        onError: {(error) in
+            onError(error)
+        },
+       onSuccess : {(response) in
+            onSuccess(response)
+        },
+       onFinally: {}, onExpired: {})
+    }
+    public static func postTransferAppWallet(onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+    onError: @escaping ([Int:Any]) -> ()){
+        let url = urlFeENV(env: PayME.env)
+         let path = "/Transfer/AppWallet/Generate"
+         let clientInfo: [String: String] = [
+             "clientId": PayME.deviceID,
+             "platform": "IOS",
+             "appVersion": PayME.appVersion!,
+             "sdkType" : "IOS",
+             "sdkVesion": "0.1",
+             "appPackageName": PayME.packageName!
+         ]
+         let data: [String: Any] = [
+             "connectToken": PayME.connectToken,
+             "clientInfo": clientInfo,
+             "amount" : PayME.amount,
+             "destination" : "AppPartner",
+             "data" : ["":""]
+         ]
+         let params = try? JSONSerialization.data(withJSONObject: data)
+         let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+         request.setOnRequestCrypto(
+         onStart: {},
+         onError: {(error) in
+             onError(error)
+         },
+        onSuccess : {(response) in
+             onSuccess(response)
+         },
+        onFinally: {}, onExpired: {})
+        
+    }
+    
     
 }
 

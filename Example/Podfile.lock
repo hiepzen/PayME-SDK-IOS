@@ -1,6 +1,6 @@
 PODS:
   - CryptoSwift (1.0.0)
-  - PayMESDK (0.0.5):
+  - PayMESDK (0.0.6):
     - CryptoSwift (= 1.0)
     - SwiftyRSA (= 1.5)
   - SwiftyRSA (1.5.0):
@@ -21,7 +21,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   CryptoSwift: d81eeaa59dc5a8d03720fe919a6fd07b51f7439f
-  PayMESDK: 455d562ec71d277d9ed270d0622697ecd462e8d6
+  PayMESDK: 2e21ff3636a40054731ee8b144124399cda78db8
   SwiftyRSA: 6e528fb1b1a87d5111c48081083b141d6d65f1cf
 
 PODFILE CHECKSUM: dd49d43a514849d681e35d3453632c130cbe3362

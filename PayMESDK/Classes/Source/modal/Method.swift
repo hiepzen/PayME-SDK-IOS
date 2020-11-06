@@ -16,48 +16,66 @@ class Method: UITableViewCell {
 
     // MARK: - Properties
 
-    var presentable = MethodInfo(name: "", role: "", avatarBackgroundColor: .black)
-
+    var presentable = MethodInfo( amount: 0, bankCode: "", cardNumber: "", detail: "", linkedId: "", swiftCode: "", type: "", active: false)
     // MARK: - Views
 
-    let avatarView: UIView = {
-        let view = UIView()
-        view.layer.cornerRadius = 8.0
-        return view
+    
+    let containerView : UIView = {
+        let containerView = UIView()
+        containerView.layer.cornerRadius = 15.0
+        containerView.layer.borderColor = UIColor(203,203,203).cgColor
+        containerView.layer.borderWidth = 0.5
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        return containerView
     }()
 
-    let nameLabel: UILabel = {
+    let bankNameLabel: UILabel = {
         let label = UILabel()
-        label.textColor = #colorLiteral(red: 0.8196078431, green: 0.8235294118, blue: 0.8274509804, alpha: 1)
-        label.font = UIFont(name: "Lato-Bold", size: 17.0)
+        label.textColor = UIColor(9,9,9)
+        label.font = label.font.withSize(16)
         label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
-    let roleLabel: UILabel = {
+    let bankContentLabel: UILabel = {
         let label = UILabel()
-        label.textColor = #colorLiteral(red: 0.7019607843, green: 0.7058823529, blue: 0.7137254902, alpha: 1)
+        label.textColor = UIColor(98,98,98)
         label.backgroundColor = .clear
-        label.font = UIFont(name: "Lato-Regular", size: 13.0)
+        label.font = label.font.withSize(12)
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
-    lazy var memberDetailsStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [nameLabel, roleLabel])
-        stackView.axis = .vertical
-        stackView.alignment = .leading
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
+    let walletMethodImage: UIImageView = {
+        let bundle = Bundle(for: Method.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let image = UIImage(named: "ptBank", in: resourceBundle, compatibleWith: nil)
+        var bgImage = UIImageView(image: image)
+        bgImage.translatesAutoresizingMaskIntoConstraints = false
+        return bgImage
     }()
-
-    lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [avatarView, memberDetailsStackView])
-        stackView.alignment = .center
-        stackView.spacing = 16.0
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
+    
+    let checkedImage : UIImageView = {
+        let bundle = Bundle(for: Method.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let image = UIImage(named: "checked", in: resourceBundle, compatibleWith: nil)
+        var bgImage = UIImageView(image: image)
+        bgImage.translatesAutoresizingMaskIntoConstraints = false
+        return bgImage
     }()
-
+    
+    let uncheckImage : UIImageView = {
+        let bundle = Bundle(for: Method.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let image = UIImage(named: "uncheck", in: resourceBundle, compatibleWith: nil)
+        var bgImage = UIImageView(image: image)
+        bgImage.translatesAutoresizingMaskIntoConstraints = false
+        return bgImage
+    }()
     // MARK: - Initializers
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -67,10 +85,14 @@ class Method: UITableViewCell {
         isAccessibilityElement = true
 
         let backgroundView = UIView()
+        backgroundView.backgroundColor = #colorLiteral(red: 0.8196078431, green: 0.8235294118, blue: 0.8274509804, alpha: 1).withAlphaComponent(0.11)
         selectedBackgroundView = backgroundView
-
-        contentView.addSubview(stackView)
-
+        contentView.addSubview(containerView)
+        containerView.addSubview(walletMethodImage)
+        containerView.addSubview(bankNameLabel)
+        containerView.addSubview(checkedImage)
+        containerView.addSubview(bankContentLabel)
+        // contentView.addSubview(walletMethodImage)
         setupConstraints()
     }
 
@@ -81,12 +103,39 @@ class Method: UITableViewCell {
     // MARK: - Layout
 
     func setupConstraints() {
+        
+        
+        containerView.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        containerView.widthAnchor.constraint(equalTo: contentView.widthAnchor).isActive = true
+        containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
+        containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
+        
+        walletMethodImage.heightAnchor.constraint(equalToConstant: 26).isActive = true
+        walletMethodImage.widthAnchor.constraint(equalToConstant: 26).isActive = true
+        walletMethodImage.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16).isActive = true
+        walletMethodImage.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        
+        checkedImage.heightAnchor.constraint(equalToConstant: 18).isActive = true
+        checkedImage.widthAnchor.constraint(equalToConstant: 18).isActive = true
+        checkedImage.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16).isActive = true
+        checkedImage.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        
+        bankNameLabel.leadingAnchor.constraint(equalTo: walletMethodImage.trailingAnchor, constant: 10).isActive = true
+        bankNameLabel.trailingAnchor.constraint(equalTo: bankContentLabel.leadingAnchor, constant: -5).isActive = true
+        bankNameLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        
+        
+        bankContentLabel.leadingAnchor.constraint(equalTo: bankNameLabel.trailingAnchor, constant: 5).isActive = true
+        bankContentLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        
 
-        stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.contentInsets.top).isActive = true
-        stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.contentInsets.left).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.contentInsets.right).isActive = true
-        stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.contentInsets.bottom).isActive = true
-
+        
+        /*[a, b, c, d].forEach {
+            $0.priority = UILayoutPriority(UILayoutPriority.required.rawValue - 1)
+            $0.isActive = true
+        }
+         */
+        /*
         let avatarWidthConstriant = avatarView.widthAnchor.constraint(equalToConstant: Constants.avatarSize.width)
         let avatarHeightConstraint = avatarView.heightAnchor.constraint(equalToConstant: Constants.avatarSize.height)
 
@@ -94,6 +143,8 @@ class Method: UITableViewCell {
             $0.priority = UILayoutPriority(UILayoutPriority.required.rawValue - 1)
             $0.isActive = true
         }
+         */
+        
     }
 
     // MARK: - Highlight
@@ -105,21 +156,38 @@ class Method: UITableViewCell {
 
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
         super.setHighlighted(highlighted, animated: animated)
-        avatarView.backgroundColor = presentable.avatarBackgroundColor
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        avatarView.backgroundColor = presentable.avatarBackgroundColor
     }
 
     // MARK: - View Configuration
 
     func configure(with presentable: MethodInfo) {
         self.presentable = presentable
-        nameLabel.text = presentable.name
-        roleLabel.text = presentable.role
-        avatarView.backgroundColor = presentable.avatarBackgroundColor
+        print("presentable")
+        print(presentable.type)
+        
+        if (presentable.type == "AppWallet") {
+            bankNameLabel.text = "Số dư ví"
+            bankContentLabel.text = "(\(presentable.amount!)đ)"
+        } else {
+            bankNameLabel.text = presentable.bankCode!
+            bankContentLabel.text = presentable.cardNumber!
+        }
+        let bundle = Bundle(for: Method.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let checkStateImage = UIImage(named: "checked", in: resourceBundle, compatibleWith: nil)
+        let uncheckStateImage = UIImage(named: "uncheck", in: resourceBundle, compatibleWith: nil)
+        if (presentable.active == false)
+        {
+            checkedImage.image = uncheckStateImage
+        } else {
+            checkedImage.image = checkStateImage
+
+        }
     }
 
 }

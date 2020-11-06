@@ -56,7 +56,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
     var onClose: String = "onClose"
     var openCamera : String = "openCamera"
     var onErrorBack : String = "onError"
-    let content = """
+    /*let content = """
           <!DOCTYPE html><html><body>
           <button onclick="onClick()">Click me</button>
           <script>
@@ -67,6 +67,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
           </script>
           </body></html>
           """
+     */
     
 
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
@@ -101,11 +102,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
             myRequest = URLRequest(url: URL(string: "http://localhost:3000/")!)
         }
         print(myRequest)
+        
         if #available(iOS 11.0, *) {
             webView.scrollView.contentInsetAdjustmentBehavior = .never;
         } else {
             self.automaticallyAdjustsScrollViewInsets = false;
         }
+        
         webView.scrollView.alwaysBounceVertical = false
         webView.scrollView.bounces = false
         webView.load(myRequest)

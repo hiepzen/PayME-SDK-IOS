@@ -45,20 +45,6 @@
                                     <action selector="withdraw:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="UCl-TH-Ag7"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Balance: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eRp-z4-Uib">
-                                <rect key="frame" x="124" y="82" width="70" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vsr-Xh-Du2">
-                                <rect key="frame" x="202" y="82" width="11" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RXd-rU-WKW">
                                 <rect key="frame" x="151" y="200" width="30" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -67,10 +53,44 @@
                                     <action selector="test:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="laQ-Ac-Iew"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="apS-yA-dCj">
+                                <rect key="frame" x="129" y="535" width="102" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Check Balance"/>
+                                <connections>
+                                    <action selector="getBalance:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="0re-60-r2C"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vsr-Xh-Du2">
+                                <rect key="frame" x="225" y="79" width="11" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="11" id="uXG-R0-8NT"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Balance:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Xd-Qe-33V">
+                                <rect key="frame" x="149" y="79" width="66" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="Vsr-Xh-Du2" firstAttribute="firstBaseline" secondItem="3Xd-Qe-33V" secondAttribute="firstBaseline" id="6bi-6f-r4D"/>
+                            <constraint firstItem="Vsr-Xh-Du2" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="35" id="6dl-lf-EKv"/>
+                            <constraint firstAttribute="trailing" secondItem="Vsr-Xh-Du2" secondAttribute="trailing" constant="139" id="Iya-oc-91K"/>
+                            <constraint firstItem="Vsr-Xh-Du2" firstAttribute="baseline" secondItem="3Xd-Qe-33V" secondAttribute="baseline" id="QQl-jA-G05"/>
+                            <constraint firstItem="Vsr-Xh-Du2" firstAttribute="leading" secondItem="3Xd-Qe-33V" secondAttribute="trailing" constant="10" id="Ynk-Rp-Z6c"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="yvj-ev-ygl"/>
+                    <connections>
+                        <outlet property="balance" destination="3Xd-Qe-33V" id="zsV-TC-USd"/>
+                        <outlet property="priceBalance" destination="Vsr-Xh-Du2" id="er7-Se-VdO"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
