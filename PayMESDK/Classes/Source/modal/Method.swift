@@ -16,7 +16,7 @@ class Method: UITableViewCell {
 
     // MARK: - Properties
 
-    var presentable = MethodInfo( amount: 0, bankCode: "", cardNumber: "", detail: "", linkedId: "", swiftCode: "", type: "", active: false)
+    var presentable = MethodInfo( amount: 0, bankCode: "", cardNumber: "", detail: "", linkedId: nil, swiftCode: "", type: "", active: false)
     // MARK: - Views
 
     
@@ -166,12 +166,10 @@ class Method: UITableViewCell {
 
     func configure(with presentable: MethodInfo) {
         self.presentable = presentable
-        print("presentable")
-        print(presentable.type)
         
         if (presentable.type == "AppWallet") {
             bankNameLabel.text = "Số dư ví"
-            bankContentLabel.text = "(\(presentable.amount!)đ)"
+            bankContentLabel.text = "(\(PayME.formatMoney(input: presentable.amount!))đ)"
         } else {
             bankNameLabel.text = presentable.bankCode!
             bankContentLabel.text = presentable.cardNumber!

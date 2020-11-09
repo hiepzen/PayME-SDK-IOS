@@ -8,17 +8,25 @@
 import UIKit
 
 class Success: UIViewController, PanModalPresentable {
+    var reasonFail = ""
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         view.addSubview(nameLabel)
         view.addSubview(roleLabel)
+        view.addSubview(failLabel)
         view.addSubview(button)
         view.addSubview(image)
         view.addSubview(closeButton)
+        view.addSubview(contentLabel)
+        view.addSubview(memoLabel)
+        
         nameLabel.text = "Thanh toán thành công"
-        roleLabel.text = ""
-        button.setTitle("Đóng", for: .normal)
+        roleLabel.text = PayME.formatMoney(input: PayME.amount)
+        failLabel.text = reasonFail
+        contentLabel.text = "Nội dung"
+        memoLabel.text = PayME.description
+        button.setTitle("HOÀN TẤT", for: .normal)
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
@@ -49,18 +57,40 @@ class Success: UIViewController, PanModalPresentable {
         image.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         nameLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 20.0).isActive = true
+        
         roleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         roleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4.0).isActive = true
         roleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
         roleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+        
+        failLabel.topAnchor.constraint(equalTo: roleLabel.bottomAnchor, constant: 4.0).isActive = true
+        failLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
+        failLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+        failLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
+        contentLabel.topAnchor.constraint(equalTo: failLabel.bottomAnchor, constant: 30).isActive = true
+        contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+        contentLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
+        contentLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+
+        memoLabel.topAnchor.constraint(equalTo: failLabel.bottomAnchor, constant: 30).isActive = true
+        memoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
+        memoLabel.leadingAnchor.constraint(equalTo: contentLabel.trailingAnchor, constant: 30).isActive = true
+        memoLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 250), for: .horizontal)
+        memoLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        
+        
         button.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         button.heightAnchor.constraint(equalToConstant: 45).isActive = true
-        button.topAnchor.constraint(equalTo: roleLabel.bottomAnchor, constant: 20).isActive = true
+        button.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 20).isActive = true
         button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
         button.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
         button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor, constant: 10).isActive = true
+        
+        
 
     }
     
@@ -72,7 +102,7 @@ class Success: UIViewController, PanModalPresentable {
     
     let closeButton : UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: Success.self)
+        let bundle = Bundle(for: Failed.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let image = UIImage(named: "16Px", in: resourceBundle, compatibleWith: nil)
@@ -82,7 +112,7 @@ class Success: UIViewController, PanModalPresentable {
     }()
     
     let image: UIImageView = {
-        let bundle = Bundle(for: Success.self)
+        let bundle = Bundle(for: Failed.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let image = UIImage(named: "success", in: resourceBundle, compatibleWith: nil)
@@ -91,12 +121,10 @@ class Success: UIViewController, PanModalPresentable {
         return bgImage
     }()
     
-    
-    
     let nameLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor(24,26,65)
-        label.font = UIFont(name: "Lato-Bold", size: 25)
+        label.font = UIFont.systemFont(ofSize: 21, weight: .semibold)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -104,11 +132,24 @@ class Success: UIViewController, PanModalPresentable {
 
     let roleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(115,115,115)
+        label.textColor = UIColor(25,25,25)
         label.backgroundColor = .clear
-        label.font = UIFont(name: "Lato-Regular", size: 15)
+        label.font = UIFont.systemFont(ofSize: 38, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    let failLabel: UILabel = {
+        let failLabel = UILabel()
+        failLabel.textColor = UIColor(241,49,45)
+        failLabel.backgroundColor = .clear
+        failLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        failLabel.lineBreakMode = .byWordWrapping
+        failLabel.numberOfLines = 0
+        failLabel.textAlignment = .center
+        failLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        return failLabel
     }()
     
     let button : UIButton = {
@@ -119,7 +160,29 @@ class Success: UIViewController, PanModalPresentable {
         return button
     }()
     
+    let contentLabel : UILabel = {
+        let contentLabel = UILabel()
+        contentLabel.textColor = .black
+        contentLabel.backgroundColor = .clear
+        contentLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        contentLabel.translatesAutoresizingMaskIntoConstraints = false
+        return contentLabel
+    }()
     
+    let memoLabel : UILabel = {
+        let memoLabel = UILabel()
+        memoLabel.textColor = .black
+        memoLabel.backgroundColor = .clear
+        memoLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        memoLabel.translatesAutoresizingMaskIntoConstraints = false
+        return memoLabel
+    }()
+    
+    override func viewDidLayoutSubviews() {
+        let topPoint = CGPoint(x: roleLabel.bounds.minX, y: roleLabel.bounds.maxY + 15.5)
+        let bottomPoint = CGPoint(x: roleLabel.bounds.maxX, y: roleLabel.bounds.maxY + 15.5)
+        roleLabel.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203,203,203), strokeLength: 3, gapLength: 4, width: 0.5)
+    }
     
     
     

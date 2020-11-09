@@ -9,7 +9,35 @@
 import UIKit
 import  WebKit
 
-class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
+class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler, WKNavigationDelegate, PanModalPresentable{
+    
+    var panScrollable: UIScrollView? {
+        return nil
+    }
+
+    var topOffset: CGFloat {
+        return 0.0
+    }
+
+    var springDamping: CGFloat {
+        return 1.0
+    }
+
+    var transitionDuration: Double {
+        return 0.4
+    }
+
+    var transitionAnimationOptions: UIView.AnimationOptions {
+        return [.allowUserInteraction, .beginFromCurrentState]
+    }
+
+    var shouldRoundTopCorners: Bool {
+        return false
+    }
+
+    var showDragIndicator: Bool {
+        return false
+    }
     /*
      var urlRequest : String = ""
      var webView : WKWebView!
@@ -49,6 +77,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
      webView.load(myRequest)
      }
      */
+    
     var vc : UIImagePickerController!
     var urlRequest : String = ""
     var webView : WKWebView!
@@ -56,6 +85,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
     var onClose: String = "onClose"
     var openCamera : String = "openCamera"
     var onErrorBack : String = "onError"
+    var form = ""
+    
     /*let content = """
           <!DOCTYPE html><html><body>
           <button onclick="onClick()">Click me</button>
@@ -69,6 +100,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
           """
      */
     
+    private var onSuccessWebView: ((String) -> ())? = nil
+    private var onFailWebView: ((String) -> ())? = nil
 
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
     private var onError: ((String) -> ())? = nil
@@ -83,6 +116,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
         config.userContentController = userController
         webView = WKWebView(frame: .zero, configuration: config)
         webView.uiDelegate = self
+        webView.navigationDelegate = self
         view = webView
     }
     
@@ -92,27 +126,72 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
     */
     
      override func viewDidLoad() {
-        let urlString = urlRequest.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-        let  myURL = URL(string: urlString!)
-        let myRequest : URLRequest
-        if myURL != nil
+        if(self.form == "")
         {
-            myRequest = URLRequest(url: myURL!)
+            let urlString = urlRequest.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+            let  myURL = URL(string: urlString!)
+            let myRequest : URLRequest
+            if myURL != nil
+            {
+                myRequest = URLRequest(url: myURL!)
+            } else {
+                myRequest = URLRequest(url: URL(string: "http://localhost:3000/")!)
+            }
+            print(myRequest)
+            
+            if #available(iOS 11.0, *) {
+                webView.scrollView.contentInsetAdjustmentBehavior = .never;
+            } else {
+                self.automaticallyAdjustsScrollViewInsets = false;
+            }
+            webView.scrollView.alwaysBounceVertical = false
+            webView.scrollView.bounces = false
+            webView.load(myRequest)
         } else {
-            myRequest = URLRequest(url: URL(string: "http://localhost:3000/")!)
+            if #available(iOS 11.0, *) {
+                webView.scrollView.contentInsetAdjustmentBehavior = .never;
+            } else {
+                self.automaticallyAdjustsScrollViewInsets = false;
+            }
+            webView.scrollView.alwaysBounceVertical = false
+            webView.scrollView.bounces = false
+            webView.loadHTMLString(self.form, baseURL: nil)
         }
-        print(myRequest)
-        
-        if #available(iOS 11.0, *) {
-            webView.scrollView.contentInsetAdjustmentBehavior = .never;
-        } else {
-            self.automaticallyAdjustsScrollViewInsets = false;
-        }
-        
-        webView.scrollView.alwaysBounceVertical = false
-        webView.scrollView.bounces = false
-        webView.load(myRequest)
      }
+    
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if (self.form != "") {
+            print("URL:", navigationAction.request.url)
+            if (navigationAction.request.url != nil)
+            {
+                let host = navigationAction.request.url!.host ?? ""
+                print(host)
+                //if (navigationAction.request.url!.host!) {
+                if (host == "sbx-fe.payme.vn") {
+                    let params = navigationAction.request.url!.queryParameters ?? ["":""]
+                    if (params["success"] == "true") {
+                        self.onSuccessWebView!("success")
+                        decisionHandler(.cancel)
+                        return
+                    }
+                    if (params["success"] == "false") {
+                        self.onFailWebView!(params["message"]!)
+                        decisionHandler(.cancel)
+                        return
+                    }
+                    decisionHandler(.allow)
+
+                } else {
+                    decisionHandler(.allow)
+                }
+
+            } else {
+                decisionHandler(.allow)
+            }
+        } else {
+            decisionHandler(.allow)
+        }
+    }
      
     
     
@@ -147,6 +226,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
         vc.delegate = self
         self.present(vc, animated: true)
     }
+    
     @objc override func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         guard let image = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else { return }
         let resizeImage = image.resizeImage(targetSize: CGSize(width:1024, height: 1024))
@@ -166,6 +246,12 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler{
     public func setOnSuccessCallback(onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()) {
         self.onSuccess = onSuccess
     }
+    public func setOnSuccessWebView(onSuccessWebView: @escaping (String) -> ()){
+        self.onSuccessWebView = onSuccessWebView
+    }
+    public func setOnFailWebView(onFailWebView: @escaping (String) -> ()){
+        self.onFailWebView = onFailWebView
+    }
     public func setOnErrorCallback(onError: @escaping (String) -> ()) {
         self.onError = onError
     }
@@ -179,6 +265,16 @@ extension UIViewController : UIImagePickerControllerDelegate, UINavigationContro
         let base64String = imageData.base64EncodedString()
         print(base64String)
         picker.dismiss(animated: true, completion: nil)
+    }
+}
+extension URL {
+    public var queryParameters: [String: String]? {
+        guard
+            let components = URLComponents(url: self, resolvingAgainstBaseURL: true),
+            let queryItems = components.queryItems else { return nil }
+        return queryItems.reduce(into: [String: String]()) { (result, item) in
+            result[item.name] = item.value
+        }
     }
 }
 extension UIImage {

@@ -17,12 +17,12 @@ public class MethodInfo : Codable {
     internal var bankCode : String? = ""
     internal var cardNumber : String? = ""
     internal var detail : String? = ""
-    internal var linkedId : String? = ""
+    internal var linkedId : Int? = nil
     internal var swiftCode : String? = ""
     internal var type : String = ""
     internal var active: Bool = false
 
-    public init(amount :Int?, bankCode:String?, cardNumber:String?, detail:String?, linkedId: String?, swiftCode: String?, type: String, active: Bool){
+    public init(amount :Int?, bankCode:String?, cardNumber:String?, detail:String?, linkedId: Int?, swiftCode: String?, type: String, active: Bool){
         self.amount = amount
         self.bankCode = bankCode
         self.cardNumber = cardNumber
@@ -46,8 +46,8 @@ public class MethodInfo : Codable {
     public func setDetail(detail: String){
         self.detail = detail
     }
-    public func setLinkedId(linkedId: String){
-        self.linkedId = linkedId
+    public func setLinkedId(linkedId: Int?){
+        self.linkedId = linkedId!
     }
     public func setSwiftCode(swiftCode: String){
         self.swiftCode = swiftCode
@@ -70,7 +70,7 @@ public class MethodInfo : Codable {
     public func getDetail() -> String? {
         return self.detail
     }
-    public func getLinkedId() -> String? {
+    public func getLinkedId() -> Int? {
         return self.linkedId
     }
     public func getSwiftCode() -> String? {

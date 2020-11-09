@@ -7,11 +7,11 @@
 
 import UIKit
 
-class Methods: UIViewController, PanModalPresentable, UITableViewDelegate,  UITableViewDataSource {
-    
+class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,  UITableViewDataSource {
+
     var data : [MethodInfo] = [
-        MethodInfo(amount: 0, bankCode: "ABC", cardNumber: "def", detail: "", linkedId: "", swiftCode: "", type: "AppWallet", active: false),
-        MethodInfo(amount: 0, bankCode: "ABC", cardNumber: "def", detail: "", linkedId: "", swiftCode: "", type: "AppWallet", active: false)
+        MethodInfo(amount: 0, bankCode: "ABC", cardNumber: "def", detail: "", linkedId: nil, swiftCode: "", type: "AppWallet", active: false),
+        MethodInfo(amount: 0, bankCode: "ABC", cardNumber: "def", detail: "", linkedId: nil, swiftCode: "", type: "AppWallet", active: false)
     ]
     var active = 0
 
@@ -29,15 +29,16 @@ class Methods: UIViewController, PanModalPresentable, UITableViewDelegate,  UITa
         detailView.addSubview(contentLabel)
         detailView.addSubview(memoLabel)
         txtLabel.text = "Xác nhận thanh toán"
-        price.text = "\(PayME.amount) đ"
+        price.text = "\(PayME.formatMoney(input: PayME.amount)) đ"
         contentLabel.text = "Nội dung"
-        memoLabel.text = "Merchant ghi chú đơn hàng"
+        memoLabel.text = PayME.description
         methodTitle.text = "Chọn nguồn thanh toán"
         button.setTitle("Xác nhận", for: .normal)
         setupConstraints()
         tableView.register(Method.self, forCellReuseIdentifier: "cell")
         tableView.delegate = self
         tableView.dataSource = self
+        self.showSpinner(onView: PayME.currentVC!.view)
         PayME.getTransferMethods(onSuccess: {response in
             // Update UI
             let items = response["items"]! as! [[String:AnyObject]]
@@ -45,19 +46,20 @@ class Methods: UIViewController, PanModalPresentable, UITableViewDelegate,  UITa
             for i in 0..<items.count {
                 print(items)
                 if (i == 0) {
-                    var temp = MethodInfo(amount: items[i]["amount"] as? Int, bankCode: items[i]["bankCode"] as? String, cardNumber: items[i]["cardNumber"] as? String, detail: items[i]["detail"] as? String, linkedId: items[i]["linkedId"] as? String, swiftCode: items[i]["swiftCode"] as? String, type: items[i]["type"] as! String, active: true)
+                    var temp = MethodInfo(amount: items[i]["amount"] as? Int, bankCode: items[i]["bankCode"] as? String, cardNumber: items[i]["cardNumber"] as? String, detail: items[i]["detail"] as? String, linkedId: items[i]["linkedId"] as? Int, swiftCode: items[i]["swiftCode"] as? String, type: items[i]["type"] as! String, active: true)
                     responseData.append(temp)
                 } else {
-                    var temp = MethodInfo(amount: items[i]["amount"] as? Int, bankCode: items[i]["bankCode"] as? String, cardNumber: items[i]["cardNumber"] as? String, detail: items[i]["detail"] as? String, linkedId: items[i]["linkedId"] as? String, swiftCode: items[i]["swiftCode"] as? String, type: items[i]["type"] as! String, active: false)
+                    var temp = MethodInfo(amount: items[i]["amount"] as? Int, bankCode: items[i]["bankCode"] as? String, cardNumber: items[i]["cardNumber"] as? String, detail: items[i]["detail"] as? String, linkedId: items[i]["linkedId"] as? Int, swiftCode: items[i]["swiftCode"] as? String, type: items[i]["type"] as! String, active: false)
                     responseData.append(temp)
                 }
             }
+            
    
              DispatchQueue.main.async {
+                self.removeSpinner()
                 self.data = responseData
                 self.tableView.reloadData()
                 self.viewDidLayoutSubviews()
-
                 self.panModalSetNeedsLayoutUpdate()
 
 
@@ -65,7 +67,10 @@ class Methods: UIViewController, PanModalPresentable, UITableViewDelegate,  UITa
             
         },
                                  
-         onError: {a in})
+         onError: {error in
+            self.removeSpinner()
+            print(error)
+        })
     }
     
     var longFormHeight: PanModalHeight {
@@ -90,12 +95,16 @@ class Methods: UIViewController, PanModalPresentable, UITableViewDelegate,  UITa
         price.topAnchor.constraint(equalTo: detailView.topAnchor, constant: 15).isActive = true
         price.centerXAnchor.constraint(equalTo: detailView.centerXAnchor).isActive = true
         
-        contentLabel.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -20).isActive = true
-        contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+        contentLabel.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -15).isActive = true
+        contentLabel.leadingAnchor.constraint(equalTo: detailView.leadingAnchor, constant: 30).isActive = true
+        contentLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
+        contentLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         
-        memoLabel.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -20).isActive = true
-        memoLabel.leadingAnchor.constraint(greaterThanOrEqualTo: contentLabel.leadingAnchor, constant: 30).isActive = true
+        memoLabel.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -15).isActive = true
+        memoLabel.leadingAnchor.constraint(equalTo: contentLabel.trailingAnchor, constant: 30).isActive = true
         memoLabel.trailingAnchor.constraint(equalTo: detailView.trailingAnchor, constant: -30).isActive = true
+        memoLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 250), for: .horizontal)
+        memoLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         
         methodTitle.topAnchor.constraint(equalTo: detailView.bottomAnchor, constant: 10).isActive = true
         methodTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
@@ -152,24 +161,81 @@ class Methods: UIViewController, PanModalPresentable, UITableViewDelegate,  UITa
     func payAction(button:UIButton)
     {
         if(data[active].type == "AppWallet") {
-          print("Hello")
+            self.showSpinner(onView: PayME.currentVC!.view)
             PayME.postTransferAppWallet(
-            onSuccess:{a in
+            onSuccess:{response in
+                self.removeSpinner()
                 self.dismiss(animated: true)
                 PayME.currentVC!.presentPanModal(Success())
-            },
-            onError: {b in
-                print(b)
-                self.dismiss(animated: true)
-                PayME.currentVC!.presentPanModal(Failed())
-
-                print("Ok1")
                 
+            },
+            onError: {error in
+                self.removeSpinner()
+                self.dismiss(animated: true)
+                let failController = Failed()
+                print(error)
+                error.values.forEach{ value in
+                    let data = value as! [String:AnyObject]
+                    failController.reasonFail = data["message"] as! String
+                }
+                PayME.currentVC!.presentPanModal(failController)
             })
-        } else {
-            print("Halo")
+        } else if(data[active].type == "Napas") {
+            self.showSpinner(onView: PayME.currentVC!.view)
+            PayME.postTransferNapas(method: data[active], onSuccess: { response in
+                let webViewController = WebViewController(nibName: "WebView", bundle: nil)
+                webViewController.form = response["form"] as! String
+                webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
+                    webViewController.dismiss(animated: true)
+                    PayME.currentVC!.presentPanModal(Success())
+                })
+                webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
+                    webViewController.dismiss(animated: true)
+                    let failController = Failed()
+                    failController.reasonFail = responseFromWebView
+                    PayME.currentVC!.presentPanModal(failController)
+                })
+                
+                self.dismiss(animated: true) {
+                    self.removeSpinner()
+                    PayME.currentVC!.presentPanModal(webViewController)
+                }
+            }, onError: { error in
+                self.removeSpinner()
+                self.dismiss(animated: true)
+                let failController = Failed()
+                failController.reasonFail = error[1001] as! String
+                PayME.currentVC!.presentPanModal(failController)
+            })
+        } else if(data[active].type == "PVCBank") {
+            self.showSpinner(onView: PayME.currentVC!.view)
+            PayME.postTransferPVCB(method: data[active], onSuccess: { response in
+                self.removeSpinner()
+                self.dismiss(animated: true)
+                PayME.currentVC!.presentPanModal(Success())
+            }, onError: {error in
+                self.removeSpinner()
+                print(error)
+                if (error[1004] != nil) {
+                    self.dismiss(animated: true)
+                    let data = error[1004] as! [String:AnyObject]
+                    OTP.transferId = data["transferId"] as! Int
+                    PayME.currentVC!.presentPanModal(OTP())
+
+                } else {
+                    let failController = Failed()
+                    self.dismiss(animated: true)
+                    error.values.forEach{ value in
+                        let data = value as! [String:AnyObject]
+                        failController.reasonFail = data["message"] as! String
+                    }
+                    PayME.currentVC!.presentPanModal(failController)
+
+                }
+            })
         }
     }
+
     
     
     let detailView : UIView = {
@@ -255,14 +321,17 @@ class Methods: UIViewController, PanModalPresentable, UITableViewDelegate,  UITa
     }()
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let temp = data
         for i in 0..<data.count {
             if (i == indexPath.row) {
-                data[i].active = true
+                temp[i].active = true
             } else {
-                data[i].active = false
+                temp[i].active = false
             }
         }
         self.active = indexPath.row
+        self.data = temp
+
         tableView.reloadData()
     }
     
@@ -317,11 +386,32 @@ extension Methods{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
+}
+var vSpinner : UIView?
+extension UIViewController {
+    func showSpinner(onView : UIView) {
+        let spinnerView = UIView.init(frame: onView.bounds)
+        spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+        let ai = UIActivityIndicatorView.init(style: .whiteLarge)
+        ai.startAnimating()
+        ai.center = spinnerView.center
+        
+        DispatchQueue.main.async {
+            let currentWindow: UIWindow? = UIApplication.shared.keyWindow
+            spinnerView.addSubview(ai)
+            spinnerView.layer.zPosition = 1000
+            currentWindow!.addSubview(spinnerView)
+        }
+        
+        vSpinner = spinnerView
+    }
     
-    
-    
-    
-    
+    func removeSpinner() {
+        DispatchQueue.main.async {
+            vSpinner?.removeFromSuperview()
+            vSpinner = nil
+        }
+    }
 }
 
 

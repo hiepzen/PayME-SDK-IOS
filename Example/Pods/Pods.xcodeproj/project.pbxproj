@@ -10,7 +10,6 @@
 		0049EB7DC74BEFCDC5740A4FFBE89170 /* Data+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80FADB7CE59601B195AC7565EE7CD1F9 /* Data+Extension.swift */; };
 		00978E9BC9A0835FCE0AD5DBA1A2F387 /* qrCodeNotFound@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4D09920211E3C8993C05F109FD344F3A /* qrCodeNotFound@2x.png */; };
 		00C6A45F25B7C9567ABD4B6CEBB8F3A0 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A9AC2892574B22ACC7FA4CFF51BCA2 /* Utils.swift */; };
-		0327C2DF1B61BFC8294323205E8B3FE5 /* PanModalPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C622202AD3B1AE9F4FC7FF7BF0376FD /* PanModalPresentable.swift */; };
 		0481990137EA48454AA02C4629B6BCDB /* 16Px@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = DD1E103DB2AD482FFCA0CBB1EAE9E554 /* 16Px@3x.png */; };
 		0526AEB2FAAA1D80AC6245AB71BE994F /* BlockEncryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD55D2C2B2C3D2646DC407E045749B67 /* BlockEncryptor.swift */; };
 		05958032576427EDBC47854025783311 /* Utils+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC3FB1A1B557C578847BB266134B4FFF /* Utils+Foundation.swift */; };
@@ -23,7 +22,6 @@
 		13A4BA994DAE26C3B22F1842D5E186BD /* Padding.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0929E827C131244AF4AA397CFCE5CCA /* Padding.swift */; };
 		14F43BD2BCB2B96C61FB5A2EED9273D8 /* NSData+SHA.h in Headers */ = {isa = PBXBuildFile; fileRef = 70CFD3C6FCF3871B664D63249FD10BDE /* NSData+SHA.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1666A75E15CAE290B597C294CEA27525 /* Asn1Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B5A96D2E47081A29533E87B0743965 /* Asn1Parser.swift */; };
-		16B0FEFBB063609ED7F888F53AC53E84 /* PanModalPresentationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA7D99385506703756DB2887EE1BB2F /* PanModalPresentationDelegate.swift */; };
 		197A19DC9971E2AD19DD0403D9651569 /* ptBank@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 496BE5CADB18804FBFB2B957F91CF8C6 /* ptBank@3x.png */; };
 		1AF9AF126A004393034291D006F0237E /* OneTimeCodeTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C952ABB4DA38F6E70437398AA848544 /* OneTimeCodeTextField.swift */; };
 		1C482705924CA6C3DF716EC60624900B /* Generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61719170ECCD637F5CEC5AA8B9D7F641 /* Generics.swift */; };
@@ -41,23 +39,31 @@
 		3607067F46CCABE732B2E0078149F8B2 /* Array+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9516B0554A5AD6982B1DAA76C04A8C9 /* Array+Foundation.swift */; };
 		37D193542B6680EE137ACE4DD0557F77 /* SwiftyRSAError.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0FB1ABBD74CB33C5246C2C5568A59A /* SwiftyRSAError.swift */; };
 		38E47B5D9228F2A0EB71FA534A2DFBA7 /* uncheck@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = DF2031EC9D63BB16C8F02F2EA39CD2DA /* uncheck@3x.png */; };
-		3DB1B749E764722E9D2850FAC88BFD22 /* UIViewController+PanModalPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25CB07A2BC9FDF9C167A165D9494A30E /* UIViewController+PanModalPresenter.swift */; };
 		3E3FE29D83B6DB4B229CB38CCB4E1C86 /* CBCMAC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14506B8A6DC397426004401BD150389A /* CBCMAC.swift */; };
 		420C87B493B70746472899A82479242F /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581381AD0589EEF999DF6260F28511B2 /* String+Extension.swift */; };
 		438DAC7813FDB677252FB52A8FA3E708 /* Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C77929B005A6FFF1E696E1224AB6239 /* Updatable.swift */; };
 		448506F29495E3B3BAB56D093D681C1A /* Authenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08659DC3689112B593BDAD24A56D067 /* Authenticator.swift */; };
 		45746D692A8E7F09C0EED2675231EF41 /* StreamEncryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50CA164122CCF6A2BAF8B582E1BEEFFA /* StreamEncryptor.swift */; };
 		4789B6BDFD58E97D623178F18CCD3A07 /* NetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4814472E52ED27603C89C8B780C0027 /* NetworkRequest.swift */; };
-		491E3FCC4B9E59EDAEC77F6175367A54 /* PanModalPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 284FE7F3F9373E05CC089D6155CB8165 /* PanModalPresentationController.swift */; };
 		49696DF6233801BF2D0F0BE214E56304 /* SecureBytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB8CA2E0C0BC5DDF2E2D39031326DC1 /* SecureBytes.swift */; };
 		49C8C4DFD859391ED9CB7EBC50DDBBD1 /* MD5.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BDCEA2FBF27BE6E5A026993DBD34BF9 /* MD5.swift */; };
-		4C00A69342B7BC31AB852323A5F87F7C /* DimmedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7C9854FBC75E4E967CC88DEDD589F83 /* DimmedView.swift */; };
 		4EB0637755E264B0D14B958B083DFF47 /* Key.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76874E10D43E35FCE9CC32F8CA12C946 /* Key.swift */; };
-		4F54100E6E785DE2BAA58B220929EB53 /* PanContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38F83D6F49CE5591B7BCE7199C206FFD /* PanContainerView.swift */; };
 		50E53FDC66861858143A40249F0B4584 /* 16Px@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 108D4AC81E94A8457E374D894BBFB81F /* 16Px@2x.png */; };
-		51C8347F3B23AB0C542EEA3FF97619FB /* PanModalPresentable+Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C61197C6BD5C3B05CEB828CA24D3E /* PanModalPresentable+Defaults.swift */; };
 		5204E925255531950087D28F /* Failed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5204E924255531950087D28F /* Failed.swift */; };
-		52560A43E46FCB5C1FA0BA41D01F999D /* PanModalPresentable+LayoutHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22145D51A154443F38FFFACE698D2F13 /* PanModalPresentable+LayoutHelpers.swift */; };
+		52AFEB862557B8E3003B071B /* QRScannerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB852557B8E3003B071B /* QRScannerController.swift */; };
+		52AFEB9B255906BB003B071B /* PanModalPresentable+Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB89255906BB003B071B /* PanModalPresentable+Defaults.swift */; };
+		52AFEB9C255906BB003B071B /* PanModalPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB8A255906BB003B071B /* PanModalPresentable.swift */; };
+		52AFEB9D255906BB003B071B /* PanModalPresentable+LayoutHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB8B255906BB003B071B /* PanModalPresentable+LayoutHelpers.swift */; };
+		52AFEB9E255906BB003B071B /* PanModalHeight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB8C255906BB003B071B /* PanModalHeight.swift */; };
+		52AFEB9F255906BB003B071B /* PanModalPresentable+UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB8D255906BB003B071B /* PanModalPresentable+UIViewController.swift */; };
+		52AFEBA0255906BB003B071B /* UIViewController+PanModalPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB8F255906BB003B071B /* UIViewController+PanModalPresenter.swift */; };
+		52AFEBA1255906BB003B071B /* PanModalPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB90255906BB003B071B /* PanModalPresenter.swift */; };
+		52AFEBA2255906BB003B071B /* PanModalPresentationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB92255906BB003B071B /* PanModalPresentationDelegate.swift */; };
+		52AFEBA3255906BB003B071B /* PanModalPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB94255906BB003B071B /* PanModalPresentationController.swift */; };
+		52AFEBA4255906BB003B071B /* PanModalAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB95255906BB003B071B /* PanModalAnimator.swift */; };
+		52AFEBA5255906BB003B071B /* PanModalPresentationAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB96255906BB003B071B /* PanModalPresentationAnimator.swift */; };
+		52AFEBA6255906BB003B071B /* PanContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB99255906BB003B071B /* PanContainerView.swift */; };
+		52AFEBA7255906BB003B071B /* DimmedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AFEB9A255906BB003B071B /* DimmedView.swift */; };
 		5300EB86348ED2DD35A9339104F21842 /* CBC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88927A54329697F0FAFEFE9F5E3F2E8 /* CBC.swift */; };
 		54BDD3BC1B92330FEF7F64FA1660BB13 /* AES.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A2A0DB1C91DAD24A0ACCCBC4D0B4F3 /* AES.swift */; };
 		58AD203AF555F9B8416F7F9B4C7DA435 /* Rabbit.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4F29710D0AD0938E867BE3AF84FB4E /* Rabbit.swift */; };
@@ -87,7 +93,6 @@
 		7E0E73AFFC35B026492176D7F2D46401 /* uncheck.png in Resources */ = {isa = PBXBuildFile; fileRef = 10B07F02E49A7A65DF78BFEF8688C9B3 /* uncheck.png */; };
 		7E3E6309C4EB4C70BC8AF5EB9CA3B6FB /* Poly1305.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C76072E10E25BA95808CA34F50334D5 /* Poly1305.swift */; };
 		7E6F4EFB85936E0B3EB9AD287F074C36 /* PKCS7.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119F4C17DB79992CF34870DE7183FFD1 /* PKCS7.swift */; };
-		7F29C55A5B91E868BCE8B1ACE4D04DDC /* PanModalAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C915AE42488806B9EDC5822AFFDF1971 /* PanModalAnimator.swift */; };
 		8039DF4C1AE7378FB41921D22A44AEF7 /* UInt16+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FBEF44B3C52AE9F36095FB04B02B75 /* UInt16+Extension.swift */; };
 		854AF7B141389D5512E8E73DF38FEBEA /* BlockMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AAAFF22946F268BD6DE788CD0BDE9E /* BlockMode.swift */; };
 		8573D5547D4AC8CEE69AB545148A72B6 /* CCM.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA4F416B5CE2AD8D65F04B84A37BDD7 /* CCM.swift */; };
@@ -115,20 +120,17 @@
 		AA3C906029FE8BD9C2494CDFDF54A6FA /* ClearMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF532D8AC33DDE9CD174C6509463E55 /* ClearMessage.swift */; };
 		AAA648FE58CC4A49EF39BFDBCBA7C1FA /* PBKDF1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CF77D6E423CED1BE0DD835DB51BA3B9 /* PBKDF1.swift */; };
 		ABF5E5F45D270B8B7CE386D4BB8E614D /* Int+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A1C6142D12FC69FB5E01A592C97923 /* Int+Extension.swift */; };
-		AD19CDA99AF642FDB5261673402B5B5F /* PanModalHeight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 194604400FCE48FE6BFAF2257B7F1C2F /* PanModalHeight.swift */; };
 		ADE26A6317E68C1CB7FC86D68B4EB8BF /* RandomBytesSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D4701971DBAD7485B78F37E87AC963 /* RandomBytesSequence.swift */; };
 		AE242F808DE761641CF108E8844745D6 /* Cipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919D5E7DA33AEDA0A95689CFF04DA164 /* Cipher.swift */; };
 		AFDCFE8B32336DCDC43223AD52AEB2C2 /* touchId.png in Resources */ = {isa = PBXBuildFile; fileRef = A1D9464874283855BBBAA512EE2C50AA /* touchId.png */; };
 		B15E0CD8A2E6D29E9849F092CD078773 /* GCM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18AC13D47B267758161736CF29B62E8F /* GCM.swift */; };
 		B209614F455DF1D8E50B77AA744FD733 /* PublicKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC22854B1460C64EFD3C7C28D7A7C321 /* PublicKey.swift */; };
-		B4B2433B013ED77B3B3198157EBECBCE /* PanModalPresentationAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE81F31AAB3417803B4C85CB332DE714 /* PanModalPresentationAnimator.swift */; };
 		B4E0F6805D68577613B95A18651FC167 /* Blowfish.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB792541D9C691931A1CE4B5C03E6F3B /* Blowfish.swift */; };
 		B5374FAE2E4A85A0A5B78B619CB5D80B /* success.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E5AA67AE79CBD4FCC2CACD94DBBDD21 /* success.png */; };
 		C12AE121120F83CD9A7CE92287AAB07B /* fails.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3B30BA1C1D9D4999DFC0A26FDC5E7C /* fails.png */; };
 		C138FACCB027B81AE55814AA990543D5 /* OFB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4471F9410F3DF6EEFCF39CE7F43189A7 /* OFB.swift */; };
 		C17E552920AF110E9DB7AB635C65A12D /* Scrypt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 591AC6269BC15EA415E0773B72A8A79D /* Scrypt.swift */; };
 		C2015A361401648D60B1C9F6C3CDA49B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8810A17E4D27E7B3013926ACD06BC95A /* Foundation.framework */; };
-		C3085A37F6DA8B09854DDB25B9F1E645 /* PanModalPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F994F94EB8F55DFB6F0710B0F220CF2 /* PanModalPresenter.swift */; };
 		C3889BD1A1AFEEF2C827851821474A4A /* iconBank@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EAC6E9CBD36F49C7D2C53E777C8EE404 /* iconBank@3x.png */; };
 		C5BA80B3F139ADB1413F277B44E72969 /* SwiftyRSA-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1CBFA839BA699DB2B9470D7D132FF71E /* SwiftyRSA-dummy.m */; };
 		C60B90DBBC361125340012D6377DF1F7 /* EncryptedMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2D2BB7ED746E0486738BC4E9B87659 /* EncryptedMessage.swift */; };
@@ -137,7 +139,6 @@
 		CA5F0FF46E700A877E1ED5C9EF6BDECB /* BlockCipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D1B559778E4D78BE8D72A277BC331B /* BlockCipher.swift */; };
 		CA710B62CE9F39D87930CD2EE568584B /* OTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5708AC7208BFC11445788A9D02C2B6DB /* OTP.swift */; };
 		CC03E31F122F91A26DD22BEEF813D779 /* UInt128.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9E1DB53B7680B3361BE1BCEE09221E /* UInt128.swift */; };
-		CDD162E3D3A95D5032735CA7ABC8D14C /* PanModalPresentable+UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42DEDB9A14E9F4DC58488E2535E9A029 /* PanModalPresentable+UIViewController.swift */; };
 		D0C42430CC3042C88EF507A564FED8A0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17E581A9E4E1ED79FD92C8CCA2DC237F /* Security.framework */; };
 		D199C924716BFE2CE1C6F97473226625 /* PayMESDK-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 176638FCC88F80C88CBE9C8F6E731C49 /* PayMESDK-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D19CC154CAE1F83516FE2B7E6AB6B836 /* ptBank.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CADF31F21EC98E9AD83CC1D737ACC76 /* ptBank.png */; };
@@ -251,7 +252,6 @@
 		176638FCC88F80C88CBE9C8F6E731C49 /* PayMESDK-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "PayMESDK-umbrella.h"; sourceTree = "<group>"; };
 		17E581A9E4E1ED79FD92C8CCA2DC237F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		18AC13D47B267758161736CF29B62E8F /* GCM.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GCM.swift; path = Sources/CryptoSwift/BlockMode/GCM.swift; sourceTree = "<group>"; };
-		194604400FCE48FE6BFAF2257B7F1C2F /* PanModalHeight.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PanModalHeight.swift; sourceTree = "<group>"; };
 		1AB8CA2E0C0BC5DDF2E2D39031326DC1 /* SecureBytes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SecureBytes.swift; path = Sources/CryptoSwift/SecureBytes.swift; sourceTree = "<group>"; };
 		1BCC29D471A7594579EDCD725DB8C288 /* CompactMap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CompactMap.swift; path = Sources/CryptoSwift/CompactMap.swift; sourceTree = "<group>"; };
 		1CBFA839BA699DB2B9470D7D132FF71E /* SwiftyRSA-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "SwiftyRSA-dummy.m"; sourceTree = "<group>"; };
@@ -260,10 +260,7 @@
 		1EA753D6D331B38673887A98E09467F6 /* Pods-PayMESDK_Example-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-PayMESDK_Example-frameworks.sh"; sourceTree = "<group>"; };
 		1FF8AA6FD5E39CDC1A2E6E92C54E836E /* DigestType.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DigestType.swift; path = Sources/CryptoSwift/DigestType.swift; sourceTree = "<group>"; };
 		201EE6888D2974AB1B4C137B0CBC150A /* Pods-PayMESDK_Example-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-PayMESDK_Example-Info.plist"; sourceTree = "<group>"; };
-		22145D51A154443F38FFFACE698D2F13 /* PanModalPresentable+LayoutHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "PanModalPresentable+LayoutHelpers.swift"; sourceTree = "<group>"; };
-		25CB07A2BC9FDF9C167A165D9494A30E /* UIViewController+PanModalPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "UIViewController+PanModalPresenter.swift"; sourceTree = "<group>"; };
 		27FFD0CBEF5CBC5DCBB18538BB96B7CE /* NoPadding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NoPadding.swift; path = Sources/CryptoSwift/NoPadding.swift; sourceTree = "<group>"; };
-		284FE7F3F9373E05CC089D6155CB8165 /* PanModalPresentationController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PanModalPresentationController.swift; sourceTree = "<group>"; };
 		28FE124BE85BAAD57B7503D2E8C8A04A /* checked@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "checked@2x.png"; path = "PayMESDK/Assets/checked@2x.png"; sourceTree = "<group>"; };
 		299875250AEC836728D40621F9701609 /* PayMESDK-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "PayMESDK-Info.plist"; sourceTree = "<group>"; };
 		2CADF31F21EC98E9AD83CC1D737ACC76 /* ptBank.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = ptBank.png; path = PayMESDK/Assets/ptBank.png; sourceTree = "<group>"; };
@@ -272,10 +269,8 @@
 		32BAF8CCBEC4AB8885234EC7DD02C465 /* SwiftyRSA.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SwiftyRSA.h; path = Source/SwiftyRSA.h; sourceTree = "<group>"; };
 		331DA510C93A32535CFB291F874ACCD9 /* AEAD.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AEAD.swift; path = Sources/CryptoSwift/AEAD/AEAD.swift; sourceTree = "<group>"; };
 		36976CCA9CDDC83C687E73799D07B3DB /* Blowfish+Foundation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Blowfish+Foundation.swift"; path = "Sources/CryptoSwift/Foundation/Blowfish+Foundation.swift"; sourceTree = "<group>"; };
-		38F83D6F49CE5591B7BCE7199C206FFD /* PanContainerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PanContainerView.swift; sourceTree = "<group>"; };
 		395211905ACD4B84D7AF34F1F0239901 /* Pods-PayMESDK_Example-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-PayMESDK_Example-acknowledgements.markdown"; sourceTree = "<group>"; };
 		415ED1A518173931BF84AE726CE2C53B /* Digest.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Digest.swift; path = Sources/CryptoSwift/Digest.swift; sourceTree = "<group>"; };
-		42DEDB9A14E9F4DC58488E2535E9A029 /* PanModalPresentable+UIViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "PanModalPresentable+UIViewController.swift"; sourceTree = "<group>"; };
 		44535DC953E4C869DDB171364B756BB9 /* SwiftyRSA-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SwiftyRSA-prefix.pch"; sourceTree = "<group>"; };
 		4471F9410F3DF6EEFCF39CE7F43189A7 /* OFB.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OFB.swift; path = Sources/CryptoSwift/BlockMode/OFB.swift; sourceTree = "<group>"; };
 		481E5B83D6D2EBC230C9405F6DB9BC3A /* Success.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Success.swift; sourceTree = "<group>"; };
@@ -289,6 +284,20 @@
 		50CA164122CCF6A2BAF8B582E1BEEFFA /* StreamEncryptor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StreamEncryptor.swift; path = Sources/CryptoSwift/StreamEncryptor.swift; sourceTree = "<group>"; };
 		51C73813E80884A16C08ADC11F688D5F /* iconBank.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = iconBank.png; path = PayMESDK/Assets/iconBank.png; sourceTree = "<group>"; };
 		5204E924255531950087D28F /* Failed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Failed.swift; sourceTree = "<group>"; };
+		52AFEB852557B8E3003B071B /* QRScannerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerController.swift; sourceTree = "<group>"; };
+		52AFEB89255906BB003B071B /* PanModalPresentable+Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PanModalPresentable+Defaults.swift"; sourceTree = "<group>"; };
+		52AFEB8A255906BB003B071B /* PanModalPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresentable.swift; sourceTree = "<group>"; };
+		52AFEB8B255906BB003B071B /* PanModalPresentable+LayoutHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PanModalPresentable+LayoutHelpers.swift"; sourceTree = "<group>"; };
+		52AFEB8C255906BB003B071B /* PanModalHeight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalHeight.swift; sourceTree = "<group>"; };
+		52AFEB8D255906BB003B071B /* PanModalPresentable+UIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PanModalPresentable+UIViewController.swift"; sourceTree = "<group>"; };
+		52AFEB8F255906BB003B071B /* UIViewController+PanModalPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIViewController+PanModalPresenter.swift"; sourceTree = "<group>"; };
+		52AFEB90255906BB003B071B /* PanModalPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresenter.swift; sourceTree = "<group>"; };
+		52AFEB92255906BB003B071B /* PanModalPresentationDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresentationDelegate.swift; sourceTree = "<group>"; };
+		52AFEB94255906BB003B071B /* PanModalPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresentationController.swift; sourceTree = "<group>"; };
+		52AFEB95255906BB003B071B /* PanModalAnimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalAnimator.swift; sourceTree = "<group>"; };
+		52AFEB96255906BB003B071B /* PanModalPresentationAnimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresentationAnimator.swift; sourceTree = "<group>"; };
+		52AFEB99255906BB003B071B /* PanContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanContainerView.swift; sourceTree = "<group>"; };
+		52AFEB9A255906BB003B071B /* DimmedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimmedView.swift; sourceTree = "<group>"; };
 		52DB32D1E76C6ACE25767601F950D1EC /* AES+Foundation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "AES+Foundation.swift"; path = "Sources/CryptoSwift/Foundation/AES+Foundation.swift"; sourceTree = "<group>"; };
 		52E97D384AF39AD8696F6A6E95A28C71 /* ZeroPadding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ZeroPadding.swift; path = Sources/CryptoSwift/ZeroPadding.swift; sourceTree = "<group>"; };
 		564F05B6A789890E0143FED9843EA439 /* SwiftyRSA.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftyRSA.release.xcconfig; sourceTree = "<group>"; };
@@ -333,7 +342,6 @@
 		80FADB7CE59601B195AC7565EE7CD1F9 /* Data+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Data+Extension.swift"; path = "Sources/CryptoSwift/Foundation/Data+Extension.swift"; sourceTree = "<group>"; };
 		81FF0294428F8CE4882EC4DFC1268A28 /* UInt32+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UInt32+Extension.swift"; path = "Sources/CryptoSwift/UInt32+Extension.swift"; sourceTree = "<group>"; };
 		847729328A4F3E15018EBE8E45EB7D92 /* Pods-PayMESDK_Tests-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-PayMESDK_Tests-Info.plist"; sourceTree = "<group>"; };
-		847C61197C6BD5C3B05CEB828CA24D3E /* PanModalPresentable+Defaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "PanModalPresentable+Defaults.swift"; sourceTree = "<group>"; };
 		84A889559BD57B8D67E5C74A8B721BF6 /* SwiftyRSA.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftyRSA.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		858D738663F8F820C813E794CA8F4657 /* PayME.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PayME.swift; sourceTree = "<group>"; };
 		85AEA9E538CA61DEAC33AABAC2A200B9 /* Pods_PayMESDK_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PayMESDK_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -351,13 +359,11 @@
 		98242C009D831E849AF8CB14E77C5DC3 /* String+FoundationExtension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "String+FoundationExtension.swift"; path = "Sources/CryptoSwift/Foundation/String+FoundationExtension.swift"; sourceTree = "<group>"; };
 		98A2A0DB1C91DAD24A0ACCCBC4D0B4F3 /* AES.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AES.swift; path = Sources/CryptoSwift/AES.swift; sourceTree = "<group>"; };
 		98FFBD392DDB05DE790764E2F69BBEC0 /* HMAC+Foundation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "HMAC+Foundation.swift"; path = "Sources/CryptoSwift/Foundation/HMAC+Foundation.swift"; sourceTree = "<group>"; };
-		9C622202AD3B1AE9F4FC7FF7BF0376FD /* PanModalPresentable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PanModalPresentable.swift; sourceTree = "<group>"; };
 		9CAA6D5AF13C9C2BB36D5CD9A25C268A /* Message.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Message.swift; path = Source/Message.swift; sourceTree = "<group>"; };
 		9D2A45298FE1DE1497DF172AD7B9BA36 /* SwiftyRSA+ObjC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "SwiftyRSA+ObjC.swift"; path = "Source/SwiftyRSA+ObjC.swift"; sourceTree = "<group>"; };
 		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		9E04B47C2C23B1D6C7D686F9B47C67BC /* SHA1.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SHA1.swift; path = Sources/CryptoSwift/SHA1.swift; sourceTree = "<group>"; };
 		9ED52E6D56B2AA06EABE8BB6CF7DE36D /* success@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "success@2x.png"; path = "PayMESDK/Assets/success@2x.png"; sourceTree = "<group>"; };
-		9F994F94EB8F55DFB6F0710B0F220CF2 /* PanModalPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PanModalPresenter.swift; sourceTree = "<group>"; };
 		A0F814481B36EDD60430A3B520315DBF /* PayMESDK.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = PayMESDK.debug.xcconfig; sourceTree = "<group>"; };
 		A1D9464874283855BBBAA512EE2C50AA /* touchId.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = touchId.png; path = PayMESDK/Assets/touchId.png; sourceTree = "<group>"; };
 		A4398695DD1D2B2E32DC1422DD8C30B5 /* UserInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
@@ -384,7 +390,6 @@
 		BF4353BE7ECDC9C13EAED0BF7B50EB86 /* PCBC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PCBC.swift; path = Sources/CryptoSwift/BlockMode/PCBC.swift; sourceTree = "<group>"; };
 		C2439A1B4D5CE6368704888890B8E5FE /* Pods-PayMESDK_Example-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-PayMESDK_Example-dummy.m"; sourceTree = "<group>"; };
 		C4814472E52ED27603C89C8B780C0027 /* NetworkRequest.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkRequest.swift; sourceTree = "<group>"; };
-		C915AE42488806B9EDC5822AFFDF1971 /* PanModalAnimator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PanModalAnimator.swift; sourceTree = "<group>"; };
 		C98E74A7F4FE117CE25B1B4BEC259BA5 /* ChaCha20.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChaCha20.swift; path = Sources/CryptoSwift/ChaCha20.swift; sourceTree = "<group>"; };
 		C9F67628D51570DE387C34C933ACF584 /* CryptoSwift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = CryptoSwift.debug.xcconfig; sourceTree = "<group>"; };
 		CBF4D0EFF82C5BF5B47CA37E1A8A941F /* Pods-PayMESDK_Example-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-PayMESDK_Example-acknowledgements.plist"; sourceTree = "<group>"; };
@@ -404,11 +409,8 @@
 		E1888D5B2D16B26CEB66B38BCBBFA176 /* CryptoSwift-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "CryptoSwift-umbrella.h"; sourceTree = "<group>"; };
 		E1D50485C1598C99C18A7888D964C321 /* CryptoRSA.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CryptoRSA.swift; sourceTree = "<group>"; };
 		E732B37F4749FCD7558D593386EEC6CA /* Methods.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Methods.swift; sourceTree = "<group>"; };
-		E7C9854FBC75E4E967CC88DEDD589F83 /* DimmedView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DimmedView.swift; sourceTree = "<group>"; };
 		EAC6E9CBD36F49C7D2C53E777C8EE404 /* iconBank@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "iconBank@3x.png"; path = "PayMESDK/Assets/iconBank@3x.png"; sourceTree = "<group>"; };
 		ED49565BFB9A1DFAC18B68CAF940FB16 /* Pods-PayMESDK_Example.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-PayMESDK_Example.modulemap"; sourceTree = "<group>"; };
-		EDA7D99385506703756DB2887EE1BB2F /* PanModalPresentationDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PanModalPresentationDelegate.swift; sourceTree = "<group>"; };
-		EE81F31AAB3417803B4C85CB332DE714 /* PanModalPresentationAnimator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PanModalPresentationAnimator.swift; sourceTree = "<group>"; };
 		EE8BC3816D56ED96A7235DBCEDFB9AB9 /* checked.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = checked.png; path = PayMESDK/Assets/checked.png; sourceTree = "<group>"; };
 		EF4F29710D0AD0938E867BE3AF84FB4E /* Rabbit.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Rabbit.swift; path = Sources/CryptoSwift/Rabbit.swift; sourceTree = "<group>"; };
 		F1BE7AD1E50006148BECDCFBFB89272A /* checked@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "checked@3x.png"; path = "PayMESDK/Assets/checked@3x.png"; sourceTree = "<group>"; };
@@ -486,16 +488,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		031B86E51CA59F5AF19C19C6270A9726 /* Animator */ = {
-			isa = PBXGroup;
-			children = (
-				C915AE42488806B9EDC5822AFFDF1971 /* PanModalAnimator.swift */,
-				EE81F31AAB3417803B4C85CB332DE714 /* PanModalPresentationAnimator.swift */,
-				284FE7F3F9373E05CC089D6155CB8165 /* PanModalPresentationController.swift */,
-			);
-			path = Animator;
-			sourceTree = "<group>";
-		};
 		16AC5F5C383A2F6F32F35C5786E4242A /* Support Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -581,6 +573,83 @@
 			name = "Targets Support Files";
 			sourceTree = "<group>";
 		};
+		52AFEB842557B8B9003B071B /* camera */ = {
+			isa = PBXGroup;
+			children = (
+				52AFEB852557B8E3003B071B /* QRScannerController.swift */,
+			);
+			path = camera;
+			sourceTree = "<group>";
+		};
+		52AFEB87255906BB003B071B /* PanModal */ = {
+			isa = PBXGroup;
+			children = (
+				52AFEB88255906BB003B071B /* Presentable */,
+				52AFEB8E255906BB003B071B /* Presenter */,
+				52AFEB91255906BB003B071B /* Delegate */,
+				52AFEB93255906BB003B071B /* Animator */,
+				52AFEB97255906BB003B071B /* Controller */,
+				52AFEB98255906BB003B071B /* View */,
+			);
+			name = PanModal;
+			path = PayMESDK/Classes/Source/PanModal;
+			sourceTree = "<group>";
+		};
+		52AFEB88255906BB003B071B /* Presentable */ = {
+			isa = PBXGroup;
+			children = (
+				52AFEB89255906BB003B071B /* PanModalPresentable+Defaults.swift */,
+				52AFEB8A255906BB003B071B /* PanModalPresentable.swift */,
+				52AFEB8B255906BB003B071B /* PanModalPresentable+LayoutHelpers.swift */,
+				52AFEB8C255906BB003B071B /* PanModalHeight.swift */,
+				52AFEB8D255906BB003B071B /* PanModalPresentable+UIViewController.swift */,
+			);
+			path = Presentable;
+			sourceTree = "<group>";
+		};
+		52AFEB8E255906BB003B071B /* Presenter */ = {
+			isa = PBXGroup;
+			children = (
+				52AFEB8F255906BB003B071B /* UIViewController+PanModalPresenter.swift */,
+				52AFEB90255906BB003B071B /* PanModalPresenter.swift */,
+			);
+			path = Presenter;
+			sourceTree = "<group>";
+		};
+		52AFEB91255906BB003B071B /* Delegate */ = {
+			isa = PBXGroup;
+			children = (
+				52AFEB92255906BB003B071B /* PanModalPresentationDelegate.swift */,
+			);
+			path = Delegate;
+			sourceTree = "<group>";
+		};
+		52AFEB93255906BB003B071B /* Animator */ = {
+			isa = PBXGroup;
+			children = (
+				52AFEB94255906BB003B071B /* PanModalPresentationController.swift */,
+				52AFEB95255906BB003B071B /* PanModalAnimator.swift */,
+				52AFEB96255906BB003B071B /* PanModalPresentationAnimator.swift */,
+			);
+			path = Animator;
+			sourceTree = "<group>";
+		};
+		52AFEB97255906BB003B071B /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		52AFEB98255906BB003B071B /* View */ = {
+			isa = PBXGroup;
+			children = (
+				52AFEB99255906BB003B071B /* PanContainerView.swift */,
+				52AFEB9A255906BB003B071B /* DimmedView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		5F137FE89285A1D8A24F7EC4BAD9EF4F /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -590,19 +659,6 @@
 				D0A51DA770E719A448F8315D762F68FB /* WebKit.framework */,
 			);
 			name = iOS;
-			sourceTree = "<group>";
-		};
-		6134587CA26D93F025812305996B4304 /* PanModal */ = {
-			isa = PBXGroup;
-			children = (
-				031B86E51CA59F5AF19C19C6270A9726 /* Animator */,
-				CAF5C9A26D4A70D1DB5E833642ED513F /* Delegate */,
-				E8AFF9EB25CCC684030777B129301813 /* Presentable */,
-				7516404F155E0DEFB4A6EA81F29AA3D3 /* Presenter */,
-				F8FC9098279DCD4A9CFE63E68BB6CC92 /* View */,
-			);
-			name = PanModal;
-			path = PayMESDK/Classes/Source/PanModal;
 			sourceTree = "<group>";
 		};
 		63EBA3763BF8C20AC0059D6B23F11EF0 /* CryptoSwift */ = {
@@ -703,15 +759,6 @@
 			);
 			name = PayME;
 			path = PayMESDK/Classes/Source/PayME;
-			sourceTree = "<group>";
-		};
-		7516404F155E0DEFB4A6EA81F29AA3D3 /* Presenter */ = {
-			isa = PBXGroup;
-			children = (
-				9F994F94EB8F55DFB6F0710B0F220CF2 /* PanModalPresenter.swift */,
-				25CB07A2BC9FDF9C167A165D9494A30E /* UIViewController+PanModalPresenter.swift */,
-			);
-			path = Presenter;
 			sourceTree = "<group>";
 		};
 		911B5579B8884B4FC1FCB33839374FA1 /* SwiftyRSA */ = {
@@ -831,14 +878,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		CAF5C9A26D4A70D1DB5E833642ED513F /* Delegate */ = {
-			isa = PBXGroup;
-			children = (
-				EDA7D99385506703756DB2887EE1BB2F /* PanModalPresentationDelegate.swift */,
-			);
-			path = Delegate;
-			sourceTree = "<group>";
-		};
 		CF1408CF629C7361332E53B88F7BD30C = {
 			isa = PBXGroup;
 			children = (
@@ -887,24 +926,13 @@
 			path = PayMESDK/Classes/Source/utility;
 			sourceTree = "<group>";
 		};
-		E8AFF9EB25CCC684030777B129301813 /* Presentable */ = {
-			isa = PBXGroup;
-			children = (
-				194604400FCE48FE6BFAF2257B7F1C2F /* PanModalHeight.swift */,
-				9C622202AD3B1AE9F4FC7FF7BF0376FD /* PanModalPresentable.swift */,
-				847C61197C6BD5C3B05CEB828CA24D3E /* PanModalPresentable+Defaults.swift */,
-				22145D51A154443F38FFFACE698D2F13 /* PanModalPresentable+LayoutHelpers.swift */,
-				42DEDB9A14E9F4DC58488E2535E9A029 /* PanModalPresentable+UIViewController.swift */,
-			);
-			path = Presentable;
-			sourceTree = "<group>";
-		};
 		EE8FD69F505D9BDF52F4CA21F47B9EA6 /* PayMESDK */ = {
 			isa = PBXGroup;
 			children = (
+				52AFEB87255906BB003B071B /* PanModal */,
+				52AFEB842557B8B9003B071B /* camera */,
 				A9F32715840AC5EF92FD10E5A6B7F194 /* modal */,
 				259D8FD7D3CC21648CB42AF51FF4B798 /* model */,
-				6134587CA26D93F025812305996B4304 /* PanModal */,
 				675AA59B38F55551016E4BE40D1A3833 /* PayME */,
 				D5BFAE57C55C989084BC036B2DD21038 /* Pod */,
 				17D80E4E91E820ABDBBFD614212CAEB0 /* Resources */,
@@ -915,15 +943,6 @@
 			);
 			name = PayMESDK;
 			path = ../..;
-			sourceTree = "<group>";
-		};
-		F8FC9098279DCD4A9CFE63E68BB6CC92 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				E7C9854FBC75E4E967CC88DEDD589F83 /* DimmedView.swift */,
-				38F83D6F49CE5591B7BCE7199C206FFD /* PanContainerView.swift */,
-			);
-			path = View;
 			sourceTree = "<group>";
 		};
 		FFEC162485D815285A31515E45C8DA6C /* Frameworks */ = {
@@ -1335,34 +1354,35 @@
 			buildActionMask = 2147483647;
 			files = (
 				DB22916A6161C282B7138B0335F715CA /* CryptoAES.swift in Sources */,
+				52AFEB9E255906BB003B071B /* PanModalHeight.swift in Sources */,
 				FD5CBC5EBF3E016B1B8C7D2FD457C243 /* CryptoRSA.swift in Sources */,
-				4C00A69342B7BC31AB852323A5F87F7C /* DimmedView.swift in Sources */,
+				52AFEBA2255906BB003B071B /* PanModalPresentationDelegate.swift in Sources */,
+				52AFEB9C255906BB003B071B /* PanModalPresentable.swift in Sources */,
 				10BB7DEBAD013CA332E8CF655228D88B /* Method.swift in Sources */,
 				89EF44EBEA8270B6FE9F3FD56538791B /* MethodInfo.swift in Sources */,
 				05AD322A9DCCBB2F4ECE9A815AA0633A /* Methods.swift in Sources */,
+				52AFEBA6255906BB003B071B /* PanContainerView.swift in Sources */,
 				4789B6BDFD58E97D623178F18CCD3A07 /* NetworkRequest.swift in Sources */,
+				52AFEB9D255906BB003B071B /* PanModalPresentable+LayoutHelpers.swift in Sources */,
 				1AF9AF126A004393034291D006F0237E /* OneTimeCodeTextField.swift in Sources */,
+				52AFEBA7255906BB003B071B /* DimmedView.swift in Sources */,
 				CA710B62CE9F39D87930CD2EE568584B /* OTP.swift in Sources */,
-				4F54100E6E785DE2BAA58B220929EB53 /* PanContainerView.swift in Sources */,
 				5204E925255531950087D28F /* Failed.swift in Sources */,
-				7F29C55A5B91E868BCE8B1ACE4D04DDC /* PanModalAnimator.swift in Sources */,
-				AD19CDA99AF642FDB5261673402B5B5F /* PanModalHeight.swift in Sources */,
-				51C8347F3B23AB0C542EEA3FF97619FB /* PanModalPresentable+Defaults.swift in Sources */,
-				52560A43E46FCB5C1FA0BA41D01F999D /* PanModalPresentable+LayoutHelpers.swift in Sources */,
-				CDD162E3D3A95D5032735CA7ABC8D14C /* PanModalPresentable+UIViewController.swift in Sources */,
-				0327C2DF1B61BFC8294323205E8B3FE5 /* PanModalPresentable.swift in Sources */,
-				B4B2433B013ED77B3B3198157EBECBCE /* PanModalPresentationAnimator.swift in Sources */,
-				491E3FCC4B9E59EDAEC77F6175367A54 /* PanModalPresentationController.swift in Sources */,
-				16B0FEFBB063609ED7F888F53AC53E84 /* PanModalPresentationDelegate.swift in Sources */,
-				C3085A37F6DA8B09854DDB25B9F1E645 /* PanModalPresenter.swift in Sources */,
+				52AFEB9B255906BB003B071B /* PanModalPresentable+Defaults.swift in Sources */,
+				52AFEB862557B8E3003B071B /* QRScannerController.swift in Sources */,
 				7507FC25358E5468B512C74CDB224C42 /* PayME.swift in Sources */,
+				52AFEBA5255906BB003B071B /* PanModalPresentationAnimator.swift in Sources */,
+				52AFEBA4255906BB003B071B /* PanModalAnimator.swift in Sources */,
 				F8F6F23D5995ABB3E84D90CDC247D44D /* PayMESDK-dummy.m in Sources */,
 				D7F62874479C6B85DFB599B4CC2D4DAD /* QRNotFound.swift in Sources */,
 				959F66A92D7FC3A918CAA1CCC3BDC055 /* Success.swift in Sources */,
-				3DB1B749E764722E9D2850FAC88BFD22 /* UIViewController+PanModalPresenter.swift in Sources */,
+				52AFEB9F255906BB003B071B /* PanModalPresentable+UIViewController.swift in Sources */,
+				52AFEBA0255906BB003B071B /* UIViewController+PanModalPresenter.swift in Sources */,
 				FF3D55DF0B9A083C00A6FC52192B449A /* UserInfo.swift in Sources */,
 				6BBAD6B448E16F3B0D10D2876490389B /* WebView.xib in Sources */,
+				52AFEBA1255906BB003B071B /* PanModalPresenter.swift in Sources */,
 				F785A4994F18FF1D3F63F7CD5B725AA5 /* WebViewController.swift in Sources */,
+				52AFEBA3255906BB003B071B /* PanModalPresentationController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

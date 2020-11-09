@@ -87,8 +87,6 @@ public class NetworkRequest {
         let encryptKey = "10000000"
         let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey)
         let xAPIAction = CryptoAES.encryptAES(text: path, password: encryptKey)
-        print("123456", xAPIKey)
-        print("235896", xAPIAction)
         var xAPIMessage = ""
         if self.params != nil{
             xAPIMessage = CryptoAES.encryptAES(text: String(data: params!, encoding: .utf8)!, password: encryptKey)
@@ -97,16 +95,13 @@ public class NetworkRequest {
             let paramsNil = try? JSONSerialization.data(withJSONObject: dictionaryNil)
             xAPIMessage = CryptoAES.encryptAES(text: String(data: paramsNil!, encoding: .utf8)!, password: encryptKey)
         }
-        print("369", xAPIMessage)
         var valueParams = ""
         valueParams += xAPIAction
         valueParams += "POST"
         valueParams += token
         valueParams += xAPIMessage
         valueParams += encryptKey
-        print(237, valueParams)
         let xAPIValidate = CryptoAES.MD5(valueParams)!
-        print(159, xAPIValidate)
         DispatchQueue.main.async {
             onStart()
         }
@@ -154,14 +149,8 @@ public class NetworkRequest {
             validateString += self.token
             validateString += xAPIMessageResponse
             validateString += decryptKey!
-            print(11111)
-            print(decryptKey!)
+         
             let validateMD5 = CryptoAES.MD5(validateString)!
-            
-            print("validateMd5")
-            print(validateMD5)
-            print("xAPIValidateResponse")
-            print(xAPIValidateResponse)
             
             let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey!)
             let dataJSON = stringJSON.data(using: .utf8)
@@ -179,9 +168,10 @@ public class NetworkRequest {
             }
             else {
                 if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
-                    let message = data["message"] as? String ?? "error"
+                    print(159,data)
+                    
                     DispatchQueue.main.async {
-                        onError([code: message])
+                        onError([code: data])
                         onFinally()
                     }
                 }
