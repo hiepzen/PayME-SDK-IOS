@@ -85,6 +85,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var onClose: String = "onClose"
     var openCamera : String = "openCamera"
     var onErrorBack : String = "onError"
+    var onPay : String = "onPay"
     var form = ""
     
     /*let content = """
@@ -112,6 +113,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onClose)
         userController.add(self, name: openCamera)
         userController.add(self, name: onErrorBack)
+        userController.add(self, name: onPay)
+
         let config = WKWebViewConfiguration()
         config.userContentController = userController
         webView = WKWebView(frame: .zero, configuration: config)
@@ -192,8 +195,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             decisionHandler(.allow)
         }
     }
-     
-    
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
@@ -215,6 +216,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         }
         if message.name == onClose {
             self.onCloseWebview()
+        }
+        if message.name == onPay {
+            print("asd")
+            self.onCloseWebview()
+            PayME.openQRCode(currentVC: PayME.currentVC!)
         }
     }
     
