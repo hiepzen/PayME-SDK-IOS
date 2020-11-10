@@ -44,6 +44,7 @@ class ViewController: UIViewController, UITextFieldDelegate{
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "required"
         textField.setLeftPaddingPoints(10)
+        textField.keyboardType = .numberPad
         return textField
     }()
     let phoneLabel: UILabel = {
@@ -62,6 +63,7 @@ class ViewController: UIViewController, UITextFieldDelegate{
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "optional"
         textField.setLeftPaddingPoints(10)
+        textField.keyboardType = .numberPad
         return textField
     }()
     
@@ -100,6 +102,7 @@ class ViewController: UIViewController, UITextFieldDelegate{
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Nhập số tiền"
         textField.setLeftPaddingPoints(10)
+        textField.keyboardType = .numberPad
         return textField
     }()
     
@@ -119,6 +122,7 @@ class ViewController: UIViewController, UITextFieldDelegate{
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Nhập số tiền"
         textField.setLeftPaddingPoints(10)
+        textField.keyboardType = .numberPad
         return textField
     }()
     
@@ -138,6 +142,7 @@ class ViewController: UIViewController, UITextFieldDelegate{
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Nhập số tiền"
         textField.setLeftPaddingPoints(10)
+        textField.keyboardType = .numberPad
         return textField
     }()
     
