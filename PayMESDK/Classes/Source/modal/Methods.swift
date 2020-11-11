@@ -9,10 +9,7 @@ import UIKit
 
 class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,  UITableViewDataSource {
 
-    var data : [MethodInfo] = [
-        MethodInfo(amount: 0, bankCode: "ABC", cardNumber: "def", detail: "", linkedId: nil, swiftCode: "", type: "AppWallet", active: false),
-        MethodInfo(amount: 0, bankCode: "ABC", cardNumber: "def", detail: "", linkedId: nil, swiftCode: "", type: "AppWallet", active: false)
-    ]
+    var data : [MethodInfo] = []
     var active = 0
 
     override func viewDidLoad() {
@@ -59,8 +56,12 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 self.removeSpinner()
                 self.data = responseData
                 self.tableView.reloadData()
-                self.viewDidLayoutSubviews()
+                self.tableView.heightAnchor.constraint(equalToConstant: self.tableView.contentSize.height).isActive = true
+
+                self.view.layoutIfNeeded()
                 self.panModalSetNeedsLayoutUpdate()
+                self.panModalTransition(to: .shortForm)
+
 
 
              }
@@ -72,6 +73,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             print(error)
         })
     }
+
     
     var longFormHeight: PanModalHeight {
         return .intrinsicHeight
@@ -121,8 +123,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         tableView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor, constant: 10).isActive = true
         tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 108.0
         tableView.alwaysBounceVertical = false
 
         closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 19).isActive = true
@@ -142,11 +142,9 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     override func viewDidLayoutSubviews() {
-        print("Test update layout")
         let topPoint = CGPoint(x: detailView.frame.minX+10, y: detailView.bounds.midY + 15)
         let bottomPoint = CGPoint(x: detailView.frame.maxX-10, y: detailView.bounds.midY + 15)
         detailView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203,203,203), strokeLength: 3, gapLength: 4, width: 0.5)
-        tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height).isActive = true
         
         
     }
@@ -335,7 +333,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         tableView.reloadData()
     }
     
-    
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
@@ -366,6 +363,7 @@ extension UIView {
     }
 }
 extension Methods{
+    
     func numberOfSectionsInTableView(_tableView: UITableView) -> Int {
         return data.count
     }
@@ -382,9 +380,6 @@ extension Methods{
         cell.configure(with: data[indexPath.row])
 
         return cell
-    }
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
     }
 }
 var vSpinner : UIView?
