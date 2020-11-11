@@ -10,7 +10,9 @@ import UIKit
 import PayMESDK
 import WebKit
 
-class ViewController: UIViewController, UITextFieldDelegate{
+class ViewController: UIViewController{
+    
+    var activeTextField : UITextField? = nil
     
     let balance: UILabel = {
         let label = UILabel()
@@ -144,6 +146,13 @@ class ViewController: UIViewController, UITextFieldDelegate{
         textField.setLeftPaddingPoints(10)
         textField.keyboardType = .numberPad
         return textField
+    }()
+    
+    let refreshButton : UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "refresh.png"), for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     private let PUBLIC_KEY: String = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi\nwIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ==\n"
@@ -309,9 +318,43 @@ class ViewController: UIViewController, UITextFieldDelegate{
         }
         return true
     }
-    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        guard let keyboardSize = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+
+          // if keyboard size is not available for some reason, dont do anything
+          return
+        }
+
+        var shouldMoveViewUp = false
+
+        // if active text field is not nil
+        if let activeTextField = activeTextField {
+
+          let bottomOfTextField = activeTextField.convert(activeTextField.bounds, to: self.view).maxY;
+          
+          let topOfKeyboard = self.view.frame.height - keyboardSize.height
+
+          // if the bottom of Textfield is below the top of keyboard, move up
+          if bottomOfTextField > topOfKeyboard {
+            shouldMoveViewUp = true
+          }
+        }
+
+        if(shouldMoveViewUp) {
+          self.view.frame.origin.y = 0 - keyboardSize.height
+        }
+    }
+    @objc func keyboardWillHide(notification: NSNotification) {
+      // move back the root view origin to zero
+      self.view.frame.origin.y = 0
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.hideKeyboardWhenTappedAround()
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+
         self.view.addSubview(balance)
         self.view.addSubview(priceLabel)
         self.view.addSubview(userIDLabel)
@@ -326,6 +369,7 @@ class ViewController: UIViewController, UITextFieldDelegate{
         self.view.addSubview(moneyWithDraw)
         self.view.addSubview(payButton)
         self.view.addSubview(moneyPay)
+        self.view.addSubview(refreshButton)
         phoneTextField.delegate = self
         moneyDeposit.delegate = self
         moneyWithDraw.delegate = self
@@ -335,7 +379,13 @@ class ViewController: UIViewController, UITextFieldDelegate{
         balance.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
         
         priceLabel.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
-        priceLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
+        priceLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -20).isActive = true
+        
+        refreshButton.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 8).isActive = true
+        refreshButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
+        refreshButton.addTarget(self, action: #selector(getBalance(_:)), for: .touchUpInside)
+
+        
         
         userIDLabel.topAnchor.constraint(equalTo: balance.bottomAnchor, constant: 30).isActive = true
         userIDLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
@@ -409,6 +459,19 @@ class ViewController: UIViewController, UITextFieldDelegate{
     }
     
 }
+extension ViewController : UITextFieldDelegate {
+  // when user select a textfield, this method will be called
+  func textFieldDidBeginEditing(_ textField: UITextField) {
+    // set the activeTextField to the selected textfield
+    self.activeTextField = textField
+  }
+    
+  // when user click 'done' or dismiss the keyboard
+  func textFieldDidEndEditing(_ textField: UITextField) {
+    self.activeTextField = nil
+  }
+}
+
 extension UITextField {
     func setLeftPaddingPoints(_ amount:CGFloat){
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.size.height))
@@ -420,4 +483,16 @@ extension UITextField {
         self.rightView = paddingView
         self.rightViewMode = .always
     }
+}
+extension UIViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
 }
