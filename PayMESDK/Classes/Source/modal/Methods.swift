@@ -57,7 +57,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 self.data = responseData
                 self.tableView.reloadData()
                 self.tableView.heightAnchor.constraint(equalToConstant: self.tableView.contentSize.height).isActive = true
-
+                self.tableView.alwaysBounceVertical = false
+                self.tableView.isScrollEnabled = false
                 self.view.layoutIfNeeded()
                 self.panModalSetNeedsLayoutUpdate()
                 self.panModalTransition(to: .shortForm)

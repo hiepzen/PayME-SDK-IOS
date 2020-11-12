@@ -174,6 +174,8 @@ class ViewController: UIViewController{
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             }, onError: { error in
+                print("abc")
+                print(error)
                 var errorToken = "Something went wrong"
                 error.values.forEach{ value in
                     let data = value as! [String:AnyObject]
