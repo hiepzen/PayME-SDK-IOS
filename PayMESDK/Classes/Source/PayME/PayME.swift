@@ -38,13 +38,21 @@ public class PayME{
         PayME.currentVC = currentVC
         let qrScan = QRScannerController()
         qrScan.setScanSuccess(onScanSuccess: { response in
+            print(response)
             qrScan.dismiss(animated: true)
             PayME.payWithQRCode(QRContent: response, onSuccess: { result in
-                let params = PayME.convertStringToDictionary(text: response)
-                PayME.currentVC = currentVC
-                PayME.amount = params!["amount"] as! Int
-                PayME.description = description ?? ""
-                PayME.currentVC!.presentPanModal(Methods())
+                if ((result["type"] ?? "" as AnyObject) as! String == "Payment")
+                {
+                    PayME.currentVC = currentVC
+                    PayME.amount = result["amount"] as! Int
+                    PayME.description = (result["content"] ?? "" as AnyObject) as! String
+                    PayME.currentVC!.presentPanModal(Methods())
+                } else {
+                    let alert = UIAlertController(title: "Error", message: "Phương thức này chưa được hỗ trợ", preferredStyle: UIAlertController.Style.alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+                    PayME.currentVC!.present(alert, animated: true, completion: nil)
+                }
+                
             }, onError: { result in
                 qrScan.dismiss(animated: true)
                 PayME.currentVC!.presentPanModal(QRNotFound())

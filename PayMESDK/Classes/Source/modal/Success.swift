@@ -25,7 +25,11 @@ class Success: UIViewController, PanModalPresentable {
         roleLabel.text = PayME.formatMoney(input: PayME.amount)
         failLabel.text = reasonFail
         contentLabel.text = "Nội dung"
-        memoLabel.text = PayME.description
+        if (PayME.description == "") {
+            memoLabel.text = "Không có nội dung"
+        } else {
+            memoLabel.text = PayME.description
+        }
         button.setTitle("HOÀN TẤT", for: .normal)
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
@@ -175,6 +179,7 @@ class Success: UIViewController, PanModalPresentable {
         memoLabel.backgroundColor = .clear
         memoLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         memoLabel.translatesAutoresizingMaskIntoConstraints = false
+        memoLabel.textAlignment = .right
         return memoLabel
     }()
     

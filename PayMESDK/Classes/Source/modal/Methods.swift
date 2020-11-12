@@ -28,7 +28,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         txtLabel.text = "Xác nhận thanh toán"
         price.text = "\(PayME.formatMoney(input: PayME.amount)) đ"
         contentLabel.text = "Nội dung"
-        memoLabel.text = PayME.description
+        if (PayME.description == "") {
+            memoLabel.text = "Không có nội dung"
+        } else {
+            memoLabel.text = PayME.description
+        }
         methodTitle.text = "Chọn nguồn thanh toán"
         button.setTitle("Xác nhận", for: .normal)
         setupConstraints()
@@ -153,6 +157,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     @objc
     func closeAction(button:UIButton)
     {
+        print("Hello")
         self.dismiss(animated: true, completion: nil)
     }
     
@@ -160,6 +165,25 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     func payAction(button:UIButton)
     {
         if(data[active].type == "AppWallet") {
+            if(PayME.amount < 10000) {
+                let alert = UIAlertController(title: "Error", message: "Số tiền tối thiểu để thực hiện giao dịch là 10.000VND", preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+                return
+            }
+            if(PayME.amount > 10000000) {
+                let alert = UIAlertController(title: "Error", message: "Số tiền tối đa để thực hiện giao dịch là 10.000.000VND", preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+                return
+            }
+            if(PayME.amount > data[active].amount!) {
+                let alert = UIAlertController(title: "Error", message: "Số dư trong ví không đủ để thực hiện giao dịch này", preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+                return
+            }
+            
             self.showSpinner(onView: PayME.currentVC!.view)
             PayME.postTransferAppWallet(
             onSuccess:{response in
@@ -172,11 +196,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 self.removeSpinner()
                 self.dismiss(animated: true)
                 let failController = Failed()
-                print(error)
                 error.values.forEach{ value in
                     let data = value as! [String:AnyObject]
                     failController.reasonFail = data["message"] as! String
                 }
+
                 PayME.currentVC!.presentPanModal(failController)
             })
         } else if(data[active].type == "Napas") {
@@ -269,6 +293,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         memoLabel.backgroundColor = .clear
         memoLabel.font = UIFont(name: "Arial", size: 16)
         memoLabel.translatesAutoresizingMaskIntoConstraints = false
+        memoLabel.textAlignment = .right
         return memoLabel
     }()
     

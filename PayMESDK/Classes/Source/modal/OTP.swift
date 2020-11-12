@@ -35,7 +35,8 @@ class OTP: UIViewController, PanModalPresentable {
         roleLabel.textAlignment = .center
         setupConstraints()
         txtField.becomeFirstResponder()
-        
+        self.hideKeyboardWhenTappedAround()
+
         NotificationCenter.default.addObserver(self, selector: #selector(OTP.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(OTP.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
 
@@ -46,18 +47,24 @@ class OTP: UIViewController, PanModalPresentable {
         return .intrinsicHeight
     }
     
-    @objc func keyboardWillShow(notification: Notification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor, constant: keyboardSize.height).isActive = true
+    @objc func keyboardWillShow(notification: NSNotification) {
+        guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+
+          // if keyboard size is not available for some reason, dont do anything
+          return
         }
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor, constant: keyboardSize.height).isActive = true
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
+        
     }
-
-    @objc func keyboardWillHide(notification: Notification) {
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor).isActive = true
-        panModalSetNeedsLayoutUpdate()
+    @objc func keyboardWillHide(notification: NSNotification) {
+      // move back the root view origin to zero
+      bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor).isActive = true
+      panModalSetNeedsLayoutUpdate()
+        
     }
+    
 
     var anchorModalToLongForm: Bool {
         return false
@@ -94,6 +101,37 @@ class OTP: UIViewController, PanModalPresentable {
         
         closeButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor, constant: 10).isActive = true
+        txtField.didEnterLastDigit = { [self] code in
+            self.txtField.showSpinner(onView: PayME.currentVC!.view)
+            PayME.postTransferPVCBVerify(transferId: OTP.transferId!, OTP: code, onSuccess: { onSuccess in
+                self.txtField.removeSpinner()
+                PayME.currentVC!.dismiss(animated: true)
+                PayME.currentVC!.presentPanModal(Success())
+            }, onError: { error in
+                print(1008)
+                print(error)
+                if (error[1008] != nil) {
+                    var message = "Mã OTP không hợp lệ. Vui lòng thử lại."
+                    error.values.forEach{ value in
+                        let data = value as! [String:AnyObject]
+                        message = data["message"] as! String
+                    }
+                    let alert = UIAlertController(title: "Error", message: message, preferredStyle: UIAlertController.Style.alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+                    self.present(alert, animated: true, completion: nil)
+                    return
+                }
+                let failController = Failed()
+                self.txtField.removeSpinner()
+                error.values.forEach{ value in
+                    let data = value as! [String:AnyObject]
+                    failController.reasonFail = data["message"] as! String
+                }
+                PayME.currentVC!.dismiss(animated: true)
+                PayME.currentVC!.presentPanModal(failController)
+                
+            })
+        }
     }
     
     @objc
@@ -109,7 +147,7 @@ class OTP: UIViewController, PanModalPresentable {
         OTP.onError = onError
     }
     
-    let txtField : UITextField = {
+    let txtField : OneTimeCodeTextField = {
         let txtField = OneTimeCodeTextField()
         txtField.defaultCharacter = "-"
         txtField.configure()
@@ -119,7 +157,15 @@ class OTP: UIViewController, PanModalPresentable {
                 txtField.removeSpinner()
                 PayME.currentVC!.dismiss(animated: true)
                 PayME.currentVC!.presentPanModal(Success())
-            }, onError: {error in
+            }, onError: {[self] error in
+                print(1008)
+                print(error)
+                if (error[1008] != nil) {
+                    error.values.forEach{ value in
+                        let data = value as! [String:AnyObject]
+                    }
+                    
+                }
                 let failController = Failed()
                 txtField.removeSpinner()
                 error.values.forEach{ value in
@@ -234,4 +280,17 @@ extension UITextField {
         }
     }
 }
+extension UIViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+}
+
 

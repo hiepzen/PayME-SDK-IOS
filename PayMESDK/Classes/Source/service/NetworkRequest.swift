@@ -123,8 +123,18 @@ public class NetworkRequest {
         let task = URLSession.shared.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error != nil) {
                 DispatchQueue.main.async {
-                    onError([500 : error?.localizedDescription ?? ""])
-                    onFinally()
+                    if (error?.localizedDescription != nil) {
+                        if (error?.localizedDescription == "The Internet connection appears to be offline.") {
+                            onError([500 : ["message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"]])
+                        } else {
+                            onError([500 : ["message" : error?.localizedDescription]])
+                        }
+                        onFinally()
+                    } else {
+                        onError([500 : ["message" : "Something went wrong" ]])
+
+                    }
+                    
                 }
                 return
             }
