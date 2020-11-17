@@ -114,6 +114,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: openCamera)
         userController.add(self, name: onErrorBack)
         userController.add(self, name: onPay)
+        userController.addUserScript(self.getZoomDisableScript())
 
         let config = WKWebViewConfiguration()
         config.userContentController = userController
@@ -122,6 +123,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         webView.navigationDelegate = self
         view = webView
     }
+    private func getZoomDisableScript() -> WKUserScript {
+        let source: String = "var meta = document.createElement('meta');" +
+            "meta.name = 'viewport';" +
+            "meta.content = 'width=device-width, initial-scale=1.0, maximum- scale=1.0, user-scalable=no';" +
+            "var head = document.getElementsByTagName('head')[0];" + "head.appendChild(meta);"
+        return WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+    } 
     
     /*override func viewDidLoad() {
         webView.loadHTMLString(content, baseURL: nil)

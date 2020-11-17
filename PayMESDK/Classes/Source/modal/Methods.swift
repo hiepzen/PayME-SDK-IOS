@@ -253,7 +253,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         failController.reasonFail = data["message"] as! String
                     }
                     PayME.currentVC!.presentPanModal(failController)
-
                 }
             })
         }
