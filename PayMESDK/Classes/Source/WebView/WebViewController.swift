@@ -137,6 +137,17 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     */
     
      override func viewDidLoad() {
+        let dataStore = WKWebsiteDataStore.default()
+        dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { (records) in
+            for record in records {
+                print(record.displayName)
+                if record.displayName.contains("payme.com.vn") {
+                    dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: [record], completionHandler: {
+                        print("Deleted: " + record.displayName);
+                    })
+                }
+            }
+        }
         if #available(iOS 9.0, *) {
           let websiteDataTypes = NSSet(array: [WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache])
           let date = NSDate(timeIntervalSince1970: 0)
@@ -159,7 +170,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             let myRequest : URLRequest
             if myURL != nil
             {
-                myRequest = URLRequest(url: myURL!)
+                myRequest = URLRequest(url: myURL!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
             } else {
                 myRequest = URLRequest(url: URL(string: "http://localhost:3000/")!)
             }
