@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'PayMESDK'
-  s.version          = '0.0.8'
+  s.version          = '0.0.9'
   s.summary          = 'PayME SDK là bộ thư viện để các app có thể tương tác với PayME Platform. PayME SDK bao gồm các chức năng chính như sau.'
   s.swift_versions   = '4.2'
 
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   + Tích hợp các dịch vụ của PayME Platform.
                        DESC
 
-  s.homepage         = 'https://cocoapods.org/pods/PayMESDK'
+  s.homepage         = 'https://payme.vn'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'HuyOpen' => 'huytq@payme.vn' }
