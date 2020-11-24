@@ -161,6 +161,8 @@ class ViewController: UIViewController{
     private var  connectToken: String = ""
     
     @objc func submit(sender: UIButton!) {
+        PayME.showKYCCamera(currentVC: self)
+        /*
         if (userIDTextField.text != "") {
             let formatter = ISO8601DateFormatter()
             PayME.appPrivateKey = self.PRIVATE_KEY
@@ -185,6 +187,7 @@ class ViewController: UIViewController{
                 self.present(alert, animated: true, completion: nil)
             })
         }
+         */
     }
     @objc func openWalletAction(sender: UIButton!) {
         if (self.connectToken != "") {

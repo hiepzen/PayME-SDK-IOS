@@ -30,8 +30,16 @@ public class PayME{
 
     
     public func showModal(currentVC : UIViewController){
+        
         PayME.currentVC = currentVC
         currentVC.presentPanModal(Methods())
+    }
+    
+    public static func showKYCCamera(currentVC: UIViewController) {
+        PayME.currentVC = currentVC
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        currentVC.navigationController?.pushViewController(KYCCameraController(), animated: true)
     }
     
     public static func openQRCode(currentVC : UIViewController) {
@@ -46,23 +54,27 @@ public class PayME{
                     PayME.currentVC = currentVC
                     PayME.amount = result["amount"] as! Int
                     PayME.description = (result["content"] ?? "" as AnyObject) as! String
+                    currentVC.navigationController?.popViewController(animated: true)
                     PayME.currentVC!.presentPanModal(Methods())
                 } else {
                     let alert = UIAlertController(title: "Error", message: "Phương thức này chưa được hỗ trợ", preferredStyle: UIAlertController.Style.alert)
+                    currentVC.navigationController?.popViewController(animated: true)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                     PayME.currentVC!.present(alert, animated: true, completion: nil)
                 }
                 
             }, onError: { result in
-                qrScan.dismiss(animated: true)
+                currentVC.navigationController?.popViewController(animated: true)
                 PayME.currentVC!.presentPanModal(QRNotFound())
             })
         })
         qrScan.setScanFail(onScanFail: { error in
-            qrScan.dismiss(animated: true)
+            currentVC.navigationController?.popViewController(animated: true)
             PayME.currentVC!.presentPanModal(QRNotFound())
         })
-        currentVC.present(qrScan, animated: true)
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        currentVC.navigationController?.pushViewController(qrScan, animated: true)
     }
     
     public static func convertStringToDictionary(text: String) -> [String:AnyObject]? {

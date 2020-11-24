@@ -15,6 +15,8 @@ class QRScannerController: UIViewController {
     var captureSession = AVCaptureSession()
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     var qrCodeFrameView: UIView?
+    weak var shapeLayer: CAShapeLayer?
+
     
     private var onScanSuccess: ((String) -> ())? = nil
     private var onScanFail: ((String) -> ())? = nil
@@ -50,35 +52,46 @@ class QRScannerController: UIViewController {
         return messageLabel
     }()
     
-    let scanLabel: UILabel = {
-        let scanLabel = UILabel()
-        scanLabel.textColor = .white
-        scanLabel.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
-        scanLabel.font = UIFont(name: "Arial", size: 16)
-        scanLabel.translatesAutoresizingMaskIntoConstraints = false
-        scanLabel.text = "SCAN"
-        return scanLabel
+    
+    let backButton: UIButton = {
+        let button = UIButton()
+        let bundle = Bundle(for: QRScannerController.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let image = UIImage(named: "previous", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 16)
+        button.setImage(image, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
-    let topView : UIView = {
-        let topView  = UIView()
-        topView.backgroundColor = UIColor.init(red: 1, green: 1, blue: 1, alpha: 0.5)
-        topView.translatesAutoresizingMaskIntoConstraints = false
-        return topView
+    let logoPayME: UIImageView = {
+        let bundle = Bundle(for: QRScannerController.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let image = UIImage(named: "iconPayme", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 32)
+        var bgImage = UIImageView(image: image)
+        bgImage.isHidden = true
+        bgImage.translatesAutoresizingMaskIntoConstraints = false
+        return bgImage
     }()
     
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         view.addSubview(messageLabel)
-        view.addSubview(topView)
-        topView.addSubview(scanLabel)
+        view.addSubview(backButton)
+        view.addSubview(logoPayME)
         // Get the back-facing camera for capturing videos
         guard let captureDevice = AVCaptureDevice.default(for: AVMediaType.video) else {
             print("Failed to get the camera device")
             return
+        }
+        if(captureDevice.isFocusModeSupported(.continuousAutoFocus)) {
+            try! captureDevice.lockForConfiguration()
+            captureDevice.focusMode = .continuousAutoFocus
+            captureDevice.unlockForConfiguration()
         }
         
         do {
@@ -103,6 +116,8 @@ class QRScannerController: UIViewController {
             return
         }
         
+        
+        
         // Initialize the video preview layer and add it as a sublayer to the viewPreview view's layer.
         videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         videoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
@@ -112,30 +127,65 @@ class QRScannerController: UIViewController {
         // Start video capture.
         captureSession.startRunning()
         
-        topView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
-        topView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
-        topView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
-        topView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        if #available(iOS 11, *) {
+          let guide = view.safeAreaLayoutGuide
+          NSLayoutConstraint.activate([
+            backButton.topAnchor.constraint(equalToSystemSpacingBelow: guide.topAnchor, multiplier: 1.0)
+           ])
+        } else {
+           let standardSpacing: CGFloat = 8.0
+           NSLayoutConstraint.activate([
+           backButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: standardSpacing)
+           ])
+        }
         
-        scanLabel.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
-        scanLabel.centerYAnchor.constraint(equalTo: topView.centerYAnchor).isActive = true
+        backButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
         
         messageLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
         messageLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
         messageLabel.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -10).isActive = true
         messageLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
+        backButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        backButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        
         // Move the message label and top bar to the front
-        view.bringSubviewToFront(messageLabel)
-        view.bringSubviewToFront(topView)
+        view.bringSubviewToFront(backButton)
+        view.bringSubviewToFront(logoPayME)
 
         
-        // Initialize QR Code Frame to highlight the QR code
-        qrCodeFrameView = UIView()
+        self.shapeLayer?.removeFromSuperlayer()
+
+        // create whatever path you want
+
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: self.view.frame.minX + 30, y: (self.view.frame.maxY / 2) - 100))
+        path.addLine(to: CGPoint(x: self.view.frame.maxX - 30, y: (self.view.frame.maxY / 2) - 100))
+
+        // create shape layer for that path
+
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+        shapeLayer.strokeColor = UIColor(8,148,31).cgColor
+        shapeLayer.lineWidth = 4
+        shapeLayer.path = path.cgPath
+        view.layer.addSublayer(shapeLayer)
         
+        let animationDown = CABasicAnimation(keyPath: "position")
+        animationDown.fromValue = shapeLayer.position
+        animationDown.toValue = CGPoint(x: shapeLayer.position.x, y: shapeLayer.position.y + 150)
+        animationDown.duration = 2
+        shapeLayer.position = CGPoint(x: shapeLayer.position.x, y: shapeLayer.position.y + 150)
+        animationDown.autoreverses = true
+        animationDown.repeatCount = .infinity
+
+        shapeLayer.add(animationDown, forKey: "test")
+        
+        self.shapeLayer = shapeLayer
+        qrCodeFrameView = UIView()
+        backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
+
         if let qrCodeFrameView = qrCodeFrameView {
-            qrCodeFrameView.layer.borderColor = UIColor.green.cgColor
-            qrCodeFrameView.layer.borderWidth = 2
             view.addSubview(qrCodeFrameView)
             view.bringSubviewToFront(qrCodeFrameView)
         }
@@ -145,6 +195,11 @@ class QRScannerController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    @objc func back () {
+        navigationController?.popViewController(animated: true)
+
+    }
+    
     
     // MARK: - Helper methods
 
@@ -198,6 +253,7 @@ extension QRScannerController: AVCaptureMetadataOutputObjectsDelegate {
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         // Check if the metadataObjects array is not nil and it contains at least one object.
         if metadataObjects.count == 0 {
+            logoPayME.frame = CGRect.zero
             qrCodeFrameView?.frame = CGRect.zero
             messageLabel.text = "No QR code is detected"
             return
@@ -210,6 +266,9 @@ extension QRScannerController: AVCaptureMetadataOutputObjectsDelegate {
             // If the found metadata is equal to the QR code metadata (or barcode) then update the status label's text and set the bounds
             let barCodeObject = videoPreviewLayer?.transformedMetadataObject(for: metadataObj)
             qrCodeFrameView?.frame = barCodeObject!.bounds
+            logoPayME.isHidden = false
+            logoPayME.centerXAnchor.constraint(equalTo: qrCodeFrameView!.centerXAnchor).isActive = true
+            logoPayME.centerYAnchor.constraint(equalTo: qrCodeFrameView!.centerYAnchor).isActive = true
             
             if metadataObj.stringValue != nil {
                 self.captureSession.stopRunning()
