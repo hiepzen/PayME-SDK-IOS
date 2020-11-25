@@ -184,7 +184,6 @@ class Failed: UIViewController, PanModalPresentable {
     override func viewDidLayoutSubviews() {
         let topPoint = CGPoint(x: failLabel.bounds.minX, y: failLabel.bounds.maxY + 15.5)
         let bottomPoint = CGPoint(x: failLabel.bounds.maxX, y: failLabel.bounds.maxY + 15.5)
-        failLabel.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203,203,203), strokeLength: 3, gapLength: 4, width: 0.5)
     }
     
     

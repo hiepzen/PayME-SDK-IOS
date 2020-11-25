@@ -19,15 +19,16 @@ class KYCCameraController: UIViewController {
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
 
-
-
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        initializeCaptureSession()
         view.addSubview(backButton)
         view.addSubview(titleLabel)
         view.addSubview(pressCamera)
+        view.addSubview(guideLabel)
+        view.addSubview(choiceDocumentType)
+        view.addSubview(frontSide)
+        
+        initializeCaptureSession()
         if #available(iOS 11, *) {
           let guide = view.safeAreaLayoutGuide
           NSLayoutConstraint.activate([
@@ -48,6 +49,11 @@ class KYCCameraController: UIViewController {
         backButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         backButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
         
+        choiceDocumentType.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 16).isActive = true
+        choiceDocumentType.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 37).isActive = true
+        choiceDocumentType.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
+        
         pressCamera.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         pressCamera.widthAnchor.constraint(equalToConstant: 80).isActive = true
         pressCamera.heightAnchor.constraint(equalToConstant: 80).isActive = true
@@ -55,41 +61,27 @@ class KYCCameraController: UIViewController {
         titleLabel.text = "Chụp ảnh giấy tờ"
         titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
+        frontSide.text = "Mặt trước"
+        frontSide.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 44).isActive = true
+        frontSide.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
+
+        
+        guideLabel.text = "Vui lòng cân chỉnh giấy tờ tùy thân vào giữa khung"
+        guideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        guideLabel.topAnchor.constraint(equalTo: choiceDocumentType.bottomAnchor, constant: (self.cameraPreviewLayer?.frame.height)! + 30).isActive = true
+        guideLabel.widthAnchor.constraint(equalToConstant: self.view.frame.width).isActive = true
+
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
         pressCamera.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
+        choiceDocumentType.addTarget(self, action: #selector(choiceDocument), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
-        
-
-        var path = UIBezierPath()
-        path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX - 40, y: self.cameraPreviewLayer!.frame.minY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY + 40))
-        var shapeLayer = CAShapeLayer()
-        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-        shapeLayer.strokeColor = UIColor(8,148,31).cgColor
-        shapeLayer.lineWidth = 4
-        shapeLayer.path = path.cgPath
-        view.layer.addSublayer(shapeLayer)
-        self.shapeLayer_topRight = shapeLayer
-        
-        path = UIBezierPath()
-        path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX - 40, y: self.cameraPreviewLayer!.frame.minY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY + 40))
-
-        
-        // create shape layer for that path
-
-        shapeLayer = CAShapeLayer()
-        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-        shapeLayer.strokeColor = UIColor(8,148,31).cgColor
-        shapeLayer.lineWidth = 4
-        shapeLayer.path = path.cgPath
-        view.layer.addSublayer(shapeLayer)
-        self.shapeLayer_topLeft = shapeLayer
         
         
         // Do any additional setup after loading the view, typically from a nib.
+    }
+    @objc func choiceDocument() {
+        self.presentPanModal(KYCDocumentController())
+
     }
     
     @objc func back () {
@@ -105,7 +97,7 @@ class KYCCameraController: UIViewController {
     
     let backButton: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: QRScannerController.self)
+        let bundle = Bundle(for: KYCCameraController.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let image = UIImage(named: "previous", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 16)
@@ -116,7 +108,7 @@ class KYCCameraController: UIViewController {
     
     let pressCamera: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: QRScannerController.self)
+        let bundle = Bundle(for: KYCCameraController.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let image = UIImage(named: "takepicBtn", in: resourceBundle, compatibleWith: nil)
@@ -132,6 +124,41 @@ class KYCCameraController: UIViewController {
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    let guideLabel : UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(255,255,255)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        return label
+    }()
+    
+    let frontSide : UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(230,230,230)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    let choiceDocumentType: UIButton = {
+        let button = UIButton()
+        let bundle = Bundle(for: KYCCameraController.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let image = UIImage(named: "24Px", in: resourceBundle, compatibleWith: nil)
+        button.setTitle("Chứng minh nhân dân", for: .normal)
+        button.setImage(image, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.titleEdgeInsets = UIEdgeInsets(top:0, left: -30, bottom:0, right:0) //adjust insets to have fit how you want
+        button.imageEdgeInsets = UIEdgeInsets(top:0, left: 185, bottom:0, right: 0) //adjust these to have fit right
+        return button
     }()
     
     func displayCapturedPhoto(capturedPhoto : UIImage) {
@@ -160,7 +187,7 @@ class KYCCameraController: UIViewController {
         
         cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
         cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        cameraPreviewLayer?.frame = CGRect(x: 16, y: 100, width: screenSize.width - 32, height: (screenSize.width-32) * 0.67)
+        cameraPreviewLayer?.frame = CGRect(x: 16, y: 140, width: screenSize.width - 32, height: (screenSize.width-32) * 0.67)
         cameraPreviewLayer?.masksToBounds = true
         cameraPreviewLayer?.cornerRadius = 15
 
@@ -168,6 +195,55 @@ class KYCCameraController: UIViewController {
         cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
         
         view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
+        
+        var path = UIBezierPath()
+        path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX + 40, y: self.cameraPreviewLayer!.frame.minY))
+        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.minY))
+        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.minY + 40))
+        
+        var shapeLayer = CAShapeLayer()
+        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+        shapeLayer.strokeColor = UIColor(255,255,255).cgColor
+        shapeLayer.lineWidth = 4
+        shapeLayer.path = path.cgPath
+        view.layer.addSublayer(shapeLayer)
+        self.shapeLayer_topLeft = shapeLayer
+        
+        path = UIBezierPath()
+        path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX - 40, y: self.cameraPreviewLayer!.frame.minY))
+        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY))
+        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY + 40))
+        shapeLayer = CAShapeLayer()
+        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+        shapeLayer.strokeColor = UIColor(255,255,255).cgColor
+        shapeLayer.lineWidth = 4
+        shapeLayer.path = path.cgPath
+        view.layer.addSublayer(shapeLayer)
+        self.shapeLayer_topRight = shapeLayer
+        
+        path = UIBezierPath()
+        path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX + 40, y: self.cameraPreviewLayer!.frame.maxY))
+        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.maxY))
+        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.maxY - 40))
+        shapeLayer = CAShapeLayer()
+        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+        shapeLayer.strokeColor = UIColor(255,255,255).cgColor
+        shapeLayer.lineWidth = 4
+        shapeLayer.path = path.cgPath
+        view.layer.addSublayer(shapeLayer)
+        self.shapeLayer_bottomLeft = shapeLayer
+        
+        path = UIBezierPath()
+        path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX - 40, y: self.cameraPreviewLayer!.frame.maxY))
+        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.maxY))
+        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.maxY - 40))
+        shapeLayer = CAShapeLayer()
+        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+        shapeLayer.strokeColor = UIColor(255,255,255).cgColor
+        shapeLayer.lineWidth = 4
+        shapeLayer.path = path.cgPath
+        view.layer.addSublayer(shapeLayer)
+        self.shapeLayer_bottomRight = shapeLayer
         
         session.startRunning()
     }

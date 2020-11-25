@@ -188,6 +188,7 @@ class ViewController: UIViewController{
             })
         }
          */
+        
     }
     @objc func openWalletAction(sender: UIButton!) {
         if (self.connectToken != "") {

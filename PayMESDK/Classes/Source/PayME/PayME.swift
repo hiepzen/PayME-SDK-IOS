@@ -30,7 +30,6 @@ public class PayME{
 
     
     public func showModal(currentVC : UIViewController){
-        
         PayME.currentVC = currentVC
         currentVC.presentPanModal(Methods())
     }
@@ -46,7 +45,7 @@ public class PayME{
         PayME.currentVC = currentVC
         let qrScan = QRScannerController()
         qrScan.setScanSuccess(onScanSuccess: { response in
-            print(response)
+            PayME.currentVC!.showSpinner(onView: PayME.currentVC!.view)
             qrScan.dismiss(animated: true)
             PayME.payWithQRCode(QRContent: response, onSuccess: { result in
                 if ((result["type"] ?? "" as AnyObject) as! String == "Payment")
@@ -56,14 +55,18 @@ public class PayME{
                     PayME.description = (result["content"] ?? "" as AnyObject) as! String
                     currentVC.navigationController?.popViewController(animated: true)
                     PayME.currentVC!.presentPanModal(Methods())
+                    PayME.currentVC!.removeSpinner()
+
                 } else {
                     let alert = UIAlertController(title: "Error", message: "Phương thức này chưa được hỗ trợ", preferredStyle: UIAlertController.Style.alert)
                     currentVC.navigationController?.popViewController(animated: true)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                     PayME.currentVC!.present(alert, animated: true, completion: nil)
+                    PayME.currentVC!.removeSpinner()
                 }
                 
             }, onError: { result in
+                PayME.currentVC!.removeSpinner()
                 currentVC.navigationController?.popViewController(animated: true)
                 PayME.currentVC!.presentPanModal(QRNotFound())
             })
