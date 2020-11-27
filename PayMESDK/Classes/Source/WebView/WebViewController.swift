@@ -232,6 +232,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
+            print(message.body)
+            if let dictionary = message.body as? [String: AnyObject] {
+                print(dictionary)
+            }
             setupCamera()
         }
         if message.name == onCommunicate {
@@ -260,7 +264,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     func setupCamera() {
         let kycCameraController = KYCCameraController()
         kycCameraController.setSuccessCapture(onSuccessCapture: { response in
-            print(response)
+            self.webView?.evaluateJavaScript("document.getElementById('ImageReview').src='\(response)'") { (result, error) in
+                //print(result)
+            }
+            self.navigationController?.popViewController(animated: true)
         })
         navigationController?.pushViewController(kycCameraController, animated: true)
     }
