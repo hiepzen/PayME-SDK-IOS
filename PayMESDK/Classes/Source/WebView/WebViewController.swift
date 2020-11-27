@@ -115,7 +115,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onErrorBack)
         userController.add(self, name: onPay)
         userController.addUserScript(self.getZoomDisableScript())
-
+        
         let config = WKWebViewConfiguration()
         config.userContentController = userController
         webView = WKWebView(frame: .zero, configuration: config)
@@ -258,11 +258,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     
 
     func setupCamera() {
-        vc = UIImagePickerController()
-        vc.sourceType = .camera
-        vc.allowsEditing = true
-        vc.delegate = self
-        self.present(vc, animated: true)
+        let kycCameraController = KYCCameraController()
+        kycCameraController.setSuccessCapture(onSuccessCapture: { response in
+            print(response)
+        })
+        navigationController?.pushViewController(kycCameraController, animated: true)
     }
     
     @objc override func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {

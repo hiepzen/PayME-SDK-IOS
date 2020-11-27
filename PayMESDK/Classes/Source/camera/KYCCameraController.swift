@@ -18,7 +18,10 @@ class KYCCameraController: UIViewController {
     weak var shapeLayer_topRight: CAShapeLayer?
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
+    private var onSuccessCapture: ((String) -> ())? = nil
 
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(backButton)
@@ -79,6 +82,11 @@ class KYCCameraController: UIViewController {
         
         // Do any additional setup after loading the view, typically from a nib.
     }
+    public func setSuccessCapture(onSuccessCapture: @escaping (String) -> ()){
+        self.onSuccessCapture = onSuccessCapture
+    }
+    
+    
     @objc func choiceDocument() {
         self.presentPanModal(KYCDocumentController())
 
@@ -285,7 +293,7 @@ extension KYCCameraController : AVCapturePhotoCaptureDelegate {
             let resizeImage = finalImage.resizeImage(targetSize: CGSize(width:512, height: 512*0.67))
             let imageData:Data = resizeImage.pngData()!
             let base64String = "data:image/jpeg;base64," + imageData.base64EncodedString()
-            print(base64String)
+            self.onSuccessCapture!(base64String)
         }
     }
 }
