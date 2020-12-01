@@ -123,6 +123,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         webView.navigationDelegate = self
         view = webView
     }
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        self.showSpinner(onView: PayME.currentVC!.view)
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        self.removeSpinner()
+    }
     private func getZoomDisableScript() -> WKUserScript {
         let source: String = "var meta = document.createElement('meta');" +
             "meta.name = 'viewport';" +
