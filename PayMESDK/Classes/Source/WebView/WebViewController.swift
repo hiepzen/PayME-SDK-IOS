@@ -232,11 +232,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
-            print(message.body)
             if let dictionary = message.body as? [String: AnyObject] {
-                print(dictionary)
+                setupCamera(dictionary: dictionary)
             }
-            setupCamera()
         }
         if message.name == onCommunicate {
             if let dictionary = message.body as? [String: AnyObject] {
@@ -261,13 +259,22 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
     
 
-    func setupCamera() {
+    func setupCamera(dictionary : [String:AnyObject]) {
+        let isFront = dictionary["isFront"] as? Int ?? 1
         let kycCameraController = KYCCameraController()
+        if (isFront == 1) {
+            kycCameraController.txtFront = "Mặt trước"
+        } else {
+            kycCameraController.txtFront = "Mặt sau"
+        }
         kycCameraController.setSuccessCapture(onSuccessCapture: { response in
             self.webView?.evaluateJavaScript("document.getElementById('ImageReview').src='\(response)'") { (result, error) in
                 //print(result)
             }
             self.navigationController?.popViewController(animated: true)
+        })
+        kycCameraController.setOnBack(onBack: {a in
+            self.webView.goBack()
         })
         navigationController?.pushViewController(kycCameraController, animated: true)
     }

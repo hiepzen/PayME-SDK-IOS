@@ -19,7 +19,8 @@ class KYCCameraController: UIViewController {
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
     private var onSuccessCapture: ((String) -> ())? = nil
-
+    private var onBack: ((String) -> ())? = nil
+    public var txtFront = ""
     
     
     override func viewDidLoad() {
@@ -64,7 +65,7 @@ class KYCCameraController: UIViewController {
         titleLabel.text = "Chụp ảnh giấy tờ"
         titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
-        frontSide.text = "Mặt trước"
+        frontSide.text = self.txtFront
         frontSide.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 44).isActive = true
         frontSide.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
 
@@ -78,12 +79,18 @@ class KYCCameraController: UIViewController {
         pressCamera.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
         choiceDocumentType.addTarget(self, action: #selector(choiceDocument), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
+        if (self.txtFront == "Mặt sau") {
+            choiceDocumentType.isHidden = true
+        }
         
         
         // Do any additional setup after loading the view, typically from a nib.
     }
     public func setSuccessCapture(onSuccessCapture: @escaping (String) -> ()){
         self.onSuccessCapture = onSuccessCapture
+    }
+    public func setOnBack(onBack: @escaping (String) -> ()){
+        self.onBack = onBack
     }
     
     
@@ -93,6 +100,7 @@ class KYCCameraController: UIViewController {
     }
     
     @objc func back () {
+        self.onBack!("back")
         navigationController?.popViewController(animated: true)
 
     }
