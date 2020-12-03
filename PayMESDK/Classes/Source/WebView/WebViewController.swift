@@ -87,6 +87,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var onErrorBack : String = "onError"
     var onPay : String = "onPay"
     var form = ""
+    var imageFront : UIImage?
+    var imageBack : UIImage?
     
     /*let content = """
           <!DOCTYPE html><html><body>
@@ -136,7 +138,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             "meta.content = 'width=device-width, initial-scale=1.0, maximum- scale=1.0, user-scalable=no';" +
             "var head = document.getElementsByTagName('head')[0];" + "head.appendChild(meta);"
         return WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
-    } 
+    }
     
     /*override func viewDidLoad() {
         webView.loadHTMLString(content, baseURL: nil)
@@ -239,9 +241,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
-            if let dictionary = message.body as? [String: AnyObject] {
-                setupCamera(dictionary: dictionary)
-            }
+            setupCamera()
+            
         }
         if message.name == onCommunicate {
             if let dictionary = message.body as? [String: AnyObject] {
@@ -266,23 +267,26 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
     
 
-    func setupCamera(dictionary : [String:AnyObject]) {
-        let isFront = dictionary["isFront"] as? Int ?? 1
+    func setupCamera() {
         let kycCameraController = KYCCameraController()
-        if (isFront == 1) {
-            kycCameraController.txtFront = "Mặt trước"
-        } else {
-            kycCameraController.txtFront = "Mặt sau"
-        }
         kycCameraController.setSuccessCapture(onSuccessCapture: { response in
-            self.webView?.evaluateJavaScript("document.getElementById('ImageReview').src='\(response)'") { (result, error) in
+            print(response)
+            let kycFront = KYCFrontController()
+            kycFront.kycImage = response
+            self.navigationController?.pushViewController(kycFront, animated: true)
+
+            //self.webView?.evaluateJavaScript("document.getElementById('ImageReview').src='\(response)'") { (result, error) in
                 //print(result)
-            }
-            self.navigationController?.popViewController(animated: true)
+            //}
+            //self.navigationController?.popViewController(animated: true)
+            /*PayME.uploadImageKYC(imageFront: response, imageBack: nil, onSuccess: { a in
+                print(a)
+            }, onError: { b in
+                print(b)
+            })
+             */
         })
-        kycCameraController.setOnBack(onBack: {a in
-            self.webView.goBack()
-        })
+
         navigationController?.pushViewController(kycCameraController, animated: true)
     }
     
@@ -343,12 +347,10 @@ extension UIImage {
       let heightRatio = targetSize.height / size.height
       let newSize = widthRatio > heightRatio ?  CGSize(width: size.width * heightRatio, height: size.height * heightRatio) : CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
       let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
-
       UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
       self.draw(in: rect)
       let newImage = UIGraphicsGetImageFromCurrentImageContext()
       UIGraphicsEndImageContext()
-    
       return newImage!
     }
     func resizeWithWidth(width: CGFloat) -> UIImage? {

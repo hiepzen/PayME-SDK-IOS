@@ -18,9 +18,10 @@ class KYCCameraController: UIViewController {
     weak var shapeLayer_topRight: CAShapeLayer?
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
-    private var onSuccessCapture: ((String) -> ())? = nil
+    private var onSuccessCapture: ((UIImage) -> ())? = nil
     private var onBack: ((String) -> ())? = nil
     public var txtFront = ""
+    public var imageFront : UIImage?
     
     
     override func viewDidLoad() {
@@ -46,7 +47,6 @@ class KYCCameraController: UIViewController {
             backButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: standardSpacing),
             titleLabel.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: standardSpacing+5),
             pressCamera.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -standardSpacing)
-            
            ])
         }
         backButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
@@ -57,7 +57,6 @@ class KYCCameraController: UIViewController {
         choiceDocumentType.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 37).isActive = true
         choiceDocumentType.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
-        
         pressCamera.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         pressCamera.widthAnchor.constraint(equalToConstant: 80).isActive = true
         pressCamera.heightAnchor.constraint(equalToConstant: 80).isActive = true
@@ -69,24 +68,26 @@ class KYCCameraController: UIViewController {
         frontSide.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 44).isActive = true
         frontSide.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
 
-        
         guideLabel.text = "Vui lòng cân chỉnh giấy tờ tùy thân vào giữa khung"
         guideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        guideLabel.topAnchor.constraint(equalTo: choiceDocumentType.bottomAnchor, constant: (self.cameraPreviewLayer?.frame.height)! + 30).isActive = true
+        guideLabel.topAnchor.constraint(equalTo: choiceDocumentType.bottomAnchor, constant: (self.cameraPreviewLayer?.bounds.height ?? (screenSize.width-32) * 0.67) + 60).isActive = true
         guideLabel.widthAnchor.constraint(equalToConstant: self.view.frame.width).isActive = true
 
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
         pressCamera.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
         choiceDocumentType.addTarget(self, action: #selector(choiceDocument), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
-        if (self.txtFront == "Mặt sau") {
+        if (self.imageFront != nil) {
+            self.txtFront = "Mặt sau"
             choiceDocumentType.isHidden = true
+        } else {
+            self.txtFront = "Mặt trước"
         }
         
         
         // Do any additional setup after loading the view, typically from a nib.
     }
-    public func setSuccessCapture(onSuccessCapture: @escaping (String) -> ()){
+    public func setSuccessCapture(onSuccessCapture: @escaping (UIImage) -> ()){
         self.onSuccessCapture = onSuccessCapture
     }
     public func setOnBack(onBack: @escaping (String) -> ()){
@@ -100,7 +101,6 @@ class KYCCameraController: UIViewController {
     }
     
     @objc func back () {
-        self.onBack!("back")
         navigationController?.popViewController(animated: true)
 
     }
@@ -188,80 +188,82 @@ class KYCCameraController: UIViewController {
     func initializeCaptureSession() {
         
         session.sessionPreset = AVCaptureSession.Preset.high
-        camera = AVCaptureDevice.default(for: AVMediaType.video)
-        
+        guard let camera = AVCaptureDevice.default(for: AVMediaType.video)
+            else {
+                print("Unable to access back camera!")
+                return
+        }
         do {
-            let cameraCaptureInput = try AVCaptureDeviceInput(device: camera!)
+            let cameraCaptureInput = try AVCaptureDeviceInput(device: camera)
             cameraCaptureOutput = AVCapturePhotoOutput()
-            
             session.addInput(cameraCaptureInput)
             session.addOutput(cameraCaptureOutput!)
+            cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
+            cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+            cameraPreviewLayer?.frame = CGRect(x: 16, y: 160, width: screenSize.width - 32, height: (screenSize.width-32) * 0.67)
+            cameraPreviewLayer?.masksToBounds = true
+            cameraPreviewLayer?.cornerRadius = 15
+
+
+            cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
             
+            view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
+            
+            var path = UIBezierPath()
+            path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX + 40, y: self.cameraPreviewLayer!.frame.minY))
+            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.minY))
+            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.minY + 40))
+            
+            var shapeLayer = CAShapeLayer()
+            shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+            shapeLayer.strokeColor = UIColor(255,255,255).cgColor
+            shapeLayer.lineWidth = 4
+            shapeLayer.path = path.cgPath
+            view.layer.addSublayer(shapeLayer)
+            self.shapeLayer_topLeft = shapeLayer
+            
+            path = UIBezierPath()
+            path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX - 40, y: self.cameraPreviewLayer!.frame.minY))
+            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY))
+            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY + 40))
+            shapeLayer = CAShapeLayer()
+            shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+            shapeLayer.strokeColor = UIColor(255,255,255).cgColor
+            shapeLayer.lineWidth = 4
+            shapeLayer.path = path.cgPath
+            view.layer.addSublayer(shapeLayer)
+            self.shapeLayer_topRight = shapeLayer
+            
+            path = UIBezierPath()
+            path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX + 40, y: self.cameraPreviewLayer!.frame.maxY))
+            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.maxY))
+            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.maxY - 40))
+            shapeLayer = CAShapeLayer()
+            shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+            shapeLayer.strokeColor = UIColor(255,255,255).cgColor
+            shapeLayer.lineWidth = 4
+            shapeLayer.path = path.cgPath
+            view.layer.addSublayer(shapeLayer)
+            self.shapeLayer_bottomLeft = shapeLayer
+            
+            path = UIBezierPath()
+            path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX - 40, y: self.cameraPreviewLayer!.frame.maxY))
+            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.maxY))
+            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.maxY - 40))
+            shapeLayer = CAShapeLayer()
+            shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+            shapeLayer.strokeColor = UIColor(255,255,255).cgColor
+            shapeLayer.lineWidth = 4
+            shapeLayer.path = path.cgPath
+            view.layer.addSublayer(shapeLayer)
+            self.shapeLayer_bottomRight = shapeLayer
+            
+            session.startRunning()
         } catch {
             print(error.localizedDescription)
         }
         
-        cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
-        cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        cameraPreviewLayer?.frame = CGRect(x: 16, y: 140, width: screenSize.width - 32, height: (screenSize.width-32) * 0.67)
-        cameraPreviewLayer?.masksToBounds = true
-        cameraPreviewLayer?.cornerRadius = 15
-
-
-        cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
         
-        view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
-        
-        var path = UIBezierPath()
-        path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX + 40, y: self.cameraPreviewLayer!.frame.minY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.minY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.minY + 40))
-        
-        var shapeLayer = CAShapeLayer()
-        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-        shapeLayer.strokeColor = UIColor(255,255,255).cgColor
-        shapeLayer.lineWidth = 4
-        shapeLayer.path = path.cgPath
-        view.layer.addSublayer(shapeLayer)
-        self.shapeLayer_topLeft = shapeLayer
-        
-        path = UIBezierPath()
-        path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX - 40, y: self.cameraPreviewLayer!.frame.minY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY + 40))
-        shapeLayer = CAShapeLayer()
-        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-        shapeLayer.strokeColor = UIColor(255,255,255).cgColor
-        shapeLayer.lineWidth = 4
-        shapeLayer.path = path.cgPath
-        view.layer.addSublayer(shapeLayer)
-        self.shapeLayer_topRight = shapeLayer
-        
-        path = UIBezierPath()
-        path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX + 40, y: self.cameraPreviewLayer!.frame.maxY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.maxY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.maxY - 40))
-        shapeLayer = CAShapeLayer()
-        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-        shapeLayer.strokeColor = UIColor(255,255,255).cgColor
-        shapeLayer.lineWidth = 4
-        shapeLayer.path = path.cgPath
-        view.layer.addSublayer(shapeLayer)
-        self.shapeLayer_bottomLeft = shapeLayer
-        
-        path = UIBezierPath()
-        path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX - 40, y: self.cameraPreviewLayer!.frame.maxY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.maxY))
-        path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.maxY - 40))
-        shapeLayer = CAShapeLayer()
-        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-        shapeLayer.strokeColor = UIColor(255,255,255).cgColor
-        shapeLayer.lineWidth = 4
-        shapeLayer.path = path.cgPath
-        view.layer.addSublayer(shapeLayer)
-        self.shapeLayer_bottomRight = shapeLayer
-        
-        session.startRunning()
     }
     
 }
@@ -299,9 +301,7 @@ extension KYCCameraController : AVCapturePhotoCaptureDelegate {
                 scale:1,
                 orientation: image.imageOrientation )
             let resizeImage = finalImage.resizeImage(targetSize: CGSize(width:512, height: 512*0.67))
-            let imageData:Data = resizeImage.pngData()!
-            let base64String = "data:image/jpeg;base64," + imageData.base64EncodedString()
-            self.onSuccessCapture!(base64String)
+            self.onSuccessCapture!(resizeImage)
         }
     }
 }

@@ -27,7 +27,7 @@ public class NetworkRequest {
     
     public func setOnRequest(
         onStart: @escaping () -> (),
-        onError: @escaping (String) -> (),
+        onError: @escaping (Dictionary<Int, Any>) -> (),
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onFinally: @escaping () -> (),
         onExpired: @escaping () -> ()
@@ -40,35 +40,48 @@ public class NetworkRequest {
         let request = NSMutableURLRequest(url: url! as URL)
         request.httpMethod = "POST"
         request.addValue(self.token, forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        if(self.url == "https://sbx-static.payme.vn/Upload" || self.url == "https://static.payme.vn/Upload") {
+            request.addValue("multipart/form-data", forHTTPHeaderField: "Content-Type")
+        } else {
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
+
+        }
         request.httpBody = self.params
         
         let task = URLSession.shared.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) -> Void in
-            if (error != nil) {
-                DispatchQueue.main.async {
-                    onError(error?.localizedDescription ?? "Có lỗi xảy ra")
+        if (error != nil) {
+            DispatchQueue.main.async {
+                if (error?.localizedDescription != nil) {
+                    if (error?.localizedDescription == "The Internet connection appears to be offline.") {
+                        onError([500 : ["message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"]])
+                    } else {
+                        onError([500 : ["message" : error?.localizedDescription]])
+                    }
                     onFinally()
+                } else {
+                    onError([500 : ["message" : "Something went wrong" ]])
+
                 }
-                return
+                
             }
+            return
+        }
             let json = try? (JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as! Dictionary<String, AnyObject>)
-            let code = json?["code"] as! Int
+            print(json)
+            let code = json!["code"] as! Int
             if code == 1000 {
-                if let data = json?["data"] as? Dictionary<String, AnyObject> {
+                if let data = json!["data"] as? Dictionary<String, AnyObject> {
                     DispatchQueue.main.async {
                         onSuccess(data)
                     }
                 }
-            } else if code == 401 {
-                DispatchQueue.main.async {
-                    onExpired()
-                }
-            } else {
-                if let data = json?["data"] as? Dictionary<String, AnyObject> {
-                    let message = data["message"] as? String ?? "error"
+            }
+            else {
+                if let data = json!["data"] as? Dictionary<String, AnyObject> {
+                    print(159,data)
                     DispatchQueue.main.async {
-                        onError(message)
+                        onError([code: data])
                         onFinally()
                     }
                 }
@@ -179,7 +192,6 @@ public class NetworkRequest {
             else {
                 if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
                     print(159,data)
-                    
                     DispatchQueue.main.async {
                         onError([code: data])
                         onFinally()

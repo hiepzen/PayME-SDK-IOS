@@ -44,4 +44,5 @@ Pod::Spec.new do |s|
   s.frameworks = 'UIKit', 'WebKit', 'Foundation', 'Security'
   s.dependency 'CryptoSwift', '1.0'
   s.dependency 'SwiftyRSA', '1.5'
+  s.dependency 'Alamofire'
 end

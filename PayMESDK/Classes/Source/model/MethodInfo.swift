@@ -31,7 +31,6 @@ public class MethodInfo : Codable {
         self.swiftCode = swiftCode
         self.type = type
         self.active = active
-        
     }
 
     public func setAmount(amount: Int?){
