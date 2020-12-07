@@ -127,10 +127,6 @@ class QRNotFound: UIViewController, PanModalPresentable {
         return button
     }()
     
-    
-    
-    
-    
     init() {
         super.init(nibName: nil, bundle: nil)
     }

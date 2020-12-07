@@ -134,7 +134,12 @@ class KYCBackController: UIViewController {
                 let imageFront = data[0]["path"] as? String ?? ""
                 let imageBack = data[1]["path"] as? String ?? ""
                 PayME.verifyKYC(imageFront: imageFront, imageBack: imageBack, identifyType: "CMND", onSuccess: {response in
-                    print(response)
+                    PayME.openWallet(currentVC: self, action: "OPEN", amount: nil, description: nil, extraData: nil, onSuccess: { a in
+                        
+                    }, onError: { b in
+                        
+                    })
+                    
                 }, onError: { error in
                     var errorMess : String = ""
                     error.values.forEach{ value in

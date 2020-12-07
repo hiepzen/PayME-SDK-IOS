@@ -16,7 +16,17 @@ class QRScannerController: UIViewController {
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     var qrCodeFrameView: UIView?
     weak var shapeLayer: CAShapeLayer?
-
+    
+    let getPhoto: UIButton = {
+        let button = UIButton()
+        let bundle = Bundle(for: QRScannerController.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let image = UIImage(named: "photo", in: resourceBundle, compatibleWith: nil)
+        button.setImage(image, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     private var onScanSuccess: ((String) -> ())? = nil
     private var onScanFail: ((String) -> ())? = nil

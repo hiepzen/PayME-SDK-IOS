@@ -146,13 +146,16 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     */
     
      override func viewDidLoad() {
+        guard let navigationController = self.navigationController else { return }
+        var navigationArray = navigationController.viewControllers
+        navigationArray = [navigationArray[0],navigationArray[navigationArray.count-1]]
+        self.navigationController?.viewControllers = navigationArray
         let dataStore = WKWebsiteDataStore.default()
         dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { (records) in
             for record in records {
-                print(record.displayName)
                 if record.displayName.contains("payme.com.vn") {
                     dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: [record], completionHandler: {
-                        print("Deleted: " + record.displayName);
+                        
                     })
                 }
             }
@@ -262,7 +265,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             self.onCloseWebview()
         }
         if message.name == onPay {
-            PayME.openQRCode(currentVC: PayME.currentVC!)
+            
+            PayME.openQRCode(currentVC: self)
         }
     }
     
@@ -273,7 +277,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             print(response)
             let kycFront = KYCFrontController()
             kycFront.kycImage = response
-            self.navigationController?.pushViewController(kycFront, animated: true)
+            self.navigationController?.pushViewController(kycFront, animated: false)
 
             //self.webView?.evaluateJavaScript("document.getElementById('ImageReview').src='\(response)'") { (result, error) in
                 //print(result)
@@ -287,7 +291,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
              */
         })
 
-        navigationController?.pushViewController(kycCameraController, animated: true)
+        navigationController?.pushViewController(kycCameraController, animated: false)
     }
     
     @objc override func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
@@ -303,7 +307,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     
     func onCloseWebview() {
-        navigationController?.popViewController(animated: true)
+        self.navigationController?.popViewController(animated: true)
     }
     
     public func setOnSuccessCallback(onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()) {

@@ -193,7 +193,7 @@ class ViewController: UIViewController{
     @objc func openWalletAction(sender: UIButton!) {
         if (self.connectToken != "") {
             var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b"])
-            payME.openWallet(currentVC: self, action: "OPEN", amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in})
+            PayME.openWallet(currentVC: self, action: "OPEN", amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in})
         } else {
             let alert = UIAlertController(title: "Error", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
@@ -279,21 +279,39 @@ class ViewController: UIViewController{
     }
     
     @IBAction func getBalance(_ sender: Any) {
-        var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b"])
-        payME.getWalletInfo(onSuccess: {a in
-            var str = ""
-            if let v = a["walletBalance"]!["balance"]! {
-               str = "\(v)"
-            }
-            self.priceLabel.text = str
-            
-        }, onError: {a in})
+        if (self.connectToken != "") {
+            var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b"])
+            payME.getWalletInfo(onSuccess: {a in
+                var str = ""
+                if let v = a["walletBalance"]!["balance"]! {
+                   str = "\(v)"
+                }
+                self.priceLabel.text = str
+                
+            }, onError: {error in
+                var errorToken = "Something went wrong"
+                error.values.forEach{ value in
+                    let data = value as! [String:AnyObject]
+                    errorToken = data["message"] as! String
+                }
+                let alert = UIAlertController(title: "Error", message: errorToken, preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+                self.priceLabel.text = "0"
+                self.present(alert, animated: true, completion: nil)
+            })
+        }
+        else {
+            let alert = UIAlertController(title: "Error", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
+        
     }
     @IBAction func click(_ sender: Any) {
         var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b"])
         //payME.openCamera(currentVC: self)
         //payME.showModal(currentVC: self)
-        payME.openWallet(currentVC: self, action: "OPEN", amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in})
+        PayME.openWallet(currentVC: self, action: "OPEN", amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in})
     }
     
     @IBAction func test(_ sender: Any) {
@@ -386,6 +404,8 @@ class ViewController: UIViewController{
         priceLabel.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
         priceLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -20).isActive = true
         
+        refreshButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        refreshButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
         refreshButton.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 8).isActive = true
         refreshButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
         refreshButton.addTarget(self, action: #selector(getBalance(_:)), for: .touchUpInside)
