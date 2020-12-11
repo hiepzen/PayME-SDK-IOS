@@ -8,13 +8,6 @@
 
 import UIKit
 
-
-extension UIColor {
-  convenience init(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) {
-    self.init(red: r / 255.0, green: g / 255.0, blue: b / 255.0, alpha: 1)
-  }
-}
-
 class QRNotFound: UIViewController, PanModalPresentable {
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -126,6 +119,9 @@ class QRNotFound: UIViewController, PanModalPresentable {
         button.layer.cornerRadius = 10
         return button
     }()
+    override func viewDidLayoutSubviews() {
+        button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+    }
     
     init() {
         super.init(nibName: nil, bundle: nil)

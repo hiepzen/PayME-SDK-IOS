@@ -182,8 +182,7 @@ class Failed: UIViewController, PanModalPresentable {
     }()
     
     override func viewDidLayoutSubviews() {
-        let topPoint = CGPoint(x: failLabel.bounds.minX, y: failLabel.bounds.maxY + 15.5)
-        let bottomPoint = CGPoint(x: failLabel.bounds.maxX, y: failLabel.bounds.maxY + 15.5)
+        button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
     }
     
     

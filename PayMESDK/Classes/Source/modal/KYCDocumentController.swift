@@ -11,12 +11,9 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
     
     
 
-    var data : [KYCDocument] = [
-        KYCDocument(id: "0", name: "Chứng minh nhân dân", active: true),
-        KYCDocument(id: "1", name: "Căn cước công dân", active: false),
-        KYCDocument(id: "2", name: "Hộ chiếu", active: false)
-    ]
-    var active = 0
+    public var data : [KYCDocument] = []
+    public var active = 0
+    private var onSuccessChoiceKYC: ((Int) -> ())? = nil
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,6 +43,10 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
         return true
     }
     
+    public func setOnSuccessChoiceKYC(onSuccessChoiceKYC: @escaping (Int) -> ()) {
+        self.onSuccessChoiceKYC = onSuccessChoiceKYC
+    }
+    
     func setupConstraints() {
   
         txtLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 19).isActive = true
@@ -71,21 +72,13 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
     
     override func viewDidLayoutSubviews() {
         tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height).isActive = true
-
-        
     }
-
+    
     
     @objc
     func closeAction(button:UIButton)
     {
         self.dismiss(animated: true, completion: nil)
-    }
-    
-    @objc
-    func payAction(button:UIButton)
-    {
-        
     }
 
     
@@ -141,8 +134,9 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
         }
         self.active = indexPath.row
         self.data = temp
-
         tableView.reloadData()
+        onSuccessChoiceKYC!(active)
+        dismiss(animated: true, completion: nil)
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {

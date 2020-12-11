@@ -10,6 +10,7 @@ import UIKit
 class KYCBackController: UIViewController {
     public var kycImage : UIImage?
     public var kycImageBack: UIImage?
+    public var active : Int?
     let screenSize:CGRect = UIScreen.main.bounds
 
     let imageView: UIImageView = {
@@ -18,6 +19,8 @@ class KYCBackController: UIViewController {
         let resourceBundle = Bundle(url: bundleURL!)
         let image = UIImage(named: "fails", in: resourceBundle, compatibleWith: nil)
         var bgImage = UIImageView(image: nil)
+        bgImage.layer.cornerRadius = 15
+        bgImage.layer.masksToBounds = true
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
@@ -30,6 +33,18 @@ class KYCBackController: UIViewController {
         titleLabel.textAlignment = .center
         titleLabel.text = "Xác nhận hình chụp"
         return titleLabel
+    }()
+    
+    let confirmTitle : UILabel = {
+        let confirmTitle = UILabel()
+        confirmTitle.textColor = UIColor(24,26,65)
+        confirmTitle.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        confirmTitle.translatesAutoresizingMaskIntoConstraints = false
+        confirmTitle.textAlignment = .center
+        confirmTitle.lineBreakMode = .byWordWrapping
+        confirmTitle.numberOfLines = 0
+        confirmTitle.text = "Vui lòng xác nhận hình ảnh rõ ràng và dễ đọc, trước khi tiếp tục"
+        return confirmTitle
     }()
     
     let backButton: UIButton = {
@@ -48,7 +63,7 @@ class KYCBackController: UIViewController {
         button.backgroundColor = UIColor(8,148,31).withAlphaComponent(0.3)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
-        button.setTitle("Chụp lại", for: .normal)
+        button.setTitle("CHỤP LẠI", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         button.setTitleColor(UIColor(10,146,32), for: .normal)
         return button
@@ -59,7 +74,7 @@ class KYCBackController: UIViewController {
         button.backgroundColor = UIColor(8,148,31)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
-        button.setTitle("Tiếp tục", for: .normal)
+        button.setTitle("TIẾP TỤC", for: .normal)
         return button
     }()
     
@@ -70,6 +85,7 @@ class KYCBackController: UIViewController {
         view.addSubview(titleLabel)
         view.addSubview(captureAgain)
         view.addSubview(confirm)
+        view.addSubview(confirmTitle)
         view.backgroundColor = .white
         imageView.image = self.kycImageBack
         
@@ -103,8 +119,11 @@ class KYCBackController: UIViewController {
         imageView.widthAnchor.constraint(equalToConstant: screenSize.width - 32).isActive = true
         imageView.heightAnchor.constraint(equalToConstant: (screenSize.width-32) * 0.67).isActive = true
         imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        imageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 70).isActive = true
         
+        confirmTitle.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 21).isActive = true
+        confirmTitle.leadingAnchor.constraint(equalTo: imageView.leadingAnchor).isActive = true
+        confirmTitle.trailingAnchor.constraint(equalTo: imageView.trailingAnchor).isActive = true
         
         backButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
         backButton.heightAnchor.constraint(equalToConstant: 32).isActive = true
@@ -129,16 +148,17 @@ class KYCBackController: UIViewController {
             let code = response["code"]! as! Int
             print(code)
             if (code == 1000) {
-                print("abc")
                 let data = response["data"] as! [[String:Any]]
                 let imageFront = data[0]["path"] as? String ?? ""
                 let imageBack = data[1]["path"] as? String ?? ""
-                PayME.verifyKYC(imageFront: imageFront, imageBack: imageBack, identifyType: "CMND", onSuccess: {response in
-                    PayME.openWallet(currentVC: self, action: "OPEN", amount: nil, description: nil, extraData: nil, onSuccess: { a in
-                        
-                    }, onError: { b in
-                        
-                    })
+                var identifyType = "CMND"
+                if (self.active! == 0) {
+                    identifyType = "CMND"
+                } else {
+                    identifyType = "CCCD"
+                }
+                PayME.verifyKYC(imageFront: imageFront, imageBack: imageBack, identifyType: identifyType, onSuccess: {response in
+                    PayME.openWalletAgain(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil, active: self.active!)
                     
                 }, onError: { error in
                     var errorMess : String = ""
@@ -164,8 +184,13 @@ class KYCBackController: UIViewController {
             let alert = UIAlertController(title: "Success", message: "Something went wrong", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
-
         })
+    }
+    override func viewDidLayoutSubviews() {
+        captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)
+        captureAgain.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
+        confirm.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+        confirm.setTitleColor(.white, for: .normal)
     }
     
     

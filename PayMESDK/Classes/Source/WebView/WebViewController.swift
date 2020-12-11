@@ -10,6 +10,7 @@ import UIKit
 import  WebKit
 
 class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler, WKNavigationDelegate, PanModalPresentable{
+    var KYCAgain : Bool? = nil
     
     var panScrollable: UIScrollView? {
         return nil
@@ -89,6 +90,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var form = ""
     var imageFront : UIImage?
     var imageBack : UIImage?
+    var active: Int?
     
     /*let content = """
           <!DOCTYPE html><html><body>
@@ -146,10 +148,27 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     */
     
      override func viewDidLoad() {
-        guard let navigationController = self.navigationController else { return }
-        var navigationArray = navigationController.viewControllers
-        navigationArray = [navigationArray[0],navigationArray[navigationArray.count-1]]
-        self.navigationController?.viewControllers = navigationArray
+        if (KYCAgain != nil && KYCAgain == true)
+        {
+            if (active != 2)
+            {
+                guard let navigationController = self.navigationController else { return }
+                var navigationArray = navigationController.viewControllers
+                navigationArray.remove(at: navigationArray.count-2)
+                navigationArray.remove(at: navigationArray.count-2)
+                navigationArray.remove(at: navigationArray.count-2)
+                navigationArray.remove(at: navigationArray.count-2)
+                navigationArray.remove(at: navigationArray.count-2)
+                self.navigationController?.viewControllers = navigationArray
+            } else {
+                guard let navigationController = self.navigationController else { return }
+                var navigationArray = navigationController.viewControllers
+                navigationArray.remove(at: navigationArray.count-2)
+                navigationArray.remove(at: navigationArray.count-2)
+                navigationArray.remove(at: navigationArray.count-2)
+                self.navigationController?.viewControllers = navigationArray
+            }
+        }
         let dataStore = WKWebsiteDataStore.default()
         dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { (records) in
             for record in records {
@@ -245,7 +264,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
             setupCamera()
-            
         }
         if message.name == onCommunicate {
             if let dictionary = message.body as? [String: AnyObject] {
@@ -265,7 +283,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             self.onCloseWebview()
         }
         if message.name == onPay {
-            
             PayME.openQRCode(currentVC: self)
         }
     }
@@ -273,10 +290,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     func setupCamera() {
         let kycCameraController = KYCCameraController()
-        kycCameraController.setSuccessCapture(onSuccessCapture: { response in
-            print(response)
+        kycCameraController.setSuccessCapture(onSuccessCapture: { image, active in
             let kycFront = KYCFrontController()
-            kycFront.kycImage = response
+            kycFront.kycImage = image
+            kycFront.active = active
             self.navigationController?.pushViewController(kycFront, animated: false)
 
             //self.webView?.evaluateJavaScript("document.getElementById('ImageReview').src='\(response)'") { (result, error) in
@@ -294,16 +311,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         navigationController?.pushViewController(kycCameraController, animated: false)
     }
     
-    @objc override func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        guard let image = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else { return }
-        let resizeImage = image.resizeImage(targetSize: CGSize(width:1024, height: 1024))
-        let imageData:Data =  resizeImage.pngData()!
-        let base64String = "data:image/jpeg;base64," + imageData.base64EncodedString()
-        webView?.evaluateJavaScript("document.getElementById('ImageReview').src='\(base64String)'") { (result, error) in
-            //print(result)
-        }
-        picker.dismiss(animated: true, completion: nil)
-    }
+    
 
     
     func onCloseWebview() {
@@ -323,50 +331,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         self.onError = onError
     }
 }
-extension UIViewController : UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
-    @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        guard let image = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else { return }
-        let resizeImage = image.resizeImage(targetSize: CGSize(width:70, height: 70))
-        let imageData:Data =  resizeImage.pngData()!
-        let base64String = imageData.base64EncodedString()
-        print(base64String)
-        picker.dismiss(animated: true, completion: nil)
-    }
-}
-extension URL {
-    public var queryParameters: [String: String]? {
-        guard
-            let components = URLComponents(url: self, resolvingAgainstBaseURL: true),
-            let queryItems = components.queryItems else { return nil }
-        return queryItems.reduce(into: [String: String]()) { (result, item) in
-            result[item.name] = item.value
-        }
-    }
-}
-extension UIImage {
-    func resizeImage(targetSize: CGSize) -> UIImage {
-      let size = self.size
-      let widthRatio  = targetSize.width  / size.width
-      let heightRatio = targetSize.height / size.height
-      let newSize = widthRatio > heightRatio ?  CGSize(width: size.width * heightRatio, height: size.height * heightRatio) : CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
-      let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
-      UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-      self.draw(in: rect)
-      let newImage = UIGraphicsGetImageFromCurrentImageContext()
-      UIGraphicsEndImageContext()
-      return newImage!
-    }
-    func resizeWithWidth(width: CGFloat) -> UIImage? {
-        let imageView = UIImageView(frame: CGRect(origin: .zero, size: CGSize(width: width, height: CGFloat(ceil(width/size.width * size.height)))))
-        imageView.contentMode = .scaleAspectFit
-        imageView.image = self
-        UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, false, scale)
-        guard let context = UIGraphicsGetCurrentContext() else { return nil }
-        imageView.layer.render(in: context)
-        guard let result = UIGraphicsGetImageFromCurrentImageContext() else { return nil }
-        UIGraphicsEndImageContext()
-        return result
-    }
-}
+
+
 

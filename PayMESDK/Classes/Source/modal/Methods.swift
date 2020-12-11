@@ -66,9 +66,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 self.view.layoutIfNeeded()
                 self.panModalSetNeedsLayoutUpdate()
                 self.panModalTransition(to: .shortForm)
-
-
-
              }
             
         },
@@ -132,7 +129,9 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
 
         closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 19).isActive = true
         closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
-        
+        closeButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
         button.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         button.heightAnchor.constraint(equalToConstant: 45).isActive = true
         button.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 20).isActive = true
@@ -150,20 +149,25 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         let topPoint = CGPoint(x: detailView.frame.minX+10, y: detailView.bounds.midY + 15)
         let bottomPoint = CGPoint(x: detailView.frame.maxX-10, y: detailView.bounds.midY + 15)
         detailView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203,203,203), strokeLength: 3, gapLength: 4, width: 0.5)
-        
-        
+        button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+        detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
     }
     
     @objc
     func closeAction(button:UIButton)
     {
-        print("Hello")
         self.dismiss(animated: true, completion: nil)
     }
     
     @objc
     func payAction(button:UIButton)
     {
+        if(data.count <= 0) {
+            let alert = UIAlertController(title: "Error", message: "Không tồn tài phương thức thanh toán, vui lòng kích hoạt ví", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+            return
+        }
         if(data[active].type == "AppWallet") {
             if(PayME.amount < 10000) {
                 let alert = UIAlertController(title: "Error", message: "Số tiền tối thiểu để thực hiện giao dịch là 10.000VND", preferredStyle: UIAlertController.Style.alert)
@@ -183,7 +187,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 self.present(alert, animated: true, completion: nil)
                 return
             }
-            
             self.showSpinner(onView: PayME.currentVC!.view)
             PayME.postTransferAppWallet(
             onSuccess:{response in
@@ -274,8 +277,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         
         return tableView
     }()
-    
-    
 
     let price : UILabel = {
         let price = UILabel()
@@ -328,7 +329,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     
     let button : UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(8,148,31)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
         return button
@@ -372,23 +372,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         fatalError("init(coder:) has not been implemented")
     }
 }
-extension UIView {
-
-    func createDashedLine(from point1: CGPoint, to point2: CGPoint, color: UIColor, strokeLength: NSNumber, gapLength: NSNumber, width: CGFloat) {
-        let shapeLayer = CAShapeLayer()
-        
-        shapeLayer.strokeColor = color.cgColor
-        shapeLayer.lineWidth = width
-        shapeLayer.lineDashPattern = [strokeLength, gapLength]
-
-        let path = CGMutablePath()
-        path.addLines(between: [point1, point2])
-        shapeLayer.path = path
-        layer.addSublayer(shapeLayer)
-    }
-}
 extension Methods{
-    
     func numberOfSectionsInTableView(_tableView: UITableView) -> Int {
         return data.count
     }
@@ -405,32 +389,6 @@ extension Methods{
         cell.configure(with: data[indexPath.row])
 
         return cell
-    }
-}
-var vSpinner : UIView?
-extension UIViewController {
-    func showSpinner(onView : UIView) {
-        let spinnerView = UIView.init(frame: onView.bounds)
-        spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
-        let ai = UIActivityIndicatorView.init(style: .whiteLarge)
-        ai.startAnimating()
-        ai.center = spinnerView.center
-        
-        DispatchQueue.main.async {
-            let currentWindow: UIWindow? = UIApplication.shared.keyWindow
-            spinnerView.addSubview(ai)
-            spinnerView.layer.zPosition = 1000
-            currentWindow!.addSubview(spinnerView)
-        }
-        
-        vSpinner = spinnerView
-    }
-    
-    func removeSpinner() {
-        DispatchQueue.main.async {
-            vSpinner?.removeFromSuperview()
-            vSpinner = nil
-        }
     }
 }
 

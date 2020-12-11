@@ -8,10 +8,10 @@
 import UIKit
 import AVFoundation
 
-class QRScannerController: UIViewController {
+class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     // @IBOutlet var topbar: UIView!
-    
+    var imagePicker = UIImagePickerController()
     var captureSession = AVCaptureSession()
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     var qrCodeFrameView: UIView?
@@ -22,29 +22,82 @@ class QRScannerController: UIViewController {
         let bundle = Bundle(for: QRScannerController.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
+        button.layer.cornerRadius = 72/2
+        button.clipsToBounds = true
+        button.backgroundColor = UIColor(28,28,28)
         let image = UIImage(named: "photo", in: resourceBundle, compatibleWith: nil)
         button.setImage(image, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    let flash: UIButton = {
+        let button = UIButton()
+        let bundle = Bundle(for: QRScannerController.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        button.layer.cornerRadius = 72/2
+        button.clipsToBounds = true
+        button.backgroundColor = UIColor(28,28,28)
+        let image = UIImage(named: "flash", in: resourceBundle, compatibleWith: nil)
+        button.setImage(image, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    let titleChoiceButton : UIButton = {
+        let button = UIButton()
+        button.setTitle("Chọn ảnh", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        button.setTitleColor(.white, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    let titleToggleFlash : UIButton = {
+        let button = UIButton()
+        button.setTitle("Bật flash", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        button.setTitleColor(.white, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private var onScanSuccess: ((String) -> ())? = nil
     private var onScanFail: ((String) -> ())? = nil
-    
-    private let supportedCodeTypes = [AVMetadataObject.ObjectType.upce,
-                                      AVMetadataObject.ObjectType.code39,
-                                      AVMetadataObject.ObjectType.code39Mod43,
-                                      AVMetadataObject.ObjectType.code93,
-                                      AVMetadataObject.ObjectType.code128,
-                                      AVMetadataObject.ObjectType.ean8,
-                                      AVMetadataObject.ObjectType.ean13,
-                                      AVMetadataObject.ObjectType.aztec,
-                                      AVMetadataObject.ObjectType.pdf417,
-                                      AVMetadataObject.ObjectType.itf14,
-                                      AVMetadataObject.ObjectType.dataMatrix,
-                                      AVMetadataObject.ObjectType.interleaved2of5,
-                                      AVMetadataObject.ObjectType.qr]
    
+    private let supportedCodeTypes = [AVMetadataObject.ObjectType.upce,
+                                     AVMetadataObject.ObjectType.code39,
+                                     AVMetadataObject.ObjectType.code39Mod43,
+                                     AVMetadataObject.ObjectType.code93,
+                                     AVMetadataObject.ObjectType.code128,
+                                     AVMetadataObject.ObjectType.ean8,
+                                     AVMetadataObject.ObjectType.ean13,
+                                     AVMetadataObject.ObjectType.aztec,
+                                     AVMetadataObject.ObjectType.pdf417,
+                                     AVMetadataObject.ObjectType.itf14,
+                                     AVMetadataObject.ObjectType.dataMatrix,
+                                     AVMetadataObject.ObjectType.interleaved2of5,
+                                     AVMetadataObject.ObjectType.qr]
+    
+   let backButton: UIButton = {
+       let button = UIButton()
+       let bundle = Bundle(for: QRScannerController.self)
+       let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+       let resourceBundle = Bundle(url: bundleURL!)
+       let image = UIImage(named: "previous", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 16)
+       button.setImage(image, for: .normal)
+       button.translatesAutoresizingMaskIntoConstraints = false
+       return button
+   }()
+   
+   let logoPayME: UIImageView = {
+       let bundle = Bundle(for: QRScannerController.self)
+       let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+       let resourceBundle = Bundle(url: bundleURL!)
+       let image = UIImage(named: "iconPayme", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 32)
+       var bgImage = UIImageView(image: image)
+       bgImage.isHidden = true
+       bgImage.translatesAutoresizingMaskIntoConstraints = false
+       return bgImage
+   }()
     public func setScanSuccess(onScanSuccess: @escaping (String) -> ()) {
         self.onScanSuccess = onScanSuccess
     }
@@ -52,52 +105,69 @@ class QRScannerController: UIViewController {
         self.onScanFail = onScanFail
     }
     
-    let messageLabel : UILabel = {
-        let messageLabel = UILabel()
-        messageLabel.textColor = .white
-        messageLabel.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
-        messageLabel.font = UIFont(name: "Arial", size: 16)
-        messageLabel.translatesAutoresizingMaskIntoConstraints = false
-        messageLabel.textAlignment = .center
-        return messageLabel
-    }()
+    @objc func toggleFlash() {
+        guard let device = AVCaptureDevice.default(for: AVMediaType.video) else { return }
+        guard device.hasTorch else { return }
+        do {
+            try device.lockForConfiguration()
+
+            if (device.torchMode == AVCaptureDevice.TorchMode.on) {
+                device.torchMode = AVCaptureDevice.TorchMode.off
+            } else {
+                do {
+                    try device.setTorchModeOn(level: 1.0)
+                } catch {
+                    print(error)
+                }
+            }
+            device.unlockForConfiguration()
+        } catch {
+            print(error)
+        }
+    }
     
+    @objc func choiceImage() {
+        if UIImagePickerController.isSourceTypeAvailable(.savedPhotosAlbum){
+            imagePicker.delegate = self
+            imagePicker.sourceType = .savedPhotosAlbum
+            imagePicker.allowsEditing = false
+            present(imagePicker, animated: true, completion: nil)
+        }
+    }
     
-    let backButton: UIButton = {
-        let button = UIButton()
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "previous", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 16)
-        button.setImage(image, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
+    @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        if let pickedImage = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage {
+            let detector:CIDetector=CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: [CIDetectorAccuracy:CIDetectorAccuracyHigh])!
+
+        let ciImage:CIImage = CIImage(image:pickedImage)!
+
+        var qrCodeLink = ""
+
+            let features=detector.features(in: ciImage)
+
+        for feature in features as! [CIQRCodeFeature] {
+
+            qrCodeLink += feature.messageString!
+        }
+        launchApp(decodedURL:qrCodeLink)
+        }
+        dismiss(animated: true, completion: nil)
+    }
     
-    let logoPayME: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "iconPayme", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 32)
-        var bgImage = UIImageView(image: image)
-        bgImage.isHidden = true
-        bgImage.translatesAutoresizingMaskIntoConstraints = false
-        return bgImage
-    }()
-    
-    
+   
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.addSubview(messageLabel)
         view.addSubview(backButton)
         view.addSubview(logoPayME)
+        view.addSubview(getPhoto)
+        view.addSubview(flash)
+        view.addSubview(titleChoiceButton)
+        view.addSubview(titleToggleFlash)
         // Get the back-facing camera for capturing videos
-        guard let captureDevice = AVCaptureDevice.default(for: AVMediaType.video) else {
-            print("Failed to get the camera device")
-            return
-        }
+        if let captureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
+        
         if(captureDevice.isFocusModeSupported(.continuousAutoFocus)) {
             try! captureDevice.lockForConfiguration()
             captureDevice.focusMode = .continuousAutoFocus
@@ -125,6 +195,7 @@ class QRScannerController: UIViewController {
             print(error)
             return
         }
+        }
         
         
         
@@ -140,21 +211,34 @@ class QRScannerController: UIViewController {
         if #available(iOS 11, *) {
           let guide = view.safeAreaLayoutGuide
           NSLayoutConstraint.activate([
-            backButton.topAnchor.constraint(equalToSystemSpacingBelow: guide.topAnchor, multiplier: 1.0)
+            backButton.topAnchor.constraint(equalToSystemSpacingBelow: guide.topAnchor, multiplier: 1.0),
+            getPhoto.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -40),
+            flash.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -40)
            ])
         } else {
            let standardSpacing: CGFloat = 8.0
            NSLayoutConstraint.activate([
-           backButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: standardSpacing)
+            backButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: standardSpacing),
+            getPhoto.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -40),
+            flash.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -40)
            ])
         }
         
         backButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
         
-        messageLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
-        messageLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
-        messageLabel.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -10).isActive = true
-        messageLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        getPhoto.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        getPhoto.widthAnchor.constraint(equalToConstant: 72).isActive = true
+        getPhoto.heightAnchor.constraint(equalToConstant: 72).isActive = true
+
+        flash.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        flash.widthAnchor.constraint(equalToConstant: 72).isActive = true
+        flash.heightAnchor.constraint(equalToConstant: 72).isActive = true
+        
+        titleChoiceButton.centerXAnchor.constraint(equalTo: getPhoto.centerXAnchor).isActive = true
+        titleChoiceButton.topAnchor.constraint(equalTo: getPhoto.bottomAnchor).isActive = true
+        
+        titleToggleFlash.centerXAnchor.constraint(equalTo: flash.centerXAnchor).isActive = true
+        titleToggleFlash.topAnchor.constraint(equalTo: flash.bottomAnchor).isActive = true
         
         backButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         backButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
@@ -162,8 +246,11 @@ class QRScannerController: UIViewController {
         // Move the message label and top bar to the front
         view.bringSubviewToFront(backButton)
         view.bringSubviewToFront(logoPayME)
+        view.bringSubviewToFront(getPhoto)
+        view.bringSubviewToFront(flash)
+        view.bringSubviewToFront(titleChoiceButton)
+        view.bringSubviewToFront(titleToggleFlash)
 
-        
         self.shapeLayer?.removeFromSuperlayer()
 
         // create whatever path you want
@@ -194,7 +281,10 @@ class QRScannerController: UIViewController {
         self.shapeLayer = shapeLayer
         qrCodeFrameView = UIView()
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
-
+        getPhoto.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
+        flash.addTarget(self, action: #selector(toggleFlash), for: .touchUpInside)
+        
+        
         if let qrCodeFrameView = qrCodeFrameView {
             view.addSubview(qrCodeFrameView)
             view.bringSubviewToFront(qrCodeFrameView)
@@ -207,20 +297,11 @@ class QRScannerController: UIViewController {
     }
     @objc func back () {
         navigationController?.popViewController(animated: true)
-
     }
-    
-    
     // MARK: - Helper methods
-
-    
     func launchApp(decodedURL: String) {
-        
-        if presentedViewController != nil {
-            return
-        }
         self.onScanSuccess!(decodedURL)
-       
+        self.navigationController?.popViewController(animated: true)
     }
   private func updatePreviewLayer(layer: AVCaptureConnection, orientation: AVCaptureVideoOrientation) {
     layer.videoOrientation = orientation
@@ -265,7 +346,6 @@ extension QRScannerController: AVCaptureMetadataOutputObjectsDelegate {
         if metadataObjects.count == 0 {
             logoPayME.frame = CGRect.zero
             qrCodeFrameView?.frame = CGRect.zero
-            messageLabel.text = "No QR code is detected"
             return
         }
         
@@ -283,7 +363,6 @@ extension QRScannerController: AVCaptureMetadataOutputObjectsDelegate {
             if metadataObj.stringValue != nil {
                 self.captureSession.stopRunning()
                 launchApp(decodedURL: metadataObj.stringValue!)
-                messageLabel.text = metadataObj.stringValue
             }
         }
     }

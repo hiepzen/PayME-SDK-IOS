@@ -89,7 +89,6 @@ class OneTimeCodeTextField: UITextField {
         }
         
         if text.count == digitLabels.count {
-            
             didEnterLastDigit?(text)
         }
     }

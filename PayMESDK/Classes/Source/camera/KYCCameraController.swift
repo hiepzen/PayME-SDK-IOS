@@ -8,9 +8,10 @@
 import Foundation
 import UIKit
 import AVFoundation
-class KYCCameraController: UIViewController {
+class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     let session = AVCaptureSession()
     var camera : AVCaptureDevice?
+    var imagePicker = UIImagePickerController()
     var cameraPreviewLayer : AVCaptureVideoPreviewLayer?
     var cameraCaptureOutput : AVCapturePhotoOutput?
     let screenSize:CGRect = UIScreen.main.bounds
@@ -18,11 +19,52 @@ class KYCCameraController: UIViewController {
     weak var shapeLayer_topRight: CAShapeLayer?
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
-    private var onSuccessCapture: ((UIImage) -> ())? = nil
+    private var onSuccessCapture: ((UIImage , Int) -> ())? = nil
     private var onBack: ((String) -> ())? = nil
     public var txtFront = ""
     public var imageFront : UIImage?
     
+    public var data : [KYCDocument] = [
+        KYCDocument(id: "0", name: "Chứng minh nhân dân", active: true),
+        KYCDocument(id: "1", name: "Căn cước công dân", active: false),
+        KYCDocument(id: "2", name: "Hộ chiếu", active: false)
+    ]
+    public var active = 0
+    
+    let getPhoto: UIButton = {
+        let button = UIButton()
+        let bundle = Bundle(for: QRScannerController.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let image = UIImage(named: "photo", in: resourceBundle, compatibleWith: nil)
+        button.setImage(image, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    let titleButton : UIButton = {
+        let button = UIButton()
+        button.setTitle("Chọn hình", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        button.setTitleColor(.white, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    @objc func choiceImage() {
+        if UIImagePickerController.isSourceTypeAvailable(.savedPhotosAlbum){
+            imagePicker.delegate = self
+            imagePicker.sourceType = .savedPhotosAlbum
+            imagePicker.allowsEditing = false
+            present(imagePicker, animated: true, completion: nil)
+        }
+    }
+    
+    @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        guard let image = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else { return }
+        dismiss(animated: true, completion: nil)
+        self.onSuccessCapture!(image, active)
+    }
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +74,8 @@ class KYCCameraController: UIViewController {
         view.addSubview(guideLabel)
         view.addSubview(choiceDocumentType)
         view.addSubview(frontSide)
+        view.addSubview(getPhoto)
+        view.addSubview(titleButton)
         
         initializeCaptureSession()
         if #available(iOS 11, *) {
@@ -39,6 +83,7 @@ class KYCCameraController: UIViewController {
           NSLayoutConstraint.activate([
             backButton.topAnchor.constraint(equalToSystemSpacingBelow: guide.topAnchor, multiplier: 1.0),
             titleLabel.topAnchor.constraint(equalToSystemSpacingBelow: guide.topAnchor, multiplier: 1.3),
+            getPhoto.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -45),
             pressCamera.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -18)
            ])
         } else {
@@ -46,6 +91,7 @@ class KYCCameraController: UIViewController {
            NSLayoutConstraint.activate([
             backButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: standardSpacing),
             titleLabel.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: standardSpacing+5),
+            getPhoto.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -40),
             pressCamera.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -standardSpacing)
            ])
         }
@@ -57,6 +103,10 @@ class KYCCameraController: UIViewController {
         choiceDocumentType.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 37).isActive = true
         choiceDocumentType.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
+        getPhoto.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        getPhoto.widthAnchor.constraint(equalToConstant: 32).isActive = true
+        getPhoto.heightAnchor.constraint(equalToConstant: 32).isActive = true
+        
         pressCamera.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         pressCamera.widthAnchor.constraint(equalToConstant: 80).isActive = true
         pressCamera.heightAnchor.constraint(equalToConstant: 80).isActive = true
@@ -64,6 +114,12 @@ class KYCCameraController: UIViewController {
         titleLabel.text = "Chụp ảnh giấy tờ"
         titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
+        if (self.imageFront != nil) {
+            self.txtFront = "Mặt sau"
+            choiceDocumentType.isHidden = true
+        } else {
+            self.txtFront = "Mặt trước"
+        }
         frontSide.text = self.txtFront
         frontSide.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 44).isActive = true
         frontSide.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
@@ -72,22 +128,19 @@ class KYCCameraController: UIViewController {
         guideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         guideLabel.topAnchor.constraint(equalTo: choiceDocumentType.bottomAnchor, constant: (self.cameraPreviewLayer?.bounds.height ?? (screenSize.width-32) * 0.67) + 60).isActive = true
         guideLabel.widthAnchor.constraint(equalToConstant: self.view.frame.width).isActive = true
+        
+        titleButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15).isActive = true
+        titleButton.topAnchor.constraint(equalTo: getPhoto.bottomAnchor).isActive = true
 
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
         pressCamera.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
         choiceDocumentType.addTarget(self, action: #selector(choiceDocument), for: .touchUpInside)
+        getPhoto.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
+        titleButton.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
-        if (self.imageFront != nil) {
-            self.txtFront = "Mặt sau"
-            choiceDocumentType.isHidden = true
-        } else {
-            self.txtFront = "Mặt trước"
-        }
-        
-        
         // Do any additional setup after loading the view, typically from a nib.
     }
-    public func setSuccessCapture(onSuccessCapture: @escaping (UIImage) -> ()){
+    public func setSuccessCapture(onSuccessCapture: @escaping((UIImage , Int) -> ())){
         self.onSuccessCapture = onSuccessCapture
     }
     public func setOnBack(onBack: @escaping (String) -> ()){
@@ -96,7 +149,30 @@ class KYCCameraController: UIViewController {
     
     
     @objc func choiceDocument() {
-        self.presentPanModal(KYCDocumentController())
+        let kycDocumentController = KYCDocumentController()
+        kycDocumentController.data = data
+        kycDocumentController.active = active
+        kycDocumentController.setOnSuccessChoiceKYC(onSuccessChoiceKYC: { response in
+            self.active = response
+            DispatchQueue.main.async {
+                if (self.active == 0) {
+                    self.choiceDocumentType.setTitle("Chứng minh nhân dân", for: .normal)
+                    self.choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top:0, left: 185, bottom:0, right: 0) //adjust these to have fit right
+
+                }
+                if (self.active == 1) {
+                    self.choiceDocumentType.setTitle("Căn cước công dân", for: .normal)
+                    self.choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top:0, left: 185, bottom:0, right: 0) //adjust these to have fit right
+
+                }
+                if (self.active == 2) {
+                    self.choiceDocumentType.setTitle("Hộ chiếu", for: .normal)
+                    self.choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top:0, left: 80, bottom:0, right: 0) //adjust these to have fit right
+
+                }
+            }
+        })
+        self.presentPanModal(kycDocumentController)
 
     }
     
@@ -301,20 +377,8 @@ extension KYCCameraController : AVCapturePhotoCaptureDelegate {
                 scale:1,
                 orientation: image.imageOrientation )
             let resizeImage = finalImage.resizeImage(targetSize: CGSize(width:512, height: 512*0.67))
-            self.onSuccessCapture!(resizeImage)
+            self.onSuccessCapture!(resizeImage, active)
         }
     }
 }
-extension UIImage {
-    // Crops an input image (self) to a specified rect
-    func cropToRect(rect: CGRect!) -> UIImage? {
-        // Correct rect size based on the device screen scale
-        let scaledRect = CGRect(x: rect.origin.x * self.scale, y: rect.origin.y * self.scale, width: rect.size.width * self.scale, height: rect.size.height * self.scale);
-        // New CGImage reference based on the input image (self) and the specified rect
-        let imageRef = self.cgImage!.cropping(to: scaledRect);
-        // Gets an UIImage from the CGImage
-        let result = UIImage(cgImage: imageRef!, scale: self.scale, orientation: self.imageOrientation)
-        // Returns the final image, or NULL on error
-        return result;
-    }
-}
+

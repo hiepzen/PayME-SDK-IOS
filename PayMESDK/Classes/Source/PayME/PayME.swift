@@ -11,18 +11,24 @@ import UIKit
 import Alamofire
 
 public class PayME{
-    public static var appPrivateKey: String = ""
-    public static var appID: String = ""
-    public static var publicKey: String = ""
-    private static var connectToken : String = ""
-    public static var env : String = ""
-    private static var configColor : [String] = [""]
-    public static var description : String = ""
-    public static var amount : Int = 0
-    private static let packageName = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
-    private static let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    private static let deviceID = UIDevice.current.identifierForVendor!.uuidString
-    static var currentVC : UIViewController?
+    internal static var appPrivateKey: String = ""
+    internal static var appID: String = ""
+    internal static var publicKey: String = ""
+    internal static var connectToken : String = ""
+    internal static var env : String = ""
+    internal static var configColor : [String] = [""]
+    internal static var description : String = ""
+    internal static var amount : Int = 0
+    internal static let packageName = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
+    internal static let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    internal static let deviceID = UIDevice.current.identifierForVendor!.uuidString
+    internal static var currentVC : UIViewController?
+    
+    public enum Action: String {
+        case OPEN = "OPEN"
+        case DEPOSIT = "DEPOSIT"
+        case WITHDRAW = "WITHDRAW"
+    }
     
     public func showModal(currentVC : UIViewController){
         PayME.currentVC = currentVC
@@ -129,7 +135,7 @@ public class PayME{
     public func isConnected() -> Bool {
         return false
     }
-    public static func openWallet(currentVC : UIViewController, action : String, amount: Int?, description: String?, extraData: String?,
+    public func openWallet(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?,
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                            onError: @escaping (String) -> ()
     )-> () {
@@ -144,7 +150,7 @@ public class PayME{
         }
         let data =
         """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":"\(topSafeArea)", "paddingBottom":"\(bottomSafeArea)"},"configColor":["\(handleColor(input:PayME.configColor))"],"actions":{"type":"\(action)","amount":"\(checkIntNil(input: amount))","description":"\(checkStringNil(input: description))"},"extraData":"\(checkStringNil(input:extraData))"}
+        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":"\(topSafeArea)", "paddingBottom":"\(bottomSafeArea)"},"configColor":["\(PayME.handleColor(input:PayME.configColor))"],"actions":{"type":"\(action)","amount":"\(PayME.checkIntNil(input: amount))","description":"\(PayME.checkStringNil(input: description))"},"extraData":"\(PayME.checkStringNil(input:extraData))"}
         """
         let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         let url = PayME.urlWebview(env: PayME.env)
@@ -153,6 +159,32 @@ public class PayME{
         //webViewController.urlRequest = "https://tuoitre.vn/"
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        currentVC.navigationController?.pushViewController(webViewController, animated: true)
+    }
+    internal static func openWalletAgain(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?, active: Int?
+    )-> () {
+        let topSafeArea: CGFloat
+        let bottomSafeArea: CGFloat
+        if #available(iOS 11.0, *) {
+            topSafeArea = currentVC.view.safeAreaInsets.top
+            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
+        } else {
+            topSafeArea = currentVC.topLayoutGuide.length
+            bottomSafeArea = currentVC.bottomLayoutGuide.length
+        }
+        let data =
+        """
+        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":"\(topSafeArea)", "paddingBottom":"\(bottomSafeArea)"},"configColor":["\(PayME.handleColor(input:PayME.configColor))"],"actions":{"type":"\(action)","amount":"\(PayME.checkIntNil(input: amount))","description":"\(PayME.checkStringNil(input: description))"},"extraData":"\(PayME.checkStringNil(input:extraData))"}
+        """
+        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
+        let url = PayME.urlWebview(env: PayME.env)
+        PayME.currentVC = currentVC
+        webViewController.urlRequest = url + "\(data)"
+        //webViewController.urlRequest = "https://tuoitre.vn/"
+        webViewController.KYCAgain = true
+        webViewController.active = active!
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
         currentVC.navigationController?.pushViewController(webViewController, animated: true)
@@ -239,7 +271,7 @@ public class PayME{
         currentVC.navigationController?.pushViewController(webViewController, animated: true)
     }
     
-    public func pay(currentVC : UIViewController, amount: Int, description: String?) {
+    public func pay(currentVC : UIViewController, amount: Int, description: String?, extraData: String?) {
         PayME.currentVC = currentVC
         PayME.amount = amount
         PayME.description = description ?? ""
@@ -364,7 +396,7 @@ public class PayME{
     }
     public static func verifyKYC(
         imageFront: String,
-        imageBack: String,
+        imageBack: String?,
         identifyType: String,
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onError: @escaping ([Int:Any]) -> ()
@@ -379,12 +411,23 @@ public class PayME{
              "sdkVesion": "0.1",
              "appPackageName": PayME.packageName!
          ]
-         let data: [String: Any] = [
-             "connectToken": PayME.connectToken,
-             "clientInfo": clientInfo,
-             "identifyType": identifyType,
-             "image": ["front" : imageFront, "back": imageBack]
-         ]
+         var data : [String: Any]
+         if (imageBack != nil) {
+            data = [
+                "connectToken": PayME.connectToken,
+                "clientInfo": clientInfo,
+                "identifyType": identifyType,
+                "image": ["front" : imageFront, "back": imageBack!]
+            ]
+         } else {
+            data = [
+                "connectToken": PayME.connectToken,
+                "clientInfo": clientInfo,
+                "identifyType": identifyType,
+                "image": ["front" : imageFront]
+            ]
+        }
+        print(data)
          let params = try? JSONSerialization.data(withJSONObject: data)
          let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
          request.setOnRequestCrypto(
@@ -393,6 +436,7 @@ public class PayME{
              onError(error)
          },
         onSuccess : {(response) in
+            print(response)
              onSuccess(response)
          },
         onFinally: {}, onExpired: {})
@@ -605,10 +649,5 @@ public class PayME{
          },
         onFinally: {}, onExpired: {})
     }
-    
-    
-    
-    
-    
 }
 

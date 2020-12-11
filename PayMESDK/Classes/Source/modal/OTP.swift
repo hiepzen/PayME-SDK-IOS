@@ -39,8 +39,6 @@ class OTP: UIViewController, PanModalPresentable {
 
         NotificationCenter.default.addObserver(self, selector: #selector(OTP.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(OTP.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-
-
     }
     
     var longFormHeight: PanModalHeight {
@@ -239,6 +237,9 @@ class OTP: UIViewController, PanModalPresentable {
         return label
     }()
     
+    override func viewDidLayoutSubviews() {
+        button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+    }
     
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -255,42 +256,7 @@ class OTP: UIViewController, PanModalPresentable {
         fatalError("init(coder:) has not been implemented")
     }
 }
-extension UITextField {
-    func showSpinner(onView : UIView) {
-        let spinnerView = UIView.init(frame: onView.bounds)
-        spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
-        let ai = UIActivityIndicatorView.init(style: .whiteLarge)
-        ai.startAnimating()
-        ai.center = spinnerView.center
-        
-        DispatchQueue.main.async {
-            let currentWindow: UIWindow? = UIApplication.shared.keyWindow
-            spinnerView.addSubview(ai)
-            spinnerView.layer.zPosition = 1000
-            currentWindow!.addSubview(spinnerView)
-        }
-        
-        vSpinner = spinnerView
-    }
-    
-    func removeSpinner() {
-        DispatchQueue.main.async {
-            vSpinner?.removeFromSuperview()
-            vSpinner = nil
-        }
-    }
-}
-extension UIViewController {
-    func hideKeyboardWhenTappedAround() {
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
-    }
-    
-    @objc func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
-}
+
+
 
 
