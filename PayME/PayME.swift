@@ -54,7 +54,6 @@ public class PayME{
                     PayME.currentVC = currentVC
                     PayME.amount = result["amount"] as! Int
                     PayME.description = (result["content"] ?? "" as AnyObject) as! String
-                    currentVC.navigationController?.popViewController(animated: true)
                     PayME.currentVC!.presentPanModal(Methods())
                     PayME.currentVC!.removeSpinner()
 
@@ -139,6 +138,9 @@ public class PayME{
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                            onError: @escaping (String) -> ()
     )-> () {
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        print("hello")
         let topSafeArea: CGFloat
         let bottomSafeArea: CGFloat
         if #available(iOS 11.0, *) {
@@ -159,12 +161,12 @@ public class PayME{
         //webViewController.urlRequest = "https://tuoitre.vn/"
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
         currentVC.navigationController?.pushViewController(webViewController, animated: true)
     }
     internal static func openWalletAgain(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?, active: Int?
     )-> () {
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
         let topSafeArea: CGFloat
         let bottomSafeArea: CGFloat
         if #available(iOS 11.0, *) {
@@ -185,14 +187,14 @@ public class PayME{
         //webViewController.urlRequest = "https://tuoitre.vn/"
         webViewController.KYCAgain = true
         webViewController.active = active!
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
         currentVC.navigationController?.pushViewController(webViewController, animated: true)
     }
     
     public func deposit(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
     onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
     onError: @escaping (String) -> ()) {
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
         let topSafeArea: CGFloat
         let bottomSafeArea: CGFloat
         if #available(iOS 11.0, *) {
@@ -212,8 +214,6 @@ public class PayME{
         webViewController.urlRequest = url + "\(data)"
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
         currentVC.navigationController?.pushViewController(webViewController, animated: true)
     }
     
@@ -247,6 +247,8 @@ public class PayME{
     public func withdraw(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
     onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
     onError: @escaping (String) -> ()) {
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
         let topSafeArea: CGFloat
         let bottomSafeArea: CGFloat
         if #available(iOS 11.0, *) {
@@ -266,8 +268,6 @@ public class PayME{
         webViewController.urlRequest = url + "\(data)"
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
         currentVC.navigationController?.pushViewController(webViewController, animated: true)
     }
     

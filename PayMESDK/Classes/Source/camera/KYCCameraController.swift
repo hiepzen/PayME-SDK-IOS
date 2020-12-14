@@ -62,6 +62,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         guard let image = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else { return }
         dismiss(animated: true, completion: nil)
+        self.session.stopRunning()
         self.onSuccessCapture!(image, active)
     }
 
@@ -177,6 +178,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     }
     
     @objc func back () {
+        self.session.stopRunning()
         navigationController?.popViewController(animated: true)
 
     }
@@ -252,7 +254,10 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         button.imageEdgeInsets = UIEdgeInsets(top:0, left: 185, bottom:0, right: 0) //adjust these to have fit right
         return button
     }()
-    
+    override func viewWillAppear(_ animated: Bool){
+        self.session.startRunning()
+    }
+
     func displayCapturedPhoto(capturedPhoto : UIImage) {
         /*
         let imagePreviewViewController = storyboard?.instantiateViewController(withIdentifier: "ImagePreviewViewController") as! ImagePreviewViewController
@@ -377,6 +382,7 @@ extension KYCCameraController : AVCapturePhotoCaptureDelegate {
                 scale:1,
                 orientation: image.imageOrientation )
             let resizeImage = finalImage.resizeImage(targetSize: CGSize(width:512, height: 512*0.67))
+            self.session.stopRunning()
             self.onSuccessCapture!(resizeImage, active)
         }
     }
