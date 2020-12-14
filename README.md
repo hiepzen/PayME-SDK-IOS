@@ -48,7 +48,7 @@ let payme = PayME( appId : "AppToken", publicKey: "PublicKey", connectToken : "C
 
 configColor : là tham số màu để có thể thay đổi màu sắc giao dịch ví PayME, kiểu dữ liệu là chuỗi với định dạng #rrggbb. Nếu như truyền 2 màu thì giao diện PayME sẽ gradient theo 2 màu truyền vào.
 
-![alt text](https://developers.payme.vn/public/configcolor.png)
+![image](https://developers.payme.vn/public/configcolor.png)
 
 Cách tạo **connectToken**:
 
