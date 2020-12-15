@@ -190,7 +190,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             do {
                 try FileManager.default.removeItem(atPath: libraryPath)
             } catch {
-              print("error")
+              print("Lỗi")
             }
             URLCache.shared.removeAllCachedResponses()
         }

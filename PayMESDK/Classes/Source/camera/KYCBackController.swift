@@ -166,14 +166,14 @@ class KYCBackController: UIViewController {
                         let data = value as! [String:AnyObject]
                         errorMess = data["message"] as! String
                     }
-                    let alert = UIAlertController(title: "Error", message: errorMess, preferredStyle: UIAlertController.Style.alert)
+                    let alert = UIAlertController(title: "Lỗi", message: errorMess, preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                     self.present(alert, animated: true, completion: nil)
                     
 
                 })
             } else {
-                let alert = UIAlertController(title: "Error", message: response["data"]!["message"] as? String ?? "Something went wrong", preferredStyle: UIAlertController.Style.alert)
+                let alert = UIAlertController(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             }

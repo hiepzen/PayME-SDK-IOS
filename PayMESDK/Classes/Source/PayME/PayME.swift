@@ -58,7 +58,7 @@ public class PayME{
                     PayME.currentVC!.removeSpinner()
 
                 } else {
-                    let alert = UIAlertController(title: "Error", message: "Phương thức này chưa được hỗ trợ", preferredStyle: UIAlertController.Style.alert)
+                    let alert = UIAlertController(title: "Lỗi", message: "Phương thức này chưa được hỗ trợ", preferredStyle: UIAlertController.Style.alert)
                     currentVC.navigationController?.popViewController(animated: true)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                     PayME.currentVC!.present(alert, animated: true, completion: nil)

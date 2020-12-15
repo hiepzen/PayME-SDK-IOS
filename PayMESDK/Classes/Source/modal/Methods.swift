@@ -163,26 +163,26 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     func payAction(button:UIButton)
     {
         if(data.count <= 0) {
-            let alert = UIAlertController(title: "Error", message: "Không tồn tài phương thức thanh toán, vui lòng kích hoạt ví", preferredStyle: UIAlertController.Style.alert)
+            let alert = UIAlertController(title: "Lỗi", message: "Không tồn tài phương thức thanh toán, vui lòng kích hoạt ví", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
             return
         }
         if(data[active].type == "AppWallet") {
             if(PayME.amount < 10000) {
-                let alert = UIAlertController(title: "Error", message: "Số tiền tối thiểu để thực hiện giao dịch là 10.000VND", preferredStyle: UIAlertController.Style.alert)
+                let alert = UIAlertController(title: "Lỗi", message: "Số tiền tối thiểu để thực hiện giao dịch là 10.000VND", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
                 return
             }
             if(PayME.amount > 10000000) {
-                let alert = UIAlertController(title: "Error", message: "Số tiền tối đa để thực hiện giao dịch là 10.000.000VND", preferredStyle: UIAlertController.Style.alert)
+                let alert = UIAlertController(title: "Lỗi", message: "Số tiền tối đa để thực hiện giao dịch là 10.000.000VND", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
                 return
             }
             if(PayME.amount > data[active].amount!) {
-                let alert = UIAlertController(title: "Error", message: "Số dư trong ví không đủ để thực hiện giao dịch này", preferredStyle: UIAlertController.Style.alert)
+                let alert = UIAlertController(title: "Lỗi", message: "Số dư trong ví không đủ để thực hiện giao dịch này", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
                 return

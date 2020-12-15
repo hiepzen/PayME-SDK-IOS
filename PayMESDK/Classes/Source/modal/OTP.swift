@@ -114,7 +114,7 @@ class OTP: UIViewController, PanModalPresentable {
                         let data = value as! [String:AnyObject]
                         message = data["message"] as! String
                     }
-                    let alert = UIAlertController(title: "Error", message: message, preferredStyle: UIAlertController.Style.alert)
+                    let alert = UIAlertController(title: "Lỗi", message: message, preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                     self.present(alert, animated: true, completion: nil)
                     return
