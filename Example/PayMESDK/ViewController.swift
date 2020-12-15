@@ -44,7 +44,8 @@ class ViewController: UIViewController{
         textField.layer.borderColor = UIColor.black.cgColor
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "required"
+        textField.placeholder = "Yêu cầu"
+        textField.text = "10001"
         textField.setLeftPaddingPoints(10)
         textField.keyboardType = .numberPad
         return textField
@@ -54,7 +55,7 @@ class ViewController: UIViewController{
         label.font = label.font.withSize(16)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Phone Number"
+        label.text = "Số điện thoại"
         return label
     }()
     
@@ -63,7 +64,8 @@ class ViewController: UIViewController{
         textField.layer.borderColor = UIColor.black.cgColor
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "required"
+        textField.placeholder = "Không yêu cầu"
+        textField.text = "0929000200"
         textField.setLeftPaddingPoints(10)
         textField.keyboardType = .numberPad
         return textField
@@ -73,7 +75,7 @@ class ViewController: UIViewController{
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
         button.layer.borderWidth = 0.5
-        button.setTitle("Create Connect Token", for: .normal)
+        button.setTitle("Tạo Connect Token", for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -103,6 +105,7 @@ class ViewController: UIViewController{
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Nhập số tiền"
+        textField.text = "10000"
         textField.setLeftPaddingPoints(10)
         textField.keyboardType = .numberPad
         return textField
@@ -123,6 +126,7 @@ class ViewController: UIViewController{
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Nhập số tiền"
+        textField.text = "10000"
         textField.setLeftPaddingPoints(10)
         textField.keyboardType = .numberPad
         return textField
@@ -143,6 +147,7 @@ class ViewController: UIViewController{
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Nhập số tiền"
+        textField.text = "10000"
         textField.setLeftPaddingPoints(10)
         textField.keyboardType = .numberPad
         return textField
@@ -179,7 +184,7 @@ class ViewController: UIViewController{
                     let data = value as! [String:AnyObject]
                     errorToken = data["message"] as! String
                 }
-                let alert = UIAlertController(title: "Error", message: errorToken, preferredStyle: UIAlertController.Style.alert)
+                let alert = UIAlertController(title: "Lỗi", message: errorToken, preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             })
@@ -190,7 +195,7 @@ class ViewController: UIViewController{
             var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b", "#a81308"])
             payME.openWallet(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in})
         } else {
-            let alert = UIAlertController(title: "Error", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
+            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
@@ -205,19 +210,19 @@ class ViewController: UIViewController{
                     payME.deposit(currentVC: self, amount: amountDeposit, description: "", extraData: nil, onSuccess: {a in print(a)}, onError: {a in print(a)})
 
                 } else {
-                    let alert = UIAlertController(title: "Error", message: "Vui lòng nạp hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
+                    let alert = UIAlertController(title: "Lỗi", message: "Vui lòng nạp hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                     self.present(alert, animated: true, completion: nil)
                 }
             } else {
-                let alert = UIAlertController(title: "Error", message: "Vui lòng nạp hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
+                let alert = UIAlertController(title: "Lỗi", message: "Vui lòng nạp hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             }
             
             
         } else {
-            let alert = UIAlertController(title: "Error", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
+            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
@@ -232,17 +237,17 @@ class ViewController: UIViewController{
                     var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b", "#a81308"])
                     payME.withdraw(currentVC: self, amount: amountWithDraw, description: "", extraData: nil, onSuccess: {a in print(a)}, onError: {a in print(a)})
                 } else {
-                    let alert = UIAlertController(title: "Error", message: "Vui lòng rút hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
+                    let alert = UIAlertController(title: "Lỗi", message: "Vui lòng rút hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                     self.present(alert, animated: true, completion: nil)
                 }
             } else {
-                let alert = UIAlertController(title: "Error", message: "Vui lòng rút hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
+                let alert = UIAlertController(title: "Lỗi", message: "Vui lòng rút hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             }
         } else {
-            let alert = UIAlertController(title: "Error", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
+            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
@@ -256,19 +261,19 @@ class ViewController: UIViewController{
                     let amountPay = amount!
                     payME.pay(currentVC: self, amount: amountPay, description: "", extraData: nil)
                 } else {
-                    let alert = UIAlertController(title: "Error", message: "Vui lòng thanh toán hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
+                    let alert = UIAlertController(title: "Lỗi", message: "Vui lòng thanh toán hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                     self.present(alert, animated: true, completion: nil)
                 }
             } else {
-                let alert = UIAlertController(title: "Error", message: "Vui lòng thanh toán hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
+                let alert = UIAlertController(title: "Lỗi", message: "Vui lòng thanh toán hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             }
             
             
         } else {
-            let alert = UIAlertController(title: "Error", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
+            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
@@ -290,14 +295,14 @@ class ViewController: UIViewController{
                     let data = value as! [String:AnyObject]
                     errorToken = data["message"] as! String
                 }
-                let alert = UIAlertController(title: "Error", message: errorToken, preferredStyle: UIAlertController.Style.alert)
+                let alert = UIAlertController(title: "Lỗi", message: errorToken, preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.priceLabel.text = "0"
                 self.present(alert, animated: true, completion: nil)
             })
         }
         else {
-            let alert = UIAlertController(title: "Error", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
+            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
@@ -371,10 +376,10 @@ class ViewController: UIViewController{
         moneyPay.delegate = self
         
         balance.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
-        balance.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
+        balance.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         
         priceLabel.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
-        priceLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -20).isActive = true
+        priceLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -30).isActive = true
         
         refreshButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         refreshButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
@@ -383,65 +388,65 @@ class ViewController: UIViewController{
         refreshButton.addTarget(self, action: #selector(getBalance(_:)), for: .touchUpInside)
         
         userIDLabel.topAnchor.constraint(equalTo: balance.bottomAnchor, constant: 30).isActive = true
-        userIDLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
+        userIDLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         
         userIDTextField.topAnchor.constraint(equalTo: userIDLabel.bottomAnchor, constant: 10).isActive = true
-        userIDTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
-        userIDTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
-        userIDTextField.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        userIDTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        userIDTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        userIDTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        phoneLabel.topAnchor.constraint(equalTo: userIDLabel.bottomAnchor, constant: 50).isActive = true
-        phoneLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
+        phoneLabel.topAnchor.constraint(equalTo: userIDTextField.bottomAnchor, constant: 10).isActive = true
+        phoneLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         
         phoneTextField.topAnchor.constraint(equalTo: phoneLabel.bottomAnchor, constant: 10).isActive = true
-        phoneTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
-        phoneTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
-        phoneTextField.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        phoneTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        phoneTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        phoneTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
         // Do any additional setup after loading the view.
         submitButton.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 10).isActive = true
-        submitButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
-        submitButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
-        submitButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        submitButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        submitButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        submitButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         submitButton.addTarget(self, action: #selector(submit), for: .touchUpInside)
         
         openWalletButton.topAnchor.constraint(equalTo: submitButton.bottomAnchor, constant: 10).isActive = true
-        openWalletButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
-        openWalletButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
-        openWalletButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        openWalletButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        openWalletButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        openWalletButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         openWalletButton.addTarget(self, action: #selector(openWalletAction), for: .touchUpInside)
         
         depositButton.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 10).isActive = true
-        depositButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
+        depositButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         depositButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        depositButton.heightAnchor.constraint(equalToConstant: 35).isActive = true
+        depositButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         depositButton.addTarget(self, action: #selector(depositAction), for: .touchUpInside)
 
         moneyDeposit.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 10).isActive = true
         moneyDeposit.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 5).isActive = true
-        moneyDeposit.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
-        moneyDeposit.heightAnchor.constraint(equalToConstant: 35).isActive = true
+        moneyDeposit.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        moneyDeposit.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         withDrawButton.topAnchor.constraint(equalTo: depositButton.bottomAnchor, constant: 10).isActive = true
-        withDrawButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
+        withDrawButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         withDrawButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        withDrawButton.heightAnchor.constraint(equalToConstant: 35).isActive = true
+        withDrawButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
 
         moneyWithDraw.topAnchor.constraint(equalTo: depositButton.bottomAnchor, constant: 10).isActive = true
         moneyWithDraw.leadingAnchor.constraint(equalTo: withDrawButton.trailingAnchor, constant: 5).isActive = true
-        moneyWithDraw.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
-        moneyWithDraw.heightAnchor.constraint(equalToConstant: 35).isActive = true
+        moneyWithDraw.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        moneyWithDraw.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         withDrawButton.addTarget(self, action: #selector(withDrawAction), for: .touchUpInside)
         
         payButton.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
-        payButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50).isActive = true
+        payButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         payButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        payButton.heightAnchor.constraint(equalToConstant: 35).isActive = true
+        payButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
 
         moneyPay.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
         moneyPay.leadingAnchor.constraint(equalTo: payButton.trailingAnchor, constant: 5).isActive = true
-        moneyPay.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
-        moneyPay.heightAnchor.constraint(equalToConstant: 35).isActive = true
+        moneyPay.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        moneyPay.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         payButton.addTarget(self, action: #selector(payAction), for: .touchUpInside)
 

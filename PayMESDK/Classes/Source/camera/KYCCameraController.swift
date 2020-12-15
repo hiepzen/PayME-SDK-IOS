@@ -284,12 +284,15 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             cameraPreviewLayer?.frame = CGRect(x: 16, y: 160, width: screenSize.width - 32, height: (screenSize.width-32) * 0.67)
             cameraPreviewLayer?.masksToBounds = true
             cameraPreviewLayer?.cornerRadius = 15
+            cameraPreviewLayer?.borderWidth = 2
+            cameraPreviewLayer?.borderColor = UIColor(255,255,255).cgColor
 
 
             cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
             
             view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
             
+            /*
             var path = UIBezierPath()
             path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX + 40, y: self.cameraPreviewLayer!.frame.minY))
             path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.minY))
@@ -338,7 +341,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             shapeLayer.path = path.cgPath
             view.layer.addSublayer(shapeLayer)
             self.shapeLayer_bottomRight = shapeLayer
-            
+            */
             session.startRunning()
         } catch {
             print(error.localizedDescription)
