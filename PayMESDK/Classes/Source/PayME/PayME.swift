@@ -207,7 +207,7 @@ public class PayME{
         }
         let data =
         """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)}"},"configColor":["\(PayME.handleColor(input:PayME.configColor))"],"actions":{"type":"DEPOSIT","amount":"\(PayME.checkIntNil(input: amount))","description":"\(PayME.checkStringNil(input: description))"},"extraData":"\(PayME.checkStringNil(input:extraData))"}
+        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(PayME.handleColor(input:PayME.configColor))"],"actions":{"type":"DEPOSIT","amount":"\(PayME.checkIntNil(input: amount))","description":"\(PayME.checkStringNil(input: description))"},"extraData":"\(PayME.checkStringNil(input:extraData))"}
         """
         let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         let url = PayME.urlWebview(env: PayME.env)
@@ -261,7 +261,7 @@ public class PayME{
         }
         let data =
         """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)}"},"configColor":["\(PayME.handleColor(input:PayME.configColor))"],"actions":{"type":"WITHDRAW","amount":"\(PayME.checkIntNil(input: amount))","description":"\(PayME.checkStringNil(input: description))"},"extraData":"\(PayME.checkStringNil(input:extraData))"}
+        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(PayME.handleColor(input:PayME.configColor))"],"actions":{"type":"WITHDRAW","amount":"\(PayME.checkIntNil(input: amount))","description":"\(PayME.checkStringNil(input: description))"},"extraData":"\(PayME.checkStringNil(input:extraData))"}
         """
         let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         let url = PayME.urlWebview(env: PayME.env)

@@ -2,5 +2,6 @@ use_frameworks!
 
 target 'PayMESDK_Example' do
   pod 'PayMESDK', :path => '../'
-
+  pod 'Firebase/Crashlytics'
+  pod 'Firebase/Analytics'
 end
