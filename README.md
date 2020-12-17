@@ -66,7 +66,7 @@ connectToken = AES256("{ timestamp: 34343242342, userId : "ABC", phone : "090999
 
 Trong đó ***AES*** là hàm mã hóa theo thuật toán AES. Tùy vào ngôn ngữ ở server mà bên hệ thống dùng thư viện tương ứng. Xem thêm tại đây https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
 
-### Các c**hức năng của PayME SDK**
+## Các chức năng của PayME SDK
 
 ### isConnected()
 
@@ -76,10 +76,10 @@ App có thể dùng thuộc tính này sau khi khởi tạo SDK để biết đ�
 public func isConnected() -> Bool
 ```
 
-**openWallet() - Mở UI chức năng PayME tổng hợp**
+### openWallet() - Mở UI chức năng PayME tổng hợp
 
 ```swift
-public func openWallet(    currentVC : UIViewController,    action: String,    amount: Action,   description : String?,   extraData : String?   onSuccess: (Dictionary<String,AnyObject>) -> (),    onError: (Dictionary<Int, Any>) -> () ) -> ()
+public func openWallet(    currentVC : UIViewController,    action: String,    amount: Action,   description : String?,   extraData : String?, onSuccess: (Dictionary<String,AnyObject>) -> (),    onError: (Dictionary<Int, Any>) -> () ) -> ()
 ```
 
 **trong đó enum Action bao gồm:**
