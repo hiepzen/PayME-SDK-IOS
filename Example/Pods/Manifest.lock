@@ -72,7 +72,7 @@ PODS:
     - nanopb/encode (= 2.30906.0)
   - nanopb/decode (2.30906.0)
   - nanopb/encode (2.30906.0)
-  - PayMESDK (0.0.19):
+  - PayMESDK (0.0.20):
     - Alamofire
     - CryptoSwift (= 1.0)
     - SwiftyRSA (= 1.5)
@@ -120,7 +120,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 116c84c4bdeb76be2a7a46de51244368f9794eab
   GoogleUtilities: 3dc4ff0d5e4840e2fa8eef0889620e8c33d4218c
   nanopb: 1bf24dd71191072e120b83dd02d08f3da0d65e53
-  PayMESDK: 0ebb71d00aadce76b430a89917389e27eb439ee9
+  PayMESDK: afdc895e6878d9665a228b00a678c87d63b6a6f2
   PromisesObjC: 8c196f5a328c2cba3e74624585467a557dcb482f
   SwiftyRSA: 6e528fb1b1a87d5111c48081083b141d6d65f1cf
 

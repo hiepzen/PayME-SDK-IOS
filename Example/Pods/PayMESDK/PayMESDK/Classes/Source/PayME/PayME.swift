@@ -77,7 +77,7 @@ public class PayME{
         })
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
-        currentVC.navigationController?.pushViewController(qrScan, animated: false)
+        currentVC.navigationController?.pushViewController(qrScan, animated: true)
     }
     
     public static func convertStringToDictionary(text: String) -> [String:AnyObject]? {
