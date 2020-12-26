@@ -118,7 +118,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: openCamera)
         userController.add(self, name: onErrorBack)
         userController.add(self, name: onPay)
-        userController.addUserScript(self.getZoomDisableScript())
+        //userController.addUserScript(self.getZoomDisableScript())
         
         let config = WKWebViewConfiguration()
         config.userContentController = userController
@@ -206,7 +206,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 myRequest = URLRequest(url: URL(string: "http://localhost:3000/")!)
             }
             print(myRequest)
-            
+            /*
             if #available(iOS 11.0, *) {
                 webView.scrollView.contentInsetAdjustmentBehavior = .never;
             } else {
@@ -214,8 +214,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
             webView.scrollView.alwaysBounceVertical = false
             webView.scrollView.bounces = false
+             */
+             
             webView.load(myRequest)
         } else {
+            /*
             if #available(iOS 11.0, *) {
                 webView.scrollView.contentInsetAdjustmentBehavior = .never;
             } else {
@@ -223,6 +226,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
             webView.scrollView.alwaysBounceVertical = false
             webView.scrollView.bounces = false
+            */
             webView.loadHTMLString(self.form, baseURL: nil)
         }
      }
@@ -271,7 +275,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
         }
         if message.name == onErrorBack {
+            print("hello error")
             if let dictionary = message.body as? [String: AnyObject] {
+                print(dictionary)
                 if let b = dictionary["message"] as? String {
                     self.onError!(b)
                 } else {

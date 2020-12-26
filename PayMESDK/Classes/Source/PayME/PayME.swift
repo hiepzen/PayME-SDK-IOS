@@ -93,12 +93,28 @@ public class PayME{
     }
     
     public init(appID: String, publicKey: String, connectToken: String, appPrivateKey: String, env: String, configColor: [String]) {
-        PayME.appPrivateKey = appPrivateKey;
+        PayME.appPrivateKey = PayME.trimKeyRSA(key: appPrivateKey);
         PayME.appID = appID;
         PayME.connectToken = connectToken;
-        PayME.publicKey = publicKey;
+        PayME.publicKey = PayME.trimKeyRSA(key:publicKey);
         PayME.env = env;
-        PayME.configColor = configColor
+        PayME.configColor = configColor;
+    }
+    private static func trimKeyRSA(key: String) -> String {
+        if(key.contains("PUBLIC")) {
+            let indexStart = key.index(key.startIndex, offsetBy: 26)
+            let firstTemp  = key[indexStart...]
+            let indexEnd = key.index(firstTemp.endIndex, offsetBy: -25)
+            let secondTemp = firstTemp[...indexEnd]
+            return String(secondTemp)
+        } else if(key.contains("PRIVATE")) {
+            let indexStart = key.index(key.startIndex, offsetBy: 31)
+            let firstTemp  = key[indexStart...]
+            let indexEnd = key.index(firstTemp.endIndex, offsetBy: -30)
+            let secondTemp = firstTemp[...indexEnd]
+            return String(secondTemp)
+        }
+        return key
     }
     
     public func setPrivateKey(appPrivateKey : String) {
@@ -140,7 +156,6 @@ public class PayME{
     )-> () {
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
-        print("hello")
         let topSafeArea: CGFloat
         let bottomSafeArea: CGFloat
         if #available(iOS 11.0, *) {
@@ -394,6 +409,92 @@ public class PayME{
                     onError([1001: "Some thing went wrong"])
                 }
             }
+    }
+    public static func callGraphQLTest(
+    
+    ) {
+        let url = "https://dev-fe.payme.net.vn/graphql"
+        let sql = """
+        mutation InitMutation($initInput: CheckInitInput) {
+          OpenEWallet {
+            Init(input: $initInput) {
+              message
+              succeeded
+              handShake
+              accessToken
+              kyc {
+                state
+              }
+              phone
+            }
+          }
+        }
+        """
+        let variables : [String: Any] = [
+        "initInput": [
+            "appToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MX0.Ds8X3OGL8-QGB-bSgbe4zT-de_IYbdyWtwWaIPK5tqo",
+            "connectToken": "4E8JW33jb8lKNV+gSXdEYSdhxk1bQwtbMye4eFDouYA288hgED6OfSKyGZ9jGLldWpexnuyUBvi2rMl6yeRf4w==",
+            "clientId": "HUY"
+            ]
+        ]
+        let parameters: [String: Any] = [
+          "query": sql,
+          "variables": variables,
+        ]
+        let headers : HTTPHeaders = ["Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcxNjcsImFjY291bnRJZCI6NTIyNjc3MzMzNiwic2NvcGUiOltdLCJjbGllbnRJZCI6IkhVWSIsImFwcElkIjoxLCJpYXQiOjE2MDg4ODUxNTd9.RosOTx4qg1WsKsNI5hfBKWpVg5LdSPEQ07KBi4ub3ec"]
+        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON {
+            response in
+            print(response)
+            switch (response.result) {
+            case .success:
+                print("Huy")
+                print(response)
+                break
+            case .failure:
+                print(Error.self)
+            }
+        }
+    }
+    public static func registerClient(){
+        
+        let url = "https://dev-fe.payme.net.vn/graphql"
+        let sql = """
+        mutation InitMutation($registerInput: ClientRegisterInput!) {
+          Client {
+            Register(input: $registerInput) {
+              clientId
+              succeeded
+            }
+          }
+        }
+        """
+        let variables : [String: Any] = [
+            "registerInput": [
+              "platform": "WEB",
+              "deviceId": "HUY",
+              "channel": "11",
+              "version": "1.2.8",
+              "isEmulator": true,
+              "isRoot": false
+          ]
+        ]
+        let parameters: [String: Any] = [
+          "query": sql,
+          "variables": variables,
+        ]
+        let headers : HTTPHeaders = ["Authorization":PayME.appID]
+        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: [:]).responseJSON {
+            response in
+            print(response)
+            switch (response.result) {
+            case .success:
+                print("Huy")
+                print(response)
+                break
+            case .failure:
+                print(Error.self)
+            }
+        }
     }
     public static func verifyKYC(
         imageFront: String,

@@ -6,20 +6,23 @@
 //
 
 import UIKit
+import Lottie
 
 class Success: UIViewController, PanModalPresentable {
     var reasonFail = ""
+    let animationView = AnimationView()
     override func viewDidLoad() {
+        
         super.viewDidLoad()
         view.backgroundColor = .white
         view.addSubview(nameLabel)
         view.addSubview(roleLabel)
         view.addSubview(failLabel)
         view.addSubview(button)
-        view.addSubview(image)
         view.addSubview(closeButton)
         view.addSubview(contentLabel)
         view.addSubview(memoLabel)
+        view.addSubview(animationView)
         
         nameLabel.text = "Thanh toán thành công"
         roleLabel.text = PayME.formatMoney(input: PayME.amount)
@@ -35,7 +38,24 @@ class Success: UIViewController, PanModalPresentable {
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
         setupConstraints()
+        setupAnimation()
     }
+    
+    func setupAnimation() {
+        let bundle = Bundle(for: Success.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let animation = Animation.named("Result_Thanh_Cong", bundle: resourceBundle!)
+        animationView.animation = animation
+        animationView.contentMode = .scaleAspectFit
+        view.addSubview(animationView)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+      super.viewDidAppear(animated)
+      animationView.play()
+    }
+    
     
     var panScrollable: UIScrollView? {
         return nil
@@ -57,10 +77,16 @@ class Success: UIViewController, PanModalPresentable {
     func setupConstraints() {
         closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 19).isActive = true
         closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
-        image.topAnchor.constraint(equalTo: view.topAnchor, constant: 30).isActive = true
-        image.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        animationView.topAnchor.constraint(equalTo: view.topAnchor, constant: 30).isActive = true
+        animationView.heightAnchor.constraint(equalToConstant: 168).isActive = true
+        animationView.widthAnchor.constraint(equalToConstant: 168).isActive = true
+        animationView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
+        
         nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        nameLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 20.0).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 20.0).isActive = true
         
         roleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         roleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4.0).isActive = true

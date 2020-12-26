@@ -4,7 +4,7 @@
 //
 //  Created by HuyOpen on 12/8/20.
 //
-
+import Lottie
 class ExtensionController: UIViewController {
     
 }
@@ -19,17 +19,31 @@ extension UIViewController {
         view.endEditing(true)
     }
 }
+var vSpinner : UIView?
+let animationView = AnimationView()
 extension UITextField {
     func showSpinner(onView : UIView) {
         let spinnerView = UIView.init(frame: onView.bounds)
         spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
-        let ai = UIActivityIndicatorView.init(style: .whiteLarge)
-        ai.startAnimating()
-        ai.center = spinnerView.center
         
+        let bundle = Bundle(for: Failed.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let animation = Animation.named("Loading_final", bundle: resourceBundle!)
+        
+        animationView.animation = animation
+        animationView.contentMode = .scaleAspectFit
+        animationView.loopMode = .loop
+        
+        spinnerView.addSubview(animationView)
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        animationView.centerXAnchor.constraint(equalTo: spinnerView.centerXAnchor).isActive = true
+        animationView.centerYAnchor.constraint(equalTo: spinnerView.centerYAnchor).isActive = true
+        animationView.heightAnchor.constraint(equalToConstant: spinnerView.bounds.width/4).isActive = true
+        animationView.play()
+
         DispatchQueue.main.async {
             let currentWindow: UIWindow? = UIApplication.shared.keyWindow
-            spinnerView.addSubview(ai)
             spinnerView.layer.zPosition = 1000
             currentWindow!.addSubview(spinnerView)
         }
@@ -69,18 +83,29 @@ extension UIView {
         self.layer.insertSublayer(gradientLayer, at: 0)
     }
 }
-var vSpinner : UIView?
 extension UIViewController {
     func showSpinner(onView : UIView) {
         let spinnerView = UIView.init(frame: onView.bounds)
         spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
-        let ai = UIActivityIndicatorView.init(style: .whiteLarge)
-        ai.startAnimating()
-        ai.center = spinnerView.center
         
+        let bundle = Bundle(for: Failed.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let animation = Animation.named("Loading_final", bundle: resourceBundle!)
+        
+        animationView.animation = animation
+        animationView.contentMode = .scaleAspectFit
+        animationView.loopMode = .loop
+        
+        spinnerView.addSubview(animationView)
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        animationView.centerXAnchor.constraint(equalTo: spinnerView.centerXAnchor).isActive = true
+        animationView.centerYAnchor.constraint(equalTo: spinnerView.centerYAnchor).isActive = true
+        animationView.heightAnchor.constraint(equalToConstant: spinnerView.bounds.width/4).isActive = true
+        animationView.play()
+
         DispatchQueue.main.async {
             let currentWindow: UIWindow? = UIApplication.shared.keyWindow
-            spinnerView.addSubview(ai)
             spinnerView.layer.zPosition = 1000
             currentWindow!.addSubview(spinnerView)
         }

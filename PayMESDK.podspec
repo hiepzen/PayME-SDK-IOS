@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
   s.source_files = 'PayMESDK/Classes/**/*'
   
   s.resource_bundles = {
-    'PayMESDK' => ['PayMESDK/Assets/*.png']
+    'PayMESDK' => ['PayMESDK/Assets/*.png','PayMESDK/Assets/*.json'],
   }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
@@ -45,4 +45,6 @@ Pod::Spec.new do |s|
   s.dependency 'CryptoSwift', '1.0'
   s.dependency 'SwiftyRSA', '1.5'
   s.dependency 'Alamofire'
+  s.dependency 'lottie-ios'
+
 end
