@@ -160,6 +160,7 @@ public class PayME{
         let avatarController = AvatarController()
         currentVC.navigationController?.pushViewController(avatarController, animated: true)
         */
+        PayME.abc()
         
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
@@ -301,7 +302,52 @@ public class PayME{
         PayME.description = description ?? ""
         PayME.currentVC!.presentPanModal(Methods())
     }
+    private static func abc() {
+        print("abc")
+        testApi()
+    }
     
+    private static func testApi() {
+        let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjE2MDksImFjY291bnRJZCI6MzY4Njc3MjY5MSwic2NvcGUiOltdLCJjbGllbnRJZCI6IkIwNDEzODE5LTIzRkQtNDVDMC1BRUNGLTg5RjRGNUI2RUYzNSIsImlhdCI6MTYwOTIxNzQ4NH0.BVeH4zGorFsLni6NMZXtCP9bkuKGxkmnGxsb45itr7Q"
+        let url = "https://sbx-fe.payme.vn/"
+        let path = "/graphql"
+        let publicKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi\nwIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ==\n"
+        let privateKey = "MIIBPAIBAAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKiwIhTJpAi1XnbfOSrW/Eb\nw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQJBAJSfTrSCqAzyAo59Ox+m\nQ1ZdsYWBhxc2084DwTHM8QN/TZiyF4fbVYtjvyhG8ydJ37CiG7d9FY1smvNG3iDC\ndwECIQDygv2UOuR1ifLTDo4YxOs2cK3+dAUy6s54mSuGwUeo4QIhAK7SiYDyGwGo\nCwqjOdgOsQkJTGoUkDs8MST0MtmPAAs9AiEAjLT1/nBhJ9V/X3f9eF+g/bhJK+8T\nKSTV4WE1wP0Z3+ECIA9E3DWi77DpWG2JbBfu0I+VfFMXkLFbxH8RxQ8zajGRAiEA\n8Ly1xJ7UW3up25h9aa9SILBpGqWtJlNQgfVKBoabzsU=\n"
+        
+        let sql = "query Query($feedFeedId: BigInt!) {Feed(feedId: $feedFeedId) {feedId}}"
+
+        let variables : [String: Any] = [
+          "feedFeedId": 1
+        ]
+        
+        let json: [String: Any] = [
+          "query": sql,
+          "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+
+        let request = NetworkRequestGraphQL(url: url, path: path, token: token, params: params, publicKey: publicKey, privateKey: privateKey)
+        request.setOnRequestCrypto(
+            onStart: {
+              print("onStart")
+            },
+            onErrorGraphQL: { errors in
+                print("onErrorGraphQL \(errors[0])")
+              },
+            onError: { error in
+              print("onError \(error)")
+            },
+            onSuccess: { data in
+              // print("onSuccess \(data)")
+            },
+            onFinally: {
+              print("onFinally")
+            },
+            onExpired: {
+              print("onExpired")
+            }
+        )
+      }
     
     
     private static func handleColor(input: [String]) -> String {
@@ -421,7 +467,7 @@ public class PayME{
     public static func callGraphQLTest(
     
     ) {
-        let url = "https://dev-fe.payme.net.vn/graphql"
+        let url = "https://sbx-fe.payme.vn/graphql"
         let sql = """
         mutation InitMutation($initInput: CheckInitInput) {
           OpenEWallet {
