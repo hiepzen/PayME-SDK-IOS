@@ -154,6 +154,13 @@ public class PayME{
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                            onError: @escaping (String) -> ()
     )-> () {
+        /*
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        let avatarController = AvatarController()
+        currentVC.navigationController?.pushViewController(avatarController, animated: true)
+        */
+        
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
         let topSafeArea: CGFloat
@@ -177,6 +184,7 @@ public class PayME{
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
         currentVC.navigationController?.pushViewController(webViewController, animated: true)
+        
     }
     internal static func openWalletAgain(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?, active: Int?
     )-> () {
