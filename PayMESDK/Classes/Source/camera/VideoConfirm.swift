@@ -1,28 +1,25 @@
 //
-//  KYCController.swift
+//  VideoConfirm.swift
 //  PayMESDK
 //
 //  Created by HuyOpen on 11/23/20.
 //
-
+import AVKit
 import UIKit
 
-class AvatarConfirm: UIViewController {
-    public var avatarImage : UIImage?
+class VideoConfirm: UIViewController {
+    public var avatarVideo : URL?
+    var player: AVPlayer!
+    var avpController = AVPlayerViewController()
     let screenSize:CGRect = UIScreen.main.bounds
 
-    let imageView: UIImageView = {
-        let bundle = Bundle(for: KYCFrontController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "fails", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: nil)
-        bgImage.layer.masksToBounds = true
-        bgImage.layer.borderWidth = 7
-        bgImage.layer.borderColor = UIColor(226,226,226).cgColor
-
-        bgImage.translatesAutoresizingMaskIntoConstraints = false
-        return bgImage
+    let videoView: UIView = {
+        let videoView = UIView()
+        videoView.layer.masksToBounds = true
+        videoView.layer.borderWidth = 7
+        videoView.layer.borderColor = UIColor(226,226,226).cgColor
+        videoView.translatesAutoresizingMaskIntoConstraints = false
+        return videoView
     }()
     
     let confirmTitle : UILabel = {
@@ -33,7 +30,7 @@ class AvatarConfirm: UIViewController {
         confirmTitle.textAlignment = .center
         confirmTitle.lineBreakMode = .byWordWrapping
         confirmTitle.numberOfLines = 0
-        confirmTitle.text = "Vui lòng xác nhận hình ảnh rõ ràng và dễ đọc, trước khi tiếp tục"
+        confirmTitle.text = "Giữ gương mặt và mặt trước giấy tờ tuỳ thân trước ống kính máy quay"
         return confirmTitle
     }()
     
@@ -79,14 +76,12 @@ class AvatarConfirm: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(backButton)
-        view.addSubview(imageView)
+        view.addSubview(videoView)
         view.addSubview(titleLabel)
         view.addSubview(captureAgain)
         view.addSubview(confirm)
         view.addSubview(confirmTitle)
         view.backgroundColor = .white
-        imageView.image = avatarImage
-        imageView.layer.cornerRadius = (screenSize.width - 32) / 2
         
         if #available(iOS 11, *) {
           let guide = view.safeAreaLayoutGuide
@@ -115,14 +110,15 @@ class AvatarConfirm: UIViewController {
         confirm.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
         confirm.widthAnchor.constraint(equalToConstant: (screenSize.width / 2) - 20).isActive = true
         
-        imageView.widthAnchor.constraint(equalToConstant: screenSize.width - 32).isActive = true
-        imageView.heightAnchor.constraint(equalToConstant: screenSize.width-32).isActive = true
-        imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        imageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 70).isActive = true
+        videoView.widthAnchor.constraint(equalToConstant: (screenSize.width)*0.67).isActive = true
+        videoView.heightAnchor.constraint(equalToConstant: (screenSize.width)).isActive = true
+        videoView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        videoView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 50).isActive = true
         
-        confirmTitle.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 21).isActive = true
-        confirmTitle.leadingAnchor.constraint(equalTo: imageView.leadingAnchor).isActive = true
-        confirmTitle.trailingAnchor.constraint(equalTo: imageView.trailingAnchor).isActive = true
+        
+        confirmTitle.topAnchor.constraint(equalTo: videoView.bottomAnchor, constant: 21).isActive = true
+        confirmTitle.leadingAnchor.constraint(equalTo: videoView.leadingAnchor).isActive = true
+        confirmTitle.trailingAnchor.constraint(equalTo: videoView.trailingAnchor).isActive = true
         
         backButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
         backButton.heightAnchor.constraint(equalToConstant: 32).isActive = true
@@ -131,6 +127,20 @@ class AvatarConfirm: UIViewController {
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
         captureAgain.addTarget(self, action: #selector(back), for: .touchUpInside)
         confirm.addTarget(self, action: #selector(capture), for: .touchUpInside)
+        
+        player = AVPlayer(url: avatarVideo!)
+
+        avpController.player = player
+
+        avpController.view.frame.size.height = videoView.frame.size.height
+
+        avpController.view.frame.size.width = videoView.frame.size.width
+        
+        avpController.videoGravity = AVLayerVideoGravity.resize
+
+
+
+        self.videoView.addSubview(avpController.view)
         // Do any additional setup after loading the view.
     }
     @objc func back() {

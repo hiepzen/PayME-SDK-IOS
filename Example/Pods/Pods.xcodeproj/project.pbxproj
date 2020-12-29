@@ -333,6 +333,8 @@
 		525B6029930C3CD3B90A335F1DFA5CCC /* AnimatedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D7106E821D7B351D3EEC8AC7461F24 /* AnimatedControl.swift */; };
 		527507E8E233CE19E424BFF11B9735A7 /* GoogleUtilities-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = CEE1FE3B11DC7D1EF4311D08DB7700D1 /* GoogleUtilities-dummy.m */; };
 		52941B612599FADF006DA8DD /* AvatarConfirm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52941B602599FADF006DA8DD /* AvatarConfirm.swift */; };
+		529A31F6259ACEC4002E2BA0 /* VideoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 529A31F5259ACEC4002E2BA0 /* VideoController.swift */; };
+		529A31F8259AEEFD002E2BA0 /* VideoConfirm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 529A31F7259AEEFD002E2BA0 /* VideoConfirm.swift */; };
 		5300EB86348ED2DD35A9339104F21842 /* CBC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8745E87AB142E6D0568B781328DD0BFF /* CBC.swift */; };
 		53019DBFAAE568C920F897D6ED36F8E5 /* FIRCLSReportAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 68BA9B1D8B7843750513CCE2D5C74091 /* FIRCLSReportAdapter.m */; };
 		5310B3521A7A131B6D1C1E530A1FF1B6 /* FIRInteropParameterNames.h in Headers */ = {isa = PBXBuildFile; fileRef = 14446B8A3213965391C1B54CEA5BF70E /* FIRInteropParameterNames.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1625,6 +1627,8 @@
 		528A83DE59B200BC2DA2057F2DA8AE74 /* FBLPromise+Await.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "FBLPromise+Await.m"; path = "Sources/FBLPromises/FBLPromise+Await.m"; sourceTree = "<group>"; };
 		5290C3EF09A619D9E78CF47BE3A632D2 /* CTR.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CTR.swift; path = Sources/CryptoSwift/BlockMode/CTR.swift; sourceTree = "<group>"; };
 		52941B602599FADF006DA8DD /* AvatarConfirm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarConfirm.swift; sourceTree = "<group>"; };
+		529A31F5259ACEC4002E2BA0 /* VideoController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoController.swift; sourceTree = "<group>"; };
+		529A31F7259AEEFD002E2BA0 /* VideoConfirm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoConfirm.swift; sourceTree = "<group>"; };
 		52A610BE9347785FBA792E0B6FF3359A /* NullCompositionLayer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NullCompositionLayer.swift; path = "lottie-swift/src/Private/LayerContainers/CompLayers/NullCompositionLayer.swift"; sourceTree = "<group>"; };
 		52C4B274F850B22C3129C6D4BAA7B5A8 /* ptBank@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "ptBank@3x.png"; path = "PayMESDK/Assets/ptBank@3x.png"; sourceTree = "<group>"; };
 		52EE54A7C3A644E4235ECC06AAE7F219 /* FilepathImageProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FilepathImageProvider.swift; path = "lottie-swift/src/Public/iOS/FilepathImageProvider.swift"; sourceTree = "<group>"; };
@@ -2858,6 +2862,8 @@
 				7F4365CC6C6A514B10B3B0DB50967C5E /* KYCFrontController.swift */,
 				668662093FD4D6205000A3ABE303344F /* QRScannerController.swift */,
 				B33D05EB2618ADC6A13A6605DE88620E /* Upload.swift */,
+				529A31F5259ACEC4002E2BA0 /* VideoController.swift */,
+				529A31F7259AEEFD002E2BA0 /* VideoConfirm.swift */,
 			);
 			name = camera;
 			path = PayMESDK/Classes/Source/camera;
@@ -5348,6 +5354,7 @@
 			files = (
 				1D4FCECBCD5BCDE72A30839FB2999559 /* AvatarController.swift in Sources */,
 				041B527380196ED12E4293248A216F12 /* CryptoAES.swift in Sources */,
+				529A31F6259ACEC4002E2BA0 /* VideoController.swift in Sources */,
 				0609D83D26A8002A5B67719B9DC1E77F /* CryptoRSA.swift in Sources */,
 				48708B0FC9D0A176C06B15E59A25B5EC /* DimmedView.swift in Sources */,
 				483687E49E90BF2B8B8F890D690CA7A6 /* ExtensionController.swift in Sources */,
@@ -5363,6 +5370,7 @@
 				D3AF354C75FD564C0903617893CAA5E8 /* Methods.swift in Sources */,
 				49B4712DF4EAE8B563430027ABA053B3 /* NetworkRequest.swift in Sources */,
 				A12067D99FD69C390170DF5D313B0AA6 /* OneTimeCodeTextField.swift in Sources */,
+				529A31F8259AEEFD002E2BA0 /* VideoConfirm.swift in Sources */,
 				44BDA1CBE977759DDC6D4C52DF5F610B /* OTP.swift in Sources */,
 				074B335087A97ED26C58C012ADFB9F36 /* PanContainerView.swift in Sources */,
 				52941B612599FADF006DA8DD /* AvatarConfirm.swift in Sources */,
