@@ -169,7 +169,7 @@ class Method: UITableViewCell {
         
         if (presentable.type == "AppWallet") {
             bankNameLabel.text = "Số dư ví"
-            bankContentLabel.text = "(\(PayME.formatMoney(input: presentable.amount!))đ)"
+            bankContentLabel.text = "(\(formatMoney(input: presentable.amount!))đ)"
         } else {
             bankNameLabel.text = presentable.bankCode!
             bankContentLabel.text = presentable.cardNumber!

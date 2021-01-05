@@ -165,7 +165,7 @@ class KYCFrontController: UIViewController {
             navigationController?.pushViewController(kycCameraController, animated: false)
         } else {
             self.showSpinner(onView: self.view)
-            PayME.uploadImageKYC(imageFront: self.kycImage!,
+            API.uploadImageKYC(imageFront: self.kycImage!,
                                  imageBack: nil,
                onSuccess: { response in
                 self.removeSpinner()

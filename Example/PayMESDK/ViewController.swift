@@ -163,37 +163,27 @@ class ViewController: UIViewController{
     private let PUBLIC_KEY: String = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi\nwIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ=="
     private let PRIVATE_KEY: String = "MIIBPAIBAAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKiwIhTJpAi1XnbfOSrW/Eb\nw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQJBAJSfTrSCqAzyAo59Ox+m\nQ1ZdsYWBhxc2084DwTHM8QN/TZiyF4fbVYtjvyhG8ydJ37CiG7d9FY1smvNG3iDC\ndwECIQDygv2UOuR1ifLTDo4YxOs2cK3+dAUy6s54mSuGwUeo4QIhAK7SiYDyGwGo\nCwqjOdgOsQkJTGoUkDs8MST0MtmPAAs9AiEAjLT1/nBhJ9V/X3f9eF+g/bhJK+8T\nKSTV4WE1wP0Z3+ECIA9E3DWi77DpWG2JbBfu0I+VfFMXkLFbxH8RxQ8zajGRAiEA\n8Ly1xJ7UW3up25h9aa9SILBpGqWtJlNQgfVKBoabzsU="
     private let appID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II"
-    private var  connectToken: String = ""
+    private var connectToken: String = ""
     
     // generate token ( demo, don't apply this to your code, generate from your server)
     @objc func submit(sender: UIButton!) {
         //PayME.showKYCCamera(currentVC: self)
         if (userIDTextField.text != "") {
-            let formatter = ISO8601DateFormatter()
-            self.payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b", "#a81308"])
-            let timestamp = formatter.string(from: Date())
-            PayME.generateConnectToken(usertId: userIDTextField.text!, phoneNumber: phoneTextField.text, timestamp: timestamp, onSuccess: { response in
-                self.connectToken = response["connectToken"] as! String
-                let alert = UIAlertController(title: "Success", message: "Tạo token thành công", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-            }, onError: { error in
-                self.connectToken = ""
-                var errorToken = "Something went wrong"
-                error.values.forEach{ value in
-                    let data = value as! [String:AnyObject]
-                    errorToken = data["message"] as! String
-                }
-                let alert = UIAlertController(title: "Lỗi", message: errorToken, preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-            })
+            self.connectToken = PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
+            self.payME = PayME(appID: appID, publicKey: self.PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: self.PRIVATE_KEY, env: PayME.Env.DEV, configColor: ["#75255b", "#a81308"])
+            
+            let alert = UIAlertController(title: "Success", message: "Tạo token thành công", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        } else {
+           let alert = UIAlertController(title: "Success", message: "Vui lòng nhập userID", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
         }
     }
     @objc func openWalletAction(sender: UIButton!) {
         if (self.connectToken != "") {
-            var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b", "#a81308"])
-            payME.openWallet(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in print(a)})
+            payME!.openWallet(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in print(a)})
         } else {
             let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
@@ -206,8 +196,7 @@ class ViewController: UIViewController{
                 let amount = Int(moneyDeposit.text!)
                 if (amount! >= 10000){
                     let amountDeposit = amount!
-                    var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b", "#a81308"])
-                    payME.deposit(currentVC: self, amount: amountDeposit, description: "", extraData: nil, onSuccess: {a in print(a)}, onError: {a in print(a)})
+                    self.payME!.deposit(currentVC: self, amount: amountDeposit, description: "", extraData: nil, onSuccess: {a in print(a)}, onError: {a in print(a)})
 
                 } else {
                     let alert = UIAlertController(title: "Lỗi", message: "Vui lòng nạp hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
@@ -219,8 +208,6 @@ class ViewController: UIViewController{
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             }
-            
-            
         } else {
             let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
@@ -229,7 +216,7 @@ class ViewController: UIViewController{
     }
     
     @objc func withDrawAction(sender: UIButton!) {
-        PayME.callGraphQLTest()
+
         /*
         if (self.connectToken != "") {
             if (moneyWithDraw.text != "") {
@@ -260,9 +247,8 @@ class ViewController: UIViewController{
             if (moneyPay.text != "") {
                 let amount = Int(moneyPay.text!)
                 if (amount! >= 10000){
-                    var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b", "#a81308"])
                     let amountPay = amount!
-                    payME.pay(currentVC: self, amount: amountPay, description: "", extraData: nil)
+                    self.payME!.pay(currentVC: self, amount: amountPay, description: "", extraData: nil)
                 } else {
                     let alert = UIAlertController(title: "Lỗi", message: "Vui lòng thanh toán hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
@@ -284,8 +270,8 @@ class ViewController: UIViewController{
     
     @IBAction func getBalance(_ sender: Any) {
         if (self.connectToken != "") {
-            var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b", "#a81308"])
-            payME.getWalletInfo(onSuccess: {a in
+            PayME.getWalletInfo(onSuccess: {a in
+                print(a)
                 var str = ""
                 if let v = a["walletBalance"]!["balance"]! {
                    str = "\(v)"
@@ -293,6 +279,7 @@ class ViewController: UIViewController{
                 self.priceLabel.text = str
                 
             }, onError: {error in
+                print(error)
                 var errorToken = "Something went wrong"
                 error.values.forEach{ value in
                     let data = value as! [String:AnyObject]
@@ -388,6 +375,7 @@ class ViewController: UIViewController{
         refreshButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
         refreshButton.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 8).isActive = true
         refreshButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
+        refreshButton.backgroundColor = .red
         refreshButton.addTarget(self, action: #selector(getBalance(_:)), for: .touchUpInside)
         
         userIDLabel.topAnchor.constraint(equalTo: balance.bottomAnchor, constant: 30).isActive = true

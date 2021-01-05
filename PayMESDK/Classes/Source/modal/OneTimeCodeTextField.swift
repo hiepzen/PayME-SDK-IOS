@@ -11,7 +11,7 @@ class OneTimeCodeTextField: UITextField {
 
     var didEnterLastDigit: ((String) -> Void)?
     
-    var defaultCharacter = "-"
+    var defaultCharacter = ""
     
     private var isConfigured = false
     
@@ -64,9 +64,10 @@ class OneTimeCodeTextField: UITextField {
             label.font = .systemFont(ofSize: 30)
             label.isUserInteractionEnabled = true
             label.text = defaultCharacter
-            
+            label.layer.borderWidth = 1
+            label.layer.borderColor = UIColor.red.cgColor
+            label.layer.cornerRadius = 30
             stackView.addArrangedSubview(label)
-            
             digitLabels.append(label)
         }
         

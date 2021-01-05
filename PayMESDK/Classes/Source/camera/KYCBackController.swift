@@ -140,7 +140,7 @@ class KYCBackController: UIViewController {
     
     @objc func confirmAction() {
         self.showSpinner(onView: self.view)
-        PayME.uploadImageKYC(imageFront: self.kycImage!,
+        API.uploadImageKYC(imageFront: self.kycImage!,
                              imageBack: self.kycImageBack!,
            onSuccess: { response in
             self.removeSpinner()

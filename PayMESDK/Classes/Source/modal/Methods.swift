@@ -26,7 +26,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         detailView.addSubview(contentLabel)
         detailView.addSubview(memoLabel)
         txtLabel.text = "Xác nhận thanh toán"
-        price.text = "\(PayME.formatMoney(input: PayME.amount)) đ"
+        price.text = "\(formatMoney(input: PayME.amount)) đ"
         contentLabel.text = "Nội dung"
         if (PayME.description == "") {
             memoLabel.text = "Không có nội dung"

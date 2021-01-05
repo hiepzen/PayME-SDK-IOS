@@ -25,7 +25,7 @@ class Success: UIViewController, PanModalPresentable {
         view.addSubview(animationView)
         
         nameLabel.text = "Thanh toán thành công"
-        roleLabel.text = PayME.formatMoney(input: PayME.amount)
+        roleLabel.text = formatMoney(input: PayME.amount)
         failLabel.text = reasonFail
         contentLabel.text = "Nội dung"
         if (PayME.description == "") {

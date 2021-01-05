@@ -23,7 +23,7 @@ class Failed: UIViewController, PanModalPresentable {
         view.addSubview(memoLabel)
         view.addSubview(animationView)
         nameLabel.text = "Thanh toán thất bại"
-        roleLabel.text = PayME.formatMoney(input: PayME.amount)
+        roleLabel.text = formatMoney(input: PayME.amount)
         failLabel.text = reasonFail
         contentLabel.text = "Nội dung"
         if (PayME.description == "") {

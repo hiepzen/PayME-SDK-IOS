@@ -8,18 +8,24 @@
 
 import UIKit
 
-class OTP: UIViewController, PanModalPresentable {
+class OTP: UIViewController, PanModalPresentable, KAPinFieldDelegate {
+    func pinField(_ field: KAPinField, didFinishWith code: String) {
+        
+    }
+    func pinField(_ field: KAPinField, didChangeTo string: String, isValid: Bool) {
+        
+    }
     
     static var transferId: Int? = nil
     
     private static var onError: ((Dictionary<Int, Any>) -> ())? = nil
     
     private static var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .black
         view.addSubview(nameLabel)
         view.addSubview(roleLabel)
         view.addSubview(button)
@@ -27,6 +33,10 @@ class OTP: UIViewController, PanModalPresentable {
         view.addSubview(closeButton)
         view.addSubview(txtLabel)
         view.addSubview(txtField)
+        view.addSubview(otpView)
+        
+        otpView.properties.delegate = self
+        
         txtLabel.text = "Xác thực OTP"
         roleLabel.text = "Vui lòng nhập mã OTP được gửi tới số 09833411111"
         button.setTitle("Xác nhận", for: .normal)
@@ -34,7 +44,7 @@ class OTP: UIViewController, PanModalPresentable {
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
         setupConstraints()
-        txtField.becomeFirstResponder()
+        //txtField.becomeFirstResponder()
         self.hideKeyboardWhenTappedAround()
 
         NotificationCenter.default.addObserver(self, selector: #selector(OTP.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -60,6 +70,7 @@ class OTP: UIViewController, PanModalPresentable {
       // move back the root view origin to zero
       bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor).isActive = true
       panModalSetNeedsLayoutUpdate()
+
         
     }
     
@@ -73,6 +84,7 @@ class OTP: UIViewController, PanModalPresentable {
     }
     
     func setupConstraints() {
+        
         txtLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 19).isActive = true
         txtLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
@@ -96,6 +108,10 @@ class OTP: UIViewController, PanModalPresentable {
         
         txtField.topAnchor.constraint(equalTo: roleLabel.bottomAnchor).isActive = true
         txtField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
+        otpView.topAnchor.constraint(equalTo: button.bottomAnchor, constant: 19).isActive = true
+        otpView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 50).isActive = true
+        otpView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50).isActive = true
         
         closeButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor, constant: 10).isActive = true
@@ -235,6 +251,23 @@ class OTP: UIViewController, PanModalPresentable {
         label.font = UIFont(name: "Lato-SemiBold", size: 20)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    let otpView : KAPinField = {
+        let pinField = KAPinField()
+        pinField.layer.cornerRadius = 10
+        pinField.clipsToBounds = true
+        pinField.translatesAutoresizingMaskIntoConstraints = false
+        pinField.backgroundColor = UIColor.init(242,244,243)
+        pinField.appearance.font = .menloBold(40) // Default to appearance.MonospacedFont.menlo(40)
+        pinField.appearance.kerning = 20 // Space between characters, default to 16
+        pinField.appearance.tokenColor = UIColor.black.withAlphaComponent(0.3) // token color, default to text color
+        pinField.appearance.backOffset = 0 // Backviews spacing between each other
+        pinField.appearance.backColor = UIColor.init(242,244,243)
+        pinField.appearance.backActiveColor = UIColor.white
+        pinField.appearance.keyboardType = UIKeyboardType.numberPad // Specify keyboard type
+        pinField.appearance.backCornerRadius = 0
+        return pinField
     }()
     
     override func viewDidLayoutSubviews() {

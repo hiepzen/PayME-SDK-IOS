@@ -99,6 +99,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
           function onClick() {
             window.webkit.messageHandlers.onCommunicate.postMessage({huy: "123", hieu: 1});
             window.webkit.messageHandlers.onClose.postMessage("success");
+            
           }
           </script>
           </body></html>
@@ -148,6 +149,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     */
     
      override func viewDidLoad() {
+        /*
         if (KYCAgain != nil && KYCAgain == true)
         {
             if (active != 2)
@@ -169,6 +171,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 self.navigationController?.viewControllers = navigationArray
             }
         }
+        */
         let dataStore = WKWebsiteDataStore.default()
         dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { (records) in
             for record in records {
@@ -198,6 +201,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         {
             let urlString = urlRequest.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
             let  myURL = URL(string: urlString!)
+            print(myURL)
             let myRequest : URLRequest
             if myURL != nil
             {
@@ -205,8 +209,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             } else {
                 myRequest = URLRequest(url: URL(string: "http://localhost:3000/")!)
             }
-            print(myRequest)
-            /*
             if #available(iOS 11.0, *) {
                 webView.scrollView.contentInsetAdjustmentBehavior = .never;
             } else {
@@ -214,8 +216,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
             webView.scrollView.alwaysBounceVertical = false
             webView.scrollView.bounces = false
-             */
-             
             webView.load(myRequest)
         } else {
             /*
@@ -275,7 +275,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
         }
         if message.name == onErrorBack {
-            print("hello error")
+            print("Hello")
             if let dictionary = message.body as? [String: AnyObject] {
                 print(dictionary)
                 if let b = dictionary["message"] as? String {

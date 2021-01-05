@@ -9,37 +9,322 @@
 import Foundation
 import UIKit
 import Alamofire
+import CryptoSwift
 
 public class PayME{
     internal static var appPrivateKey: String = ""
     internal static var appID: String = ""
     internal static var publicKey: String = ""
     internal static var connectToken : String = ""
-    internal static var env : String = ""
+    internal static var env : Env!
     internal static var configColor : [String] = [""]
     internal static var description : String = ""
     internal static var amount : Int = 0
     internal static let packageName = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
     internal static let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     internal static let deviceID = UIDevice.current.identifierForVendor!.uuidString
+    internal static var clientID: String = ""
     internal static var currentVC : UIViewController?
+    internal static var accessToken : String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjE3MzAsImFjY291bnRJZCI6NTA0NTEyOTcyMiwic2NvcGUiOltdLCJjbGllbnRJZCI6IjI4NzE4MDE0YmIzM2M4NjQiLCJpYXQiOjE2MDkzMTU4NDF9.I3bHTj3kgESL6PwNoxicYFOq8HE1MH8IOLEreWvuv7Y"
     
     public enum Action: String {
         case OPEN = "OPEN"
         case DEPOSIT = "DEPOSIT"
         case WITHDRAW = "WITHDRAW"
     }
+    public enum Env: String{
+        case SANDBOX = "sandbox"
+        case PRODUCTION = "production"
+        case DEV = "dev"
+    }
+    
+    public init(appID: String, publicKey: String, connectToken: String, appPrivateKey: String, env: Env, configColor: [String]) {
+        PayME.appPrivateKey = trimKeyRSA(key: appPrivateKey);
+        PayME.appID = appID;
+        PayME.connectToken = connectToken;
+        PayME.publicKey = trimKeyRSA(key:publicKey);
+        PayME.env = env;
+        PayME.configColor = configColor;
+    }
+    
+    public func setPrivateKey(appPrivateKey : String) {
+        PayME.appPrivateKey = appPrivateKey
+    }
+    public func setAppID(appID : String) {
+        PayME.appID = appID
+    }
+    public func setPublicKey(publicKey: String) {
+        PayME.publicKey = publicKey
+    }
+    public func setAppPrivateKey(appPrivateKey: String) {
+        PayME.appPrivateKey = appPrivateKey
+    }
+    public func getAppID() -> String {
+        return PayME.appID
+    }
+    public func getPublicKey() -> String{
+        return PayME.publicKey
+    }
+    public func getConnectToken() -> String{
+        return PayME.connectToken
+    }
+    public func getAppPrivateKey() -> String {
+        return PayME.appPrivateKey
+    }
+    public func getEnv() -> Env {
+        return PayME.env
+    }
+    public func setEnv(env: Env) {
+        PayME.env = env
+    }
+    
+    public static func genConnectToken(userId: String, phone: String) -> String {
+        let data : [String: Any] = ["timestamp": (Date().timeIntervalSince1970), "userId" : "\(userId)", "phone" : "\(phone)"]
+        let params = try? JSONSerialization.data(withJSONObject: data)
+        let aes = try? AES(key: Array("3zA9HDejj1GnyVK0".utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
+        let dataEncrypted = try? aes!.encrypt(Array(String(data: params!, encoding: .utf8)!.utf8))
+        print(dataEncrypted!.toBase64()!)
+        return dataEncrypted!.toBase64()!
+    }
+    
+    public static func isConnected(onConnect: @escaping (Bool) -> ()) {
+        if (PayME.clientID != "") {
+            API.checkAccessToken(clientID: PayME.clientID,
+             onSuccess: { responseAccessToken in
+                let result = responseAccessToken["OpenEWallet"]!["Init"] as! [String: AnyObject]
+                let accessToken = result["accessToken"]
+                if accessToken is NSNull {
+                    onConnect(false)
+                } else {
+                    onConnect(true)
+                }
+             }, onError: { errorAccessToken in
+                print(errorAccessToken)
+             }
+            )
+        } else {
+            API.registerClient(onSuccess: { response in
+                let result = response["Client"]!["Register"] as! [String: AnyObject]
+                let clientID = result["clientId"] as! String
+                PayME.clientID = clientID
+                API.checkAccessToken(clientID: clientID,
+                    onSuccess: { responseAccessToken in
+                        let result = responseAccessToken["OpenEWallet"]!["Init"] as! [String: AnyObject]
+                        let accessToken = result["accessToken"]
+                        if accessToken is NSNull {
+                            onConnect(false)
+                        } else {
+                            onConnect(true)
+                        }
+                    }, onError: { errorAccessToken in
+                        print(errorAccessToken)
+                    }
+                )
+            }, onError: {b in })
+        }
+    }
+    private static func abc() {
+        currentVC?.navigationController?.pushViewController(KYCCameraController(), animated: true)
+        
+    }
+    public func openWallet(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?,
+                           onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+                           onError: @escaping (String) -> ()
+    )-> () {
+        /*
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        PayME.currentVC = currentVC
+        PayME.abc()
+        */
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        
+        let topSafeArea: CGFloat
+        let bottomSafeArea: CGFloat
+        if #available(iOS 11.0, *) {
+            topSafeArea = currentVC.view.safeAreaInsets.top
+            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
+        } else {
+            topSafeArea = currentVC.topLayoutGuide.length
+            bottomSafeArea = currentVC.bottomLayoutGuide.length
+        }
+        if (PayME.clientID != "")
+        {
+            let data =
+            """
+            {
+              "connectToken":  "Zn9T0j9jtZYPzi4B8Ti8NiXnEAJLACAljMcY20NKTyKhOvI05XTBh+o1XQr6Yrc7IL00Ysz844b7f1Rctqhd2RjxfLjyGTG6mf+hgMRDHQc=",
+              "appToken": "\(PayME.appID)",
+              "clientId": "\(PayME.clientID)",
+              "configColor":["\(handleColor(input:PayME.configColor))"],
+              "partner" : {
+                   "type":"IOS",
+                   "paddingTop":\(topSafeArea),
+                   "paddingBottom":\(bottomSafeArea)
+              },
+              "actions":{
+                "type":"",
+                "amount":0
+              }
+            }
+            """
+            print(data)
+            let webViewController = WebViewController(nibName: "WebView", bundle: nil)
+            let url = urlWebview(env: PayME.env)
+            PayME.currentVC = currentVC
+            webViewController.urlRequest = "http://sbx-sdk2.payme.com.vn/active/" + "\(data)"
+            webViewController.setOnSuccessCallback(onSuccess: onSuccess)
+            webViewController.setOnErrorCallback(onError: onError)
+            currentVC.navigationController?.pushViewController(webViewController, animated: true)
+            
+        } else {
+            API.registerClient(onSuccess: { response in
+                let result = response["Client"]!["Register"] as! [String: AnyObject]
+                let clientID = result["clientId"] as! String
+                PayME.clientID = clientID
+                let data =
+                """
+                {
+                  "connectToken":  "Zn9T0j9jtZYPzi4B8Ti8NiXnEAJLACAljMcY20NKTyKhOvI05XTBh+o1XQr6Yrc7IL00Ysz844b7f1Rctqhd2RjxfLjyGTG6mf+hgMRDHQc=",
+                  "appToken": "\(PayME.appID)",
+                  "clientId": "\(PayME.clientID)",
+                  "configColor":["\(handleColor(input:PayME.configColor))"],
+                  "partner" : {
+                       "type":"IOS",
+                       "paddingTop":\(topSafeArea),
+                       "paddingBottom":\(bottomSafeArea)
+                  },
+                  "actions":{
+                    "type":"\(action)",
+                    "amount":"\(checkIntNil(input: amount))"
+                  }
+                }
+                """
+                print(data)
+                let webViewController = WebViewController(nibName: "WebView", bundle: nil)
+                let url = urlWebview(env: PayME.env)
+                PayME.currentVC = currentVC
+                webViewController.urlRequest = "https://sbx-sdk2.payme.com.vn/active/" + "\(data)"
+                webViewController.setOnSuccessCallback(onSuccess: onSuccess)
+                webViewController.setOnErrorCallback(onError: onError)
+                currentVC.navigationController?.pushViewController(webViewController, animated: true)
+                
+            }, onError: { error in
+                print(error)
+            })
+        }
+    }
+    internal static func openWalletAgain(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?, active: Int?
+    )-> () {
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        let topSafeArea: CGFloat
+        let bottomSafeArea: CGFloat
+        if #available(iOS 11.0, *) {
+            topSafeArea = currentVC.view.safeAreaInsets.top
+            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
+        } else {
+            topSafeArea = currentVC.topLayoutGuide.length
+            bottomSafeArea = currentVC.bottomLayoutGuide.length
+        }
+        let data =
+        """
+        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(handleColor(input:PayME.configColor))"],"actions":{"type":"\(action)","amount":"\(checkIntNil(input: amount))","description":"\(checkStringNil(input: description))"},"extraData":"\(checkStringNil(input:extraData))"}
+        """
+        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
+        let url = urlWebview(env: PayME.env)
+        PayME.currentVC = currentVC
+        webViewController.urlRequest = url + "\(data)"
+        webViewController.KYCAgain = true
+        webViewController.active = active!
+        currentVC.navigationController?.pushViewController(webViewController, animated: true)
+    }
+    
+    public func deposit(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
+    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+    onError: @escaping (String) -> ()) {
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        let topSafeArea: CGFloat
+        let bottomSafeArea: CGFloat
+        if #available(iOS 11.0, *) {
+            topSafeArea = currentVC.view.safeAreaInsets.top
+            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
+        } else {
+            topSafeArea = currentVC.topLayoutGuide.length
+            bottomSafeArea = currentVC.bottomLayoutGuide.length
+        }
+        let data =
+        """
+        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(handleColor(input:PayME.configColor))"],"actions":{"type":"DEPOSIT","amount":"\(checkIntNil(input: amount))","description":"\(checkStringNil(input: description))"},"extraData":"\(checkStringNil(input:extraData))"}
+        """
+        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
+        let url = urlWebview(env: PayME.env)
+        PayME.currentVC = currentVC
+        webViewController.urlRequest = url + "\(data)"
+        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
+        webViewController.setOnErrorCallback(onError: onError)
+        currentVC.navigationController?.pushViewController(webViewController, animated: true)
+    }
+    
+    public func goToTest(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
+                     onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+                     onError: @escaping (String) -> ()
+    ){
+        let topSafeArea: CGFloat
+        let bottomSafeArea: CGFloat
+        if #available(iOS 11.0, *) {
+            topSafeArea = currentVC.view.safeAreaInsets.top
+            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
+        } else {
+            topSafeArea = currentVC.topLayoutGuide.length
+            bottomSafeArea = currentVC.bottomLayoutGuide.length
+        }
+        let data =
+        """
+        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":"IOS","partnerTop":"\(topSafeArea)","configColor":["\(handleColor(input:PayME.configColor))"]}
+        """
+        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
+        webViewController.urlRequest = "https://sbx-sdk.payme.com.vn/test"
+        //webViewController.urlRequest = "https://tuoitre.vn/"
+        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
+        webViewController.setOnErrorCallback(onError: onError)
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        currentVC.navigationController?.pushViewController(webViewController, animated: true)
+    }
+    
+    public func withdraw(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
+    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+    onError: @escaping (String) -> ()) {
+        currentVC.navigationItem.hidesBackButton = true
+        currentVC.navigationController?.isNavigationBarHidden = true
+        let topSafeArea: CGFloat
+        let bottomSafeArea: CGFloat
+        if #available(iOS 11.0, *) {
+            topSafeArea = currentVC.view.safeAreaInsets.top
+            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
+        } else {
+            topSafeArea = currentVC.topLayoutGuide.length
+            bottomSafeArea = currentVC.bottomLayoutGuide.length
+        }
+        let data =
+        """
+        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(handleColor(input:PayME.configColor))"],"actions":{"type":"WITHDRAW","amount":"\(checkIntNil(input: amount))","description":"\(checkStringNil(input: description))"},"extraData":"\(checkStringNil(input:extraData))"}
+        """
+        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
+        let url = urlWebview(env: PayME.env)
+        PayME.currentVC = currentVC
+        webViewController.urlRequest = url + "\(data)"
+        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
+        webViewController.setOnErrorCallback(onError: onError)
+        currentVC.navigationController?.pushViewController(webViewController, animated: true)
+    }
     
     public func showModal(currentVC : UIViewController){
         PayME.currentVC = currentVC
         currentVC.presentPanModal(Methods())
-    }
-    
-    public static func showKYCCamera(currentVC: UIViewController) {
-        PayME.currentVC = currentVC
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        currentVC.navigationController?.pushViewController(KYCCameraController(), animated: true)
     }
     
     public static func openQRCode(currentVC : UIViewController) {
@@ -92,322 +377,73 @@ public class PayME{
         return nil
     }
     
-    public init(appID: String, publicKey: String, connectToken: String, appPrivateKey: String, env: String, configColor: [String]) {
-        PayME.appPrivateKey = PayME.trimKeyRSA(key: appPrivateKey);
-        PayME.appID = appID;
-        PayME.connectToken = connectToken;
-        PayME.publicKey = PayME.trimKeyRSA(key:publicKey);
-        PayME.env = env;
-        PayME.configColor = configColor;
-    }
-    private static func trimKeyRSA(key: String) -> String {
-        if(key.contains("PUBLIC")) {
-            let indexStart = key.index(key.startIndex, offsetBy: 26)
-            let firstTemp  = key[indexStart...]
-            let indexEnd = key.index(firstTemp.endIndex, offsetBy: -25)
-            let secondTemp = firstTemp[...indexEnd]
-            return String(secondTemp)
-        } else if(key.contains("PRIVATE")) {
-            let indexStart = key.index(key.startIndex, offsetBy: 31)
-            let firstTemp  = key[indexStart...]
-            let indexEnd = key.index(firstTemp.endIndex, offsetBy: -30)
-            let secondTemp = firstTemp[...indexEnd]
-            return String(secondTemp)
-        }
-        return key
-    }
-    
-    public func setPrivateKey(appPrivateKey : String) {
-        PayME.appPrivateKey = appPrivateKey
-    }
-    public func setAppID(appID : String) {
-        PayME.appID = appID
-    }
-    public func setPublicKey(publicKey: String) {
-        PayME.publicKey = publicKey
-    }
-    public func setAppPrivateKey(appPrivateKey: String) {
-        PayME.appPrivateKey = appPrivateKey
-    }
-    public func getAppID() -> String {
-        return PayME.appID
-    }
-    public func getPublicKey() -> String{
-        return PayME.publicKey
-    }
-    public func getConnectToken() -> String{
-        return PayME.connectToken
-    }
-    public func getAppPrivateKey() -> String {
-        return PayME.appPrivateKey
-    }
-    public func getEnv() -> String {
-        return PayME.env
-    }
-    public func setEnv(env: String) {
-        PayME.env = env
-    }
-    public func isConnected() -> Bool {
-        return false
-    }
-    public func openWallet(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?,
-                           onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                           onError: @escaping (String) -> ()
-    )-> () {
-        /*
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        let avatarController = AvatarController()
-        currentVC.navigationController?.pushViewController(avatarController, animated: true)
-        */
-        PayME.abc()
-        
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        let topSafeArea: CGFloat
-        let bottomSafeArea: CGFloat
-        if #available(iOS 11.0, *) {
-            topSafeArea = currentVC.view.safeAreaInsets.top
-            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
-        } else {
-            topSafeArea = currentVC.topLayoutGuide.length
-            bottomSafeArea = currentVC.bottomLayoutGuide.length
-        }
-        let data =
-        """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(PayME.handleColor(input:PayME.configColor))"],"actions":{"type":"\(action)","amount":"\(PayME.checkIntNil(input: amount))","description":"\(PayME.checkStringNil(input: description))"},"extraData":"\(PayME.checkStringNil(input:extraData))"}
-        """
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        let url = PayME.urlWebview(env: PayME.env)
-        PayME.currentVC = currentVC
-        webViewController.urlRequest = url + "\(data)"
-        //webViewController.urlRequest = "https://tuoitre.vn/"
-        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
-        webViewController.setOnErrorCallback(onError: onError)
-        currentVC.navigationController?.pushViewController(webViewController, animated: true)
-        
-    }
-    internal static func openWalletAgain(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?, active: Int?
-    )-> () {
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        let topSafeArea: CGFloat
-        let bottomSafeArea: CGFloat
-        if #available(iOS 11.0, *) {
-            topSafeArea = currentVC.view.safeAreaInsets.top
-            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
-        } else {
-            topSafeArea = currentVC.topLayoutGuide.length
-            bottomSafeArea = currentVC.bottomLayoutGuide.length
-        }
-        let data =
-        """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(PayME.handleColor(input:PayME.configColor))"],"actions":{"type":"\(action)","amount":"\(PayME.checkIntNil(input: amount))","description":"\(PayME.checkStringNil(input: description))"},"extraData":"\(PayME.checkStringNil(input:extraData))"}
-        """
-        print(data)
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        let url = PayME.urlWebview(env: PayME.env)
-        PayME.currentVC = currentVC
-        webViewController.urlRequest = url + "\(data)"
-        //webViewController.urlRequest = "https://tuoitre.vn/"
-        webViewController.KYCAgain = true
-        webViewController.active = active!
-        currentVC.navigationController?.pushViewController(webViewController, animated: true)
-    }
-    
-    public func deposit(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (String) -> ()) {
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        let topSafeArea: CGFloat
-        let bottomSafeArea: CGFloat
-        if #available(iOS 11.0, *) {
-            topSafeArea = currentVC.view.safeAreaInsets.top
-            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
-        } else {
-            topSafeArea = currentVC.topLayoutGuide.length
-            bottomSafeArea = currentVC.bottomLayoutGuide.length
-        }
-        let data =
-        """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(PayME.handleColor(input:PayME.configColor))"],"actions":{"type":"DEPOSIT","amount":"\(PayME.checkIntNil(input: amount))","description":"\(PayME.checkStringNil(input: description))"},"extraData":"\(PayME.checkStringNil(input:extraData))"}
-        """
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        let url = PayME.urlWebview(env: PayME.env)
-        PayME.currentVC = currentVC
-        webViewController.urlRequest = url + "\(data)"
-        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
-        webViewController.setOnErrorCallback(onError: onError)
-        currentVC.navigationController?.pushViewController(webViewController, animated: true)
-    }
-    
-    public func goToTest(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
-                     onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                     onError: @escaping (String) -> ()
-    ){
-        let topSafeArea: CGFloat
-        let bottomSafeArea: CGFloat
-        if #available(iOS 11.0, *) {
-            topSafeArea = currentVC.view.safeAreaInsets.top
-            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
-        } else {
-            topSafeArea = currentVC.topLayoutGuide.length
-            bottomSafeArea = currentVC.bottomLayoutGuide.length
-        }
-        let data =
-        """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":"IOS","partnerTop":"\(topSafeArea)","configColor":["\(PayME.handleColor(input:PayME.configColor))"]}
-        """
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        webViewController.urlRequest = "https://sbx-sdk.payme.com.vn/test"
-        //webViewController.urlRequest = "https://tuoitre.vn/"
-        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
-        webViewController.setOnErrorCallback(onError: onError)
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        currentVC.navigationController?.pushViewController(webViewController, animated: true)
-    }
-    
-    public func withdraw(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (String) -> ()) {
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        let topSafeArea: CGFloat
-        let bottomSafeArea: CGFloat
-        if #available(iOS 11.0, *) {
-            topSafeArea = currentVC.view.safeAreaInsets.top
-            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
-        } else {
-            topSafeArea = currentVC.topLayoutGuide.length
-            bottomSafeArea = currentVC.bottomLayoutGuide.length
-        }
-        let data =
-        """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(PayME.handleColor(input:PayME.configColor))"],"actions":{"type":"WITHDRAW","amount":"\(PayME.checkIntNil(input: amount))","description":"\(PayME.checkStringNil(input: description))"},"extraData":"\(PayME.checkStringNil(input:extraData))"}
-        """
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        let url = PayME.urlWebview(env: PayME.env)
-        PayME.currentVC = currentVC
-        webViewController.urlRequest = url + "\(data)"
-        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
-        webViewController.setOnErrorCallback(onError: onError)
-        currentVC.navigationController?.pushViewController(webViewController, animated: true)
-    }
-    
     public func pay(currentVC : UIViewController, amount: Int, description: String?, extraData: String?) {
         PayME.currentVC = currentVC
         PayME.amount = amount
         PayME.description = description ?? ""
         PayME.currentVC!.presentPanModal(Methods())
     }
-    private static func abc() {
-        print("abc")
-        testApi()
-    }
     
-    private static func testApi() {
-        let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjE2MDksImFjY291bnRJZCI6MzY4Njc3MjY5MSwic2NvcGUiOltdLCJjbGllbnRJZCI6IkIwNDEzODE5LTIzRkQtNDVDMC1BRUNGLTg5RjRGNUI2RUYzNSIsImlhdCI6MTYwOTIxNzQ4NH0.BVeH4zGorFsLni6NMZXtCP9bkuKGxkmnGxsb45itr7Q"
-        let url = "https://sbx-fe.payme.vn/"
+    // open after this version
+    private static func getWalletGraphQL(
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+        onError: @escaping ([Int:Any]) -> ()) {
+        let url = urlGraphQL(env: PayME.env)
         let path = "/graphql"
-        let publicKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi\nwIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ==\n"
-        let privateKey = "MIIBPAIBAAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKiwIhTJpAi1XnbfOSrW/Eb\nw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQJBAJSfTrSCqAzyAo59Ox+m\nQ1ZdsYWBhxc2084DwTHM8QN/TZiyF4fbVYtjvyhG8ydJ37CiG7d9FY1smvNG3iDC\ndwECIQDygv2UOuR1ifLTDo4YxOs2cK3+dAUy6s54mSuGwUeo4QIhAK7SiYDyGwGo\nCwqjOdgOsQkJTGoUkDs8MST0MtmPAAs9AiEAjLT1/nBhJ9V/X3f9eF+g/bhJK+8T\nKSTV4WE1wP0Z3+ECIA9E3DWi77DpWG2JbBfu0I+VfFMXkLFbxH8RxQ8zajGRAiEA\n8Ly1xJ7UW3up25h9aa9SILBpGqWtJlNQgfVKBoabzsU=\n"
-        
-        let sql = "query Query($feedFeedId: BigInt!) {Feed(feedId: $feedFeedId) {feedId}}"
-
-        let variables : [String: Any] = [
-          "feedFeedId": 1
-        ]
-        
+        let sql = """
+        query Query {
+          Wallet {
+            balance
+            cash
+            credit
+            lockCash
+            creditLimit
+          }
+        }
+        """
+        let variables : [String: Any] = [:]
         let json: [String: Any] = [
           "query": sql,
           "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-
-        let request = NetworkRequestGraphQL(url: url, path: path, token: token, params: params, publicKey: publicKey, privateKey: privateKey)
-        request.setOnRequestCrypto(
-            onStart: {
-              print("onStart")
-            },
-            onErrorGraphQL: { errors in
-                print("onErrorGraphQL \(errors[0])")
-              },
-            onError: { error in
-              print("onError \(error)")
-            },
-            onSuccess: { data in
-              // print("onSuccess \(data)")
-            },
-            onFinally: {
-              print("onFinally")
-            },
-            onExpired: {
-              print("onExpired")
-            }
-        )
+        if (PayME.env == PayME.Env.DEV) {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequest(
+                onError: { error in
+                    onError(error)
+                },
+                onErrorGraphQL: { errors in
+                    print("onErrorGraphQL \(errors[0])")
+                  },
+                
+                onSuccess: { data in
+                    onSuccess(data)
+                  // print("onSuccess \(data)")
+                }
+            )
+        } else {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequestCrypto(
+                onErrorGraphQL: { errors in
+                    print("onErrorGraphQL \(errors[0])")
+                  },
+                onError: { error in
+                    onError(error)
+                },
+                onSuccess: { data in
+                    onSuccess(data)
+                  // print("onSuccess \(data)")
+                }
+            )
+        }
       }
-    
-    
-    private static func handleColor(input: [String]) -> String {
-        let newString = input.joined(separator: "\",\"")
-        return newString
-    }
-    private static func checkIntNil(input: Int?) -> String {
-        if input != nil {
-            return String(input!)
-        }
-        return ""
-    }
-    private static func checkUserInfoNil(input: UserInfo?) -> String{
-        if input != nil {
-            return input!.toJson()
-        }
-        return "{}"
-    }
-    private static func checkStringNil(input: String?) -> String {
-        if input != nil {
-            return input!
-        }
-        return ""
-    }
-    
-    public static func formatMoney(input: Int) -> String {
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = .decimal
-        numberFormatter.maximumFractionDigits = 3
-        let temp = numberFormatter.string(from: NSNumber(value: input))
-        return "\(temp!)"
-    }
 
-
-    private static func  urlFeENV(env: String?) -> String {
-        if (env == "sandbox") {
-            return "https://sbx-wam.payme.vn/v1/"
-        }
-        return "https://wam.payme.vn/v1/"
-    }
-    
-    private static func  urlWebview(env: String?) -> String {
-        if (env == "sandbox") {
-            return "https://sbx-sdk.payme.com.vn/active/"
-        }
-        return "https://sdk.payme.com.vn/active/"
-    }
-    
-    private static func urlUpload(env: String?) -> String {
-        if (env == "sandbox") {
-            return "https://sbx-static.payme.vn/"
-        }
-        return "https://static.payme.vn/"
-    }
-    
-    public func getWalletInfo(
+    public static func getWalletInfo(
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onError: @escaping ([Int:Any]) -> ()
     ) {
-        let url = PayME.urlFeENV(env: PayME.env)
+        let url = urlFeENV(env: PayME.env)
         let path = "/Wallet/Information"
         let clientInfo: [String: String] = [
             "clientId": PayME.deviceID,
@@ -424,93 +460,16 @@ public class PayME{
         let params = try? JSONSerialization.data(withJSONObject: data)
         let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
         request.setOnRequestCrypto(
-        onStart: {},
-        onError: {(error) in
-            onError(error)
-        },
-       onSuccess : {(response) in
-            onSuccess(response)
-        },
-       onFinally: {}, onExpired: {})
+            onError: {(error) in
+                onError(error)
+            },
+           onSuccess : {(response) in
+                onSuccess(response)
+            }
+        )
     }
     
-    public static func uploadImageKYC(
-        imageFront: UIImage,
-        imageBack: UIImage?,
-        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onError: @escaping ([Int:Any]) -> ()
-    ) {
-        let url = urlUpload(env: PayME.env)
-        let path = url + "/Upload"
-        let imageData = imageFront.jpegData(compressionQuality: 1)
-        let headers : HTTPHeaders = ["Content-type": "multipart/form-data",
-                                     "Content-Disposition" : "form-data"]
-        AF.upload(multipartFormData: { (multipartFormData) in
-                multipartFormData.append(imageData!, withName: "files", fileName: "imageFront.png", mimeType: "image/png")
-                if (imageBack != nil) {
-                    let imageDataBack = imageBack!.jpegData(compressionQuality: 1)
-                    multipartFormData.append(imageDataBack!, withName: "files", fileName: "imageBack.png", mimeType: "image/png")
-                }
-            }, to: path, method: .post, headers: headers)
-            .response { response in
-                do {
-                    if response.response?.statusCode == 200 {
-                        let jsonData = response.data
-                        let parsedData = try JSONSerialization.jsonObject(with: jsonData!) as! Dictionary<String, AnyObject>
-                        onSuccess(parsedData)
-                    }
-                } catch {
-                    onError([1001: "Some thing went wrong"])
-                }
-            }
-    }
-    public static func callGraphQLTest(
-    
-    ) {
-        let url = "https://sbx-fe.payme.vn/graphql"
-        let sql = """
-        mutation InitMutation($initInput: CheckInitInput) {
-          OpenEWallet {
-            Init(input: $initInput) {
-              message
-              succeeded
-              handShake
-              accessToken
-              kyc {
-                state
-              }
-              phone
-            }
-          }
-        }
-        """
-        let variables : [String: Any] = [
-        "initInput": [
-            "appToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MX0.Ds8X3OGL8-QGB-bSgbe4zT-de_IYbdyWtwWaIPK5tqo",
-            "connectToken": "4E8JW33jb8lKNV+gSXdEYSdhxk1bQwtbMye4eFDouYA288hgED6OfSKyGZ9jGLldWpexnuyUBvi2rMl6yeRf4w==",
-            "clientId": "HUY"
-            ]
-        ]
-        let parameters: [String: Any] = [
-          "query": sql,
-          "variables": variables,
-        ]
-        let headers : HTTPHeaders = ["Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcxNjcsImFjY291bnRJZCI6NTIyNjc3MzMzNiwic2NvcGUiOltdLCJjbGllbnRJZCI6IkhVWSIsImFwcElkIjoxLCJpYXQiOjE2MDg4ODUxNTd9.RosOTx4qg1WsKsNI5hfBKWpVg5LdSPEQ07KBi4ub3ec"]
-        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON {
-            response in
-            print(response)
-            switch (response.result) {
-            case .success:
-                print("Huy")
-                print(response)
-                break
-            case .failure:
-                print(Error.self)
-            }
-        }
-    }
     public static func registerClient(){
-        
         let url = "https://dev-fe.payme.net.vn/graphql"
         let sql = """
         mutation InitMutation($registerInput: ClientRegisterInput!) {
@@ -587,15 +546,14 @@ public class PayME{
          let params = try? JSONSerialization.data(withJSONObject: data)
          let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
          request.setOnRequestCrypto(
-         onStart: {},
-         onError: {(error) in
-             onError(error)
-         },
-        onSuccess : {(response) in
-            print(response)
-             onSuccess(response)
-         },
-        onFinally: {}, onExpired: {})
+             onError: {(error) in
+                 onError(error)
+             },
+             onSuccess : {(response) in
+                print(response)
+                 onSuccess(response)
+             }
+        )
     }
 
     
@@ -620,14 +578,13 @@ public class PayME{
         let params = try? JSONSerialization.data(withJSONObject: data)
         let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
         request.setOnRequestCrypto(
-        onStart: {},
-        onError: {(error) in
-            onError(error)
-        },
-       onSuccess : {(response) in
-            onSuccess(response)
-        },
-       onFinally: {}, onExpired: {})
+            onError: {(error) in
+                onError(error)
+            },
+            onSuccess : {(response) in
+                onSuccess(response)
+            }
+       )
     }
     public static func postTransferAppWallet(onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
     onError: @escaping ([Int:Any]) -> ()){
@@ -651,15 +608,13 @@ public class PayME{
          let params = try? JSONSerialization.data(withJSONObject: data)
          let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
          request.setOnRequestCrypto(
-         onStart: {},
-         onError: {(error) in
-             onError(error)
-         },
-        onSuccess : {(response) in
-             onSuccess(response)
-         },
-        onFinally: {}, onExpired: {})
-        
+            onError: {(error) in
+                onError(error)
+            },
+            onSuccess : {(response) in
+                onSuccess(response)
+            }
+        )
     }
     public static func postTransferNapas(method: MethodInfo,onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), onError: @escaping ([Int:Any]) -> ()) {
          let url = urlFeENV(env: PayME.env)
@@ -685,14 +640,13 @@ public class PayME{
          let params = try? JSONSerialization.data(withJSONObject: data)
          let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
          request.setOnRequestCrypto(
-         onStart: {},
-         onError: {(error) in
-             onError(error)
-         },
-        onSuccess : {(response) in
-             onSuccess(response)
-         },
-        onFinally: {}, onExpired: {})
+            onError: {(error) in
+                 onError(error)
+            },
+            onSuccess : {(response) in
+                 onSuccess(response)
+            }
+        )
     }
     public static func postTransferPVCB(method: MethodInfo,onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), onError: @escaping ([Int:Any]) -> ()) {
          let url = urlFeENV(env: PayME.env)
@@ -716,14 +670,13 @@ public class PayME{
          let params = try? JSONSerialization.data(withJSONObject: data)
          let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
          request.setOnRequestCrypto(
-         onStart: {},
-         onError: {(error) in
-             onError(error)
-         },
-        onSuccess : {(response) in
-             onSuccess(response)
-         },
-        onFinally: {}, onExpired: {})
+             onError: {(error) in
+                 onError(error)
+             },
+             onSuccess : {(response) in
+                 onSuccess(response)
+             }
+        )
     }
     
     public static func postTransferPVCBVerify(transferId:Int, OTP:String, onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), onError: @escaping ([Int:Any]) -> ()){
@@ -748,14 +701,13 @@ public class PayME{
          let params = try? JSONSerialization.data(withJSONObject: data)
          let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
          request.setOnRequestCrypto(
-         onStart: {},
-         onError: {(error) in
-             onError(error)
-         },
-        onSuccess : {(response) in
-             onSuccess(response)
-         },
-        onFinally: {}, onExpired: {})
+             onError: {(error) in
+                 onError(error)
+             },
+             onSuccess : {(response) in
+                 onSuccess(response)
+             }
+        )
     }
     public static func payWithQRCode(QRContent: String, onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), onError: @escaping ([Int:Any]) -> ()){
          let url = urlFeENV(env: PayME.env)
@@ -776,14 +728,13 @@ public class PayME{
          let params = try? JSONSerialization.data(withJSONObject: data)
          let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
          request.setOnRequestCrypto(
-         onStart: {},
-         onError: {(error) in
-             onError(error)
-         },
-        onSuccess : {(response) in
-             onSuccess(response)
-         },
-        onFinally: {}, onExpired: {})
+             onError: {(error) in
+                 onError(error)
+             },
+             onSuccess : {(response) in
+                 onSuccess(response)
+             }
+        )
     }
     public static func generateConnectToken(usertId: String, phoneNumber: String?, timestamp: String, onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), onError: @escaping ([Int:Any]) -> ()){
          let url = urlFeENV(env: PayME.env)
@@ -796,14 +747,13 @@ public class PayME{
          let params = try? JSONSerialization.data(withJSONObject: data)
          let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
          request.setOnRequestCrypto(
-         onStart: {},
-         onError: {(error) in
-             onError(error)
-         },
-        onSuccess : {(response) in
-             onSuccess(response)
-         },
-        onFinally: {}, onExpired: {})
+            onError: {(error) in
+                onError(error)
+            },
+            onSuccess : {(response) in
+                 onSuccess(response)
+            }
+        )
     }
 }
 

@@ -26,16 +26,9 @@ public class NetworkRequest {
     }
     
     public func setOnRequest(
-        onStart: @escaping () -> (),
         onError: @escaping (Dictionary<Int, Any>) -> (),
-        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onFinally: @escaping () -> (),
-        onExpired: @escaping () -> ()
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        DispatchQueue.main.async {
-            onStart()
-        }
-        
         let url = NSURL(string: self.url + self.path)
         let request = NSMutableURLRequest(url: url! as URL)
         request.httpMethod = "POST"
@@ -58,7 +51,6 @@ public class NetworkRequest {
                     } else {
                         onError([500 : ["message" : error?.localizedDescription]])
                     }
-                    onFinally()
                 } else {
                     onError([500 : ["message" : "Something went wrong" ]])
 
@@ -68,7 +60,6 @@ public class NetworkRequest {
             return
         }
             let json = try? (JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as! Dictionary<String, AnyObject>)
-            print(json)
             let code = json!["code"] as! Int
             if code == 1000 {
                 if let data = json!["data"] as? Dictionary<String, AnyObject> {
@@ -79,10 +70,8 @@ public class NetworkRequest {
             }
             else {
                 if let data = json!["data"] as? Dictionary<String, AnyObject> {
-                    print(159,data)
                     DispatchQueue.main.async {
                         onError([code: data])
-                        onFinally()
                     }
                 }
             }
@@ -91,11 +80,8 @@ public class NetworkRequest {
     }
     
     public func setOnRequestCrypto(
-        onStart: @escaping () -> (),
         onError: @escaping (Dictionary<Int, Any>) -> (),
-        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onFinally: @escaping () -> (),
-        onExpired: @escaping () -> ()
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         let encryptKey = "10000000"
         let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey)
@@ -115,9 +101,7 @@ public class NetworkRequest {
         valueParams += xAPIMessage
         valueParams += encryptKey
         let xAPIValidate = CryptoAES.MD5(valueParams)!
-        DispatchQueue.main.async {
-            onStart()
-        }
+
         
         let url = NSURL(string: self.url)
         let request = NSMutableURLRequest(url: url! as URL)
@@ -142,7 +126,6 @@ public class NetworkRequest {
                         } else {
                             onError([500 : ["message" : error?.localizedDescription]])
                         }
-                        onFinally()
                     } else {
                         onError([500 : ["message" : "Something went wrong" ]])
 
@@ -191,10 +174,8 @@ public class NetworkRequest {
             }
             else {
                 if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
-                    print(159,data)
                     DispatchQueue.main.async {
                         onError([code: data])
-                        onFinally()
                     }
                 }
             }
@@ -221,16 +202,10 @@ public class NetworkRequestGraphQL {
     }
     
     public func setOnRequest(
-        onStart: @escaping () -> (),
         onError: @escaping (Dictionary<Int, Any>) -> (),
-        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onFinally: @escaping () -> (),
-        onExpired: @escaping () -> ()
+        onErrorGraphQL: @escaping ([[String:AnyObject]]) -> (),
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        DispatchQueue.main.async {
-            onStart()
-        }
-        
         let url = NSURL(string: self.url + self.path)
         let request = NSMutableURLRequest(url: url! as URL)
         request.httpMethod = "POST"
@@ -253,7 +228,6 @@ public class NetworkRequestGraphQL {
                     } else {
                         onError([500 : ["message" : error?.localizedDescription]])
                     }
-                    onFinally()
                 } else {
                     onError([500 : ["message" : "Something went wrong" ]])
 
@@ -262,23 +236,15 @@ public class NetworkRequestGraphQL {
             }
             return
         }
-            let json = try? (JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as! Dictionary<String, AnyObject>)
-            print(json)
-            let code = json!["code"] as! Int
-            if code == 1000 {
-                if let data = json!["data"] as? Dictionary<String, AnyObject> {
+            let finalJSON = try? (JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as! Dictionary<String, AnyObject>)
+            if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
                     DispatchQueue.main.async {
                         onSuccess(data)
                     }
                 }
-            }
-            else {
-                if let data = json!["data"] as? Dictionary<String, AnyObject> {
-                    print(159,data)
-                    DispatchQueue.main.async {
-                        onError([code: data])
-                        onFinally()
-                    }
+            if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
+                DispatchQueue.main.async {
+                    onErrorGraphQL(errors)
                 }
             }
         }
@@ -286,12 +252,9 @@ public class NetworkRequestGraphQL {
     }
     
     public func setOnRequestCrypto(
-        onStart: @escaping () -> (),
         onErrorGraphQL: @escaping ([[String:AnyObject]]) -> (),
         onError: @escaping (Dictionary<Int, Any>) -> (),
-        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onFinally: @escaping () -> (),
-        onExpired: @escaping () -> ()
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         let encryptKey = "10000000"
         let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey)
@@ -311,9 +274,6 @@ public class NetworkRequestGraphQL {
         valueParams += xAPIMessage
         valueParams += encryptKey
         let xAPIValidate = CryptoAES.MD5(valueParams)!
-        DispatchQueue.main.async {
-            onStart()
-        }
         
         let url = NSURL(string: self.url)
         let request = NSMutableURLRequest(url: url! as URL)
@@ -338,7 +298,6 @@ public class NetworkRequestGraphQL {
                         } else {
                             onError([500 : ["message" : error?.localizedDescription]])
                         }
-                        onFinally()
                     } else {
                         onError([500 : ["message" : "Something went wrong" ]])
 
@@ -376,20 +335,16 @@ public class NetworkRequestGraphQL {
             guard let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options:[]) as? Dictionary<String, AnyObject> else {
                 return
             }
-            // print(finalJSON)
-            print("error")
-            print(finalJSON!["errors"]!)
-            if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
-                    DispatchQueue.main.async {
-                        onErrorGraphQL(errors)
-                    }
-                }
-            
             if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
                     DispatchQueue.main.async {
                         onSuccess(data)
                     }
                 }
+            if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
+                DispatchQueue.main.async {
+                    onErrorGraphQL(errors)
+                }
+            }
             
         }
         task.resume()

@@ -20,7 +20,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
     private var onSuccessCapture: ((UIImage , Int) -> ())? = nil
-    private var onBack: ((String) -> ())? = nil
     public var txtFront = ""
     public var imageFront : UIImage?
     
@@ -63,7 +62,18 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         guard let image = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else { return }
         dismiss(animated: true, completion: nil)
         self.session.stopRunning()
-        self.onSuccessCapture!(image, active)
+        if (imageFront == nil) {
+           var confirmKYCFront = KYCFrontController()
+           confirmKYCFront.kycImage = image
+           confirmKYCFront.active = active
+           self.navigationController?.pushViewController(confirmKYCFront, animated: false)
+       } else {
+           var confirmKYCBack = KYCBackController()
+           confirmKYCBack.kycImage = imageFront
+           confirmKYCBack.kycImageBack = image
+           confirmKYCBack.active = active
+           self.navigationController?.pushViewController(confirmKYCBack, animated: false)
+       }
     }
 
     
@@ -143,9 +153,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     }
     public func setSuccessCapture(onSuccessCapture: @escaping((UIImage , Int) -> ())){
         self.onSuccessCapture = onSuccessCapture
-    }
-    public func setOnBack(onBack: @escaping (String) -> ()){
-        self.onBack = onBack
     }
     
     
@@ -386,7 +393,18 @@ extension KYCCameraController : AVCapturePhotoCaptureDelegate {
                 orientation: image.imageOrientation )
             let resizeImage = finalImage.resizeImage(targetSize: CGSize(width:512, height: 512*0.67))
             self.session.stopRunning()
-            self.onSuccessCapture!(resizeImage, active)
+            if (imageFront == nil) {
+                var confirmKYCFront = KYCFrontController()
+                confirmKYCFront.kycImage = resizeImage
+                confirmKYCFront.active = active
+                self.navigationController?.pushViewController(confirmKYCFront, animated: false)
+            } else {
+                var confirmKYCBack = KYCBackController()
+                confirmKYCBack.kycImage = imageFront
+                confirmKYCBack.kycImageBack = resizeImage
+                confirmKYCBack.active = active
+                self.navigationController?.pushViewController(confirmKYCBack, animated: false)
+            }
         }
     }
 }
