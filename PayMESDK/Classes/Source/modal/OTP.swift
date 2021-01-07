@@ -8,13 +8,7 @@
 
 import UIKit
 
-class OTP: UIViewController, PanModalPresentable, KAPinFieldDelegate {
-    func pinField(_ field: KAPinField, didFinishWith code: String) {
-        
-    }
-    func pinField(_ field: KAPinField, didChangeTo string: String, isValid: Bool) {
-        
-    }
+class OTP: UIViewController, PanModalPresentable {
     
     static var transferId: Int? = nil
     
@@ -35,7 +29,6 @@ class OTP: UIViewController, PanModalPresentable, KAPinFieldDelegate {
         view.addSubview(txtField)
         view.addSubview(otpView)
         
-        otpView.properties.delegate = self
         
         txtLabel.text = "Xác thực OTP"
         roleLabel.text = "Vui lòng nhập mã OTP được gửi tới số 09833411111"

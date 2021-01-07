@@ -8,9 +8,11 @@
 import UIKit
 
 class KYCFrontController: UIViewController {
-    public var kycImage : UIImage?
-    public var active : Int?
-    let screenSize:CGRect = UIScreen.main.bounds
+    internal var kycImage : UIImage?
+    internal var active : Int?
+    internal let screenSize:CGRect = UIScreen.main.bounds
+    internal var onSuccessCapture: (([UIImage],Int) -> ())? = nil
+
 
     let imageView: UIImageView = {
         let bundle = Bundle(for: KYCFrontController.self)
@@ -131,39 +133,24 @@ class KYCFrontController: UIViewController {
         confirm.addTarget(self, action: #selector(capture), for: .touchUpInside)
         // Do any additional setup after loading the view.
     }
+    
     @objc func back() {
         navigationController?.popViewController(animated: true)
     }
     @objc func capture() {
         if (self.active! != 2) {
             let kycCameraController = KYCCameraController()
-            print("Camera back")
             kycCameraController.imageFront = kycImage
             kycCameraController.active = self.active!
-            kycCameraController.setSuccessCapture(onSuccessCapture: { image,active in
-                let kycBack = KYCBackController()
-                print("kycBack")
-                print(active)
-                kycBack.kycImage = self.kycImage
-                kycBack.kycImageBack = image
-                kycBack.active = active
-                self.navigationController?.pushViewController(kycBack, animated: true)
-                
-                
-
-                //self.webView?.evaluateJavaScript("document.getElementById('ImageReview').src='\(response)'") { (result, error) in
-                    //print(result)
-                //}
-                //self.navigationController?.popViewController(animated: true)
-                /*PayME.uploadImageKYC(imageFront: response, imageBack: nil, onSuccess: { a in
-                    print(a)
-                }, onError: { b in
-                    print(b)
-                })
-                 */
-            })
-            navigationController?.pushViewController(kycCameraController, animated: false)
+            kycCameraController.onSuccessCapture = { image, active in
+                self.onSuccessCapture!(image,active)
+            }
+            self.navigationController?.pushViewController(kycCameraController, animated: true)
+            
         } else {
+            onSuccessCapture!([self.kycImage!], active!)
+
+            /*
             self.showSpinner(onView: self.view)
             API.uploadImageKYC(imageFront: self.kycImage!,
                                  imageBack: nil,
@@ -204,8 +191,8 @@ class KYCFrontController: UIViewController {
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             })
+            */
         }
-
     }
     override func viewDidLayoutSubviews() {
         captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)

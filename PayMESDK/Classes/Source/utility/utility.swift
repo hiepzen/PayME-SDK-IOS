@@ -60,7 +60,7 @@ internal func  urlWebview(env: PayME.Env) -> String {
 }
 
 internal func urlUpload(env: PayME.Env) -> String {
-    if (env == PayME.Env.SANDBOX) {
+    if (env == PayME.Env.SANDBOX || env == PayME.Env.DEV) {
         return "https://sbx-static.payme.vn/"
     }
     return "https://static.payme.vn/"

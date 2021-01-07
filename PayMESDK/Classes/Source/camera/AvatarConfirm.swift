@@ -10,7 +10,8 @@ import UIKit
 class AvatarConfirm: UIViewController {
     public var avatarImage : UIImage?
     let screenSize:CGRect = UIScreen.main.bounds
-
+    internal var onSuccessCapture: ((UIImage) -> ())? = nil
+    
     let imageView: UIImageView = {
         let bundle = Bundle(for: KYCFrontController.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
@@ -137,8 +138,7 @@ class AvatarConfirm: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     @objc func capture() {
-        self.showSpinner(onView: self.view)
-        
+        onSuccessCapture!(avatarImage!)
     }
     override func viewDidLayoutSubviews() {
         captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)

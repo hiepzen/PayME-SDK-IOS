@@ -25,7 +25,7 @@ public class PayME{
     internal static let deviceID = UIDevice.current.identifierForVendor!.uuidString
     internal static var clientID: String = ""
     internal static var currentVC : UIViewController?
-    internal static var accessToken : String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjE3MzAsImFjY291bnRJZCI6NTA0NTEyOTcyMiwic2NvcGUiOltdLCJjbGllbnRJZCI6IjI4NzE4MDE0YmIzM2M4NjQiLCJpYXQiOjE2MDkzMTU4NDF9.I3bHTj3kgESL6PwNoxicYFOq8HE1MH8IOLEreWvuv7Y"
+    internal static var accessToken : String = ""
     
     public enum Action: String {
         case OPEN = "OPEN"
@@ -107,6 +107,7 @@ public class PayME{
                 let result = response["Client"]!["Register"] as! [String: AnyObject]
                 let clientID = result["clientId"] as! String
                 PayME.clientID = clientID
+                print(clientID)
                 API.checkAccessToken(clientID: clientID,
                     onSuccess: { responseAccessToken in
                         let result = responseAccessToken["OpenEWallet"]!["Init"] as! [String: AnyObject]
@@ -114,6 +115,8 @@ public class PayME{
                         if accessToken is NSNull {
                             onConnect(false)
                         } else {
+                            PayME.accessToken = accessToken as! String
+                            print(PayME.accessToken)
                             onConnect(true)
                         }
                     }, onError: { errorAccessToken in
@@ -124,19 +127,34 @@ public class PayME{
         }
     }
     private static func abc() {
-        currentVC?.navigationController?.pushViewController(KYCCameraController(), animated: true)
-        
+        print("accessTOken")
+        print(PayME.accessToken)
+        var kycController = KYCController(flowKYC: ["kycIdentifyImg": true, "kycFace": true, "kycVideo": true])
+        kycController.kyc()
     }
     public func openWallet(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?,
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                            onError: @escaping (String) -> ()
     )-> () {
+        
+        PayME.currentVC = currentVC
+        PayME.isConnected(onConnect: {a in
+            print(a)
+            PayME.abc()
+            
+        })
+    
         /*
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
         PayME.currentVC = currentVC
-        PayME.abc()
-        */
+        PayME.isConnected(onConnect: {a in
+            print(a)
+            PayME.abc()
+
+        })
+         */
+        /*
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
         
@@ -154,7 +172,7 @@ public class PayME{
             let data =
             """
             {
-              "connectToken":  "Zn9T0j9jtZYPzi4B8Ti8NiXnEAJLACAljMcY20NKTyKhOvI05XTBh+o1XQr6Yrc7IL00Ysz844b7f1Rctqhd2RjxfLjyGTG6mf+hgMRDHQc=",
+              "connectToken":  "\(PayME.connectToken)",
               "appToken": "\(PayME.appID)",
               "clientId": "\(PayME.clientID)",
               "configColor":["\(handleColor(input:PayME.configColor))"],
@@ -169,7 +187,6 @@ public class PayME{
               }
             }
             """
-            print(data)
             let webViewController = WebViewController(nibName: "WebView", bundle: nil)
             let url = urlWebview(env: PayME.env)
             PayME.currentVC = currentVC
@@ -186,7 +203,7 @@ public class PayME{
                 let data =
                 """
                 {
-                  "connectToken":  "Zn9T0j9jtZYPzi4B8Ti8NiXnEAJLACAljMcY20NKTyKhOvI05XTBh+o1XQr6Yrc7IL00Ysz844b7f1Rctqhd2RjxfLjyGTG6mf+hgMRDHQc=",
+                  "connectToken":  "\(PayME.connectToken)",
                   "appToken": "\(PayME.appID)",
                   "clientId": "\(PayME.clientID)",
                   "configColor":["\(handleColor(input:PayME.configColor))"],
@@ -201,7 +218,6 @@ public class PayME{
                   }
                 }
                 """
-                print(data)
                 let webViewController = WebViewController(nibName: "WebView", bundle: nil)
                 let url = urlWebview(env: PayME.env)
                 PayME.currentVC = currentVC
@@ -214,6 +230,7 @@ public class PayME{
                 print(error)
             })
         }
+         */
     }
     internal static func openWalletAgain(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?, active: Int?
     )-> () {

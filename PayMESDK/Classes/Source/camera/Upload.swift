@@ -135,6 +135,7 @@ class Upload: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     @objc func capture() {
+        /*
         if (self.active! != 2) {
             let kycCameraController = KYCCameraController()
             print("Camera back")
@@ -205,6 +206,7 @@ class Upload: UIViewController {
                 self.present(alert, animated: true, completion: nil)
             })
         }
+         */
 
     }
     override func viewDidLayoutSubviews() {

@@ -333,6 +333,8 @@
 		50DEDC84ACB183E7CD22CAED90C6DFBE /* touchId.png in Resources */ = {isa = PBXBuildFile; fileRef = 5BB522752FC051B54CAFCAA840CCEF1D /* touchId.png */; };
 		51A0560AC66546951BCC4663C0FBA607 /* AnimatedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E810A833DFA3151E24B5433049152F /* AnimatedButton.swift */; };
 		527507E8E233CE19E424BFF11B9735A7 /* GoogleUtilities-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 54A513452BBAC1BFDA05F0D97ACFE459 /* GoogleUtilities-dummy.m */; };
+		5296849025A64FC30079A5DF /* UploadKYC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5296848F25A64FC30079A5DF /* UploadKYC.swift */; };
+		52977A2B25A55207003C8771 /* KYCController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52977A2A25A55207003C8771 /* KYCController.swift */; };
 		52A1957086A8F983834294EC2ED10286 /* Method.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1C282E20097076D2152DEAF638EF42 /* Method.swift */; };
 		5300EB86348ED2DD35A9339104F21842 /* CBC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 695DFD43A8B2CC075DD62BA57EA28000 /* CBC.swift */; };
 		53019DBFAAE568C920F897D6ED36F8E5 /* FIRCLSReportAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = B13E6B10A1D2F08E26017D784A9C7098 /* FIRCLSReportAdapter.m */; };
@@ -1642,6 +1644,8 @@
 		51FF4E01DE96159F87E34BD15351332E /* ECB.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ECB.swift; path = Sources/CryptoSwift/BlockMode/ECB.swift; sourceTree = "<group>"; };
 		52136F639B8773FE55251A68BAFD93B2 /* 24Px@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "24Px@2x.png"; path = "PayMESDK/Assets/24Px@2x.png"; sourceTree = "<group>"; };
 		5221105C28BB9244F0A6C2865011A4F2 /* ResponseSerialization.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ResponseSerialization.swift; path = Source/ResponseSerialization.swift; sourceTree = "<group>"; };
+		5296848F25A64FC30079A5DF /* UploadKYC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadKYC.swift; sourceTree = "<group>"; };
+		52977A2A25A55207003C8771 /* KYCController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCController.swift; sourceTree = "<group>"; };
 		52B38FFEFC861D2AED1548814251F229 /* FIRCLSDwarfUnwind.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FIRCLSDwarfUnwind.h; path = Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDwarfUnwind.h; sourceTree = "<group>"; };
 		5359AB254B9F211B4528AC8106115ECB /* VectorsExtensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VectorsExtensions.swift; path = "lottie-swift/src/Private/Utility/Primitives/VectorsExtensions.swift"; sourceTree = "<group>"; };
 		53A3E780EF573B25B5886A45315F6976 /* FBLPromise+Then.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "FBLPromise+Then.m"; path = "Sources/FBLPromises/FBLPromise+Then.m"; sourceTree = "<group>"; };
@@ -2821,6 +2825,8 @@
 		1F144737B831A4592D4D04EAD98F81C2 /* camera */ = {
 			isa = PBXGroup;
 			children = (
+				5296848F25A64FC30079A5DF /* UploadKYC.swift */,
+				52977A2A25A55207003C8771 /* KYCController.swift */,
 				1637701562EF444308B4E2A535412A46 /* AvatarConfirm.swift */,
 				6BB1F099F8FA2807399840105B3FA331 /* AvatarController.swift */,
 				5AB81E8CB1F6AFDAB5A3D2756843A061 /* KYCBackController.swift */,
@@ -5117,9 +5123,11 @@
 				9B6975393746633EE400B710307B5A66 /* PinView.swift in Sources */,
 				7C7F861424C003225158D7A244E0D83A /* QRNotFound.swift in Sources */,
 				034507E7F346CF35F1866934BE660AC9 /* QRScannerController.swift in Sources */,
+				5296849025A64FC30079A5DF /* UploadKYC.swift in Sources */,
 				A179B11CD0D42D4549052A4A78D8C4A1 /* Success.swift in Sources */,
 				19EDF203D0795393C56BCDDDA64B6011 /* UIViewController+PanModalPresenter.swift in Sources */,
 				C743CF4D43A589F35CFBF0AB65EBE53A /* Upload.swift in Sources */,
+				52977A2B25A55207003C8771 /* KYCController.swift in Sources */,
 				F11A4805516EB697F38513C8F28F2694 /* UserInfo.swift in Sources */,
 				A416530B29DCE2A10A19E29DD000D09C /* utility.swift in Sources */,
 				C690D6D027FB64335876DDF0F5EF5130 /* VideoConfirm.swift in Sources */,

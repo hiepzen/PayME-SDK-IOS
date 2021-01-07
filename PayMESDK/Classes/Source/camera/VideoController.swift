@@ -21,8 +21,7 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     weak var shapeLayer_topRight: CAShapeLayer?
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
-    private var onSuccessCapture: ((UIImage , Int) -> ())? = nil
-    private var onBack: ((String) -> ())? = nil
+    internal var onSuccessRecording: ((URL) -> ())? = nil
     public var txtFront = ""
     public var imageFront : UIImage?
     
@@ -64,10 +63,6 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         view.bringSubviewToFront(backButton)
         // Do any additional setup after loading the view, typically from a nib.
     }
-    public func setSuccessCapture(onSuccessCapture: @escaping((UIImage , Int) -> ())){
-        self.onSuccessCapture = onSuccessCapture
-    }
-
     
     @objc func back () {
         self.session.stopRunning()
@@ -121,7 +116,7 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
             }
             
             let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-            let fileUrl = paths[0].appendingPathComponent("output.mov")
+            let fileUrl = paths[0].appendingPathComponent("output.mp4")
             try? FileManager.default.removeItem(at: fileUrl)
             cameraCaptureOutput!.startRecording(to: fileUrl, recordingDelegate: self)
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
@@ -174,14 +169,6 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     override func viewWillAppear(_ animated: Bool){
         self.session.startRunning()
     }
-
-    func displayCapturedPhoto(capturedPhoto : UIImage) {
-        /*
-        let imagePreviewViewController = storyboard?.instantiateViewController(withIdentifier: "ImagePreviewViewController") as! ImagePreviewViewController
-        imagePreviewViewController.capturedImage = capturedPhoto
-        navigationController?.pushViewController(imagePreviewViewController, animated: true)
-        */
-    }
     
     func initializeCaptureSession() {
         
@@ -217,6 +204,9 @@ extension VideoController : AVCaptureFileOutputRecordingDelegate {
         if error == nil {
             var cv = VideoConfirm()
             cv.avatarVideo = outputFileURL
+            cv.onSuccessRecording = { video in
+                self.onSuccessRecording!(video)
+            }
             navigationController?.pushViewController(cv, animated: false)
             // UISaveVideoAtPathToSavedPhotosAlbum(outputFileURL.path, nil, nil, nil)
         }

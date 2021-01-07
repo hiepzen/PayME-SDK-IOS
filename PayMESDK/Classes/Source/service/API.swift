@@ -43,6 +43,33 @@ internal class API {
         #endif
     }
     
+    internal static func uploadVideoKYC(
+        videoURL: URL,
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+        onError: @escaping ([Int:Any]) -> ()
+    ){
+        print(videoURL)
+        let url = urlUpload(env: PayME.env)
+        let path = url + "/Upload"
+        let headers : HTTPHeaders = ["Content-type": "multipart/form-data",
+                                     "Content-Disposition" : "form-data"]
+        AF.upload(multipartFormData: { (multipartFormData) in
+            multipartFormData.append(videoURL, withName: "files", fileName: "video.mp4", mimeType: "video/mp4")
+        }, to: path, method: .post, headers: headers)
+        .response { response in
+            do {
+                if response.response?.statusCode == 200 {
+                    let jsonData = response.data
+                    let parsedData = try JSONSerialization.jsonObject(with: jsonData!) as! Dictionary<String, AnyObject>
+                    onSuccess(parsedData)
+                }
+            } catch {
+                onError([1001: "Some thing went wrong"])
+            }
+        }
+        
+    }
+    
     internal static func uploadImageKYC(
         imageFront: UIImage,
         imageBack: UIImage?,
@@ -74,6 +101,107 @@ internal class API {
             }
     }
     
+    
+    internal static func verifyKYC(
+        pathFront: String?, pathBack: String?, pathAvatar: String?, pathVideo: String?,
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+        onError: @escaping ([Int:Any]) -> ())
+    {
+        let url = urlGraphQL(env: PayME.env)
+        let path = "graphql"
+        print(url+path)
+        let sql = """
+        mutation KYCMutation($kycInput: KYCInput!) {
+          Account {
+            KYC(input: $kycInput) {
+              succeeded
+              message
+            }
+          }
+        }
+
+        """
+        var variables : [String: Any]
+        if (pathBack == nil)
+        {
+            if (pathFront != nil) {
+                variables = [
+                    "kycInput": [
+                      "clientId" : PayME.clientID,
+                      "video": pathVideo ?? "",
+                      "face": pathAvatar ?? "",
+                      "image": ["front": pathFront!]
+                  ]
+                ]
+            } else {
+                variables = [
+                    "kycInput": [
+                      "clientId" : PayME.clientID,
+                      "video": pathVideo ?? "",
+                      "face": pathAvatar ?? "",
+                      "image": []
+                  ]
+                ]
+            }
+        } else {
+            if (pathFront != nil) {
+                variables = [
+                    "kycInput": [
+                      "clientId" : PayME.clientID,
+                      "video": pathVideo ?? "",
+                      "face": pathAvatar ?? "",
+                      "image": ["front":pathFront!,"back":pathBack!]
+                  ]
+                ]
+            } else {
+                variables = [
+                    "kycInput": [
+                        "clientId" : PayME.clientID,
+                        "video": pathVideo ?? "",
+                        "face": pathAvatar ?? "",
+                        "image": ["back":pathBack!]
+                  ]
+                ]
+            }
+        }
+        print(variables)
+        print(PayME.accessToken)
+        let json: [String: Any] = [
+          "query": sql,
+          "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        if (PayME.env == PayME.Env.DEV) {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequest(
+                onError: { error in
+                    onError(error)
+                },
+                onErrorGraphQL: { errors in
+                    print("onErrorGraphQL \(errors[0])")
+                  },
+                onSuccess: { data in
+                    onSuccess(data)
+                  // print("onSuccess \(data)")
+                }
+            )
+        } else {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequestCrypto(
+                onErrorGraphQL: { errors in
+                    print("onErrorGraphQL \(errors[0])")
+                  },
+                onError: { error in
+                    onError(error)
+                },
+                onSuccess: { data in
+                    onSuccess(data)
+                  // print("onSuccess \(data)")
+                }
+            )
+        }
+    }
+    
     internal static func registerClient(
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onError: @escaping ([Int:Any]) -> ()){
@@ -97,7 +225,7 @@ internal class API {
               "platform": "IOS",
               "deviceId": PayME.deviceID,
               "channel": "",
-              "version": "0.0.1",
+              "version": "1",
               "isEmulator": API.isEmulator,
               "isRoot": API.isRoot,
               "userAgent": UIDevice.current.name
@@ -157,14 +285,17 @@ internal class API {
         }
         """
         let variables : [String: Any] = [
+            "initInput" : [
             "appToken": PayME.appID,
             "connectToken": PayME.connectToken,
             "clientId": clientID
+            ]
         ]
         let json: [String: Any] = [
           "query": sql,
           "variables": variables,
         ]
+        print(variables)
         let params = try? JSONSerialization.data(withJSONObject: json)
         if (PayME.env == PayME.Env.DEV) {
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
@@ -177,12 +308,14 @@ internal class API {
                   },
                 
                 onSuccess: { data in
+                    print("Hello")
                     print(data)
                     onSuccess(data)
                   // print("onSuccess \(data)")
                 }
             )
         } else {
+            // check lai nil Token
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
             request.setOnRequestCrypto(
                 onErrorGraphQL: { errors in

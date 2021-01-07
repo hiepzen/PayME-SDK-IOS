@@ -12,6 +12,7 @@ class KYCBackController: UIViewController {
     public var kycImageBack: UIImage?
     public var active : Int?
     let screenSize:CGRect = UIScreen.main.bounds
+    internal var onSuccessCapture: (([UIImage], Int) -> ())? = nil
 
     let imageView: UIImageView = {
         let bundle = Bundle(for: KYCFrontController.self)
@@ -139,7 +140,9 @@ class KYCBackController: UIViewController {
     }
     
     @objc func confirmAction() {
-        self.showSpinner(onView: self.view)
+        self.onSuccessCapture!([self.kycImage!,self.kycImageBack!], active!)
+        //self.showSpinner(onView: self.view)
+        /*
         API.uploadImageKYC(imageFront: self.kycImage!,
                              imageBack: self.kycImageBack!,
            onSuccess: { response in
@@ -185,6 +188,7 @@ class KYCBackController: UIViewController {
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         })
+         */
     }
     override func viewDidLayoutSubviews() {
         captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)

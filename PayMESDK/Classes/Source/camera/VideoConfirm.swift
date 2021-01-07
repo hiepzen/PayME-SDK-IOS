@@ -8,11 +8,12 @@ import AVKit
 import UIKit
 
 class VideoConfirm: UIViewController {
-    public var avatarVideo : URL?
+    var avatarVideo : URL?
     var player: AVPlayer!
     var avpController = AVPlayerViewController()
     let screenSize:CGRect = UIScreen.main.bounds
-
+    internal var onSuccessRecording: ((URL) -> ())? = nil
+    
     let videoView: UIView = {
         let videoView = UIView()
         videoView.layer.masksToBounds = true
@@ -147,8 +148,7 @@ class VideoConfirm: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     @objc func capture() {
-        self.showSpinner(onView: self.view)
-        
+        onSuccessRecording!(avatarVideo!)
     }
     override func viewDidLayoutSubviews() {
         captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)

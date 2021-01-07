@@ -267,7 +267,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
-            setupCamera()
+            if let dictionary = message.body as? [String: AnyObject] {
+                setupCamera(dictionary: dictionary)
+
+            }
         }
         if message.name == onCommunicate {
             if let dictionary = message.body as? [String: AnyObject] {
@@ -294,7 +297,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
     
 
-    func setupCamera() {
+    func setupCamera(dictionary: [String: AnyObject]) {
+        var dictionary = dictionary as! [String: Bool]
+        var kycController = KYCController(flowKYC: dictionary)
+        kycController.kyc()
+        /*
         let kycCameraController = KYCCameraController()
         kycCameraController.setSuccessCapture(onSuccessCapture: { image, active in
             let kycFront = KYCFrontController()
@@ -315,6 +322,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         })
 
         navigationController?.pushViewController(kycCameraController, animated: false)
+         */
     }
     
     

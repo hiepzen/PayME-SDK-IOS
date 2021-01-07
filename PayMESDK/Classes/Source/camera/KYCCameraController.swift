@@ -19,9 +19,11 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     weak var shapeLayer_topRight: CAShapeLayer?
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
-    private var onSuccessCapture: ((UIImage , Int) -> ())? = nil
-    public var txtFront = ""
-    public var imageFront : UIImage?
+    internal var txtFront = ""
+    internal var imageFront : UIImage?
+    internal var onSuccessCapture: (([UIImage], Int) -> ())? = nil
+    
+
     
     public var data : [KYCDocument] = [
         KYCDocument(id: "0", name: "Chứng minh nhân dân", active: true),
@@ -57,25 +59,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             present(imagePicker, animated: true, completion: nil)
         }
     }
-    
-    @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        guard let image = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else { return }
-        dismiss(animated: true, completion: nil)
-        self.session.stopRunning()
-        if (imageFront == nil) {
-           var confirmKYCFront = KYCFrontController()
-           confirmKYCFront.kycImage = image
-           confirmKYCFront.active = active
-           self.navigationController?.pushViewController(confirmKYCFront, animated: false)
-       } else {
-           var confirmKYCBack = KYCBackController()
-           confirmKYCBack.kycImage = imageFront
-           confirmKYCBack.kycImageBack = image
-           confirmKYCBack.active = active
-           self.navigationController?.pushViewController(confirmKYCBack, animated: false)
-       }
-    }
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -150,9 +133,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         titleButton.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
         // Do any additional setup after loading the view, typically from a nib.
-    }
-    public func setSuccessCapture(onSuccessCapture: @escaping((UIImage , Int) -> ())){
-        self.onSuccessCapture = onSuccessCapture
     }
     
     
@@ -264,14 +244,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     override func viewWillAppear(_ animated: Bool){
         self.session.startRunning()
     }
-
-    func displayCapturedPhoto(capturedPhoto : UIImage) {
-        /*
-        let imagePreviewViewController = storyboard?.instantiateViewController(withIdentifier: "ImagePreviewViewController") as! ImagePreviewViewController
-        imagePreviewViewController.capturedImage = capturedPhoto
-        navigationController?.pushViewController(imagePreviewViewController, animated: true)
-        */
-    }
     
     func initializeCaptureSession() {
         
@@ -353,11 +325,36 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         } catch {
             print(error.localizedDescription)
         }
-        
-        
+    }
+    private func openConfirmImage(image: UIImage){
+        if (imageFront == nil) {
+            let confirmKYCFront = KYCFrontController()
+            confirmKYCFront.kycImage = image
+            confirmKYCFront.active = active
+            confirmKYCFront.onSuccessCapture = ({ image, active in
+                self.onSuccessCapture!(image, active)
+            })
+            self.navigationController?.pushViewController(confirmKYCFront, animated: false)
+        } else {
+            let confirmKYCBack = KYCBackController()
+            confirmKYCBack.kycImage = imageFront
+            confirmKYCBack.kycImageBack = image
+            confirmKYCBack.active = active
+            confirmKYCBack.onSuccessCapture = ({ image, active in
+                self.onSuccessCapture!(image, active)
+            })
+            self.navigationController?.pushViewController(confirmKYCBack, animated: false)
+        }
     }
     
+    @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        guard let image = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage else { return }
+        dismiss(animated: true, completion: nil)
+        self.session.stopRunning()
+        openConfirmImage(image:image)
+    }
 }
+
 
 extension KYCCameraController : AVCapturePhotoCaptureDelegate {
     
@@ -393,18 +390,7 @@ extension KYCCameraController : AVCapturePhotoCaptureDelegate {
                 orientation: image.imageOrientation )
             let resizeImage = finalImage.resizeImage(targetSize: CGSize(width:512, height: 512*0.67))
             self.session.stopRunning()
-            if (imageFront == nil) {
-                var confirmKYCFront = KYCFrontController()
-                confirmKYCFront.kycImage = resizeImage
-                confirmKYCFront.active = active
-                self.navigationController?.pushViewController(confirmKYCFront, animated: false)
-            } else {
-                var confirmKYCBack = KYCBackController()
-                confirmKYCBack.kycImage = imageFront
-                confirmKYCBack.kycImageBack = resizeImage
-                confirmKYCBack.active = active
-                self.navigationController?.pushViewController(confirmKYCBack, animated: false)
-            }
+            openConfirmImage(image: resizeImage)
         }
     }
 }

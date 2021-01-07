@@ -19,10 +19,10 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
     weak var shapeLayer_topRight: CAShapeLayer?
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
-    private var onSuccessCapture: ((UIImage , Int) -> ())? = nil
-    private var onBack: ((String) -> ())? = nil
     public var txtFront = ""
     public var imageFront : UIImage?
+    internal var onSuccessCapture: ((UIImage) -> ())? = nil
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,10 +62,6 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
         view.bringSubviewToFront(backButton)
         // Do any additional setup after loading the view, typically from a nib.
     }
-    public func setSuccessCapture(onSuccessCapture: @escaping((UIImage , Int) -> ())){
-        self.onSuccessCapture = onSuccessCapture
-    }
-
     
     @objc func back () {
         self.session.stopRunning()
@@ -114,14 +110,6 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
     
     override func viewWillAppear(_ animated: Bool){
         self.session.startRunning()
-    }
-
-    func displayCapturedPhoto(capturedPhoto : UIImage) {
-        /*
-        let imagePreviewViewController = storyboard?.instantiateViewController(withIdentifier: "ImagePreviewViewController") as! ImagePreviewViewController
-        imagePreviewViewController.capturedImage = capturedPhoto
-        navigationController?.pushViewController(imagePreviewViewController, animated: true)
-        */
     }
     
     func initializeCaptureSession() {
@@ -193,6 +181,9 @@ extension AvatarController : AVCapturePhotoCaptureDelegate {
             self.session.stopRunning()
             let vc = AvatarConfirm()
             vc.avatarImage = resizeImage
+            vc.onSuccessCapture = { image in
+                self.onSuccessCapture!(image)
+            }
             navigationController?.pushViewController(vc, animated: false)
         }
     }
