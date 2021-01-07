@@ -51,12 +51,25 @@ public class UploadKYC{
         serialQueue.async{
             self.dispatchGroup.wait()
             self.dispatchGroup.enter()
-            DispatchQueue.main.async {
-               PayME.currentVC?.removeSpinner()
-           }
             API.verifyKYC(pathFront: self.pathFront, pathBack: self.pathBack, pathAvatar: self.pathAvatar, pathVideo: self.pathVideo,
               onSuccess: { response in
                 print(response)
+
+                let result = response["Account"]!["KYC"] as! [String: AnyObject]
+                let succeeded = result["succeeded"] as! Bool
+                if (succeeded == true) {
+                    DispatchQueue.main.async {
+                        PayME.currentVC?.removeSpinner()
+                        self.toastMess(title: "Thành công", message: "KYC Thành công")
+                        return
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        PayME.currentVC?.removeSpinner()
+                        self.toastMess(title: "Lỗi", message: "KYC Fail")
+                        return
+                    }
+                }
             },onError: {error in
                 print(error)
             })

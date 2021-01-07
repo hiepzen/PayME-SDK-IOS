@@ -136,14 +136,14 @@ public class PayME{
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                            onError: @escaping (String) -> ()
     )-> () {
-        
+        /*
         PayME.currentVC = currentVC
         PayME.isConnected(onConnect: {a in
             print(a)
             PayME.abc()
             
         })
-    
+        */
         /*
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
@@ -154,7 +154,7 @@ public class PayME{
 
         })
          */
-        /*
+        
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
         
@@ -190,7 +190,7 @@ public class PayME{
             let webViewController = WebViewController(nibName: "WebView", bundle: nil)
             let url = urlWebview(env: PayME.env)
             PayME.currentVC = currentVC
-            webViewController.urlRequest = "http://sbx-sdk2.payme.com.vn/active/" + "\(data)"
+            webViewController.urlRequest = "https://sbx-sdk2.payme.com.vn/active/" + "\(data)"
             webViewController.setOnSuccessCallback(onSuccess: onSuccess)
             webViewController.setOnErrorCallback(onError: onError)
             currentVC.navigationController?.pushViewController(webViewController, animated: true)
@@ -230,7 +230,7 @@ public class PayME{
                 print(error)
             })
         }
-         */
+
     }
     internal static func openWalletAgain(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?, active: Int?
     )-> () {

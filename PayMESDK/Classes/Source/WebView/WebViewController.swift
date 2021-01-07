@@ -267,6 +267,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
+            print(message)
             if let dictionary = message.body as? [String: AnyObject] {
                 setupCamera(dictionary: dictionary)
 
@@ -289,6 +290,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
         }
         if message.name == onClose {
+            print(message.name)
             self.onCloseWebview()
         }
         if message.name == onPay {
@@ -298,9 +300,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     
 
     func setupCamera(dictionary: [String: AnyObject]) {
-        var dictionary = dictionary as! [String: Bool]
-        var kycController = KYCController(flowKYC: dictionary)
-        kycController.kyc()
+        PayME.isConnected(onConnect: {a in
+            var dictionary = dictionary as! [String: Bool]
+            var kycController = KYCController(flowKYC: dictionary)
+            kycController.kyc()
+        })
         /*
         let kycCameraController = KYCCameraController()
         kycCameraController.setSuccessCapture(onSuccessCapture: { image, active in
