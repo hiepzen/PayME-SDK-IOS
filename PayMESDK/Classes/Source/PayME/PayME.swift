@@ -96,6 +96,7 @@ public class PayME{
                 if accessToken is NSNull {
                     onConnect(false)
                 } else {
+                    PayME.accessToken = accessToken as! String
                     onConnect(true)
                 }
              }, onError: { errorAccessToken in
