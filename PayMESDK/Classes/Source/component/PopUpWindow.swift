@@ -51,14 +51,14 @@ private class PopUpWindowView: UIView {
         backgroundColor = UIColor.black.withAlphaComponent(0.3)
         
         // Popup Background
-        popupView.backgroundColor = UIColor.colorFromHex("#BC214B")
+        popupView.backgroundColor = UIColor.init(hexString: "#BC214B")
         popupView.layer.borderWidth = BorderWidth
         popupView.layer.masksToBounds = true
         popupView.layer.borderColor = UIColor.white.cgColor
         
         // Popup Title
         popupTitle.textColor = UIColor.white
-        popupTitle.backgroundColor = UIColor.colorFromHex("#9E1C40")
+        popupTitle.backgroundColor = UIColor.init(hexString:"#9E1C40")
         popupTitle.layer.masksToBounds = true
         popupTitle.adjustsFontSizeToFitWidth = true
         popupTitle.clipsToBounds = true
@@ -75,7 +75,7 @@ private class PopUpWindowView: UIView {
         // Popup Button
         popupButton.setTitleColor(UIColor.white, for: .normal)
         popupButton.titleLabel?.font = UIFont.systemFont(ofSize: 23.0, weight: .bold)
-        popupButton.backgroundColor = UIColor.colorFromHex("#9E1C40")
+        popupButton.backgroundColor = UIColor.init(hexString:"#9E1C40")
         
         popupView.addSubview(popupTitle)
         popupView.addSubview(popupText)

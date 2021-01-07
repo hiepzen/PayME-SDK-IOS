@@ -138,11 +138,13 @@ public class PayME{
     )-> () {
         /*
         PayME.currentVC = currentVC
-        PayME.isConnected(onConnect: {a in
-            print(a)
-            PayME.abc()
-            
-        })
+        var blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
+        var blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = PayME.currentVC?.view.bounds as! CGRect
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight] // for supporting device rotation
+        PayME.currentVC?.view.addSubview(blurEffectView)
+        let popupView = PopUpWindow(title: "Hello", text: "100%", buttontext: "Rõ")
+        PayME.currentVC?.present(popupView, animated: true)
         */
         /*
         currentVC.navigationItem.hidesBackButton = true
