@@ -28,7 +28,8 @@ public class PayME{
     internal static var webviewController: WebViewController?
     internal static var isRecreateNavigationController: Bool = false
     internal static var accessToken : String = ""
-    
+    internal static var handShake : String = ""
+
     public enum Action: String {
         case OPEN = "OPEN"
         case DEPOSIT = "DEPOSIT"
@@ -132,12 +133,12 @@ public class PayME{
     private static func abc() {
         print("accessTOken")
         print(PayME.accessToken)
-        var kycController = KYCController(flowKYC: ["kycIdentifyImg": true, "kycFace": true, "kycVideo": true])
+        var kycController = KYCController(flowKYC: ["kycIdentifyImg": true, "kycFace": false, "kycVideo": false])
         kycController.kyc()
     }
     public func openWallet(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?,
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                           onError: @escaping (String) -> ()
+                           onError: @escaping ([String:AnyObject]) -> ()
     )-> () {
         /*
          PayME.currentVC = currentVC
@@ -156,12 +157,11 @@ public class PayME{
          PayME.isConnected(onConnect: {a in
          print(a)
          PayME.abc()
-         
+
          })
          */
-        
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
+        PayME.currentVC = currentVC
+
         
         let topSafeArea: CGFloat
         let bottomSafeArea: CGFloat
@@ -189,13 +189,14 @@ public class PayME{
               "actions":{
                 "type":"",
                 "amount":0
-              }
+              },
+              "env": "\(PayME.env.rawValue)"
             }
             """
             let webViewController = WebViewController(nibName: "WebView", bundle: nil)
             let url = urlWebview(env: PayME.env)
             PayME.webviewController = webViewController
-            webViewController.urlRequest = "https://sbx-sdk2.payme.com.vn/active/" + "\(data)"
+            webViewController.urlRequest = url + "\(data)"
             webViewController.setOnSuccessCallback(onSuccess: onSuccess)
             webViewController.setOnErrorCallback(onError: onError)
             if currentVC.navigationController != nil {
@@ -207,8 +208,8 @@ public class PayME{
                 PayME.isRecreateNavigationController = true
                 currentVC.present(navigationController, animated: true, completion: nil)
             }
-            
-            
+
+
         } else {
             API.registerClient(onSuccess: { response in
                 let result = response["Client"]!["Register"] as! [String: AnyObject]
@@ -229,17 +230,21 @@ public class PayME{
                   "actions":{
                     "type":"\(action)",
                     "amount":"\(checkIntNil(input: amount))"
-                  }
+                  },
+                    "env": "\(PayME.env.rawValue)"
                 }
                 """
+                print(data)
                 let webViewController = WebViewController(nibName: "WebView", bundle: nil)
                 let url = urlWebview(env: PayME.env)
-                
+
                 PayME.webviewController = webViewController
-                webViewController.urlRequest = "https://sbx-sdk2.payme.com.vn/active/" + "\(data)"
+
+                print(url)
+                webViewController.urlRequest = url + "\(data)"
                 webViewController.setOnSuccessCallback(onSuccess: onSuccess)
                 webViewController.setOnErrorCallback(onError: onError)
-                
+
                 if currentVC.navigationController != nil {
                     PayME.currentVC = currentVC
                     currentVC.navigationController?.pushViewController(webViewController, animated: true)
@@ -251,46 +256,14 @@ public class PayME{
                         print("khoa")
                     })
                 }
-                
+
             }, onError: { error in
                 print(error)
             })
         }
-        
+
     }
-    internal static func openWalletAgain(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?, active: Int?
-    )-> () {
-        PayME.currentVC?.navigationItem.hidesBackButton = true
-        PayME.currentVC?.navigationController?.isNavigationBarHidden = true
-        let topSafeArea: CGFloat
-        let bottomSafeArea: CGFloat
-        if #available(iOS 11.0, *) {
-            topSafeArea = currentVC.view.safeAreaInsets.top
-            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
-        } else {
-            topSafeArea = currentVC.topLayoutGuide.length
-            bottomSafeArea = currentVC.bottomLayoutGuide.length
-        }
-        let data =
-            """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(handleColor(input:PayME.configColor))"],"actions":{"type":"\(action)","amount":"\(checkIntNil(input: amount))","description":"\(checkStringNil(input: description))"},"extraData":"\(checkStringNil(input:extraData))"}
-        """
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        let url = urlWebview(env: PayME.env)
-        webViewController.urlRequest = url + "\(data)"
-        webViewController.KYCAgain = true
-        webViewController.active = active!
-        
-        if currentVC.navigationController != nil {
-            PayME.currentVC = currentVC
-            currentVC.navigationController?.pushViewController(webViewController, animated: true)
-        } else {
-            let navigationController = UINavigationController(rootViewController: webViewController)
-            PayME.currentVC = webViewController
-            PayME.isRecreateNavigationController = true
-            currentVC.present(navigationController, animated: true, completion: nil)
-        }
-    }
+
     
     public func deposit(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
                         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -316,38 +289,9 @@ public class PayME{
         webViewController.urlRequest = url + "\(data)"
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
-        
+
         currentVC.navigationController?.pushViewController(webViewController, animated: true)
-        
-    }
-    
-    public func goToTest(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
-                         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                         onError: @escaping (String) -> ()
-    ){
-        let topSafeArea: CGFloat
-        let bottomSafeArea: CGFloat
-        if #available(iOS 11.0, *) {
-            topSafeArea = currentVC.view.safeAreaInsets.top
-            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
-        } else {
-            topSafeArea = currentVC.topLayoutGuide.length
-            bottomSafeArea = currentVC.bottomLayoutGuide.length
-        }
-        let data =
-            """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":"IOS","partnerTop":"\(topSafeArea)","configColor":["\(handleColor(input:PayME.configColor))"]}
-        """
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        webViewController.urlRequest = "https://sbx-sdk.payme.com.vn/test"
-        //webViewController.urlRequest = "https://tuoitre.vn/"
-        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
-        webViewController.setOnErrorCallback(onError: onError)
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        
-        currentVC.navigationController?.pushViewController(webViewController, animated: true)
-        
+
     }
     
     public func withdraw(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
@@ -374,9 +318,9 @@ public class PayME{
         webViewController.urlRequest = url + "\(data)"
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
-        
+
         currentVC.navigationController?.pushViewController(webViewController, animated: true)
-        
+
     }
     
     public func showModal(currentVC : UIViewController){
@@ -398,13 +342,13 @@ public class PayME{
                     PayME.description = (result["content"] ?? "" as AnyObject) as! String
                     PayME.currentVC!.presentPanModal(Methods())
                     PayME.currentVC!.removeSpinner()
-                    
+
                 } else {
                     let alert = UIAlertController(title: "Lỗi", message: "Phương thức này chưa được hỗ trợ", preferredStyle: UIAlertController.Style.alert)
-                    
-                    
+
+
                     currentVC.navigationController?.popViewController(animated: true)
-                    
+
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                     PayME.currentVC!.present(alert, animated: true, completion: nil)
                     PayME.currentVC!.removeSpinner()
@@ -421,16 +365,16 @@ public class PayME{
             })
         })
         qrScan.setScanFail(onScanFail: { error in
-            
+
             currentVC.navigationController?.popViewController(animated: true)
-            
+
             PayME.currentVC!.presentPanModal(QRNotFound())
         })
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
-        
+
         currentVC.navigationController?.pushViewController(qrScan, animated: true)
-        
+
     }
     
     public static func convertStringToDictionary(text: String) -> [String:AnyObject]? {
@@ -454,8 +398,8 @@ public class PayME{
     
     // open after this version
     private static func getWalletGraphQL(
-        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onError: @escaping ([Int:Any]) -> ()) {
+        onSuccess: @escaping ([String: AnyObject]) -> (),
+        onError: @escaping ([String: AnyObject]) -> ()){
         let url = urlGraphQL(env: PayME.env)
         let path = "/graphql"
         let sql = """
@@ -471,42 +415,36 @@ public class PayME{
         """
         let variables : [String: Any] = [:]
         let json: [String: Any] = [
-            "query": sql,
-            "variables": variables,
+          "query": sql,
+          "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
         if (PayME.env == PayME.Env.DEV) {
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
             request.setOnRequest(
                 onError: { error in
+                    toastMess(title: "Lỗi", message: error["message"] as! String)
                     onError(error)
                 },
-                onErrorGraphQL: { errors in
-                    print("onErrorGraphQL \(errors[0])")
-                },
-                
                 onSuccess: { data in
                     onSuccess(data)
-                    // print("onSuccess \(data)")
+                  // print("onSuccess \(data)")
                 }
             )
         } else {
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
             request.setOnRequestCrypto(
-                onErrorGraphQL: { errors in
-                    print("onErrorGraphQL \(errors[0])")
-                },
                 onError: { error in
+                    toastMess(title: "Lỗi", message: error["message"] as! String)
                     onError(error)
                 },
                 onSuccess: { data in
                     onSuccess(data)
-                    // print("onSuccess \(data)")
                 }
             )
         }
     }
-    
+
     public static func getWalletInfo(
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onError: @escaping ([Int:Any]) -> ()
@@ -623,7 +561,7 @@ public class PayME{
             }
         )
     }
-    
+
     
     public static func getTransferMethods(
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),

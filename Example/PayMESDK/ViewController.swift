@@ -170,7 +170,7 @@ class ViewController: UIViewController{
         //PayME.showKYCCamera(currentVC: self)
         if (userIDTextField.text != "") {
             self.connectToken = PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
-            self.payME = PayME(appID: appID, publicKey: self.PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: self.PRIVATE_KEY, env: PayME.Env.DEV, configColor: ["#75255b", "#a81308"])
+            self.payME = PayME(appID: appID, publicKey: self.PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: self.PRIVATE_KEY, env: PayME.Env.SANDBOX, configColor: ["#75255b", "#a81308"])
             
             let alert = UIAlertController(title: "Success", message: "Tạo token thành công", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))

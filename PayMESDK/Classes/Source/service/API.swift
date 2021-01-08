@@ -105,7 +105,7 @@ internal class API {
     internal static func verifyKYC(
         pathFront: String?, pathBack: String?, pathAvatar: String?, pathVideo: String?,
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onError: @escaping ([Int:Any]) -> ())
+        onError: @escaping (Dictionary<String, AnyObject>) -> ())
     {
         let url = urlGraphQL(env: PayME.env)
         let path = "graphql"
@@ -175,11 +175,9 @@ internal class API {
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
             request.setOnRequest(
                 onError: { error in
+                    toastMess(title: "Lỗi", message: error["message"] as! String)
                     onError(error)
                 },
-                onErrorGraphQL: { errors in
-                    print("onErrorGraphQL \(errors[0])")
-                  },
                 onSuccess: { data in
                     onSuccess(data)
                   // print("onSuccess \(data)")
@@ -188,10 +186,8 @@ internal class API {
         } else {
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
             request.setOnRequestCrypto(
-                onErrorGraphQL: { errors in
-                    print("onErrorGraphQL \(errors[0])")
-                  },
                 onError: { error in
+                    toastMess(title: "Lỗi", message: error["message"] as! String)
                     onError(error)
                 },
                 onSuccess: { data in
@@ -204,8 +200,8 @@ internal class API {
     
     internal static func registerClient(
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onError: @escaping ([Int:Any]) -> ()){
-        
+        onError: @escaping (Dictionary<String, AnyObject>) -> ())
+    {
         let url = urlGraphQL(env: PayME.env)
         let path = "graphql"
         print(url+path)
@@ -240,11 +236,9 @@ internal class API {
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
             request.setOnRequest(
                 onError: { error in
+                    toastMess(title: "Lỗi", message: error["message"] as! String)
                     onError(error)
                 },
-                onErrorGraphQL: { errors in
-                    print("onErrorGraphQL \(errors[0])")
-                  },
                 onSuccess: { data in
                     onSuccess(data)
                   // print("onSuccess \(data)")
@@ -253,15 +247,12 @@ internal class API {
         } else {
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
             request.setOnRequestCrypto(
-                onErrorGraphQL: { errors in
-                    print("onErrorGraphQL \(errors[0])")
-                  },
                 onError: { error in
+                    toastMess(title: "Lỗi", message: error["message"] as! String)
                     onError(error)
                 },
                 onSuccess: { data in
                     onSuccess(data)
-                  // print("onSuccess \(data)")
                 }
             )
         }
@@ -270,9 +261,8 @@ internal class API {
     internal static func checkAccessToken (
         clientID: String,
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onError: @escaping ([Int:Any]) -> ()
-    )
-    {
+        onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    ) {
         let url = urlGraphQL(env: PayME.env)
         let path = "graphql"
         let sql = """
@@ -301,12 +291,9 @@ internal class API {
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
             request.setOnRequest(
                 onError: { error in
+                    toastMess(title: "Lỗi", message: error["message"] as! String)
                     onError(error)
                 },
-                onErrorGraphQL: { errors in
-                    print("onErrorGraphQL \(errors[0])")
-                  },
-                
                 onSuccess: { data in
                     print("Hello")
                     print(data)
@@ -318,10 +305,8 @@ internal class API {
             // check lai nil Token
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
             request.setOnRequestCrypto(
-                onErrorGraphQL: { errors in
-                    print("onErrorGraphQL \(errors[0])")
-                  },
                 onError: { error in
+                    toastMess(title: "Lỗi", message: error["message"] as! String)
                     onError(error)
                 },
                 onSuccess: { data in
@@ -333,7 +318,8 @@ internal class API {
     
     internal static func getWalletGraphQL(
       onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-      onError: @escaping ([Int:Any]) -> ()) {
+      onError: @escaping (Dictionary<String, AnyObject>) -> ())
+    {
       let url = urlGraphQL(env: PayME.env)
       let path = "graphql"
       let sql = """
@@ -357,12 +343,9 @@ internal class API {
           let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
           request.setOnRequest(
               onError: { error in
+                  toastMess(title: "Lỗi", message: error["message"] as! String)
                   onError(error)
               },
-              onErrorGraphQL: { errors in
-                  print("onErrorGraphQL \(errors[0])")
-                },
-              
               onSuccess: { data in
                   onSuccess(data)
                 // print("onSuccess \(data)")
@@ -371,10 +354,8 @@ internal class API {
       } else {
           let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
           request.setOnRequestCrypto(
-              onErrorGraphQL: { errors in
-                  print("onErrorGraphQL \(errors[0])")
-                },
               onError: { error in
+                  toastMess(title: "Lỗi", message: error["message"] as! String)
                   onError(error)
               },
               onSuccess: { data in
