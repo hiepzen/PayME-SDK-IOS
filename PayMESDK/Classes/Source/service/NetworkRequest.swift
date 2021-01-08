@@ -157,7 +157,6 @@ public class NetworkRequest {
             validateString += decryptKey!
          
             let validateMD5 = CryptoAES.MD5(validateString)!
-            
             let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey!)
             let dataJSON = stringJSON.data(using: .utf8)
             guard let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options: []) as? Dictionary<String, AnyObject> else {
@@ -202,8 +201,7 @@ public class NetworkRequestGraphQL {
     }
     
     public func setOnRequest(
-        onError: @escaping (Dictionary<Int, Any>) -> (),
-        onErrorGraphQL: @escaping ([[String:AnyObject]]) -> (),
+        onError: @escaping (Dictionary<String, AnyObject>) -> (),
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         let url = NSURL(string: self.url + self.path)
@@ -224,27 +222,39 @@ public class NetworkRequestGraphQL {
             DispatchQueue.main.async {
                 if (error?.localizedDescription != nil) {
                     if (error?.localizedDescription == "The Internet connection appears to be offline.") {
-                        onError([500 : ["message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"]])
+                        onError(["errors": ["code" : 500, "message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"] as AnyObject])
                     } else {
-                        onError([500 : ["message" : error?.localizedDescription]])
+                        onError(["errors": ["code" : 500, "message" : error?.localizedDescription] as AnyObject])
                     }
                 } else {
-                    onError([500 : ["message" : "Something went wrong" ]])
-
+                    onError(["errors": ["code" : 500, "message" : "Something went wrong" ] as AnyObject])
                 }
-                
             }
             return
         }
-            let finalJSON = try? (JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as! Dictionary<String, AnyObject>)
-            if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
+            if let finalJSON = try? (JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as? Dictionary<String, AnyObject>) {
+                if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
+                        DispatchQueue.main.async {
+                            onSuccess(data)
+                        }
+                    }
+                if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
                     DispatchQueue.main.async {
-                        onSuccess(data)
+                        onError(errors[0])
                     }
                 }
-            if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
-                DispatchQueue.main.async {
-                    onErrorGraphQL(errors)
+            } else {
+                if let finalJSON = try? JSONSerialization.jsonObject(with: data!, options:[]) as? Dictionary<String, AnyObject> {
+                    let code = finalJSON!["code"] as! Int
+                    if let data = finalJSON!["data"] as? [String:AnyObject] {
+                        DispatchQueue.main.async {
+                            onError(data)
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        onError(["errors": ["code" : 500, "message" : "Something went wrong" ] as AnyObject])
+                    }
                 }
             }
         }
@@ -252,8 +262,7 @@ public class NetworkRequestGraphQL {
     }
     
     public func setOnRequestCrypto(
-        onErrorGraphQL: @escaping ([[String:AnyObject]]) -> (),
-        onError: @escaping (Dictionary<Int, Any>) -> (),
+        onError: @escaping ([String:AnyObject]) -> (),
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         let encryptKey = "10000000"
@@ -294,15 +303,13 @@ public class NetworkRequestGraphQL {
                 DispatchQueue.main.async {
                     if (error?.localizedDescription != nil) {
                         if (error?.localizedDescription == "The Internet connection appears to be offline.") {
-                            onError([500 : ["message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"]])
+                            onError(["errors": ["code" : 500, "message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"] as AnyObject])
                         } else {
-                            onError([500 : ["message" : error?.localizedDescription]])
+                            onError(["errors": ["code" : 500, "message" : error?.localizedDescription] as AnyObject])
                         }
                     } else {
-                        onError([500 : ["message" : "Something went wrong" ]])
-
+                        onError(["errors": ["code" : 500, "message" : "Something went wrong" ] as AnyObject])
                     }
-                    
                 }
                 return
             }
@@ -332,19 +339,33 @@ public class NetworkRequestGraphQL {
             let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey!)
             let formattedString = stringJSON.replacingOccurrences(of:"\\\"",with:"\"").dropLast(3).dropFirst(1);
             let dataJSON = formattedString.data(using: .utf8)
-            guard let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options:[]) as? Dictionary<String, AnyObject> else {
-                return
-            }
-            if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
+            if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options:[]) as? Dictionary<String, AnyObject> {
+                if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
+                        DispatchQueue.main.async {
+                            onSuccess(data)
+                        }
+                    }
+                if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
                     DispatchQueue.main.async {
-                        onSuccess(data)
+                        onError(errors[0])
                     }
                 }
-            if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
-                DispatchQueue.main.async {
-                    onErrorGraphQL(errors)
+            } else {
+                var dataJSONRest = stringJSON.data(using: .utf8)
+                if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSONRest!, options:[]) as? Dictionary<String, AnyObject> {
+                    let code = finalJSON!["code"] as! Int
+                    if let data = finalJSON!["data"] as? [String:AnyObject] {
+                        DispatchQueue.main.async {
+                            onError(data)
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        onError(["errors": ["code" : 500, "message" : "Something went wrong" ] as AnyObject])
+                    }
                 }
             }
+            
             
         }
         task.resume()

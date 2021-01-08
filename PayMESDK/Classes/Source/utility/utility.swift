@@ -53,7 +53,9 @@ internal func urlGraphQL(env: PayME.Env) -> String {
 }
 
 internal func  urlWebview(env: PayME.Env) -> String {
-    if (env == PayME.Env.SANDBOX) {
+    if (env == PayME.Env.DEV) {
+        return "https://sbx-sdk2.payme.com.vn/active/"
+    } else if (env == PayME.Env.SANDBOX) {
         return "https://sbx-sdk.payme.com.vn/active/"
     }
     return "https://sdk.payme.com.vn/active/"
@@ -80,4 +82,9 @@ internal func trimKeyRSA(key: String) -> String {
         return String(secondTemp)
     }
     return key
+}
+internal func toastMess(title: String, message: String){
+    let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
+    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+    PayME.currentVC?.present(alert, animated: true, completion: nil)
 }

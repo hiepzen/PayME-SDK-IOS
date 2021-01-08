@@ -27,8 +27,7 @@ public class UploadKYC{
         self.active = active
     }
     public func upload(){
-        PayME.currentVC?.navigationItem.hidesBackButton = true
-        PayME.currentVC?.navigationController?.isNavigationBarHidden = true
+        
         /*
         if(flowKYC["a"] == true){
             PayME.currentVC?.navigationItem.hidesBackButton = true
@@ -39,6 +38,8 @@ public class UploadKYC{
         }
         */
         DispatchQueue.main.async {
+            PayME.currentVC?.navigationItem.hidesBackButton = true
+            PayME.currentVC?.navigationController?.isNavigationBarHidden = true
             PayME.currentVC?.showSpinner(onView: (PayME.currentVC?.view)!)
         }
         dispatchGroup.enter()
@@ -53,20 +54,20 @@ public class UploadKYC{
             self.dispatchGroup.enter()
             API.verifyKYC(pathFront: self.pathFront, pathBack: self.pathBack, pathAvatar: self.pathAvatar, pathVideo: self.pathVideo,
               onSuccess: { response in
-                print(response)
-
                 let result = response["Account"]!["KYC"] as! [String: AnyObject]
                 let succeeded = result["succeeded"] as! Bool
                 if (succeeded == true) {
                     DispatchQueue.main.async {
                         PayME.currentVC?.removeSpinner()
-                        self.toastMess(title: "Thành công", message: "KYC Thành công")
+                        guard let navigationController = PayME.currentVC?.navigationController else { return }
+                        var navigationArray = navigationController.viewControllers
+                        PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0],navigationArray[1]]
+                        (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
                         return
                     }
                 } else {
                     DispatchQueue.main.async {
                         PayME.currentVC?.removeSpinner()
-                        self.toastMess(title: "Lỗi", message: "KYC Fail")
                         return
                     }
                 }

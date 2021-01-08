@@ -145,7 +145,7 @@ class KYCFrontController: UIViewController {
             kycCameraController.onSuccessCapture = { image, active in
                 self.onSuccessCapture!(image,active)
             }
-            self.navigationController?.pushViewController(kycCameraController, animated: true)
+            self.navigationController?.pushViewController(kycCameraController, animated: false)
             
         } else {
             onSuccessCapture!([self.kycImage!], active!)

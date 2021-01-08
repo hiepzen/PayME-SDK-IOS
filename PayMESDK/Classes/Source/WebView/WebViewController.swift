@@ -86,6 +86,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var onClose: String = "onClose"
     var openCamera : String = "openCamera"
     var onErrorBack : String = "onError"
+    var onRegisterSuccess : String = "onRegisterSuccess"
     var onPay : String = "onPay"
     var form = ""
     var imageFront : UIImage?
@@ -108,9 +109,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     
     private var onSuccessWebView: ((String) -> ())? = nil
     private var onFailWebView: ((String) -> ())? = nil
-
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
-    private var onError: ((String) -> ())? = nil
+    private var onError: (([String: AnyObject]) -> ())? = nil
     
     override func loadView() {
         let userController: WKUserContentController = WKUserContentController()
@@ -119,7 +119,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: openCamera)
         userController.add(self, name: onErrorBack)
         userController.add(self, name: onPay)
-        //userController.addUserScript(self.getZoomDisableScript())
+        userController.add(self, name: onRegisterSuccess)
+        userController.addUserScript(self.getZoomDisableScript())
         
         let config = WKWebViewConfiguration()
         config.userContentController = userController
@@ -147,6 +148,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         webView.loadHTMLString(content, baseURL: nil)
     }
     */
+    internal func reload(){
+        self.webView.reload()
+    }
     
      override func viewDidLoad() {
         /*
@@ -279,14 +283,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
         }
         if message.name == onErrorBack {
-            print("Hello")
             if let dictionary = message.body as? [String: AnyObject] {
-                print(dictionary)
-                if let b = dictionary["message"] as? String {
-                    self.onError!(b)
-                } else {
-                    self.onError!("Đã có lỗi xảy ra")
-                }
+                self.onError!(dictionary)
             }
         }
         if message.name == onClose {
@@ -296,15 +294,26 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         if message.name == onPay {
             PayME.openQRCode(currentVC: self)
         }
+        if message.name == onRegisterSuccess {
+            if let dictionary = message.body as? [String: AnyObject] {
+                if let accessToken = dictionary["accessToken"] as? String {
+                    PayME.accessToken = accessToken
+                }
+                if let handShake = dictionary["handShake"] as? String {
+                    PayME.handShake = handShake
+                }
+            }
+
+        }
     }
     
 
     func setupCamera(dictionary: [String: AnyObject]) {
-        PayME.isConnected(onConnect: {a in
-            var dictionary = dictionary as! [String: Bool]
-            var kycController = KYCController(flowKYC: dictionary)
-            kycController.kyc()
-        })
+        var dictionary = dictionary as! [String: Bool]
+        dictionary = ["kycIdentifyImg": true, "kycFace": false, "kycVideo": false]
+        var kycController = KYCController(flowKYC: dictionary)
+        kycController.kyc()
+
         /*
         let kycCameraController = KYCCameraController()
         kycCameraController.setSuccessCapture(onSuccessCapture: { image, active in
@@ -345,7 +354,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     public func setOnFailWebView(onFailWebView: @escaping (String) -> ()){
         self.onFailWebView = onFailWebView
     }
-    public func setOnErrorCallback(onError: @escaping (String) -> ()) {
+    public func setOnErrorCallback(onError: @escaping ([String:AnyObject]) -> ()) {
         self.onError = onError
     }
 }

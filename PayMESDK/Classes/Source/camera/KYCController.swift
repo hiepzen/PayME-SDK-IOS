@@ -65,6 +65,10 @@ public class KYCController{
                             self.active = active
                             self.dispatchGroup.leave()
                         } else {
+                            self.imageDocument = image
+                            self.active = active
+                            self.kycByAvatar()
+                            self.kycByVideo()
                             self.uploadKYC()
                         }
                     }
@@ -88,6 +92,8 @@ public class KYCController{
                             self.imageAvatar = avatar
                             self.dispatchGroup.leave()
                         } else {
+                            self.imageAvatar = avatar
+                            self.kycByVideo()
                             self.uploadKYC()
                         }
                     }
@@ -109,6 +115,7 @@ public class KYCController{
                             self.videoKYC = video
                             self.dispatchGroup.leave()
                         } else {
+                            self.videoKYC = video
                             self.uploadKYC()
                         }
                         
