@@ -113,6 +113,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     private var onError: ((String) -> ())? = nil
     
     override func loadView() {
+        PayME.currentVC?.navigationItem.hidesBackButton = true
+        PayME.currentVC?.navigationController?.isNavigationBarHidden = true
+        
         let userController: WKUserContentController = WKUserContentController()
         userController.add(self, name: onCommunicate)
         userController.add(self, name: onClose)
@@ -333,7 +336,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     
     func onCloseWebview() {
-        self.navigationController?.popViewController(animated: true)
+        if PayME.isRecreateNavigationController {
+            self.dismiss(animated: true, completion: nil)
+        } else {
+            self.navigationController?.popViewController(animated: true)
+        }
     }
     
     public func setOnSuccessCallback(onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()) {

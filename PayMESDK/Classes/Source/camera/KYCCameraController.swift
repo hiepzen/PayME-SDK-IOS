@@ -62,6 +62,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .black
         view.addSubview(backButton)
         view.addSubview(titleLabel)
         view.addSubview(pressCamera)
@@ -166,7 +167,8 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     
     @objc func back () {
         self.session.stopRunning()
-        navigationController?.popViewController(animated: true)
+        
+        self.navigationController?.popViewController(animated: true)
 
     }
     @objc func takePicture() {
@@ -331,10 +333,14 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             let confirmKYCFront = KYCFrontController()
             confirmKYCFront.kycImage = image
             confirmKYCFront.active = active
+            confirmKYCFront.parentVC = self
             confirmKYCFront.onSuccessCapture = ({ image, active in
                 self.onSuccessCapture!(image, active)
             })
-            self.navigationController?.pushViewController(confirmKYCFront, animated: false)
+            
+            self.navigationController?.pushViewController(confirmKYCFront, animated: true)
+            
+            
         } else {
             let confirmKYCBack = KYCBackController()
             confirmKYCBack.kycImage = imageFront
@@ -343,7 +349,10 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             confirmKYCBack.onSuccessCapture = ({ image, active in
                 self.onSuccessCapture!(image, active)
             })
-            self.navigationController?.pushViewController(confirmKYCBack, animated: false)
+            
+            
+            self.navigationController?.pushViewController(confirmKYCBack, animated: true)
+            
         }
     }
     

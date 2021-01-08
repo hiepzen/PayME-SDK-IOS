@@ -66,8 +66,9 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     
     @objc func back () {
         self.session.stopRunning()
-        navigationController?.popViewController(animated: true)
-
+        
+        self.navigationController?.popViewController(animated: true)
+        
     }
     
     func currentVideoOrientation() -> AVCaptureVideoOrientation {
@@ -207,7 +208,9 @@ extension VideoController : AVCaptureFileOutputRecordingDelegate {
             cv.onSuccessRecording = { video in
                 self.onSuccessRecording!(video)
             }
-            navigationController?.pushViewController(cv, animated: false)
+        
+            self.navigationController?.pushViewController(cv, animated: true)
+            
             // UISaveVideoAtPathToSavedPhotosAlbum(outputFileURL.path, nil, nil, nil)
         }
     }

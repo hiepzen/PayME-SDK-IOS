@@ -12,7 +12,7 @@ class KYCFrontController: UIViewController {
     internal var active : Int?
     internal let screenSize:CGRect = UIScreen.main.bounds
     internal var onSuccessCapture: (([UIImage],Int) -> ())? = nil
-
+    internal var parentVC : KYCCameraController?
 
     let imageView: UIImageView = {
         let bundle = Bundle(for: KYCFrontController.self)
@@ -135,7 +135,7 @@ class KYCFrontController: UIViewController {
     }
     
     @objc func back() {
-        navigationController?.popViewController(animated: true)
+        self.navigationController?.popViewController(animated: true)
     }
     @objc func capture() {
         if (self.active! != 2) {
@@ -145,7 +145,9 @@ class KYCFrontController: UIViewController {
             kycCameraController.onSuccessCapture = { image, active in
                 self.onSuccessCapture!(image,active)
             }
+            
             self.navigationController?.pushViewController(kycCameraController, animated: true)
+            
             
         } else {
             onSuccessCapture!([self.kycImage!], active!)

@@ -297,13 +297,17 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
     }
     @objc func back () {
         self.captureSession.stopRunning()
+        
         self.navigationController?.popViewController(animated: true)
+        
     }
     // MARK: - Helper methods
     func launchApp(decodedURL: String) {
         self.captureSession.stopRunning()
         self.onScanSuccess!(decodedURL)
+        
         self.navigationController?.popViewController(animated: true)
+        
     }
   private func updatePreviewLayer(layer: AVCaptureConnection, orientation: AVCaptureVideoOrientation) {
     layer.videoOrientation = orientation
