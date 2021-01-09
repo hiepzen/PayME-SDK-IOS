@@ -141,6 +141,26 @@ class ViewController: UIViewController{
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    
+    let devButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.setTitle("Dev", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    let sbButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.setTitle("SB", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     let moneyPay: UITextField = {
         let textField = UITextField()
         textField.layer.borderColor = UIColor.black.cgColor
@@ -164,13 +184,14 @@ class ViewController: UIViewController{
     private let PRIVATE_KEY: String = "MIIBPAIBAAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKiwIhTJpAi1XnbfOSrW/Eb\nw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQJBAJSfTrSCqAzyAo59Ox+m\nQ1ZdsYWBhxc2084DwTHM8QN/TZiyF4fbVYtjvyhG8ydJ37CiG7d9FY1smvNG3iDC\ndwECIQDygv2UOuR1ifLTDo4YxOs2cK3+dAUy6s54mSuGwUeo4QIhAK7SiYDyGwGo\nCwqjOdgOsQkJTGoUkDs8MST0MtmPAAs9AiEAjLT1/nBhJ9V/X3f9eF+g/bhJK+8T\nKSTV4WE1wP0Z3+ECIA9E3DWi77DpWG2JbBfu0I+VfFMXkLFbxH8RxQ8zajGRAiEA\n8Ly1xJ7UW3up25h9aa9SILBpGqWtJlNQgfVKBoabzsU="
     private let appID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II"
     private var connectToken: String = ""
+    private var currentEnv: PayME.Env = PayME.Env.DEV
     
     // generate token ( demo, don't apply this to your code, generate from your server)
     @objc func submit(sender: UIButton!) {
         //PayME.showKYCCamera(currentVC: self)
         if (userIDTextField.text != "") {
             self.connectToken = PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
-            self.payME = PayME(appID: appID, publicKey: self.PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: self.PRIVATE_KEY, env: PayME.Env.SANDBOX, configColor: ["#75255b", "#a81308"])
+            self.payME = PayME(appID: appID, publicKey: self.PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: self.PRIVATE_KEY, env: currentEnv, configColor: ["#75255b", "#a81308"])
             
             let alert = UIAlertController(title: "Success", message: "Tạo token thành công", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
@@ -181,6 +202,34 @@ class ViewController: UIViewController{
             self.present(alert, animated: true, completion: nil)
         }
     }
+    
+    @objc func changeEnv(sender: UIButton!) {
+        if (self.connectToken != "") {
+            if (currentEnv == PayME.Env.DEV) {
+                currentEnv = PayME.Env.SANDBOX
+                self.payME = PayME(appID: appID, publicKey: self.PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: self.PRIVATE_KEY, env: currentEnv, configColor: ["#75255b", "#a81308"])
+                let alert = UIAlertController(title: "Thành công", message: "Chuyển sang môi trường sandbox thành công", preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+                devButton.setTitle("SB", for: .normal)
+
+            } else {
+                currentEnv = PayME.Env.DEV
+                self.payME = PayME(appID: appID, publicKey: self.PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: self.PRIVATE_KEY, env: currentEnv, configColor: ["#75255b", "#a81308"])
+                let alert = UIAlertController(title: "Thành công", message: "Chuyển sang môi trường DEV thành công", preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+                devButton.setTitle("Dev", for: .normal)
+
+            }
+        } else {
+            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+
+    
     @objc func openWalletAction(sender: UIButton!) {
         if (self.connectToken != "") {
             payME!.openWallet(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in print(a)})
@@ -360,6 +409,7 @@ class ViewController: UIViewController{
         self.view.addSubview(payButton)
         self.view.addSubview(moneyPay)
         self.view.addSubview(refreshButton)
+        self.view.addSubview(devButton)
         phoneTextField.delegate = self
         moneyDeposit.delegate = self
         moneyWithDraw.delegate = self
@@ -380,6 +430,9 @@ class ViewController: UIViewController{
         
         userIDLabel.topAnchor.constraint(equalTo: balance.bottomAnchor, constant: 30).isActive = true
         userIDLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        
+        devButton.topAnchor.constraint(equalTo: balance.bottomAnchor, constant: 20).isActive = true
+        devButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -10).isActive = true
         
         userIDTextField.topAnchor.constraint(equalTo: userIDLabel.bottomAnchor, constant: 10).isActive = true
         userIDTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
@@ -439,6 +492,7 @@ class ViewController: UIViewController{
         moneyPay.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
         moneyPay.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
+        devButton.addTarget(self, action: #selector(changeEnv), for: .touchUpInside)
         payButton.addTarget(self, action: #selector(payAction), for: .touchUpInside)
 
         

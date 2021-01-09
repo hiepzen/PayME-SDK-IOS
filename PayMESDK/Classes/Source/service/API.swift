@@ -108,7 +108,7 @@ internal class API {
         onError: @escaping (Dictionary<String, AnyObject>) -> ())
     {
         let url = urlGraphQL(env: PayME.env)
-        let path = "graphql"
+        let path = "/graphql"
         print(url+path)
         let sql = """
         mutation KYCMutation($kycInput: KYCInput!) {
@@ -203,7 +203,7 @@ internal class API {
         onError: @escaping (Dictionary<String, AnyObject>) -> ())
     {
         let url = urlGraphQL(env: PayME.env)
-        let path = "graphql"
+        let path = "/graphql"
         print(url+path)
         let sql = """
         mutation InitMutation($registerInput: ClientRegisterInput!) {
@@ -264,7 +264,7 @@ internal class API {
         onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         let url = urlGraphQL(env: PayME.env)
-        let path = "graphql"
+        let path = "/graphql"
         let sql = """
         mutation InitMutation($initInput: CheckInitInput) {
           OpenEWallet {
@@ -321,7 +321,7 @@ internal class API {
       onError: @escaping (Dictionary<String, AnyObject>) -> ())
     {
       let url = urlGraphQL(env: PayME.env)
-      let path = "graphql"
+      let path = "/graphql"
       let sql = """
       query Query {
         Wallet {

@@ -158,9 +158,8 @@ public class PayME{
 
         })
          */
-        PayME.currentVC = currentVC
-
         
+        PayME.currentVC = currentVC
         let topSafeArea: CGFloat
         let bottomSafeArea: CGFloat
         if #available(iOS 11.0, *) {
@@ -510,7 +509,6 @@ public class PayME{
                 "image": ["front" : imageFront]
             ]
         }
-        print(data)
          let params = try? JSONSerialization.data(withJSONObject: data)
          let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
          request.setOnRequestCrypto(

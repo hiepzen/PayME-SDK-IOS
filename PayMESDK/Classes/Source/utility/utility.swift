@@ -45,11 +45,11 @@ internal func  urlFeENV(env: PayME.Env) -> String {
 }
 internal func urlGraphQL(env: PayME.Env) -> String {
     if (env == PayME.Env.DEV) {
-        return "https://dev-fe.payme.net.vn/"
+        return "https://dev-fe.payme.net.vn"
     } else if (env == PayME.Env.SANDBOX) {
-        return "https://sbx-fe.payme.vn/"
+        return "https://sbx-fe.payme.vn"
     }
-    return "https://fe.payme.vn/"
+    return "https://fe.payme.vn"
 }
 
 internal func  urlWebview(env: PayME.Env) -> String {

@@ -9,10 +9,11 @@
 import Foundation
 import UIKit
 
-class PopUpWindow: UIViewController {
+class PopUpWindow: UIViewController, UIGestureRecognizerDelegate {
 
     private let popUpWindowView = PopUpWindowView()
-    
+    private var tapOutsideRecognizer: UITapGestureRecognizer!
+
     init(title: String, text: String, buttontext: String) {
         super.init(nibName: nil, bundle: nil)
         modalTransitionStyle = .crossDissolve
@@ -24,6 +25,49 @@ class PopUpWindow: UIViewController {
         popUpWindowView.popupButton.addTarget(self, action: #selector(dismissView), for: .touchUpInside)
         view = popUpWindowView
     }
+    func close(sender: AnyObject) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if(self.tapOutsideRecognizer == nil) {
+            self.tapOutsideRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTapBehind))
+            self.tapOutsideRecognizer.numberOfTapsRequired = 1
+            self.tapOutsideRecognizer.cancelsTouchesInView = false
+            self.tapOutsideRecognizer.delegate = self
+            self.view.window?.addGestureRecognizer(self.tapOutsideRecognizer)
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+          if(self.tapOutsideRecognizer != nil) {
+            self.view.window?.removeGestureRecognizer(self.tapOutsideRecognizer)
+            self.tapOutsideRecognizer = nil
+        }
+    }
+
+    // MARK: - Gesture methods to dismiss this with tap outside
+    @objc func handleTapBehind(sender: UITapGestureRecognizer) {
+        if (sender.state == UIGestureRecognizer.State.ended) {
+            let location: CGPoint = sender.location(in: nil)
+
+            if (!self.view.point(inside: self.view.convert(location, from: self.view.window), with: nil)) {
+                self.view.window?.removeGestureRecognizer(sender)
+                self.close(sender: sender)
+            }
+        }
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+
+
 
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -33,7 +77,6 @@ class PopUpWindow: UIViewController {
     @objc func dismissView(){
         self.dismiss(animated: true, completion: nil)
     }
-
 }
 
 private class PopUpWindowView: UIView {
