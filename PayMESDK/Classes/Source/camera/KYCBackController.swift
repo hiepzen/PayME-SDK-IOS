@@ -136,7 +136,7 @@ class KYCBackController: UIViewController {
         // Do any additional setup after loading the view.
     }
     @objc func back() {
-        navigationController?.popViewController(animated: true)
+        self.navigationController?.popViewController(animated: true)
     }
     
     @objc func confirmAction() {

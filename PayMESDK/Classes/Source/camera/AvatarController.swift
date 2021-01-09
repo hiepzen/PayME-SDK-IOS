@@ -65,7 +65,8 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
     
     @objc func back () {
         self.session.stopRunning()
-        navigationController?.popViewController(animated: true)
+        
+        self.navigationController?.popViewController(animated: true)
 
     }
     @objc func takePicture() {
@@ -184,7 +185,9 @@ extension AvatarController : AVCapturePhotoCaptureDelegate {
             vc.onSuccessCapture = { image in
                 self.onSuccessCapture!(image)
             }
-            navigationController?.pushViewController(vc, animated: false)
+            
+            self.navigationController?.pushViewController(vc, animated: true)
+        
         }
     }
 }

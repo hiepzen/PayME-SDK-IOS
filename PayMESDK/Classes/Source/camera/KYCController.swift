@@ -58,7 +58,13 @@ public class KYCController{
             DispatchQueue.main.async {
                 if (self.flowKYC["kycIdentifyImg"] == true) {
                     let kycDocument = KYCCameraController()
-                    PayME.currentVC?.navigationController?.pushViewController(kycDocument, animated: false)
+                    
+                    PayME.currentVC?.navigationController?.pushViewController(kycDocument, animated: true)
+//                    if PayME.currentVC?.navigationController != nil {
+//                        PayME.currentVC?.navigationController?.pushViewController(kycDocument, animated: true)
+//                    } else {
+//                        PayME.currentVC?.present(kycDocument, animated: true, completion: nil)
+//                    }
                     kycDocument.onSuccessCapture = { image, active in
                         if (self.imageDocument == nil && self.active == nil) {
                             self.imageDocument = image
@@ -86,7 +92,12 @@ public class KYCController{
             if (self.flowKYC["kycFace"] == true ) {
                 DispatchQueue.main.async {
                     let avatarController = AvatarController()
-                    PayME.currentVC?.navigationController?.pushViewController(avatarController, animated: false)
+                    
+                    if PayME.currentVC?.navigationController != nil {
+                        PayME.currentVC?.navigationController?.pushViewController(avatarController, animated: true)
+                    } else {
+                        PayME.currentVC?.present(avatarController, animated: true, completion: nil)
+                    }
                     avatarController.onSuccessCapture = { avatar in
                         if (self.imageAvatar == nil) {
                             self.imageAvatar = avatar
@@ -120,7 +131,12 @@ public class KYCController{
                         }
                         
                     }
-                    PayME.currentVC?.navigationController?.pushViewController(videoController, animated: false)
+                    
+                    if PayME.currentVC?.navigationController != nil {
+                        PayME.currentVC?.navigationController?.pushViewController(videoController, animated: true)
+                    } else {
+                        PayME.currentVC?.present(videoController, animated: true, completion: nil)
+                    }
                 }
             } else {
                 self.dispatchGroup.leave()
