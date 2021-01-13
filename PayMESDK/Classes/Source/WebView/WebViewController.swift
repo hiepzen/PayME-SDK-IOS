@@ -156,29 +156,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
     
      override func viewDidLoad() {
-        /*
-        if (KYCAgain != nil && KYCAgain == true)
-        {
-            if (active != 2)
-            {
-                guard let navigationController = self.navigationController else { return }
-                var navigationArray = navigationController.viewControllers
-                navigationArray.remove(at: navigationArray.count-2)
-                navigationArray.remove(at: navigationArray.count-2)
-                navigationArray.remove(at: navigationArray.count-2)
-                navigationArray.remove(at: navigationArray.count-2)
-                navigationArray.remove(at: navigationArray.count-2)
-                self.navigationController?.viewControllers = navigationArray
-            } else {
-                guard let navigationController = self.navigationController else { return }
-                var navigationArray = navigationController.viewControllers
-                navigationArray.remove(at: navigationArray.count-2)
-                navigationArray.remove(at: navigationArray.count-2)
-                navigationArray.remove(at: navigationArray.count-2)
-                self.navigationController?.viewControllers = navigationArray
-            }
-        }
-        */
         let dataStore = WKWebsiteDataStore.default()
         dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { (records) in
             for record in records {
@@ -208,7 +185,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         {
             let urlString = urlRequest.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
             let  myURL = URL(string: urlString!)
-            print(myURL)
             let myRequest : URLRequest
             if myURL != nil
             {
@@ -216,6 +192,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             } else {
                 myRequest = URLRequest(url: URL(string: "http://localhost:3000/")!)
             }
+            
             if #available(iOS 11.0, *) {
                 webView.scrollView.contentInsetAdjustmentBehavior = .never;
             } else {
@@ -246,7 +223,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 let host = navigationAction.request.url!.host ?? ""
                 print(host)
                 //if (navigationAction.request.url!.host!) {
-                if (host == "sbx-fe.payme.vn") {
+                if (host == "payme.vn") {
                     let params = navigationAction.request.url!.queryParameters ?? ["":""]
                     if (params["success"] == "true") {
                         self.onSuccessWebView!("success")
@@ -313,32 +290,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     func setupCamera(dictionary: [String: AnyObject]) {
         var dictionary = dictionary as! [String: Bool]
-        dictionary = ["kycIdentifyImg": true, "kycFace": false, "kycVideo": false]
         var kycController = KYCController(flowKYC: dictionary)
         kycController.kyc()
-
-        /*
-        let kycCameraController = KYCCameraController()
-        kycCameraController.setSuccessCapture(onSuccessCapture: { image, active in
-            let kycFront = KYCFrontController()
-            kycFront.kycImage = image
-            kycFront.active = active
-            self.navigationController?.pushViewController(kycFront, animated: false)
-
-            //self.webView?.evaluateJavaScript("document.getElementById('ImageReview').src='\(response)'") { (result, error) in
-                //print(result)
-            //}
-            //self.navigationController?.popViewController(animated: true)
-            /*PayME.uploadImageKYC(imageFront: response, imageBack: nil, onSuccess: { a in
-                print(a)
-            }, onError: { b in
-                print(b)
-            })
-             */
-        })
-
-        navigationController?.pushViewController(kycCameraController, animated: false)
-         */
     }
     
     

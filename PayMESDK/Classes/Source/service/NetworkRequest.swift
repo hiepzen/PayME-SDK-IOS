@@ -222,27 +222,32 @@ public class NetworkRequestGraphQL {
             DispatchQueue.main.async {
                 if (error?.localizedDescription != nil) {
                     if (error?.localizedDescription == "The Internet connection appears to be offline.") {
-                        onError(["errors": ["code" : 500, "message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"] as AnyObject])
+                        onError(["code" : 500 as AnyObject, "message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
+                        return
                     } else {
-                        onError(["errors": ["code" : 500, "message" : error?.localizedDescription] as AnyObject])
+                        onError(["code" : 500 as AnyObject, "message" : error?.localizedDescription as AnyObject])
+                        return
                     }
                 } else {
-                    onError(["errors": ["code" : 500, "message" : "Something went wrong" ] as AnyObject])
+                    onError(["code" : 500 as AnyObject, "message" : "Something went wrong" as AnyObject])
+                    return
                 }
             }
             return
         }
             if let finalJSON = try? (JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as? Dictionary<String, AnyObject>) {
+                if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
+                    DispatchQueue.main.async {
+                        onError(errors[0])
+                    }
+                    return
+                }
                 if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
                         DispatchQueue.main.async {
                             onSuccess(data)
                         }
                     }
-                if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
-                    DispatchQueue.main.async {
-                        onError(errors[0])
-                    }
-                }
+                
             } else {
                 if let finalJSON = try? JSONSerialization.jsonObject(with: data!, options:[]) as? Dictionary<String, AnyObject> {
                     let code = finalJSON!["code"] as! Int
@@ -250,10 +255,12 @@ public class NetworkRequestGraphQL {
                         DispatchQueue.main.async {
                             onError(data)
                         }
+                        return
                     }
                 } else {
                     DispatchQueue.main.async {
-                        onError(["errors": ["code" : 500, "message" : "Something went wrong" ] as AnyObject])
+                        onError(["code" : 500 as AnyObject, "message" : "Something went wrong" as AnyObject])
+                        return
                     }
                 }
             }
@@ -303,12 +310,15 @@ public class NetworkRequestGraphQL {
                 DispatchQueue.main.async {
                     if (error?.localizedDescription != nil) {
                         if (error?.localizedDescription == "The Internet connection appears to be offline.") {
-                            onError(["errors": ["code" : 500, "message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"] as AnyObject])
+                            onError(["code" : 500 as AnyObject, "message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
+                            return
                         } else {
-                            onError(["errors": ["code" : 500, "message" : error?.localizedDescription] as AnyObject])
+                            onError(["code" : 500 as AnyObject, "message" : error?.localizedDescription as AnyObject])
+                            return
                         }
                     } else {
-                        onError(["errors": ["code" : 500, "message" : "Something went wrong" ] as AnyObject])
+                        onError(["code" : 500 as AnyObject, "message" : "Something went wrong" as AnyObject])
+                        return
                     }
                 }
                 return
@@ -340,28 +350,32 @@ public class NetworkRequestGraphQL {
             let formattedString = stringJSON.replacingOccurrences(of:"\\\"",with:"\"").dropLast(3).dropFirst(1);
             let dataJSON = formattedString.data(using: .utf8)
             if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options:[]) as? Dictionary<String, AnyObject> {
+                if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
+                    DispatchQueue.main.async {
+                        onError(errors[0])
+                    }
+                    return
+                }
                 if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
                         DispatchQueue.main.async {
                             onSuccess(data)
                         }
                     }
-                if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
-                    DispatchQueue.main.async {
-                        onError(errors[0])
-                    }
-                }
             } else {
-                var dataJSONRest = stringJSON.data(using: .utf8)
+                let dataJSONRest = stringJSON.data(using: .utf8)
                 if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSONRest!, options:[]) as? Dictionary<String, AnyObject> {
                     let code = finalJSON!["code"] as! Int
                     if let data = finalJSON!["data"] as? [String:AnyObject] {
                         DispatchQueue.main.async {
                             onError(data)
+                            
                         }
+                        return
                     }
                 } else {
                     DispatchQueue.main.async {
-                        onError(["errors": ["code" : 500, "message" : "Something went wrong" ] as AnyObject])
+                        onError(["code" : 500 as AnyObject, "message" : "Something went wrong" as AnyObject])
+                        return
                     }
                 }
             }

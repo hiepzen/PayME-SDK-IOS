@@ -45,7 +45,7 @@ class ViewController: UIViewController{
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Yêu cầu"
-        textField.text = "382985150225588"
+        textField.text = "237"
         textField.setLeftPaddingPoints(10)
         textField.keyboardType = .numberPad
         return textField
@@ -65,7 +65,7 @@ class ViewController: UIViewController{
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Không yêu cầu"
-        textField.text = "0944074825"
+        textField.text = "0978021375"
         textField.setLeftPaddingPoints(10)
         textField.keyboardType = .numberPad
         return textField

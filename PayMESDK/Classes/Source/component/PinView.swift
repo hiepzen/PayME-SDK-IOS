@@ -345,8 +345,8 @@ public class KAPinField : UITextField, UITextFieldDelegate  {
 
         self.addSubview(self.invisibleField)
         // self.invisibleField.addTarget(self, action: #selector(reloadAppearance), for: .editingDidEnd)
-        self.invisibleField.addTarget(self, action: #selector(reloadAppearanceBegin), for: .editingDidBegin)
         self.invisibleField.addTarget(self, action: #selector(reloadAppearance), for: .editingChanged)
+        self.invisibleField.addTarget(self, action: #selector(reloadAppearanceBegin), for: .editingDidBegin)
         self.invisibleField.addTarget(self, action: #selector(reloadAppearanceEnd), for: .editingDidEnd)
         
         
@@ -477,7 +477,7 @@ public class KAPinField : UITextField, UITextFieldDelegate  {
         }
         
         if #available(iOS 11.0, *) {
-            self.updateCursorPosition()
+            // self.updateCursorPosition()
         }
         
         guard !self.isAnimating else {
@@ -507,6 +507,9 @@ public class KAPinField : UITextField, UITextFieldDelegate  {
             v.layer.borderWidth = self.appearance.backBorderWidth
             v.layer.cornerRadius = self.appearance.backCornerRadius
         }
+        self.layer.borderColor = UIColor.init(hexString: "#0caa26").cgColor
+        self.layer.borderWidth = 1
+        
         self.backgroundColor = self.appearance.backActiveColor
     }
     @objc public func reloadAppearanceEnd() {
@@ -521,6 +524,7 @@ public class KAPinField : UITextField, UITextFieldDelegate  {
             v.layer.borderWidth = self.appearance.backBorderWidth
             v.layer.cornerRadius = self.appearance.backCornerRadius
         }
+        self.layer.borderWidth = 0
         self.backgroundColor = self.appearance.backColor
     }
     
@@ -597,7 +601,7 @@ public class KAPinField : UITextField, UITextFieldDelegate  {
                         backIndex = max(backIndex, 0)
                         if !self.backViews.isEmpty && backIndex < self.backViews.count {
                             let backView = self.backViews[backIndex]
-                            backView.backgroundColor = self.appearance.backFocusColor ?? self.appearance.backColor
+                            backView.backgroundColor = self.appearance.backActiveColor ?? self.appearance.backColor
                             backView.layer.borderColor = self.appearance.backBorderFocusColor?.cgColor ?? self.appearance.backBorderColor.cgColor
                         }
                     }

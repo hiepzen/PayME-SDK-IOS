@@ -54,7 +54,7 @@ class OTP: UIViewController, PanModalPresentable {
           // if keyboard size is not available for some reason, dont do anything
           return
         }
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor, constant: keyboardSize.height).isActive = true
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.bottomAnchor, constant: keyboardSize.height).isActive = true
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
         
@@ -63,11 +63,8 @@ class OTP: UIViewController, PanModalPresentable {
       // move back the root view origin to zero
       bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor).isActive = true
       panModalSetNeedsLayoutUpdate()
-
-        
     }
     
-
     var anchorModalToLongForm: Bool {
         return false
     }
@@ -107,7 +104,7 @@ class OTP: UIViewController, PanModalPresentable {
         otpView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50).isActive = true
         
         closeButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor, constant: 10).isActive = true
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.bottomAnchor, constant: 10).isActive = true
         txtField.didEnterLastDigit = { [self] code in
             self.txtField.showSpinner(onView: PayME.currentVC!.view)
             PayME.postTransferPVCBVerify(transferId: OTP.transferId!, OTP: code, onSuccess: { onSuccess in
@@ -255,6 +252,7 @@ class OTP: UIViewController, PanModalPresentable {
         pinField.appearance.font = .menloBold(40) // Default to appearance.MonospacedFont.menlo(40)
         pinField.appearance.kerning = 20 // Space between characters, default to 16
         pinField.appearance.tokenColor = UIColor.black.withAlphaComponent(0.3) // token color, default to text color
+        pinField.properties.animateFocus = false
         pinField.appearance.backOffset = 0 // Backviews spacing between each other
         pinField.appearance.backColor = UIColor.init(242,244,243)
         pinField.appearance.backActiveColor = UIColor.white

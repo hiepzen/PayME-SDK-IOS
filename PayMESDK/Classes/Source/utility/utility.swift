@@ -17,18 +17,14 @@ internal func checkIntNil(input: Int?) -> String {
     }
     return ""
 }
-internal func checkUserInfoNil(input: UserInfo?) -> String{
-    if input != nil {
-        return input!.toJson()
-    }
-    return "{}"
-}
+
 internal func checkStringNil(input: String?) -> String {
     if input != nil {
         return input!
     }
     return ""
 }
+
 internal func formatMoney(input: Int) -> String {
     let numberFormatter = NumberFormatter()
     numberFormatter.numberStyle = .decimal

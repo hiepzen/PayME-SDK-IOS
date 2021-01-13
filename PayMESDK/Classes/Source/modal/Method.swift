@@ -16,7 +16,7 @@ class Method: UITableViewCell {
 
     // MARK: - Properties
 
-    var presentable = MethodInfo( amount: 0, bankCode: "", cardNumber: "", detail: "", linkedId: nil, swiftCode: "", type: "", active: false)
+    var presentable = MethodInfo(methodId: nil, type: "", title: "", label: "", amount: 0, fee: 0, minFee: 0, dataWallet: nil, dataLinked: nil, active: false)
     // MARK: - Views
 
     
@@ -61,7 +61,7 @@ class Method: UITableViewCell {
         let bundle = Bundle(for: Method.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "checked", in: resourceBundle, compatibleWith: nil)
+        let image = UIImage(named: "nextIcoCopy3", in: resourceBundle, compatibleWith: nil)
         var bgImage = UIImageView(image: image)
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
@@ -115,8 +115,8 @@ class Method: UITableViewCell {
         walletMethodImage.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16).isActive = true
         walletMethodImage.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
         
-        checkedImage.heightAnchor.constraint(equalToConstant: 18).isActive = true
-        checkedImage.widthAnchor.constraint(equalToConstant: 18).isActive = true
+        checkedImage.heightAnchor.constraint(equalToConstant: 12).isActive = true
+        checkedImage.widthAnchor.constraint(equalToConstant: 6).isActive = true
         checkedImage.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16).isActive = true
         checkedImage.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
         
@@ -167,25 +167,19 @@ class Method: UITableViewCell {
     func configure(with presentable: MethodInfo) {
         self.presentable = presentable
         
-        if (presentable.type == "AppWallet") {
+        if (presentable.type == "WALLET") {
             bankNameLabel.text = "Số dư ví"
             bankContentLabel.text = "(\(formatMoney(input: presentable.amount!))đ)"
         } else {
+            bankNameLabel.text = presentable.title
+            bankContentLabel.text = presentable.label
+        }
+        
+        /*else {
             bankNameLabel.text = presentable.bankCode!
             bankContentLabel.text = presentable.cardNumber!
         }
-        let bundle = Bundle(for: Method.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let checkStateImage = UIImage(named: "checked", in: resourceBundle, compatibleWith: nil)
-        let uncheckStateImage = UIImage(named: "uncheck", in: resourceBundle, compatibleWith: nil)
-        if (presentable.active == false)
-        {
-            checkedImage.image = uncheckStateImage
-        } else {
-            checkedImage.image = checkStateImage
-
-        }
+         */
     }
 
 }
