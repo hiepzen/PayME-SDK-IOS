@@ -25,6 +25,7 @@ public class PayME{
     internal static let deviceID = UIDevice.current.identifierForVendor!.uuidString
     internal static var clientID: String = ""
     internal static var currentVC : UIViewController?
+    internal static var rootVC : UIViewController?
     internal static var webviewController: WebViewController?
     internal static var isRecreateNavigationController: Bool = false
     internal static var accessToken : String = ""
@@ -173,34 +174,6 @@ public class PayME{
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                            onError: @escaping ([String:AnyObject]) -> ()
     )-> () {
-        //currentVC.presentPanModal(OTP())
-        /*
-         PayME.currentVC = currentVC
-         var blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
-         var blurEffectView = UIVisualEffectView(effect: blurEffect)
-         blurEffectView.frame = PayME.currentVC?.view.bounds as! CGRect
-         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight] // for supporting device rotation
-         PayME.currentVC?.view.addSubview(blurEffectView)
-         let popupView = PopUpWindow(title: "Hello", text: "100%", buttontext: "Rõ")
-         PayME.currentVC?.present(popupView, animated: true)
-         */
-        /*
-         currentVC.navigationItem.hidesBackButton = true
-         currentVC.navigationController?.isNavigationBarHidden = true
-         PayME.currentVC = currentVC
-         PayME.isConnected(onConnect: {a in
-         print(a)
-         PayME.abc()
-
-         })
-         */
-        /*
-        PayME.initSDK(onSuccess: {response in
-            print(response)
-        }, onError: { error in
-            
-        })
-        */
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
         PayME.currentVC = currentVC
@@ -243,11 +216,16 @@ public class PayME{
             webViewController.setOnErrorCallback(onError: onError)
             if currentVC.navigationController != nil {
                 PayME.currentVC = currentVC
+                PayME.rootVC = currentVC
                 currentVC.navigationController?.pushViewController(webViewController, animated: true)
             } else {
                 let navigationController = UINavigationController(rootViewController: webViewController)
                 PayME.currentVC = webViewController
+                PayME.rootVC = currentVC
                 PayME.isRecreateNavigationController = true
+                if #available(iOS 13.0, *) {
+                    PayME.currentVC?.isModalInPresentation = true
+                }
                 currentVC.present(navigationController, animated: true, completion: nil)
             }
         } else {
@@ -286,11 +264,16 @@ public class PayME{
 
                 if currentVC.navigationController != nil {
                     PayME.currentVC = currentVC
+                    PayME.rootVC = currentVC
                     currentVC.navigationController?.pushViewController(webViewController, animated: true)
                 } else {
                     let navigationController = UINavigationController(rootViewController: webViewController)
                     PayME.currentVC = webViewController
+                    PayME.rootVC = currentVC
                     PayME.isRecreateNavigationController = true
+                    if #available(iOS 13.0, *) {
+                        PayME.currentVC?.isModalInPresentation = true
+                    }
                     currentVC.present(navigationController, animated: true, completion: {
                     })
                 }
@@ -322,12 +305,24 @@ public class PayME{
         """
         let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         let url = urlWebview(env: PayME.env)
-        PayME.currentVC = currentVC
         webViewController.urlRequest = url + "\(data)"
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
-
-        currentVC.navigationController?.pushViewController(webViewController, animated: true)
+        
+        if currentVC.navigationController != nil {
+            PayME.currentVC = currentVC
+            PayME.rootVC = currentVC
+            currentVC.navigationController?.pushViewController(webViewController, animated: true)
+        } else {
+            let navigationController = UINavigationController(rootViewController: webViewController)
+            PayME.currentVC = webViewController
+            PayME.rootVC = currentVC
+            PayME.isRecreateNavigationController = true
+            if #available(iOS 13.0, *) {
+                PayME.currentVC?.isModalInPresentation = true
+            }
+            currentVC.present(navigationController, animated: true, completion: nil)
+        }
 
     }
     
@@ -351,12 +346,24 @@ public class PayME{
         """
         let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         let url = urlWebview(env: PayME.env)
-        PayME.currentVC = currentVC
         webViewController.urlRequest = url + "\(data)"
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
-
-        currentVC.navigationController?.pushViewController(webViewController, animated: true)
+        
+        if currentVC.navigationController != nil {
+            PayME.currentVC = currentVC
+            PayME.rootVC = currentVC
+            currentVC.navigationController?.pushViewController(webViewController, animated: true)
+        } else {
+            let navigationController = UINavigationController(rootViewController: webViewController)
+            PayME.currentVC = webViewController
+            PayME.rootVC = currentVC
+            PayME.isRecreateNavigationController = true
+            if #available(iOS 13.0, *) {
+                PayME.currentVC?.isModalInPresentation = true
+            }
+            currentVC.present(navigationController, animated: true, completion: nil)
+        }
 
     }
     
@@ -366,23 +373,19 @@ public class PayME{
     }
     
     public static func openQRCode(currentVC : UIViewController) {
-        PayME.currentVC = currentVC
         let qrScan = QRScannerController()
         qrScan.setScanSuccess(onScanSuccess: { response in
             PayME.currentVC!.showSpinner(onView: PayME.currentVC!.view)
             qrScan.dismiss(animated: true)
             PayME.payWithQRCode(QRContent: response, onSuccess: { result in
-                if ((result["type"] ?? "" as AnyObject) as! String == "Payment")
-                {
+                if ((result["type"] ?? "" as AnyObject) as! String == "Payment") {
                     PayME.currentVC = currentVC
                     PayME.amount = result["amount"] as! Int
                     PayME.description = (result["content"] ?? "" as AnyObject) as! String
                     PayME.currentVC!.presentPanModal(Methods())
                     PayME.currentVC!.removeSpinner()
-
                 } else {
                     let alert = UIAlertController(title: "Lỗi", message: "Phương thức này chưa được hỗ trợ", preferredStyle: UIAlertController.Style.alert)
-
 
                     currentVC.navigationController?.popViewController(animated: true)
 
@@ -390,20 +393,16 @@ public class PayME{
                     PayME.currentVC!.present(alert, animated: true, completion: nil)
                     PayME.currentVC!.removeSpinner()
                 }
-                
             }, onError: { result in
+                PayME.rootVC!.presentPanModal(QRNotFound())
                 PayME.currentVC!.removeSpinner()
-                if currentVC.navigationController != nil {
-                    currentVC.navigationController?.popViewController(animated: true)
-                } else {
-                    currentVC.dismiss(animated: true, completion: nil)
-                }
-                PayME.currentVC!.presentPanModal(QRNotFound())
+                PayME.currentVC!.navigationController?.popViewController(animated: true)
             })
         })
         qrScan.setScanFail(onScanFail: { error in
-            currentVC.navigationController?.popViewController(animated: true)
-            PayME.currentVC!.presentPanModal(QRNotFound())
+            PayME.rootVC!.presentPanModal(QRNotFound())
+            PayME.currentVC!.removeSpinner()
+            PayME.currentVC!.navigationController?.popViewController(animated: true)
         })
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true

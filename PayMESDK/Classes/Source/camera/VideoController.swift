@@ -27,6 +27,8 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.view.backgroundColor = .black
         view.addSubview(backButton)
         view.addSubview(pressCamera)
         view.addSubview(guideLabel)
