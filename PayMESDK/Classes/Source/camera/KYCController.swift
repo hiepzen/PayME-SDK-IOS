@@ -129,9 +129,7 @@ public class KYCController{
                             self.videoKYC = video
                             self.uploadKYC()
                         }
-                        
                     }
-                    
                     if PayME.currentVC?.navigationController != nil {
                         PayME.currentVC?.navigationController?.pushViewController(videoController, animated: true)
                     } else {

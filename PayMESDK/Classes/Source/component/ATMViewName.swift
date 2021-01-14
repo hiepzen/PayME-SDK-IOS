@@ -7,9 +7,8 @@
 
 import Foundation
 
-internal class ATMView: UIView {
+internal class ATMViewName: UIView {
 
-    var activeTextField : UITextField? = nil
 
     
      let detailView : UIView = {
@@ -165,18 +164,6 @@ internal class ATMView: UIView {
             return textField
         }()
     
-    let guideTxt : UILabel = {
-        let confirmTitle = UILabel()
-        confirmTitle.textColor = UIColor(11,11,11)
-        confirmTitle.font = UIFont.systemFont(ofSize: 12, weight: .regular)
-        confirmTitle.translatesAutoresizingMaskIntoConstraints = false
-        confirmTitle.textAlignment = .left
-        confirmTitle.lineBreakMode = .byWordWrapping
-        confirmTitle.numberOfLines = 0
-        confirmTitle.text = "Nhập số thẻ ở mặt trước thẻ"
-        return confirmTitle
-    }()
-    
     
     init() {
         super.init(frame: CGRect.zero)
@@ -191,7 +178,6 @@ internal class ATMView: UIView {
         self.addSubview(cardNumberField)
         self.addSubview(dateField)
         self.addSubview(nameField)
-        self.addSubview(guideTxt)
         
         button.setTitle("THANH TOÁN", for: .normal)
         bankNameLabel.text = "Thẻ ATM nội địa"
@@ -269,11 +255,7 @@ internal class ATMView: UIView {
         cardNumberField.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
         cardNumberField.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
         
-        guideTxt.topAnchor.constraint(equalTo: self.cardNumberField.bottomAnchor, constant: 10).isActive = true
-        guideTxt.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
-        guideTxt.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
-        
-        nameField.topAnchor.constraint(equalTo: self.guideTxt.bottomAnchor, constant: 10).isActive = true
+        nameField.topAnchor.constraint(equalTo: self.cardNumberField.bottomAnchor, constant: 10).isActive = true
         nameField.heightAnchor.constraint(equalToConstant: 40).isActive = true
         nameField.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
         nameField.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
@@ -295,17 +277,5 @@ internal class ATMView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-}
-extension ATMView : UITextFieldDelegate {
-  // when user select a textfield, this method will be called
-  func textFieldDidBeginEditing(_ textField: UITextField) {
-    // set the activeTextField to the selected textfield
-    self.activeTextField = textField
-  }
-    
-  // when user click 'done' or dismiss the keyboard
-  func textFieldDidEndEditing(_ textField: UITextField) {
-    self.activeTextField = nil
-  }
 }
 

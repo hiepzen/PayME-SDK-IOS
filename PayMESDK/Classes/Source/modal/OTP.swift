@@ -105,7 +105,7 @@ class OTP: UIViewController, PanModalPresentable {
         
         closeButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.bottomAnchor, constant: 10).isActive = true
-        txtField.didEnterLastDigit = { [self] code in
+        /*txtField.didEnterLastDigit = { [self] code in
             self.txtField.showSpinner(onView: PayME.currentVC!.view)
             PayME.postTransferPVCBVerify(transferId: OTP.transferId!, OTP: code, onSuccess: { onSuccess in
                 self.txtField.removeSpinner()
@@ -135,7 +135,7 @@ class OTP: UIViewController, PanModalPresentable {
                 PayME.currentVC!.presentPanModal(failController)
                 
             })
-        }
+        }*/
     }
     
     @objc
@@ -155,8 +155,10 @@ class OTP: UIViewController, PanModalPresentable {
         let txtField = OneTimeCodeTextField()
         txtField.defaultCharacter = "-"
         txtField.configure()
+        /*
         txtField.didEnterLastDigit = { [self] code in
             txtField.showSpinner(onView: PayME.currentVC!.view)
+            
             PayME.postTransferPVCBVerify(transferId: OTP.transferId!, OTP: code, onSuccess: { onSuccess in
                 txtField.removeSpinner()
                 PayME.currentVC!.dismiss(animated: true)
@@ -181,6 +183,7 @@ class OTP: UIViewController, PanModalPresentable {
                 
             })
         }
+        */
         txtField.translatesAutoresizingMaskIntoConstraints = false
         return txtField
     }()

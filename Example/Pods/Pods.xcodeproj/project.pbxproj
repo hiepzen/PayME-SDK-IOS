@@ -332,6 +332,7 @@
 		50D40708348857D65414478CFD263093 /* GDTCORStorageProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = B340E1E103DE538E4FA11A698C202111 /* GDTCORStorageProtocol.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		527507E8E233CE19E424BFF11B9735A7 /* GoogleUtilities-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 54A513452BBAC1BFDA05F0D97ACFE459 /* GoogleUtilities-dummy.m */; };
 		5290F71725ADD041004B5CDB /* Bank.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5290F71625ADD041004B5CDB /* Bank.swift */; };
+		52A1EAFF25AEAA640078CF4A /* ATMViewName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A1EAFE25AEAA640078CF4A /* ATMViewName.swift */; };
 		5300EB86348ED2DD35A9339104F21842 /* CBC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 695DFD43A8B2CC075DD62BA57EA28000 /* CBC.swift */; };
 		53019DBFAAE568C920F897D6ED36F8E5 /* FIRCLSReportAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = B13E6B10A1D2F08E26017D784A9C7098 /* FIRCLSReportAdapter.m */; };
 		5310B3521A7A131B6D1C1E530A1FF1B6 /* FIRInteropParameterNames.h in Headers */ = {isa = PBXBuildFile; fileRef = 892C75A568DFFA6072B40DF39FD55308 /* FIRInteropParameterNames.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1661,6 +1662,7 @@
 		51FF4E01DE96159F87E34BD15351332E /* ECB.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ECB.swift; path = Sources/CryptoSwift/BlockMode/ECB.swift; sourceTree = "<group>"; };
 		5221105C28BB9244F0A6C2865011A4F2 /* ResponseSerialization.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ResponseSerialization.swift; path = Source/ResponseSerialization.swift; sourceTree = "<group>"; };
 		5290F71625ADD041004B5CDB /* Bank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bank.swift; sourceTree = "<group>"; };
+		52A1EAFE25AEAA640078CF4A /* ATMViewName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ATMViewName.swift; sourceTree = "<group>"; };
 		52B38FFEFC861D2AED1548814251F229 /* FIRCLSDwarfUnwind.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FIRCLSDwarfUnwind.h; path = Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDwarfUnwind.h; sourceTree = "<group>"; };
 		5359AB254B9F211B4528AC8106115ECB /* VectorsExtensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VectorsExtensions.swift; path = "lottie-swift/src/Private/Utility/Primitives/VectorsExtensions.swift"; sourceTree = "<group>"; };
 		53A3E780EF573B25B5886A45315F6976 /* FBLPromise+Then.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "FBLPromise+Then.m"; path = "Sources/FBLPromises/FBLPromise+Then.m"; sourceTree = "<group>"; };
@@ -3752,6 +3754,7 @@
 				C70857E96377962F434F5F1AEA1C46EE /* PopUpWindow.swift */,
 				3722DA273134347705949896D90C3D51 /* SecurityCode.swift */,
 				34334C0A3704E82312C6E7A01FEC9505 /* SuccessView.swift */,
+				52A1EAFE25AEAA640078CF4A /* ATMViewName.swift */,
 			);
 			name = component;
 			path = PayMESDK/Classes/Source/component;
@@ -5047,6 +5050,7 @@
 				16B39AF345276D76D33F01C868548148 /* ATMView.swift in Sources */,
 				3F50EEA3901C61DCEFC1726117033EBD /* AvatarConfirm.swift in Sources */,
 				1AC047D0DAD8EC029EB20C112585E08E /* AvatarController.swift in Sources */,
+				52A1EAFF25AEAA640078CF4A /* ATMViewName.swift in Sources */,
 				1A85E23AE5D62F5C0D9EEAC181DB197D /* CryptoAES.swift in Sources */,
 				894C00B93857355CA10D432072FCEB8F /* CryptoRSA.swift in Sources */,
 				ACCE60BECC7EA45A63E0A6F4E73FE686 /* DimmedView.swift in Sources */,

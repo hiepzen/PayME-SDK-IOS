@@ -48,6 +48,8 @@ public class PayME{
         PayME.publicKey = trimKeyRSA(key:publicKey);
         PayME.env = env;
         PayME.configColor = configColor;
+        PayME.accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjA4MDIsImFjY291bnRJZCI6NDk1OTQ3OTIxLCJzY29wZSI6W10sImNsaWVudElkIjoiQUQxRTVCOUMtNUFDMy00NUE3LTk3NUEtQjdFOTNCREFCMjY5IiwiYXBwSWQiOjEsImlhdCI6MTYxMDUzMjg5NH0.4P3gsa7EbDd8MLtpqW4iQJq3ZCDyotVetniUi3m9i28"
+        PayME.handShake = ""
     }
     
     public func setPrivateKey(appPrivateKey : String) {
@@ -163,12 +165,6 @@ public class PayME{
             })
         }
     }
-    private static func abc() {
-        print("accessTOken")
-        print(PayME.accessToken)
-        let kycController = KYCController(flowKYC: ["kycIdentifyImg": true, "kycFace": false, "kycVideo": false])
-        kycController.kyc()
-    }
     public func openWallet(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?,
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                            onError: @escaping ([String:AnyObject]) -> ()
@@ -228,7 +224,7 @@ public class PayME{
                    "paddingBottom":\(bottomSafeArea)
               },
               "actions":{
-                "type":"",
+                "type":"\(action)",
                 "amount":0
               },
               "env": "\(PayME.env.rawValue)",
@@ -250,11 +246,14 @@ public class PayME{
                 PayME.isRecreateNavigationController = true
                 currentVC.present(navigationController, animated: true, completion: nil)
             }
+            
         } else {
             API.registerClient(onSuccess: { response in
                 let result = response["Client"]!["Register"] as! [String: AnyObject]
                 let clientID = result["clientId"] as! String
                 PayME.clientID = clientID
+                //PayME.openQRCode(currentVC: currentVC)
+              
                 let data =
                     """
                 {
@@ -294,70 +293,29 @@ public class PayME{
                     currentVC.present(navigationController, animated: true, completion: {
                     })
                 }
-
+                
             }, onError: { error in
                 onError(error)
             })
         }
     }
 
+    public func abc() {
+        var dictionary = ["kycIdentifyImg": true, "kycFace": true, "kycVideo": true]
+        var kycController = KYCController(flowKYC: dictionary)
+        kycController.kyc()
+    }
     
     public func deposit(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
                         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                         onError: @escaping ([String : AnyObject]) -> ()) {
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        let topSafeArea: CGFloat
-        let bottomSafeArea: CGFloat
-        if #available(iOS 11.0, *) {
-            topSafeArea = currentVC.view.safeAreaInsets.top
-            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
-        } else {
-            topSafeArea = currentVC.topLayoutGuide.length
-            bottomSafeArea = currentVC.bottomLayoutGuide.length
-        }
-        let data =
-            """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(handleColor(input:PayME.configColor))"],"actions":{"type":"DEPOSIT","amount":"\(checkIntNil(input: amount))","description":"\(checkStringNil(input: description))"},"extraData":"\(checkStringNil(input:extraData))"}
-        """
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        let url = urlWebview(env: PayME.env)
-        PayME.currentVC = currentVC
-        webViewController.urlRequest = url + "\(data)"
-        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
-        webViewController.setOnErrorCallback(onError: onError)
-
-        currentVC.navigationController?.pushViewController(webViewController, animated: true)
-
+        openWallet(currentVC: currentVC, action: PayME.Action.DEPOSIT, amount: amount, description: nil, extraData: nil, onSuccess: onSuccess, onError: onError)
     }
     
     public func withdraw(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
                          onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                          onError: @escaping ([String : AnyObject]) -> ()) {
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        let topSafeArea: CGFloat
-        let bottomSafeArea: CGFloat
-        if #available(iOS 11.0, *) {
-            topSafeArea = currentVC.view.safeAreaInsets.top
-            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
-        } else {
-            topSafeArea = currentVC.topLayoutGuide.length
-            bottomSafeArea = currentVC.bottomLayoutGuide.length
-        }
-        let data =
-            """
-        {"connectToken":"\(PayME.connectToken)","appToken":"\(PayME.appID)","clientInfo":{"clientId":"\(PayME.deviceID)","platform":"IOS","appVersion":"\(PayME.appVersion!)","sdkVesion":"0.1","sdkType":"IOS","appPackageName":"\(PayME.packageName!)"},"partner":{"type":"IOS","paddingTop":\(topSafeArea), "paddingBottom":\(bottomSafeArea)},"configColor":["\(handleColor(input:PayME.configColor))"],"actions":{"type":"WITHDRAW","amount":"\(checkIntNil(input: amount))","description":"\(checkStringNil(input: description))"},"extraData":"\(checkStringNil(input:extraData))"}
-        """
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        let url = urlWebview(env: PayME.env)
-        PayME.currentVC = currentVC
-        webViewController.urlRequest = url + "\(data)"
-        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
-        webViewController.setOnErrorCallback(onError: onError)
-
-        currentVC.navigationController?.pushViewController(webViewController, animated: true)
-
+        openWallet(currentVC: currentVC, action: PayME.Action.WITHDRAW, amount: amount, description: nil, extraData: nil, onSuccess: onSuccess, onError: onError)
     }
     
     public func showModal(currentVC : UIViewController){
@@ -371,27 +329,34 @@ public class PayME{
         qrScan.setScanSuccess(onScanSuccess: { response in
             PayME.currentVC!.showSpinner(onView: PayME.currentVC!.view)
             qrScan.dismiss(animated: true)
-            PayME.payWithQRCode(QRContent: response, onSuccess: { result in
-                if ((result["type"] ?? "" as AnyObject) as! String == "Payment")
-                {
-                    PayME.currentVC = currentVC
-                    PayME.amount = result["amount"] as! Int
-                    PayME.description = (result["content"] ?? "" as AnyObject) as! String
-                    PayME.currentVC!.presentPanModal(Methods())
+            API.readQRContent(qrContent: response, onSuccess: { response in
+                print(response)
+                let payment = response["OpenEWallet"]!["Payment"] as! [String:AnyObject]
+                let detect = payment["Detect"] as! [String:AnyObject]
+                let succeeded = detect["succeeded"] as! Bool
+                if (succeeded == true) {
                     PayME.currentVC!.removeSpinner()
-
+                    let methods = Methods()
+                    methods.amount = (detect["amount"] as? Int) ?? 0
+                    methods.storeId = (detect["stordeId"] as? Int) ?? 0
+                    methods.orderId = (detect["orderId"] as? Int) ?? 0
+                    methods.note = (detect["note"] as? String) ?? ""
+                    if (PayME.accessToken != "") {
+                        PayME.currentVC!.presentPanModal(methods)
+                    } else {
+                        toastMess(title: "Lỗi", message: "Vui lòng mở web SDK để thực hiện kích hoạt ví")
+                    }
                 } else {
-                    let alert = UIAlertController(title: "Lỗi", message: "Phương thức này chưa được hỗ trợ", preferredStyle: UIAlertController.Style.alert)
-
-
-                    currentVC.navigationController?.popViewController(animated: true)
-
-                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                    PayME.currentVC!.present(alert, animated: true, completion: nil)
                     PayME.currentVC!.removeSpinner()
+                    if currentVC.navigationController != nil {
+                        currentVC.navigationController?.popViewController(animated: true)
+                    } else {
+                        currentVC.dismiss(animated: true, completion: nil)
+                    }
+                    PayME.currentVC!.presentPanModal(QRNotFound())
                 }
                 
-            }, onError: { result in
+            }, onError: { error in
                 PayME.currentVC!.removeSpinner()
                 if currentVC.navigationController != nil {
                     currentVC.navigationController?.popViewController(animated: true)
@@ -399,6 +364,7 @@ public class PayME{
                     currentVC.dismiss(animated: true, completion: nil)
                 }
                 PayME.currentVC!.presentPanModal(QRNotFound())
+                
             })
         })
         qrScan.setScanFail(onScanFail: { error in
@@ -408,7 +374,6 @@ public class PayME{
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
         currentVC.navigationController?.pushViewController(qrScan, animated: true)
-
     }
     
     public static func convertStringToDictionary(text: String) -> [String:AnyObject]? {
@@ -423,19 +388,19 @@ public class PayME{
         return nil
     }
     
-    public func pay(currentVC : UIViewController, amount: Int, description: String?, extraData: String?) {
+    public func pay(currentVC : UIViewController,storeId: Int, orderId: Int, amount: Int, note: String?, extraData: String?) {
+        print(PayME.accessToken)
         PayME.currentVC = currentVC
-        PayME.amount = amount
-        PayME.description = description ?? ""
+        let methods = Methods()
+        methods.amount = amount
+        methods.storeId = storeId
+        methods.orderId = orderId
+        methods.note = note ?? ""
+        methods.extraData = extraData ?? ""
         if (PayME.accessToken != "") {
-            PayME.currentVC!.presentPanModal(Methods())
+            PayME.currentVC!.presentPanModal(methods)
         } else {
-            PayME.initSDK(onSuccess: {response in
-                PayME.currentVC!.presentPanModal(Methods())
-            }, onError: { error in
-                toastMess(title: "Lỗi", message: "Vui lòng mở web SDK để thực hiện kích hoạt ví")
-
-            })
+            toastMess(title: "Lỗi", message: "Vui lòng mở web SDK để thực hiện kích hoạt ví")
         }
     }
     
@@ -550,69 +515,6 @@ public class PayME{
             }
         )
     }
-    public static func postTransferNapas(method: MethodInfo,onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), onError: @escaping ([Int:Any]) -> ()) {
-        return
-    }
-    public static func postTransferPVCB(method: MethodInfo,onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), onError: @escaping ([Int:Any]) -> ()) {
-        return
-    }
     
-    public static func postTransferPVCBVerify(transferId:Int, OTP:String, onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), onError: @escaping ([Int:Any]) -> ()){
-        let url = urlFeENV(env: PayME.env)
-        let path = "/Transfer/PVCBank/Verify"
-        let clientInfo: [String: String] = [
-            "clientId": PayME.deviceID,
-            "platform": "IOS",
-            "appVersion": PayME.appVersion!,
-            "sdkType" : "IOS",
-            "sdkVesion": "0.1",
-            "appPackageName": PayME.packageName!
-        ]
-        let data: [String: Any] = [
-            "connectToken": PayME.connectToken,
-            "clientInfo": clientInfo,
-            "transferId" : transferId,
-            "destination" : "AppPartner",
-            "OTP" : OTP,
-            "data" : ["":""]
-        ]
-        let params = try? JSONSerialization.data(withJSONObject: data)
-        let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
-        request.setOnRequestCrypto(
-            onError: {(error) in
-                onError(error)
-            },
-            onSuccess : {(response) in
-                onSuccess(response)
-            }
-        )
-    }
-    public static func payWithQRCode(QRContent: String, onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), onError: @escaping ([Int:Any]) -> ()){
-        let url = urlFeENV(env: PayME.env)
-        let path = "/Pay/PayWithQRCode"
-        let clientInfo: [String: String] = [
-            "clientId": PayME.deviceID,
-            "platform": "IOS",
-            "appVersion": PayME.appVersion!,
-            "sdkType" : "IOS",
-            "sdkVesion": "0.1",
-            "appPackageName": PayME.packageName!
-        ]
-        let data: [String: Any] = [
-            "connectToken": PayME.connectToken,
-            "clientInfo": clientInfo,
-            "data" : QRContent
-        ]
-        let params = try? JSONSerialization.data(withJSONObject: data)
-        let request = NetworkRequest(url : url, path :path, token: PayME.appID, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
-        request.setOnRequestCrypto(
-            onError: {(error) in
-                onError(error)
-            },
-            onSuccess : {(response) in
-                onSuccess(response)
-            }
-        )
-    }
 }
 

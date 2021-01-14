@@ -265,15 +265,12 @@ class ViewController: UIViewController{
     }
     
     @objc func withDrawAction(sender: UIButton!) {
-
-        /*
         if (self.connectToken != "") {
             if (moneyWithDraw.text != "") {
                 let amount = Int(moneyWithDraw.text!)
                 if (amount! >= 10000){
                     let amountWithDraw = amount!
-                    var payME = PayME(appID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II", publicKey: PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: PRIVATE_KEY, env:"sandbox", configColor: ["#75255b", "#a81308"])
-                    payME.withdraw(currentVC: self, amount: amountWithDraw, description: "", extraData: nil, onSuccess: {a in print(a)}, onError: {a in print(a)})
+                    self.payME!.withdraw(currentVC: self, amount: amountWithDraw, description: "", extraData: nil, onSuccess: {a in print(a)}, onError: {a in print(a)})
                 } else {
                     let alert = UIAlertController(title: "Lỗi", message: "Vui lòng rút hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
@@ -289,7 +286,7 @@ class ViewController: UIViewController{
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
-        */
+        
     }
     @objc func payAction(sender: UIButton!) {
         if (self.connectToken != "") {
@@ -297,7 +294,7 @@ class ViewController: UIViewController{
                 let amount = Int(moneyPay.text!)
                 if (amount! >= 10000){
                     let amountPay = amount!
-                    self.payME!.pay(currentVC: self, amount: amountPay, description: "", extraData: nil)
+                    self.payME!.pay(currentVC: self, storeId: 1, orderId: 1, amount: amountPay, note : "Nguoi em cuc ky dep trai" , extraData: nil)
                 } else {
                     let alert = UIAlertController(title: "Lỗi", message: "Vui lòng thanh toán hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))

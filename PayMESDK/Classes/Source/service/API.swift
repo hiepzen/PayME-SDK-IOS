@@ -70,6 +70,92 @@ internal class API {
         
     }
     
+    internal static func transferATM(
+        storeId: Int,
+        orderId: Int,
+        extraData: String,
+        note: String,
+        cardNumber: String,
+        cardHolder: String,
+        issuedAt: String,
+        amount: Int,
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+        onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    ) {
+        let url = urlGraphQL(env: PayME.env)
+        let path = "/graphql"
+        let sql =
+        """
+        mutation GetBankNameMutation($payInput: OpenEWalletPaymentPayInput!) {
+          OpenEWallet {
+            Payment {
+              Pay(input: $payInput) {
+                succeeded
+                message
+                payment {
+                  ... on PaymentBankCardResponsed {
+                    state
+                    message
+                    html
+                  }
+                }
+              }
+            }
+          }
+        }
+        """
+        var payInput : [String : Any] = [
+            "clientId": PayME.clientID,
+            "storeId": storeId,
+            "amount": amount,
+            "orderId": orderId,
+            "payment": [
+                "bankCard" : [
+                    "cardNumber": cardNumber,
+                    "cardHolder": cardHolder,
+                    "issuedAt": issuedAt
+                ]
+            ]
+        ]
+        if (note != "") {
+            payInput.updateValue(note, forKey: "note")
+        }
+        if (extraData != "") {
+            payInput.updateValue(extraData, forKey: "referExtraData")
+        }
+        var variables : [String: Any] = [
+            "payInput": payInput
+        ]
+        let json: [String: Any] = [
+          "query": sql,
+          "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        print(variables)
+        if (PayME.env == PayME.Env.DEV) {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequest(
+                onError: { error in
+                    onError(error)
+                },
+                onSuccess: { data in
+                    onSuccess(data)
+                  // print("onSuccess \(data)")
+                }
+            )
+        } else {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequestCrypto(
+                onError: { error in
+                    onError(error)
+                },
+                onSuccess: { data in
+                    onSuccess(data)
+                }
+            )
+        }
+    }
+    
     
     
     internal static func createSecurityCode(
@@ -136,6 +222,7 @@ internal class API {
         extraData: String,
         note: String,
         otp: String,
+        amount: Int,
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
@@ -163,23 +250,31 @@ internal class API {
           }
         }
         """
-        let variables : [String: Any] = [
-            "payInput": [
-                "transaction": transaction,
-                "referExtraData": extraData,
-                "note": note,
-                "clientId": PayME.clientID,
-                "storeId": storeId,
-                "amount": PayME.amount,
-                "orderId": orderId,
-                "payment": [
-                    "linked" : [
-                        "linkedId": linkedId,
-                        "otp": otp,
-                        "envName": "MobileApp"
-                    ]
+        var payInput : [String:Any] =
+        [
+            "transaction": transaction,
+            "referExtraData": extraData,
+            "note": note,
+            "clientId": PayME.clientID,
+            "storeId": storeId,
+            "amount": amount,
+            "orderId": orderId,
+            "payment": [
+                "linked" : [
+                    "linkedId": linkedId,
+                    "otp": otp,
+                    "envName": "MobileApp"
                 ]
             ]
+        ]
+        if (note != "") {
+            payInput.updateValue(note, forKey: "note")
+        }
+        if (extraData != "") {
+            payInput.updateValue(extraData, forKey: "referExtraData")
+        }
+        let variables : [String: Any] = [
+            "payInput": payInput
         ]
         let json: [String: Any] = [
           "query": sql,
@@ -213,12 +308,77 @@ internal class API {
         
     }
     
+    internal static func readQRContent(
+        qrContent: String,
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+        onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    ) {
+        let url = urlGraphQL(env: PayME.env)
+        let path = "/graphql"
+        let sql =
+        """
+        mutation Mutation($detectInput: OpenEWalletPaymentDetectInput!) {
+          OpenEWallet {
+            Payment {
+              Detect(input: $detectInput) {
+                action
+                succeeded
+                message
+                type
+                storeId
+                amount
+                note
+                orderId
+              }
+            }
+          }
+        }
+        """
+        
+        let variables : [String: Any] = [
+            "detectInput": [
+                "clientId": PayME.clientID,
+                "qrContent" : qrContent
+            ]
+        ]
+        let json: [String: Any] = [
+          "query": sql,
+          "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        print(variables)
+        print(PayME.accessToken)
+        if (PayME.env == PayME.Env.DEV) {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequest(
+                onError: { error in
+                    onError(error)
+                },
+                onSuccess: { data in
+                    onSuccess(data)
+                  // print("onSuccess \(data)")
+                }
+            )
+        } else {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequestCrypto(
+                onError: { error in
+                    onError(error)
+                },
+                onSuccess: { data in
+                    onSuccess(data)
+                }
+            )
+        }
+    }
+    
     internal static func checkFlowLinkedBank(
         storeId: Int,
         orderId: Int,
         linkedId: Int,
         extraData: String,
         note: String,
+        amount: Int,
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
@@ -246,21 +406,30 @@ internal class API {
           }
         }
         """
-        let variables : [String: Any] = [
-            "payInput": [
-                "referExtraData": extraData,
-                "note": note,
-                "clientId": PayME.clientID,
-                "storeId": storeId,
-                "amount": PayME.amount,
-                "orderId": orderId,
-                "payment": [
-                    "linked" : [
-                        "linkedId": linkedId,
-                        "envName": "MobileApp"
-                    ]
+        
+        var payInput : [String:Any] =
+        [
+            "referExtraData": extraData,
+            "note": note,
+            "clientId": PayME.clientID,
+            "storeId": storeId,
+            "amount": amount,
+            "orderId": orderId,
+            "payment": [
+                "linked" : [
+                    "linkedId": linkedId,
+                    "envName": "MobileApp"
                 ]
             ]
+        ]
+        if (note != "") {
+            payInput.updateValue(note, forKey: "note")
+        }
+        if (extraData != "") {
+            payInput.updateValue(extraData, forKey: "referExtraData")
+        }
+        let variables : [String: Any] = [
+            "payInput": payInput
         ]
         let json: [String: Any] = [
           "query": sql,
@@ -300,6 +469,7 @@ internal class API {
         securityCode: String,
         extraData: String,
         note: String,
+        amount: Int,
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
@@ -318,21 +488,29 @@ internal class API {
           }
         }
         """
-        let variables : [String: Any] = [
-            "payInput": [
-                "clientId": PayME.clientID,
-                "storeId": storeId,
-                "amount": PayME.amount,
-                "orderId": orderId,
-                "note": note,
-                "referExtraData": extraData,
-                "payment": [
-                    "wallet" : [
-                        "active": true,
-                        "securityCode": securityCode
-                    ]
+        var payInput : [String:Any] = [
+            "clientId": PayME.clientID,
+            "storeId": storeId,
+            "amount": amount,
+            "orderId": orderId,
+            "note": note,
+            "referExtraData": extraData,
+            "payment": [
+                "wallet" : [
+                    "active": true,
+                    "securityCode": securityCode
                 ]
             ]
+        ]
+        if (note != "") {
+            payInput.updateValue(note, forKey: "note")
+        }
+        if (extraData != "") {
+            payInput.updateValue(extraData, forKey: "referExtraData")
+        }
+        
+        let variables : [String: Any] = [
+            "payInput": payInput
         ]
         let json: [String: Any] = [
           "query": sql,
@@ -561,6 +739,67 @@ internal class API {
                 onSuccess: { data in
                     onSuccess(data)
                   // print("onSuccess \(data)")
+                }
+            )
+        }
+    }
+    
+    
+    
+    internal static func getBankName(
+        swiftCode : String,
+        cardNumber: String,
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+        onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    ){
+        let url = urlGraphQL(env: PayME.env)
+        let path = "/graphql"
+        print(url+path)
+        let sql = """
+        mutation GetBankNameMutation($getBankNameInput: AccountBankInfoInput) {
+          Utility {
+            GetBankName(input: $getBankNameInput) {
+              succeeded
+              message
+              accountName
+            }
+          }
+        }
+        """
+        let variables : [String: Any] = [
+            "getBankNameInput": [
+                "swiftCode": swiftCode,
+                "type" : "CARD",
+                "cardNumber" : cardNumber
+            ]
+        ]
+        let json: [String: Any] = [
+          "query": sql,
+          "variables": variables,
+        ]
+        print(variables)
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        if (PayME.env == PayME.Env.DEV) {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequest(
+                onError: { error in
+                    print(error)
+                    toastMess(title: "Lỗi", message: error["message"] as! String)
+                    onError(error)
+                },
+                onSuccess: { data in
+                    onSuccess(data)
+                }
+            )
+        } else {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequestCrypto(
+                onError: { error in
+                    toastMess(title: "Lỗi", message: error["message"] as! String)
+                    onError(error)
+                },
+                onSuccess: { data in
+                    onSuccess(data)
                 }
             )
         }
