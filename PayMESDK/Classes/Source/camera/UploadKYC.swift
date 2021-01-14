@@ -60,9 +60,15 @@ public class UploadKYC{
                     DispatchQueue.main.async {
                         PayME.currentVC?.removeSpinner()
                         guard let navigationController = PayME.currentVC?.navigationController else { return }
-                        var navigationArray = navigationController.viewControllers
-                        PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0],navigationArray[1]]
-                        (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
+                        let navigationArray = navigationController.viewControllers
+                        if PayME.isRecreateNavigationController {
+                            PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                            let rootViewController = navigationArray.first
+                            (rootViewController as! WebViewController).reload()
+                        } else {
+                            PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0],navigationArray[1]]
+                            (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
+                        }
                         return
                     }
                 } else {

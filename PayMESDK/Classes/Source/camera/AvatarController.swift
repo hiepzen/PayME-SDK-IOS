@@ -26,6 +26,7 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .black
         view.addSubview(backButton)
         view.addSubview(pressCamera)
         view.addSubview(guideLabel)
