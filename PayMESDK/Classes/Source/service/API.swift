@@ -1012,6 +1012,9 @@ internal class API {
               kyc {
                 kycId
                 state
+                identifyNumber
+                reason
+                sentAt
               }
               phone
               isExistInMainWallet
