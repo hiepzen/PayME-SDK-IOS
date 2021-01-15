@@ -21,7 +21,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     weak var shapeLayer_bottomRight: CAShapeLayer?
     internal var txtFront = ""
     internal var imageFront : UIImage?
-    internal var onSuccessCapture: (([UIImage], Int) -> ())? = nil
     
 
     
@@ -334,10 +333,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             confirmKYCFront.kycImage = image
             confirmKYCFront.active = active
             confirmKYCFront.parentVC = self
-            confirmKYCFront.onSuccessCapture = ({ image, active in
-                self.onSuccessCapture!(image, active)
-            })
-            
             self.navigationController?.pushViewController(confirmKYCFront, animated: true)
             
             
@@ -346,11 +341,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             confirmKYCBack.kycImage = imageFront
             confirmKYCBack.kycImageBack = image
             confirmKYCBack.active = active
-            confirmKYCBack.onSuccessCapture = ({ image, active in
-                self.onSuccessCapture!(image, active)
-            })
-            
-            
             self.navigationController?.pushViewController(confirmKYCBack, animated: true)
             
         }

@@ -347,7 +347,7 @@ public class NetworkRequestGraphQL {
          
             let validateMD5 = CryptoAES.MD5(validateString)!
             let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey!)
-            let formattedString = stringJSON.replacingOccurrences(of:"\\\"",with:"\"").dropLast(3).dropFirst(1);
+            let formattedString = self.formatString(dataRaw : stringJSON)
             let dataJSON = formattedString.data(using: .utf8)
             if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options:[]) as? Dictionary<String, AnyObject> {
                 if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
@@ -368,7 +368,6 @@ public class NetworkRequestGraphQL {
                     if let data = finalJSON!["data"] as? [String:AnyObject] {
                         DispatchQueue.main.async {
                             onError(data)
-                            
                         }
                         return
                     }
@@ -383,6 +382,17 @@ public class NetworkRequestGraphQL {
             
         }
         task.resume()
+    }
+    func formatString(dataRaw: String) -> String {
+        var str = ""
+        str = dataRaw.replacingOccurrences(of: "\\r",with: "");
+        str = str.replacingOccurrences(of: "\\n",with: "");
+        let regex = try! NSRegularExpression(pattern: "\\\\\"", options: NSRegularExpression.Options.caseInsensitive)
+        let range = NSMakeRange(0, str.count)
+        let modString = regex.stringByReplacingMatches(in: str, options: [], range: range, withTemplate: "\"")
+        str = modString.replacingOccurrences(of: "\\\\",with: "\\");
+        str = String(str.dropFirst(1).dropLast(1))
+        return str
     }
 }
 

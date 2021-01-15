@@ -103,6 +103,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 if (securtiySucceeded == true) {
                     let securityCode = securityResponse["securityCode"] as! String
                     API.transferWallet(storeId: 1, orderId: 1, securityCode: securityCode, extraData: self.extraData, note: self.note, amount: self.amount, onSuccess: { response in
+                        self.onSuccess!(response)
                         let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String:AnyObject]
                         let payInfo = paymentInfo["Pay"] as! [String:AnyObject]
                         let message = payInfo["message"] as! String
@@ -122,6 +123,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         self.removeSpinner()
                         
                     }, onError: { error in
+                        self.onError!(error)
                         self.removeSpinner()
                         self.dismiss(animated: true, completion: {
                             self.toastMessError(title: "Lỗi", message: error["message"] as! String)
@@ -147,6 +149,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 }
                 
             }, onError: {errorSecurity in
+                self.onError!(errorSecurity)
                 self.removeSpinner()
                 self.dismiss(animated: true, completion: {
                     self.toastMessError(title: "Lỗi", message: errorSecurity["message"] as! String)
@@ -154,6 +157,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             })
         } else if(field == otpView.otpView) {
             API.transferByLinkedBank(transaction: transaction, storeId: storeId, orderId: orderId, linkedId: (data[active!].dataLinked?.linkedId)!, extraData: self.extraData, note: self.note, otp: code, amount: self.amount, onSuccess: { response in
+                self.onSuccess!(response)
                 let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String:AnyObject]
                 let payInfo = paymentInfo["Pay"] as! [String:AnyObject]
                 let message = payInfo["message"] as! String
@@ -172,6 +176,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 }
                 self.removeSpinner()
             }, onError: { error in
+                self.onError!(error)
                 self.removeSpinner()
                 self.dismiss(animated: true, completion: {
                     self.toastMessError(title: "Lỗi", message: error["message"] as! String)
@@ -190,7 +195,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     var transaction : String = ""
     private var active : Int?
     private var bankDetect : Bank?
-    
+    var onError : (([String:AnyObject]) -> ())? = nil
+    var onSuccess : (([String:AnyObject]) -> ())? = nil
+    var appENV : String?
+
     let methodsView : UIView = {
         let methodsView  = UIView()
         methodsView.translatesAutoresizingMaskIntoConstraints = false
@@ -263,6 +271,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         failView.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: 0).isActive = true
         failView.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: 0).isActive = true
         failView.roleLabel.text = formatMoney(input: self.amount)
+        if (self.note == "") {
+            failView.memoLabel.text = "Không có nội dung"
+        } else {
+            failView.memoLabel.text = self.note
+        }
         failView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         failView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: failView.button.bottomAnchor, constant: 10).isActive = true
@@ -284,6 +297,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         successView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         successView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         successView.roleLabel.text = formatMoney(input: self.amount)
+        if (self.note == "") {
+            successView.memoLabel.text = "Không có nội dung"
+        } else {
+            successView.memoLabel.text = self.note
+        }
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: successView.button.bottomAnchor, constant: 10).isActive = true
         self.updateViewConstraints()
         self.view.layoutIfNeeded()
@@ -369,7 +387,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 10).isActive = true
 
         self.showSpinner(onView: self.view)
-        PayME.getWalletInfo(
+        API.getWalletInfo(
             onSuccess: {walletInfo in
                 let wallet = walletInfo["Wallet"] as! [String:AnyObject]
                 let balance = wallet["balance"] as! Int
@@ -377,7 +395,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                            // Update UI
                     let methodsReponse = response["Utility"]!["GetPaymentMethod"] as! [String:AnyObject]
                     let items = methodsReponse["methods"] as! [[String:AnyObject]]
-                    print(items)
                     var responseData : [MethodInfo] = []
                     for i in 0..<items.count {
                         let temp = MethodInfo(methodId: items[i]["methodId"] as! Int, type: items[i]["type"] as! String, title: items[i]["title"] as! String, label: items[i]["label"] as! String,  amount: nil, fee: items[i]["fee"] as! Int, minFee: items[i]["minFee"] as! Int, dataWallet: nil, dataLinked: nil, active: false)
@@ -415,12 +432,12 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         self.panModalTransition(to: .shortForm)
                     }
             },onError: {error in
-               self.removeSpinner()
-               print(error)
+                self.onError!(error)
+                self.removeSpinner()
            })
         }, onError: {error in
+            self.onError!(error)
             self.removeSpinner()
-            print(error)
         })
     }
     
@@ -453,6 +470,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             setupSecurity()
         }
         if (data[indexPath.row].type == "LINKED") {
+            if (appENV!.isEqual("SANDBOX")) {
+                print(appENV)
+                self.onError!(["message" : "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+                return
+            }
             self.showSpinner(onView: self.view)
             API.checkFlowLinkedBank(storeId: self.storeId, orderId: self.orderId, linkedId: data[indexPath.row].dataLinked!.linkedId, extraData: self.extraData, note: self.note, amount: self.amount, onSuccess: { flow in
                 let pay = flow["OpenEWallet"]!["Payment"] as! [String:AnyObject]
@@ -492,6 +514,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     }
                 }
             }, onError: { flowError in
+                self.onError!(flowError)
                 self.removeSpinner()
                 self.dismiss(animated: true, completion: {
                     self.toastMessError(title: "Lỗi", message: flowError["message"] as! String)
@@ -499,6 +522,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             })
         }
         if (data[indexPath.row].type == "BANK_CARD") {
+            if (appENV!.isEqual("SANDBOX")) {
+                self.onError!(["message" : "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+                return
+            }
             self.showSpinner(onView: self.view)
             API.getBankList(onSuccess: { bankListResponse in
                 self.methodsView.removeFromSuperview()
@@ -513,6 +540,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 self.removeSpinner()
 
             }, onError: { bankListError in
+                self.onError!(bankListError)
                 self.removeSpinner()
                 print(bankListError)
                 
@@ -580,6 +608,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                                             })
                                             webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                                                 webViewController.dismiss(animated: true)
+                                                self.removeSpinner()
                                                 self.atmView.removeFromSuperview()
                                                 self.setupFail()
                                                 self.failView.failLabel.text = responseFromWebView
@@ -591,11 +620,13 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                                         self.atmView.removeFromSuperview()
                                         self.setupFail()
                                         self.failView.failLabel.text = message
+                                        self.removeSpinner()
                                     }
                                 }
                             
                                 
                             }, onError: { error in
+                                self.onError!(error)
                                 self.removeSpinner()
                                 self.dismiss(animated: true, completion: {
                                     self.toastMessError(title: "Lỗi", message: error["message"] as! String)
@@ -619,6 +650,16 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         // atmView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         atmView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         atmView.button.addTarget(self, action: #selector(payATM), for: .touchUpInside)
+        atmView.price.text = "\(formatMoney(input: self.amount)) đ"
+        if (self.note == "") {
+            atmView.memoLabel.text = "Không có nội dung"
+        } else {
+            atmView.memoLabel.text = self.note
+        }
+        
+        atmView.memoLabel.text = self.note
+
+
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmView.button.bottomAnchor, constant: 10).isActive = true
         self.atmView.dateField.delegate = self
         self.atmView.cardNumberField.delegate = self
@@ -690,7 +731,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
           // if keyboard size is not available for some reason, dont do anything
           return
         }
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.otpView.bottomAnchor, constant: keyboardSize.height).isActive = true
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.otpView.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
         self.view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)

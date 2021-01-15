@@ -465,7 +465,7 @@ public class KAPinField : UITextField, UITextFieldDelegate  {
                 if isToken {
                     attributes[.foregroundColor] = self.appearance.tokenColor
                 } else {
-                    attributes[.foregroundColor] = UIColor.green
+                    attributes[.foregroundColor] = UIColor(29,29,39)
                 }
             }
             // Fix kerning-centering

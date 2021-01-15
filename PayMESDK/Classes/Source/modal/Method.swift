@@ -166,13 +166,29 @@ class Method: UITableViewCell {
 
     func configure(with presentable: MethodInfo) {
         self.presentable = presentable
-        
         if (presentable.type == "WALLET") {
             bankNameLabel.text = "Số dư ví"
             bankContentLabel.text = "(\(formatMoney(input: presentable.amount!))đ)"
         } else {
             bankNameLabel.text = presentable.title
             bankContentLabel.text = presentable.label
+        }
+        print(presentable.type)
+        if (presentable.type.isEqual("LINKED")) {
+            let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
+            DispatchQueue.global().async {
+                let data = try? Data(contentsOf: url!) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
+                DispatchQueue.main.async {
+                    self.walletMethodImage.image = UIImage(data: data!)
+                }
+            }
+        }
+        if (presentable.type.isEqual("BANK_CARD")) {
+            let bundle = Bundle(for: Method.self)
+            let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+            let resourceBundle = Bundle(url: bundleURL!)
+            let image = UIImage(named: "ptAtm", in: resourceBundle, compatibleWith: nil)
+            self.walletMethodImage.image = image
         }
         
         /*else {

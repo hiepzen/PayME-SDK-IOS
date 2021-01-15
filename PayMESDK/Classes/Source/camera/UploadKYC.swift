@@ -78,6 +78,7 @@ public class UploadKYC{
                     }
                 }
             },onError: {error in
+                PayME.currentVC?.removeSpinner()
                 print(error)
             })
             self.dispatchGroup.leave()

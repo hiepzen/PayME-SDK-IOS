@@ -21,7 +21,6 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
     weak var shapeLayer_bottomRight: CAShapeLayer?
     public var txtFront = ""
     public var imageFront : UIImage?
-    internal var onSuccessCapture: ((UIImage) -> ())? = nil
 
     
     override func viewDidLoad() {
@@ -183,10 +182,6 @@ extension AvatarController : AVCapturePhotoCaptureDelegate {
             self.session.stopRunning()
             let vc = AvatarConfirm()
             vc.avatarImage = resizeImage
-            vc.onSuccessCapture = { image in
-                self.onSuccessCapture!(image)
-            }
-            
             self.navigationController?.pushViewController(vc, animated: true)
         
         }

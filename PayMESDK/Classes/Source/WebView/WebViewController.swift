@@ -264,6 +264,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         }
         if message.name == onErrorBack {
             if let dictionary = message.body as? [String: AnyObject] {
+                print(dictionary)
+                let code = dictionary["code"] as! Int
+                if (code == 401) {
+                    self.navigationController?.popViewController(animated: true)
+                }
                 self.onError!(dictionary)
             }
         }
@@ -276,12 +281,19 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         }
         if message.name == onRegisterSuccess {
             if let dictionary = message.body as? [String: AnyObject] {
+                print(dictionary)
+                /*
                 if let accessToken = dictionary["accessToken"] as? String {
                     PayME.accessToken = accessToken
                 }
                 if let handShake = dictionary["handShake"] as? String {
                     PayME.handShake = handShake
                 }
+                if let kyc = dictionary["kyc"] as? [String: AnyObject] {
+                    let kycState = kyc["state"] as? String
+                    PayME.kycState = kycState ?? ""
+                }
+                */
             }
 
         }
@@ -293,9 +305,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         var kycController = KYCController(flowKYC: dictionary)
         kycController.kyc()
     }
-    
-    
-
     
     func onCloseWebview() {
         if PayME.isRecreateNavigationController {

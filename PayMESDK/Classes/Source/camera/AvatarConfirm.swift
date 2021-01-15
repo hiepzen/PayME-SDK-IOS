@@ -139,7 +139,17 @@ class AvatarConfirm: UIViewController {
 
     }
     @objc func capture() {
-        onSuccessCapture!(avatarImage!)
+        KYCController.imageAvatar = avatarImage!
+        if (KYCController.flowKYC!["kycVideo"] == true) {
+            let videoController = VideoController()
+            if PayME.currentVC?.navigationController != nil {
+                PayME.currentVC?.navigationController?.pushViewController(videoController, animated: true)
+            } else {
+                PayME.currentVC?.present(videoController, animated: true, completion: nil)
+            }
+        } else {
+            KYCController.uploadKYC()
+        }
     }
     override func viewDidLayoutSubviews() {
         captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)

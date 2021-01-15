@@ -22,7 +22,7 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
         view.addSubview(txtLabel)
         view.addSubview(tableView)
         
-        txtLabel.text = "Xác nhận thanh toán"
+        txtLabel.text = "Chọn loại giấy tờ"
         button.setTitle("Xác nhận", for: .normal)
         setupConstraints()
         tableView.register(KYCMethod.self, forCellReuseIdentifier: "cell")

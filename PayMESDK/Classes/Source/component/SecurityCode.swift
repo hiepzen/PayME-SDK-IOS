@@ -24,7 +24,7 @@ internal class SecurityCode: UIView {
         let bundle = Bundle(for: QRNotFound.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "touchId", in: resourceBundle, compatibleWith: nil)
+        let image = UIImage(named: "iconNoticeVerifyPass", in: resourceBundle, compatibleWith: nil)
         var bgImage = UIImageView(image: image)
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
@@ -41,9 +41,9 @@ internal class SecurityCode: UIView {
 
     let roleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(115,115,115)
+        label.textColor = UIColor.init(hexString: "#0b0b0b")
         label.backgroundColor = .clear
-        label.font = UIFont(name: "Lato-Regular", size: 15)
+        label.font =  UIFont.systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -58,9 +58,9 @@ internal class SecurityCode: UIView {
     
     let txtLabel : UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(26,26,26)
+        label.textColor = UIColor.init(hexString: "#0b0b0b")
         label.backgroundColor = .clear
-        label.font = UIFont(name: "Lato-SemiBold", size: 20)
+        label.font =  UIFont.systemFont(ofSize: 17, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

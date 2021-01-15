@@ -11,7 +11,6 @@ class KYCFrontController: UIViewController {
     internal var kycImage : UIImage?
     internal var active : Int?
     internal let screenSize:CGRect = UIScreen.main.bounds
-    internal var onSuccessCapture: (([UIImage],Int) -> ())? = nil
     internal var parentVC : KYCCameraController?
 
     let imageView: UIImageView = {
@@ -142,58 +141,28 @@ class KYCFrontController: UIViewController {
             let kycCameraController = KYCCameraController()
             kycCameraController.imageFront = kycImage
             kycCameraController.active = self.active!
-            kycCameraController.onSuccessCapture = { image, active in
-                self.onSuccessCapture!(image,active)
-            }
-
             self.navigationController?.pushViewController(kycCameraController, animated: true)
             
-
         } else {
-            onSuccessCapture!([self.kycImage!], active!)
-
-            /*
-            self.showSpinner(onView: self.view)
-            API.uploadImageKYC(imageFront: self.kycImage!,
-                                 imageBack: nil,
-               onSuccess: { response in
-                self.removeSpinner()
-                print(response)
-                let code = response["code"]! as! Int
-                print(code)
-                if (code == 1000) {
-                    let data = response["data"] as! [[String:Any]]
-                    let imageFront = data[0]["path"] as? String ?? ""
-                    var identifyType = "PASSPORT"
-                    PayME.verifyKYC(imageFront: imageFront, imageBack: nil, identifyType: identifyType, onSuccess: {response in
-                        PayME.openWalletAgain(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil, active: self.active!)
-                        
-                    }, onError: { error in
-                        var errorMess : String = ""
-                        error.values.forEach{ value in
-                            let data = value as! [String:AnyObject]
-                            errorMess = data["message"] as! String
-                        }
-                        let alert = UIAlertController(title: "Lỗi", message: errorMess, preferredStyle: UIAlertController.Style.alert)
-                        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                        self.present(alert, animated: true, completion: nil)
-                        
-
-                    })
+            KYCController.imageDocument = [self.kycImage!]
+            KYCController.active = self.active
+            if (KYCController.flowKYC!["kycFace"] == true) {
+                let avatarController = AvatarController()
+                if PayME.currentVC?.navigationController != nil {
+                    PayME.currentVC?.navigationController?.pushViewController(avatarController, animated: true)
                 } else {
-                    let alert = UIAlertController(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong", preferredStyle: UIAlertController.Style.alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                    self.present(alert, animated: true, completion: nil)
+                    PayME.currentVC?.present(avatarController, animated: true, completion: nil)
                 }
-                print(response)
-                                
-            }, onError: { error in
-                self.removeSpinner()
-                let alert = UIAlertController(title: "Success", message: "Something went wrong", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-            })
-            */
+            } else if (KYCController.flowKYC!["kycVideo"] == true) {
+                let videoController = VideoController()
+                if PayME.currentVC?.navigationController != nil {
+                    PayME.currentVC?.navigationController?.pushViewController(videoController, animated: true)
+                } else {
+                    PayME.currentVC?.present(videoController, animated: true, completion: nil)
+                }
+            } else {
+                KYCController.uploadKYC()
+            }
         }
     }
     override func viewDidLayoutSubviews() {

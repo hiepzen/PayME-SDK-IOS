@@ -12,7 +12,6 @@ class KYCBackController: UIViewController {
     public var kycImageBack: UIImage?
     public var active : Int?
     let screenSize:CGRect = UIScreen.main.bounds
-    internal var onSuccessCapture: (([UIImage], Int) -> ())? = nil
 
     let imageView: UIImageView = {
         let bundle = Bundle(for: KYCFrontController.self)
@@ -140,7 +139,25 @@ class KYCBackController: UIViewController {
     }
     
     @objc func confirmAction() {
-        self.onSuccessCapture!([self.kycImage!,self.kycImageBack!], active!)
+        KYCController.imageDocument = [self.kycImage!,self.kycImageBack!]
+        KYCController.active = self.active
+        if (KYCController.flowKYC!["kycFace"] == true) {
+            let avatarController = AvatarController()
+            if PayME.currentVC?.navigationController != nil {
+                PayME.currentVC?.navigationController?.pushViewController(avatarController, animated: true)
+            } else {
+                PayME.currentVC?.present(avatarController, animated: true, completion: nil)
+            }
+        } else if (KYCController.flowKYC!["kycVideo"] == true) {
+            let videoController = VideoController()
+            if PayME.currentVC?.navigationController != nil {
+                PayME.currentVC?.navigationController?.pushViewController(videoController, animated: true)
+            } else {
+                PayME.currentVC?.present(videoController, animated: true, completion: nil)
+            }
+        } else {
+            KYCController.uploadKYC()
+        }
         //self.showSpinner(onView: self.view)
         /*
         API.uploadImageKYC(imageFront: self.kycImage!,

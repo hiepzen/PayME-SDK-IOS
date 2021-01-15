@@ -160,7 +160,6 @@ internal class ATMView: UIView {
             textField.translatesAutoresizingMaskIntoConstraints = false
             textField.placeholder = "Họ tên chủ thẻ"
             textField.setLeftPaddingPoints(20)
-            textField.keyboardType = .numberPad
             textField.layer.cornerRadius = 15
             return textField
         }()

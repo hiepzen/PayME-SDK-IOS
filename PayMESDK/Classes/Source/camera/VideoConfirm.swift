@@ -12,7 +12,6 @@ class VideoConfirm: UIViewController {
     var player: AVPlayer!
     var avpController = AVPlayerViewController()
     let screenSize:CGRect = UIScreen.main.bounds
-    internal var onSuccessRecording: ((URL) -> ())? = nil
     
     let videoView: UIView = {
         let videoView = UIView()
@@ -26,12 +25,12 @@ class VideoConfirm: UIViewController {
     let confirmTitle : UILabel = {
         let confirmTitle = UILabel()
         confirmTitle.textColor = UIColor(24,26,65)
-        confirmTitle.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        confirmTitle.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         confirmTitle.translatesAutoresizingMaskIntoConstraints = false
         confirmTitle.textAlignment = .center
         confirmTitle.lineBreakMode = .byWordWrapping
         confirmTitle.numberOfLines = 0
-        confirmTitle.text = "Giữ gương mặt và mặt trước giấy tờ tuỳ thân trước ống kính máy quay"
+        confirmTitle.text = "Vui lòng xác nhận video đã rõ nét, gương mặt và giấy tờ tùy thân của bạn đã có trong khung hình."
         return confirmTitle
     }()
     
@@ -150,7 +149,9 @@ class VideoConfirm: UIViewController {
         
     }
     @objc func capture() {
-        onSuccessRecording!(avatarVideo!)
+        KYCController.videoKYC = avatarVideo!
+        KYCController.uploadKYC()
+
     }
     override func viewDidLayoutSubviews() {
         captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)

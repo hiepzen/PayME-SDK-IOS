@@ -8,6 +8,8 @@
 import Foundation
 import UIKit
 import AVFoundation
+import Lottie
+
 
 class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     let session = AVCaptureSession()
@@ -21,7 +23,6 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     weak var shapeLayer_topRight: CAShapeLayer?
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
-    internal var onSuccessRecording: ((URL) -> ())? = nil
     public var txtFront = ""
     public var imageFront : UIImage?
     
@@ -30,45 +31,50 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         
         self.view.backgroundColor = .black
         view.addSubview(backButton)
-        view.addSubview(pressCamera)
         view.addSubview(guideLabel)
+        
+        setupAnimation()
         
         initializeCaptureSession()
         if #available(iOS 11, *) {
           let guide = view.safeAreaLayoutGuide
           NSLayoutConstraint.activate([
             backButton.topAnchor.constraint(equalToSystemSpacingBelow: guide.topAnchor, multiplier: 1.0),
-            pressCamera.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -18)
+            animationButton.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -18)
            ])
         } else {
            let standardSpacing: CGFloat = 8.0
            NSLayoutConstraint.activate([
             backButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: standardSpacing),
-            pressCamera.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -standardSpacing)
+            animationButton.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -standardSpacing)
            ])
         }
+        
+        animationButton.translatesAutoresizingMaskIntoConstraints = false
+
         backButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
         backButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         backButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
-
-        pressCamera.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        pressCamera.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        pressCamera.heightAnchor.constraint(equalToConstant: 80).isActive = true
+            
+        animationButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        animationButton.widthAnchor.constraint(equalToConstant: 160).isActive = true
+        animationButton.heightAnchor.constraint(equalToConstant: 160).isActive = true
         
-        guideLabel.text = "Vui lòng giữ gương mặt trong khung tròn"
+        guideLabel.text = "Giữ gương mặt và mặt trước giấy tờ tuỳ thân trước ống kính máy quay"
         guideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         guideLabel.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 10).isActive = true
         guideLabel.widthAnchor.constraint(equalToConstant: self.view.frame.width).isActive = true
         
+        
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
-        pressCamera.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
+        animationButton.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
+        
         view.bringSubviewToFront(backButton)
         // Do any additional setup after loading the view, typically from a nib.
     }
     
     @objc func back () {
         self.session.stopRunning()
-        
         self.navigationController?.popViewController(animated: true)
         
     }
@@ -90,40 +96,43 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         return orientation
     }
     @objc func takePicture() {
-        if cameraCaptureOutput!.isRecording == false {
-        
-            let connection = cameraCaptureOutput!.connection(with: AVMediaType.video)
-        
-            if (connection?.isVideoOrientationSupported)! {
-                connection?.videoOrientation = currentVideoOrientation()
-            }
-        
-            if (connection?.isVideoStabilizationSupported)! {
-                connection?.preferredVideoStabilizationMode = AVCaptureVideoStabilizationMode.auto
-            }
-            connection?.isVideoMirrored = true
+        if(cameraCaptureOutput != nil)
+        {
+            if cameraCaptureOutput!.isRecording == false {
             
-        
-            let device = activeInput!.device
-        
-            if (device.isSmoothAutoFocusSupported) {
+                let connection = cameraCaptureOutput!.connection(with: AVMediaType.video)
             
-                do {
-                    try device.lockForConfiguration()
-                    device.isSmoothAutoFocusEnabled = false
-                    device.unlockForConfiguration()
-                } catch {
-                   print("Error setting configuration: \(error)")
+                if (connection?.isVideoOrientationSupported)! {
+                    connection?.videoOrientation = currentVideoOrientation()
                 }
             
-            }
+                if (connection?.isVideoStabilizationSupported)! {
+                    connection?.preferredVideoStabilizationMode = AVCaptureVideoStabilizationMode.auto
+                }
+                connection?.isVideoMirrored = true
+                
             
-            let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-            let fileUrl = paths[0].appendingPathComponent("output.mp4")
-            try? FileManager.default.removeItem(at: fileUrl)
-            cameraCaptureOutput!.startRecording(to: fileUrl, recordingDelegate: self)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                self.stopRecording()
+                let device = activeInput!.device
+            
+                if (device.isSmoothAutoFocusSupported) {
+                
+                    do {
+                        try device.lockForConfiguration()
+                        device.isSmoothAutoFocusEnabled = false
+                        device.unlockForConfiguration()
+                    } catch {
+                       print("Error setting configuration: \(error)")
+                    }
+                
+                }
+                
+                let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+                let fileUrl = paths[0].appendingPathComponent("output.mp4")
+                try? FileManager.default.removeItem(at: fileUrl)
+                cameraCaptureOutput!.startRecording(to: fileUrl, recordingDelegate: self)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    self.stopRecording()
+                }
             }
         }
     }
@@ -157,6 +166,19 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         return button
     }()
     
+    func setupAnimation() {
+        let bundle = Bundle(for: Success.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let animation = Animation.named("Dangquay_3", bundle: resourceBundle!)
+        animationButton.animation = animation
+        animationButton.contentMode = .scaleAspectFit
+        animationButton.setPlayRange(fromMarker: "touchDownStart",
+        toMarker: "touchDownEnd",
+        event: .touchDown)
+        view.addSubview(animationButton)
+    }
+    
     let guideLabel : UILabel = {
         let label = UILabel()
         label.textColor = UIColor(255,255,255)
@@ -168,6 +190,8 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         label.textAlignment = .center
         return label
     }()
+    
+    let animationButton = AnimatedButton()
     
     override func viewWillAppear(_ animated: Bool){
         self.session.startRunning()
@@ -207,10 +231,6 @@ extension VideoController : AVCaptureFileOutputRecordingDelegate {
         if error == nil {
             var cv = VideoConfirm()
             cv.avatarVideo = outputFileURL
-            cv.onSuccessRecording = { video in
-                self.onSuccessRecording!(video)
-            }
-        
             self.navigationController?.pushViewController(cv, animated: true)
             
             // UISaveVideoAtPathToSavedPhotosAlbum(outputFileURL.path, nil, nil, nil)
