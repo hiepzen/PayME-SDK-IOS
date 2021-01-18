@@ -79,8 +79,17 @@ public class UploadKYC{
                     self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
                 }
             },onError: {error in
-                PayME.currentVC?.removeSpinner()
+                print(error)
+                let code = error["extensions"]!["code"] as? Int
+                if (code != nil) {
+                    if (code == 401) {
+                        guard let navigationController = PayME.currentVC?.navigationController else { return }
+                        let navigationArray = navigationController.viewControllers
+                        PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                    }
+                }
                 self.toastMess(title: "Lỗi", message: error["message"] as? String ?? "Something went wrong")
+                PayME.currentVC?.removeSpinner()
             })
             self.dispatchGroup.leave()
         }

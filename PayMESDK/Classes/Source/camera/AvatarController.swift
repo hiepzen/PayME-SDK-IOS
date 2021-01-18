@@ -13,7 +13,6 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
     var camera : AVCaptureDevice?
     var imagePicker = UIImagePickerController()
     var cameraPreviewLayer : AVCaptureVideoPreviewLayer?
-    var cameraCaptureOutput : AVCapturePhotoOutput?
     let screenSize:CGRect = UIScreen.main.bounds
     weak var shapeLayer_topLeft: CAShapeLayer?
     weak var shapeLayer_topRight: CAShapeLayer?
@@ -21,7 +20,8 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
     weak var shapeLayer_bottomRight: CAShapeLayer?
     public var txtFront = ""
     public var imageFront : UIImage?
-
+    internal var cameraCaptureInput : AVCaptureDeviceInput?
+    internal var cameraCaptureOutput : AVCapturePhotoOutput?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,7 +30,6 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
         view.addSubview(pressCamera)
         view.addSubview(guideLabel)
         
-        initializeCaptureSession()
         if #available(iOS 11, *) {
           let guide = view.safeAreaLayoutGuide
           NSLayoutConstraint.activate([
@@ -61,9 +60,7 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
         pressCamera.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
         // Do any additional setup after loading the view, typically from a nib.
-        
-        KYCController.kycDecide(currentVC: self)
-
+    
     }
     
     @objc func back () {
@@ -113,11 +110,19 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
     }()
     
     override func viewWillAppear(_ animated: Bool){
-        self.session.startRunning()
+        initializeCaptureSession()
     }
     
     func initializeCaptureSession() {
-        
+        AVCaptureDevice.requestAccess(for: .video) { success in
+          if success { // if request is granted (success is true)
+
+          } else { // if request is denied (success is false)
+            DispatchQueue.main.async {
+                KYCController.kycDecide(currentVC: self)
+            }
+          }
+        }
         session.sessionPreset = AVCaptureSession.Preset.high
         guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video, position: .front)
             else {
@@ -125,21 +130,22 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
                 return
         }
         do {
-            let cameraCaptureInput = try AVCaptureDeviceInput(device: camera)
-            cameraCaptureOutput = AVCapturePhotoOutput()
-            session.addInput(cameraCaptureInput)
-            session.addOutput(cameraCaptureOutput!)
-            cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
-            cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-            cameraPreviewLayer?.frame = CGRect(x: 16, y: 120, width: screenSize.width - 32, height: screenSize.width-32)
-            cameraPreviewLayer?.masksToBounds = true
-            cameraPreviewLayer?.cornerRadius = (screenSize.width - 32) / 2
-            cameraPreviewLayer?.borderWidth = 2
-            cameraPreviewLayer?.borderColor = UIColor(13,170,39).cgColor
-            cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
-            
-            view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
-            session.startRunning()
+            if (cameraCaptureInput == nil && cameraCaptureOutput == nil) {
+                cameraCaptureInput = try AVCaptureDeviceInput(device: camera)
+                cameraCaptureOutput = AVCapturePhotoOutput()
+                session.addInput(cameraCaptureInput!)
+                session.addOutput(cameraCaptureOutput!)
+                cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
+                cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+                cameraPreviewLayer?.frame = CGRect(x: 16, y: 120, width: screenSize.width - 32, height: screenSize.width-32)
+                cameraPreviewLayer?.masksToBounds = true
+                cameraPreviewLayer?.cornerRadius = (screenSize.width - 32) / 2
+                cameraPreviewLayer?.borderWidth = 2
+                cameraPreviewLayer?.borderColor = UIColor(13,170,39).cgColor
+                cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
+                view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
+                session.startRunning()
+            }
         } catch {
             print(error.localizedDescription)
         }

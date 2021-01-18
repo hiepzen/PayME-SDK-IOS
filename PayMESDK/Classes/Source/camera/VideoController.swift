@@ -35,7 +35,6 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         
         setupAnimation()
         
-        initializeCaptureSession()
         if #available(iOS 11, *) {
           let guide = view.safeAreaLayoutGuide
           NSLayoutConstraint.activate([
@@ -72,7 +71,6 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         view.bringSubviewToFront(backButton)
         // Do any additional setup after loading the view, typically from a nib.
         
-        KYCController.kycDecide(currentVC: self)
     }
     
     @objc func back () {
@@ -196,34 +194,45 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     let animationButton = AnimatedButton()
     
     override func viewWillAppear(_ animated: Bool){
-        self.session.startRunning()
+        initializeCaptureSession()
     }
     
     func initializeCaptureSession() {
-        
-        session.sessionPreset = AVCaptureSession.Preset.high
-        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video, position: .front)
-            else {
-                print("Unable to access front camera!")
-                return
-        }
-        do {
-            let cameraCaptureInput = try AVCaptureDeviceInput(device: camera)
-            activeInput = cameraCaptureInput
-            cameraCaptureOutput = AVCaptureMovieFileOutput()
-            session.addInput(cameraCaptureInput)
-            session.addOutput(cameraCaptureOutput!)
-            cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
-            cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-            cameraPreviewLayer?.frame = CGRect(x: 0, y: 0, width: screenSize.width, height: screenSize.height)
-            cameraPreviewLayer?.masksToBounds = true
-            cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
+        AVCaptureDevice.requestAccess(for: .video) { success in
+          if success { // if request is granted (success is true)
 
-            view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
-            session.startRunning()
-        } catch {
-            print(error.localizedDescription)
+          } else { // if request is denied (success is false)
+            DispatchQueue.main.async {
+                KYCController.kycDecide(currentVC: self)
+            }
+          }
         }
+        if (cameraCaptureOutput == nil) {
+            session.sessionPreset = AVCaptureSession.Preset.high
+            guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video, position: .front)
+                else {
+                    print("Unable to access front camera!")
+                    return
+            }
+            do {
+                let cameraCaptureInput = try AVCaptureDeviceInput(device: camera)
+                activeInput = cameraCaptureInput
+                cameraCaptureOutput = AVCaptureMovieFileOutput()
+                session.addInput(cameraCaptureInput)
+                session.addOutput(cameraCaptureOutput!)
+                cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
+                cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+                cameraPreviewLayer?.frame = CGRect(x: 0, y: 0, width: screenSize.width, height: screenSize.height)
+                cameraPreviewLayer?.masksToBounds = true
+                cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
+
+                view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
+                session.startRunning()
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        
     }
     
 }

@@ -10,88 +10,7 @@ import CommonCrypto
 
 
 
-class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,  UITableViewDataSource, KAPinFieldDelegate, UITextFieldDelegate {
-    
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        //Format Date of Birth dd-MM-yyyy
-
-        //initially identify your textfield
-
-        if textField == atmView.dateField {
-
-            // check the chars length dd -->2 at the same time calculate the dd-MM --> 5
-            if (atmView.dateField.text?.count == 2) {
-                //Handle backspace being pressed
-                if !(string == "") {
-                    // append the text
-                    atmView.dateField.text = (atmView.dateField.text)! + "/"
-                }
-            }
-            // check the condition not exceed 9 chars
-            return !(textField.text!.count > 4 && (string.count ) > range.length)
-        }
-        if textField == atmView.cardNumberField {
-            if (atmView.cardNumberField.text!.count >= 5) {
-                if !(string == "") {
-                    print(string)
-                    // append the text
-                    let stringToCompare = (atmView.cardNumberField.text)! + string
-                    for bank in listBank {
-                        self.bankDetect = nil
-                        if (stringToCompare.contains(bank.cardPrefix)) {
-                            self.bankDetect = bank
-                            self.atmView.guideTxt.textColor = UIColor(11,11,11)
-
-                            //atmView.cardNumberField
-                            self.atmView.guideTxt.text = bank.shortName
-                            break
-                        }
-                    }
-                    if (self.bankDetect == nil) {
-                        self.atmView.guideTxt.text = "Thẻ không đúng định dạng"
-                        self.atmView.guideTxt.textColor = .red
-
-                    }
-                } else {
-                    self.atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
-                    self.atmView.guideTxt.textColor = UIColor(11,11,11)
-                    self.bankDetect = nil
-                    
-                }
-            } else {
-                self.atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
-                self.atmView.guideTxt.textColor = UIColor(11,11,11)
-                self.bankDetect = nil
-            }
-            if (bankDetect != nil) {
-                if (textField.text!.count + 1  == bankDetect!.cardNumberLength) {
-                    API.getBankName(swiftCode: bankDetect!.swiftCode, cardNumber: textField.text! + string, onSuccess: {response in
-                        print(PayME.accessToken)
-                        let bankNameRes = response["Utility"]!["GetBankName"] as! [String:AnyObject]
-                        let succeeded = bankNameRes["succeeded"] as! Bool
-                        if (succeeded == true) {
-                            let name = bankNameRes["accountName"] as! String
-                            self.bankName = name
-                            self.atmView.nameField.text = name
-                        } else {
-                            self.bankName = ""
-                            self.atmView.nameField.text = ""
-                        }
-                    }, onError: { error in
-                        print(error)
-                    })
-                    print(textField.text! + string)
-                }
-            }
-            
-            if (bankDetect != nil) {
-                return textField.text!.count + 1 <= bankDetect!.cardNumberLength
-            }
-            return !(textField.text!.count > 19 && (string.count ) > range.length)
-
-        }
-        return true
-    }
+class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,  UITableViewDataSource, KAPinFieldDelegate {
     
     func pinField(_ field: KAPinField, didFinishWith code: String) {
         self.showSpinner(onView: self.view)
@@ -102,21 +21,22 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 let securtiySucceeded = securityResponse ["succeeded"] as! Bool
                 if (securtiySucceeded == true) {
                     let securityCode = securityResponse["securityCode"] as! String
-                    API.transferWallet(storeId: 1, orderId: 1, securityCode: securityCode, extraData: self.extraData, note: self.note, amount: self.amount, onSuccess: { response in
+                    API.transferWallet(storeId: 1, orderId: 1, securityCode: securityCode, extraData: Methods.extraData, note: Methods.note, amount: Methods.amount, onSuccess: { response in
+                        print(response)
                         self.onSuccess!(response)
                         let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String:AnyObject]
                         let payInfo = paymentInfo["Pay"] as! [String:AnyObject]
                         let message = payInfo["message"] as! String
                         let succeeded = payInfo["succeeded"] as! Bool
                         if (succeeded == true) {
-                            DispatchQueue.main.async {
+                                self.securityCode.removeFromSuperview()
                                 self.setupSuccess()
-                            }
+                            
                         } else {
-                            DispatchQueue.main.async {
+                                self.securityCode.removeFromSuperview()
                                 self.setupFail()
                                 self.failView.failLabel.text = message
-                            }
+                            
                         }
                         self.removeSpinner()
                         
@@ -139,6 +59,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
 
                         })
                     } else {
+                        self.securityCode.removeFromSuperview()
                         self.setupFail()
                         self.failView.failLabel.text = message
                     }
@@ -153,7 +74,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 })
             })
         } else if(field == otpView.otpView) {
-            API.transferByLinkedBank(transaction: transaction, storeId: storeId, orderId: orderId, linkedId: (data[active!].dataLinked?.linkedId)!, extraData: self.extraData, note: self.note, otp: code, amount: self.amount, onSuccess: { response in
+            API.transferByLinkedBank(transaction: transaction, storeId: Methods.storeId, orderId: Methods.orderId, linkedId: (data[active!].dataLinked?.linkedId)!, extraData: Methods.extraData, note: Methods.note, otp: code, amount: Methods.amount, onSuccess: { response in
                 self.onSuccess!(response)
                 let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String:AnyObject]
                 let payInfo = paymentInfo["Pay"] as! [String:AnyObject]
@@ -161,10 +82,12 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 let succeeded = payInfo["succeeded"] as! Bool
                 if (succeeded == true) {
                     DispatchQueue.main.async {
+                        self.otpView.removeFromSuperview()
                         self.setupSuccess()
                     }
                 } else {
                     DispatchQueue.main.async {
+                        self.otpView.removeFromSuperview()
                         self.setupFail()
                         self.failView.failLabel.text = message
                     }
@@ -182,11 +105,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     
     var bankName : String = ""
     var data : [MethodInfo] = []
-    var storeId : Int = 0
-    var orderId : Int = 0
-    var amount : Int = 10000
-    var note : String = ""
-    var extraData : String = ""
+    static var storeId : Int = 0
+    static var orderId : Int = 0
+    static var amount : Int = 10000
+    static var note : String = ""
+    static var extraData : String = ""
     var transaction : String = ""
     private var active : Int?
     private var bankDetect : Bank?
@@ -212,6 +135,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        self.view.addSubview(methodsView)
         setupMethods()
         
 
@@ -219,8 +143,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     
     func setupMethods() {
         methodsView.backgroundColor = .white
-        methodsView.isUserInteractionEnabled = true
             
+        methodsView.translatesAutoresizingMaskIntoConstraints = false
+        methodsView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        methodsView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+        methodsView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         
         methodsView.addSubview(closeButton)
         methodsView.addSubview(txtLabel)
@@ -233,12 +160,12 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         detailView.addSubview(contentLabel)
         detailView.addSubview(memoLabel)
         txtLabel.text = "Xác nhận thanh toán"
-        price.text = "\(formatMoney(input: self.amount)) đ"
+        price.text = "\(formatMoney(input: Methods.amount)) đ"
         contentLabel.text = "Nội dung"
-        if (self.note == "") {
+        if (Methods.note == "") {
             memoLabel.text = "Không có nội dung"
         } else {
-            memoLabel.text = self.note
+            memoLabel.text = Methods.note
         }
         methodTitle.text = "Chọn nguồn thanh toán"
         tableView.register(Method.self, forCellReuseIdentifier: "cell")
@@ -290,9 +217,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        
-        view = methodsView
-        
+                
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 10).isActive = true
 
         self.showSpinner(onView: self.view)
@@ -302,8 +227,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 let balance = wallet["balance"] as! Int
                 API.getTransferMethods(onSuccess: {response in
                            // Update UI
-                    print(response)
-
                     let methodsReponse = response["Utility"]!["GetPaymentMethod"] as! [String:AnyObject]
                     let items = methodsReponse["methods"] as! [[String:AnyObject]]
                     var responseData : [MethodInfo] = []
@@ -345,11 +268,16 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     }
             },onError: {error in
                 self.onError!(error)
-                self.removeSpinner()
+                self.dismiss(animated: true, completion: {
+                    self.onError!(error)
+                })
            })
         }, onError: {error in
-            self.onError!(error)
             self.removeSpinner()
+            self.dismiss(animated: true, completion: {
+                self.onError!(error)
+            })
+            
         })
     }
     
@@ -370,10 +298,16 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     func setupSecurity() {
-        view = securityCode
+        
+        view.addSubview(securityCode)
+        
+        securityCode.translatesAutoresizingMaskIntoConstraints = false
         
         securityCode.translatesAutoresizingMaskIntoConstraints = false
         securityCode.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        securityCode.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+        securityCode.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        
         securityCode.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.otpView.bottomAnchor, constant: 10).isActive = true
         self.updateViewConstraints()
@@ -387,14 +321,20 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     func setupFail() {
-        view = failView
+        view.addSubview(failView)
+        
+        failView.translatesAutoresizingMaskIntoConstraints = false
+        
         failView.translatesAutoresizingMaskIntoConstraints = false
         failView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-        failView.roleLabel.text = formatMoney(input: self.amount)
-        if (self.note == "") {
+        failView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+        failView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        failView.roleLabel.text = formatMoney(input: Methods.amount)
+        
+        if (Methods.note == "") {
             failView.memoLabel.text = "Không có nội dung"
         } else {
-            failView.memoLabel.text = self.note
+            failView.memoLabel.text = Methods.note
         }
         failView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         failView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
@@ -406,16 +346,22 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     func setupSuccess() {
-        view = successView
+        view.addSubview(successView)
+        
+        successView.translatesAutoresizingMaskIntoConstraints = false
+        
         successView.translatesAutoresizingMaskIntoConstraints = false
         successView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        successView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+        successView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        successView.roleLabel.text = formatMoney(input: Methods.amount)
         successView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         successView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        successView.roleLabel.text = formatMoney(input: self.amount)
-        if (self.note == "") {
+        successView.roleLabel.text = formatMoney(input: Methods.amount)
+        if (Methods.note == "") {
             successView.memoLabel.text = "Không có nội dung"
         } else {
-            successView.memoLabel.text = self.note
+            successView.memoLabel.text = Methods.note
         }
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: successView.button.bottomAnchor, constant: 10).isActive = true
         self.updateViewConstraints()
@@ -452,19 +398,28 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if (data[indexPath.row].type == "WALLET"){
+            if (data[indexPath.row].amount! < Methods.amount) {
+                self.onError!(["mesage" : "Vui lòng kiểm tra lại số dư tài khoản" as AnyObject])
+                return
+            }
+            methodsView.removeFromSuperview()
             setupSecurity()
         }
         if (data[indexPath.row].type == "LINKED") {
             if (appENV!.isEqual("SANDBOX")) {
-                self.onError!(["message" : "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+                self.dismiss(animated: true, completion: {
+                    self.onError!(["message" : "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+                })
                 return
             }
             self.showSpinner(onView: self.view)
-            API.checkFlowLinkedBank(storeId: self.storeId, orderId: self.orderId, linkedId: data[indexPath.row].dataLinked!.linkedId, extraData: self.extraData, note: self.note, amount: self.amount, onSuccess: { flow in
+            API.checkFlowLinkedBank(storeId: Methods.storeId, orderId: Methods.orderId, linkedId: data[indexPath.row].dataLinked!.linkedId, extraData: Methods.extraData, note: Methods.note, amount: Methods.amount, onSuccess: { flow in
+                print(flow)
                 let pay = flow["OpenEWallet"]!["Payment"] as! [String:AnyObject]
                 let succeeded = pay["Pay"]!["succeeded"] as! Bool
                 if (succeeded == true) {
                     self.removeSpinner()
+                    self.methodsView.removeFromSuperview()
                     self.setupSuccess()
                 } else {
                     let payment = pay["Pay"]!["payment"] as! [String:AnyObject]
@@ -472,6 +427,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     if (state == "REQUIRED_OTP") {
                         self.transaction = payment["transaction"] as! String
                         self.removeSpinner()
+                        self.methodsView.removeFromSuperview()
                         self.setupOTP()
                         self.active = indexPath.row
                     } else if(state == "REQUIRED_VERIFY"){
@@ -482,15 +438,23 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                             webViewController.form = html!
                             webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                                 webViewController.dismiss(animated: true)
+                                self.methodsView.removeFromSuperview()
                                 self.setupSuccess()
                             })
                             webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                                 webViewController.dismiss(animated: true)
+                                self.methodsView.removeFromSuperview()
                                 self.setupFail()
                                 self.failView.failLabel.text = responseFromWebView
                             })
                             self.presentPanModal(webViewController)
                         }
+                    } else {
+                        self.removeSpinner()
+                        self.methodsView.removeFromSuperview()
+                        self.setupFail()
+                        let message = payment["message"] as? String
+                        self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
                     }
                 }
             }, onError: { flowError in
@@ -514,8 +478,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int, cardPrefix: bank[ "cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String, shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String)
                     listBank.append(temp)
                 }
-                self.listBank = listBank
-                self.setupATMView()
+                let atmModal = ATMModal()
+                atmModal.listBank = listBank
+                self.dismiss(animated: true, completion: {
+                    PayME.currentVC!.presentPanModal(atmModal)
+                })
                 self.removeSpinner()
 
             }, onError: { bankListError in
@@ -526,145 +493,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             })
             
         }
-    }
-    
-    @objc func payATM() {
-        let cardNumber = atmView.cardNumberField.text
-        let cardHolder = atmView.nameField.text
-        let issuedAt = atmView.dateField.text
-        if (bankDetect != nil) {
-            if (cardNumber!.count != bankDetect!.cardNumberLength) {
-                toastMessError(title: "Lỗi", message: "Vui lòng nhập mã thẻ đúng định dạng")
-                return
-            }
-        } else {
-            toastMessError(title: "Lỗi", message: "Vui lòng nhập mã thẻ đúng định dạng")
-            return
-        }
-        if (cardHolder == nil) {
-            toastMessError(title: "Lỗi", message: "Vui lòng nhập họ tên chủ thẻ")
-            return
-        } else {
-            if (cardHolder!.count == 0) {
-                toastMessError(title: "Lỗi", message: "Vui lòng nhập họ tên chủ thẻ")
-                return
-            }
-        }
-        if (issuedAt!.count != 5) {
-            toastMessError(title: "Lỗi", message: "Vui lòng nhập ngày phát hành thẻ")
-            return
-        } else {
-            let dateArr = issuedAt!.components(separatedBy: "/")
-            let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
-            self.showSpinner(onView: self.view)
-            API.transferATM(storeId: self.storeId, orderId: self.orderId, extraData: self.extraData, note: self.note, cardNumber: cardNumber!, cardHolder: cardHolder!, issuedAt: date, amount: self.amount,
-                            onSuccess: { success in
-                                print(success)
-                                let payment = success["OpenEWallet"]!["Payment"] as! [String:AnyObject]
-                                let pay = payment["Pay"] as! [String:AnyObject]
-                                let succeeded = pay["succeeded"] as! Bool
-                                if (succeeded == true) {
-                                    DispatchQueue.main.async {
-                                        self.setupSuccess()
-                                    }
-                                } else {
-                                    let statePay = pay["payment"] as? [String:AnyObject]
-                                    if (statePay == nil) {
-                                        let message = pay["message"] as! String
-                                        self.setupFail()
-                                        self.failView.failLabel.text = message
-                                        self.removeSpinner()
-                                        return
-                                    }
-                                    let state = statePay!["state"] as! String
-                                    if (state == "REQUIRED_VERIFY")
-                                    {
-                                        let html = statePay!["html"] as? String
-                                        if (html != nil) {
-                                            self.removeSpinner()
-                                            let webViewController = WebViewController()
-                                            webViewController.form = html!
-                                            webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
-                                                webViewController.dismiss(animated: true)
-                                                self.setupSuccess()
-                                            })
-                                            webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
-                                                webViewController.dismiss(animated: true)
-                                                self.removeSpinner()
-                                                self.setupFail()
-                                                self.failView.failLabel.text = responseFromWebView
-                                            })
-                                            self.presentPanModal(webViewController)
-                                        }
-                                    } else {
-                                        let message = statePay!["message"] as! String
-                                        self.setupFail()
-                                        self.failView.failLabel.text = message
-                                        self.removeSpinner()
-                                    }
-                                }
-                            
-                                
-                            }, onError: { error in
-                                self.onError!(error)
-                                self.removeSpinner()
-                                self.dismiss(animated: true, completion: {
-                                    self.toastMessError(title: "Lỗi", message: error["message"] as! String)
-                                })
-            })
-            
-        }
-        
-        
-    }
-    
-    func setupATMView(){
-        view = atmView
-        atmView.translatesAutoresizingMaskIntoConstraints = false
-        atmView.isUserInteractionEnabled = true
-        atmView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-        // atmView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        atmView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        atmView.button.addTarget(self, action: #selector(payATM), for: .touchUpInside)
-        atmView.price.text = "\(formatMoney(input: self.amount)) đ"
-        if (self.note == "") {
-            atmView.memoLabel.text = "Không có nội dung"
-        } else {
-            atmView.memoLabel.text = self.note
-        }
-        atmView.memoLabel.text = self.note
-        self.atmView.dateField.delegate = self
-        self.atmView.cardNumberField.delegate = self
-        
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmView.button.bottomAnchor, constant: 10).isActive = true
-        self.updateViewConstraints()
-        self.view.layoutIfNeeded()
-        self.panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
-        NotificationCenter.default.addObserver(self, selector: #selector(Methods.keyboardWillShowATM), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(Methods.keyboardWillHideATM), name: UIResponder.keyboardWillHideNotification, object: nil)
-        
-        
-    }
-    @objc func keyboardWillShowATM(notification: NSNotification) {
-        guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
-
-          // if keyboard size is not available for some reason, dont do anything
-          return
-        }
-        view = atmView
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmView.button.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
-
-        self.keyBoardHeight = keyboardSize.height
-        panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .longForm)
-    }
-    @objc func keyboardWillHideATM(notification: NSNotification) {
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmView.button.bottomAnchor, constant: 10).isActive = true
-        self.updateViewConstraints()
-        self.view.layoutIfNeeded()
-        panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .longForm)
     }
     
     @objc func keyboardWillShowOtp(notification: NSNotification) {
@@ -730,7 +558,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     let tableView : UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = .red
+        tableView.backgroundColor = .white
         tableView.separatorStyle = .none
         
         return tableView

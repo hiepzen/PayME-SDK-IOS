@@ -15,7 +15,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     var camera : AVCaptureDevice?
     var imagePicker = UIImagePickerController()
     var cameraPreviewLayer : AVCaptureVideoPreviewLayer?
-    var cameraCaptureOutput : AVCapturePhotoOutput?
     let screenSize:CGRect = UIScreen.main.bounds
     weak var shapeLayer_topLeft: CAShapeLayer?
     weak var shapeLayer_topRight: CAShapeLayer?
@@ -23,6 +22,9 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     weak var shapeLayer_bottomRight: CAShapeLayer?
     internal var txtFront = ""
     internal var imageFront : UIImage?
+    internal var cameraCaptureInput : AVCaptureDeviceInput?
+    internal var cameraCaptureOutput : AVCapturePhotoOutput?
+
     
 
     
@@ -73,7 +75,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         view.addSubview(getPhoto)
         view.addSubview(titleButton)
                 
-        initializeCaptureSession()
         if #available(iOS 11, *) {
           let guide = view.safeAreaLayoutGuide
           NSLayoutConstraint.activate([
@@ -135,7 +136,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         titleButton.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
         
-        KYCController.kycDecide(currentVC: self)
         // Do any additional setup after loading the view, typically from a nib.
     }
     
@@ -170,7 +170,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     
     @objc func back () {
         self.session.stopRunning()
-        
         self.navigationController?.popViewController(animated: true)
 
     }
@@ -247,86 +246,44 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         return button
     }()
     override func viewWillAppear(_ animated: Bool){
-        self.session.startRunning()
+        initializeCaptureSession()
     }
     
     func initializeCaptureSession() {
+        AVCaptureDevice.requestAccess(for: .video) { success in
+          if success { // if request is granted (success is true)
+
+          } else { // if request is denied (success is false)
+            DispatchQueue.main.async {
+                KYCController.kycDecide(currentVC: self)
+            }
+          }
+        }
         
         session.sessionPreset = AVCaptureSession.Preset.high
+        
         guard let camera = AVCaptureDevice.default(for: AVMediaType.video)
             else {
                 print("Unable to access back camera!")
                 return
         }
         do {
-            let cameraCaptureInput = try AVCaptureDeviceInput(device: camera)
-            cameraCaptureOutput = AVCapturePhotoOutput()
-            session.addInput(cameraCaptureInput)
-            session.addOutput(cameraCaptureOutput!)
-            cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
-            cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-            cameraPreviewLayer?.frame = CGRect(x: 16, y: 160, width: screenSize.width - 32, height: (screenSize.width-32) * 0.67)
-            cameraPreviewLayer?.masksToBounds = true
-            cameraPreviewLayer?.cornerRadius = 15
-            cameraPreviewLayer?.borderWidth = 2
-            cameraPreviewLayer?.borderColor = UIColor(255,255,255).cgColor
-
-
-            cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
-            
-            view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
-            
-            /*
-            var path = UIBezierPath()
-            path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX + 40, y: self.cameraPreviewLayer!.frame.minY))
-            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.minY))
-            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.minY + 40))
-            
-            var shapeLayer = CAShapeLayer()
-            shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-            shapeLayer.strokeColor = UIColor(255,255,255).cgColor
-            shapeLayer.lineWidth = 4
-            shapeLayer.path = path.cgPath
-            view.layer.addSublayer(shapeLayer)
-            self.shapeLayer_topLeft = shapeLayer
-            
-            path = UIBezierPath()
-            path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX - 40, y: self.cameraPreviewLayer!.frame.minY))
-            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY))
-            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.minY + 40))
-            shapeLayer = CAShapeLayer()
-            shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-            shapeLayer.strokeColor = UIColor(255,255,255).cgColor
-            shapeLayer.lineWidth = 4
-            shapeLayer.path = path.cgPath
-            view.layer.addSublayer(shapeLayer)
-            self.shapeLayer_topRight = shapeLayer
-            
-            path = UIBezierPath()
-            path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX + 40, y: self.cameraPreviewLayer!.frame.maxY))
-            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.maxY))
-            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.minX, y: self.cameraPreviewLayer!.frame.maxY - 40))
-            shapeLayer = CAShapeLayer()
-            shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-            shapeLayer.strokeColor = UIColor(255,255,255).cgColor
-            shapeLayer.lineWidth = 4
-            shapeLayer.path = path.cgPath
-            view.layer.addSublayer(shapeLayer)
-            self.shapeLayer_bottomLeft = shapeLayer
-            
-            path = UIBezierPath()
-            path.move(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX - 40, y: self.cameraPreviewLayer!.frame.maxY))
-            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.maxY))
-            path.addLine(to: CGPoint(x: self.cameraPreviewLayer!.frame.maxX, y: self.cameraPreviewLayer!.frame.maxY - 40))
-            shapeLayer = CAShapeLayer()
-            shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-            shapeLayer.strokeColor = UIColor(255,255,255).cgColor
-            shapeLayer.lineWidth = 4
-            shapeLayer.path = path.cgPath
-            view.layer.addSublayer(shapeLayer)
-            self.shapeLayer_bottomRight = shapeLayer
-            */
-            session.startRunning()
+            if (cameraCaptureInput == nil && cameraCaptureOutput == nil) {
+                cameraCaptureInput = try AVCaptureDeviceInput(device: camera)
+                session.addInput(cameraCaptureInput!)
+                cameraCaptureOutput = AVCapturePhotoOutput()
+                session.addOutput(cameraCaptureOutput!)
+                cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
+                cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+                cameraPreviewLayer?.frame = CGRect(x: 16, y: 160, width: screenSize.width - 32, height: (screenSize.width-32) * 0.67)
+                cameraPreviewLayer?.masksToBounds = true
+                cameraPreviewLayer?.cornerRadius = 15
+                cameraPreviewLayer?.borderWidth = 2
+                cameraPreviewLayer?.borderColor = UIColor(255,255,255).cgColor
+                cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
+                view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
+                session.startRunning()
+            }
         } catch {
             print(error.localizedDescription)
         }

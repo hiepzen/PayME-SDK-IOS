@@ -86,6 +86,7 @@ internal class ATMView: UIView {
            let button = UIButton()
            button.translatesAutoresizingMaskIntoConstraints = false
            button.layer.cornerRadius = 10
+        button.backgroundColor = .blue
            return button
        }()
        
@@ -297,6 +298,7 @@ internal class ATMView: UIView {
         button.topAnchor.constraint(equalTo: dateField.bottomAnchor, constant: 20).isActive = true
         button.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
         button.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
+        button.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
         //NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         //NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }

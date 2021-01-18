@@ -310,7 +310,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         if (self.connectToken != "") {
             payME!.openWallet(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil,
             onSuccess: { success in
-                
                 print(success)
             }, onError: {error in
                 print(error)

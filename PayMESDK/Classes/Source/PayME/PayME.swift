@@ -239,61 +239,41 @@ public class PayME{
         onError: @escaping ([String: AnyObject]) -> ()
     ){
         if (PayME.clientID != "") {
-            if (PayME.dataInit != nil) {
-                let accessToken = PayME.dataInit!["accessToken"] as? String
-                let kycState = PayME.dataInit!["kyc"]!["state"] as? String
-                let appENV = PayME.dataInit!["appEnv"] as? String
-                PayME.accessToken = accessToken ?? ""
-                PayME.appENV = appENV ?? ""
-                PayME.kycState = kycState ?? ""
-                onSuccess(PayME.dataInit!)
-            }
-            else {
                 API.initAccount(clientID: PayME.clientID,
-                                     onSuccess: { responseAccessToken in
-                                        print(responseAccessToken)
-                                        let result = responseAccessToken["OpenEWallet"]!["Init"] as! [String: AnyObject]
-                                        let accessToken = result["accessToken"] as? String
-                                        let kycState = result["kyc"]!["state"] as? String
-                                        let appENV = result["appEnv"] as? String
-                                        PayME.accessToken = accessToken ?? ""
-                                        PayME.appENV = appENV ?? ""
-                                        PayME.kycState = kycState ?? ""
-                                        onSuccess(result)
-                                     }, onError: { errorAccessToken in
-                                        onError(errorAccessToken)
-                                     }
-                )
-            }
+                 onSuccess: { responseAccessToken in
+                    print(responseAccessToken)
+                    let result = responseAccessToken["OpenEWallet"]!["Init"] as! [String: AnyObject]
+                    let accessToken = result["accessToken"] as? String
+                    let kycState = result["kyc"]!["state"] as? String
+                    let appENV = result["appEnv"] as? String
+                    PayME.accessToken = accessToken ?? ""
+                    PayME.appENV = appENV ?? ""
+                    PayME.kycState = kycState ?? ""
+                    onSuccess(result)
+                 }, onError: { errorAccessToken in
+                    onError(errorAccessToken)
+                 }
+            )
         } else {
             API.registerClient(onSuccess: { response in
                 let result = response["Client"]!["Register"] as! [String: AnyObject]
                 let clientID = result["clientId"] as! String
                 PayME.clientID = clientID
-                if (PayME.dataInit != nil) {
-                    let accessToken = PayME.dataInit!["accessToken"] as? String
-                    let kycState = PayME.dataInit!["kyc"]!["state"] as? String
-                    let appENV = PayME.dataInit!["appEnv"] as? String
-                    PayME.accessToken = accessToken ?? ""
-                    PayME.appENV = appENV ?? ""
-                    PayME.kycState = kycState ?? ""
-                    onSuccess(PayME.dataInit!)
-                } else {
-                    API.initAccount(clientID: PayME.clientID,
-                        onSuccess: { responseAccessToken in
-                            let result = responseAccessToken["OpenEWallet"]!["Init"] as! [String: AnyObject]
-                            let accessToken = result["accessToken"] as? String
-                            let kycState = result["kyc"]!["state"] as? String
-                            let appENV = result["appEnv"] as? String
-                            PayME.accessToken = accessToken ?? ""
-                            PayME.appENV = appENV ?? ""
-                            PayME.kycState = kycState ?? ""
-                           onSuccess(result)
-                        }, onError: { errorAccessToken in
-                           onError(errorAccessToken)
-                        }
-                    )
-                }
+                API.initAccount(clientID: PayME.clientID,
+                    onSuccess: { responseAccessToken in
+                        let result = responseAccessToken["OpenEWallet"]!["Init"] as! [String: AnyObject]
+                        let accessToken = result["accessToken"] as? String
+                        let kycState = result["kyc"]!["state"] as? String
+                        let appENV = result["appEnv"] as? String
+                        PayME.accessToken = accessToken ?? ""
+                        PayME.appENV = appENV ?? ""
+                        PayME.kycState = kycState ?? ""
+                       onSuccess(result)
+                    }, onError: { errorAccessToken in
+                       onError(errorAccessToken)
+                    }
+                )
+                
             }, onError: {error in
                 onError(error)
             })
@@ -406,6 +386,7 @@ public class PayME{
     public func deposit(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
                         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                         onError: @escaping ([String : AnyObject]) -> ()) {
+        // currentVC.presentPanModal(Test())
         //PayME.currentVC = currentVC
         //currentVC.present(PopupKYC(active: 0), animated: true)
         //abc()
@@ -436,10 +417,10 @@ public class PayME{
                     currentVC.removeSpinner()
                     if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
                         let methods = Methods()
-                        methods.amount = (detect["amount"] as? Int) ?? 0
-                        methods.storeId = (detect["stordeId"] as? Int) ?? 0
-                        methods.orderId = (detect["orderId"] as? Int) ?? 0
-                        methods.note = (detect["note"] as? String) ?? ""
+                        Methods.amount = (detect["amount"] as? Int) ?? 0
+                        Methods.storeId = (detect["stordeId"] as? Int) ?? 0
+                        Methods.orderId = (detect["orderId"] as? Int) ?? 0
+                        Methods.note = (detect["note"] as? String) ?? ""
                         methods.appENV = PayME.appENV
                         methods.onSuccess = onSuccess
                         methods.onError = onError
@@ -455,10 +436,10 @@ public class PayME{
                             if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
                                 let methods = Methods()
                                 methods.appENV = PayME.appENV
-                                methods.amount = (detect["amount"] as? Int) ?? 0
-                                methods.storeId = (detect["stordeId"] as? Int) ?? 0
-                                methods.orderId = (detect["orderId"] as? Int) ?? 0
-                                methods.note = (detect["note"] as? String) ?? ""
+                                Methods.amount = (detect["amount"] as? Int) ?? 0
+                                Methods.storeId = (detect["stordeId"] as? Int) ?? 0
+                                Methods.orderId = (detect["orderId"] as? Int) ?? 0
+                                Methods.note = (detect["note"] as? String) ?? ""
                                 methods.onSuccess = onSuccess
                                 methods.onError = onError
                                 currentVC.presentPanModal(methods)
@@ -512,11 +493,11 @@ public class PayME{
             let methods = Methods()
             methods.onSuccess = onSuccess
             methods.onError = onError
-            methods.amount = amount
-            methods.storeId = storeId
-            methods.orderId = orderId
-            methods.note = note ?? ""
-            methods.extraData = extraData ?? ""
+            Methods.amount = amount
+            Methods.storeId = storeId
+            Methods.orderId = orderId
+            Methods.note = note ?? ""
+            Methods.extraData = extraData ?? ""
             methods.appENV = PayME.appENV
             PayME.currentVC!.presentPanModal(methods)
         } else {
@@ -532,12 +513,12 @@ public class PayME{
                     let methods = Methods()
                     methods.onSuccess = onSuccess
                     methods.onError = onError
-                    methods.amount = amount
-                    methods.storeId = storeId
-                    methods.orderId = orderId
+                    Methods.amount = amount
+                    Methods.storeId = storeId
+                    Methods.orderId = orderId
                     methods.appENV = PayME.appENV
-                    methods.note = note ?? ""
-                    methods.extraData = extraData ?? ""
+                    Methods.note = note ?? ""
+                    Methods.extraData = extraData ?? ""
                     PayME.currentVC!.presentPanModal(methods)
                 } else {
                     onError(["message" : "Vui lòng mở webview để kích hoạt hoặc định danh tài khoản" as AnyObject])
