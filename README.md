@@ -148,7 +148,7 @@ class ViewController: UIViewController {
     let payme : PayME;
     @IBAction func click(_ sender: Any) {
 	      payme.openLinkWallet(currentVC: self,
-        action: Action.OPEN, 
+	      action: Action.OPEN, 
 	      amount: nil, 
 	      description : nil,
 	      extraData: nil,);
