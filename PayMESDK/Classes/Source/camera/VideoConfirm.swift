@@ -151,7 +151,6 @@ class VideoConfirm: UIViewController {
     @objc func capture() {
         KYCController.videoKYC = avatarVideo!
         KYCController.uploadKYC()
-
     }
     override func viewDidLayoutSubviews() {
         captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)

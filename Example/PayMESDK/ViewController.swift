@@ -189,8 +189,19 @@ class ViewController: UIViewController{
     // generate token ( demo, don't apply this to your code, generate from your server)
     @objc func submit(sender: UIButton!) {
         //PayME.showKYCCamera(currentVC: self)
+        
+        
+
+        // Getting
+
+
         if (userIDTextField.text != "") {
             self.connectToken = PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
+            
+            let defaults = UserDefaults.standard
+            defaults.set(userIDTextField.text ?? "", forKey: "userID")
+            defaults.set(phoneTextField.text ?? "", forKey: "phoneNumber")
+            
             self.payME = PayME(appID: appID, publicKey: self.PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: self.PRIVATE_KEY, env: currentEnv, configColor: ["#75255b", "#a81308"])
             
             let alert = UIAlertController(title: "Success", message: "Tạo token thành công", preferredStyle: UIAlertController.Style.alert)
@@ -228,11 +239,17 @@ class ViewController: UIViewController{
     
     @objc func openWalletAction(sender: UIButton!) {
         if (self.connectToken != "") {
-            payME!.openWallet(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil, onSuccess: {a in }, onError: {a in print(a)})
+            payME!.openWallet(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil,
+            onSuccess: { success in
+                
+                print(success)
+            }, onError: {error in
+                print(error)
+                let message = error["message"] as? String
+                self.toastMess(title: "Lỗi", value: message)
+            })
         } else {
-            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+            toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
         }
     }
     @objc func depositAction(sender: UIButton!) {
@@ -241,22 +258,24 @@ class ViewController: UIViewController{
                 let amount = Int(moneyDeposit.text!)
                 if (amount! >= 10000){
                     let amountDeposit = amount!
-                    self.payME!.deposit(currentVC: self, amount: amountDeposit, description: "", extraData: nil, onSuccess: {a in print(a)}, onError: {a in print(a)})
+                    self.payME!.deposit(currentVC: self, amount: amountDeposit, description: "", extraData: nil, onSuccess: {success in
+                        print(success)
+                    }, onError: {error in
+                        print(error)
+                        let message = error["message"] as? String
+                        self.toastMess(title: "Lỗi", value: message)
+                    })
 
                 } else {
-                    let alert = UIAlertController(title: "Lỗi", message: "Vui lòng nạp hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                    self.present(alert, animated: true, completion: nil)
+                    toastMess(title: "Lỗi", value: "Vui lòng nạp hơn 10.000VND")
                 }
             } else {
-                let alert = UIAlertController(title: "Lỗi", message: "Vui lòng nạp hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
+                toastMess(title: "Lỗi", value: "Vui lòng nạp hơn 10.000VND")
+
             }
         } else {
-            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+            toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
+
         }
     }
     
@@ -266,21 +285,25 @@ class ViewController: UIViewController{
                 let amount = Int(moneyWithDraw.text!)
                 if (amount! >= 10000){
                     let amountWithDraw = amount!
-                    self.payME!.withdraw(currentVC: self, amount: amountWithDraw, description: "", extraData: nil, onSuccess: {a in print(a)}, onError: {a in print(a)})
+                    self.payME!.withdraw(currentVC: self, amount: amountWithDraw, description: "", extraData: nil,
+                     onSuccess: {success in
+                        print(success)
+                        
+                    }, onError: {error in
+                        print(error)
+                        let message = error["message"] as? String
+                        self.toastMess(title: "Lỗi", value: message)
+                    })
                 } else {
-                    let alert = UIAlertController(title: "Lỗi", message: "Vui lòng rút hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                    self.present(alert, animated: true, completion: nil)
+                    toastMess(title: "Lỗi", value: "Vui lòng rút hơn 10.000VND")
                 }
             } else {
-                let alert = UIAlertController(title: "Lỗi", message: "Vui lòng rút hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
+                toastMess(title: "Lỗi", value: "Vui lòng rút hơn 10.000VND")
+
             }
         } else {
-            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+            toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
+
         }
         
     }
@@ -290,29 +313,22 @@ class ViewController: UIViewController{
                 let amount = Int(moneyPay.text!)
                 if (amount! >= 10000){
                     let amountPay = amount!
-                    self.payME!.pay(currentVC: self, storeId: 1, orderId: 1, amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in}, onError: {error in
+                    payME!.pay(currentVC: self, storeId: 1, orderId: 1, amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in}, onError: {error in
                         let message = error["message"] as? String
-                        let alert = UIAlertController(title: "Lỗi", message: message ?? "Có lỗi xảy ra", preferredStyle: UIAlertController.Style.alert)
-                        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                        self.present(alert, animated: true, completion: nil)
-                    }
+                        self.toastMess(title: "Lỗi", value: message)
+                        }
                     )
                 } else {
-                    let alert = UIAlertController(title: "Lỗi", message: "Vui lòng thanh toán hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                    self.present(alert, animated: true, completion: nil)
+                    toastMess(title: "Lỗi", value: "Vui lòng thanh toán hơn 10.000VND")
                 }
             } else {
-                let alert = UIAlertController(title: "Lỗi", message: "Vui lòng thanh toán hơn 10.000VND", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
+                toastMess(title: "Lỗi", value: "Vui lòng thanh toán hơn 10.000VND")
             }
             
             
         } else {
-            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+            toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
+
         }
     }
     
@@ -332,16 +348,13 @@ class ViewController: UIViewController{
             }, onError: {error in
                 print(error)
                 let message = error["message"] as? String
-                let alert = UIAlertController(title: "Lỗi", message: message ?? "Có lỗi xảy ra", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.priceLabel.text = "0"
-                self.present(alert, animated: true, completion: nil)
+                self.toastMess(title: "Lỗi", value: message)
+
             })
         }
         else {
-            let alert = UIAlertController(title: "Lỗi", message: "Vui lòng tạo connect token trước", preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+            toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
         }
         
     }
@@ -386,6 +399,12 @@ class ViewController: UIViewController{
       self.view.frame.origin.y = 0
     }
 
+    func toastMess(title: String, value: String?) {
+        let alert = UIAlertController(title: title, message: value ?? "Có lỗi xảy ra", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.hideKeyboardWhenTappedAround()
@@ -492,8 +511,15 @@ class ViewController: UIViewController{
         
         devButton.addTarget(self, action: #selector(changeEnv), for: .touchUpInside)
         payButton.addTarget(self, action: #selector(payAction), for: .touchUpInside)
-
         
+        let defaults = UserDefaults.standard
+        if let stringOne = defaults.string(forKey: "userID") {
+            userIDTextField.text = stringOne
+        }
+        if let stringTwo = defaults.string(forKey: "phoneNumber") {
+            phoneTextField.text = stringTwo
+        }
+    
     }
     
 }

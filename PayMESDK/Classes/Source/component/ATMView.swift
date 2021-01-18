@@ -11,6 +11,12 @@ internal class ATMView: UIView {
 
     var activeTextField : UITextField? = nil
 
+    /*let scrollView : UIScrollView = {
+        let scrollView  = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+    */
     
      let detailView : UIView = {
            let detailView  = UIView()
@@ -123,7 +129,7 @@ internal class ATMView: UIView {
             let bundle = Bundle(for: Method.self)
             let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
             let resourceBundle = Bundle(url: bundleURL!)
-            let image = UIImage(named: "ptBank", in: resourceBundle, compatibleWith: nil)
+            let image = UIImage(named: "ptAtm", in: resourceBundle, compatibleWith: nil)
             var bgImage = UIImageView(image: image)
             bgImage.translatesAutoresizingMaskIntoConstraints = false
             return bgImage
@@ -181,6 +187,8 @@ internal class ATMView: UIView {
         super.init(frame: CGRect.zero)
         backgroundColor = .white
         
+        // self.addSubview(scrollView)
+        
         self.addSubview(closeButton)
         self.addSubview(txtLabel)
         self.addSubview(detailView)
@@ -213,6 +221,10 @@ internal class ATMView: UIView {
             memoLabel.text = PayME.description
         }
         methodTitle.text = "Nguồn thanh toán"
+
+        txtLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 19).isActive = true
+        txtLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        
         
         detailView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
         detailView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
@@ -223,8 +235,6 @@ internal class ATMView: UIView {
         price.topAnchor.constraint(equalTo: detailView.topAnchor, constant: 15).isActive = true
         price.centerXAnchor.constraint(equalTo: detailView.centerXAnchor).isActive = true
         
-        txtLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 19).isActive = true
-        txtLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
         
         closeButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 19).isActive = true
         closeButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
@@ -287,8 +297,10 @@ internal class ATMView: UIView {
         button.topAnchor.constraint(equalTo: dateField.bottomAnchor, constant: 20).isActive = true
         button.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
         button.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
-        
+        //NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        //NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
+
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

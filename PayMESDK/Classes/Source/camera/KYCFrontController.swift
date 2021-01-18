@@ -146,20 +146,15 @@ class KYCFrontController: UIViewController {
         } else {
             KYCController.imageDocument = [self.kycImage!]
             KYCController.active = self.active
+            let popupKYC = PopupKYC()
             if (KYCController.flowKYC!["kycFace"] == true) {
-                let avatarController = AvatarController()
-                if PayME.currentVC?.navigationController != nil {
-                    PayME.currentVC?.navigationController?.pushViewController(avatarController, animated: true)
-                } else {
-                    PayME.currentVC?.present(avatarController, animated: true, completion: nil)
-                }
+                popupKYC.active = 1
+                PayME.currentVC?.present(popupKYC, animated: true)
+
             } else if (KYCController.flowKYC!["kycVideo"] == true) {
-                let videoController = VideoController()
-                if PayME.currentVC?.navigationController != nil {
-                    PayME.currentVC?.navigationController?.pushViewController(videoController, animated: true)
-                } else {
-                    PayME.currentVC?.present(videoController, animated: true, completion: nil)
-                }
+                popupKYC.active = 2
+                PayME.currentVC?.present(popupKYC, animated: true)
+                
             } else {
                 KYCController.uploadKYC()
             }

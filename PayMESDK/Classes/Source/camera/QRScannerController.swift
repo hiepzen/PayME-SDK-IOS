@@ -149,12 +149,15 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
 
             qrCodeLink += feature.messageString!
         }
-        launchApp(decodedURL:qrCodeLink)
+        picker.dismiss(animated: true, completion: {
+            self.launchApp(decodedURL:qrCodeLink)
+
+        })
+
+        } else {
+            picker.dismiss(animated: true, completion: nil)
         }
-        dismiss(animated: true, completion: nil)
     }
-    
-   
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -166,35 +169,36 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
         view.addSubview(titleChoiceButton)
         view.addSubview(titleToggleFlash)
         // Get the back-facing camera for capturing videos
+        KYCController.kycDecide(currentVC: self)
         if let captureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
         
-        if(captureDevice.isFocusModeSupported(.continuousAutoFocus)) {
-            try! captureDevice.lockForConfiguration()
-            captureDevice.focusMode = .continuousAutoFocus
-            captureDevice.unlockForConfiguration()
-        }
-        
-        do {
-            // Get an instance of the AVCaptureDeviceInput class using the previous device object.
-            let input = try AVCaptureDeviceInput(device: captureDevice)
+            if(captureDevice.isFocusModeSupported(.continuousAutoFocus)) {
+                try! captureDevice.lockForConfiguration()
+                captureDevice.focusMode = .continuousAutoFocus
+                captureDevice.unlockForConfiguration()
+            }
             
-            // Set the input device on the capture session.
-            captureSession.addInput(input)
-            
-            // Initialize a AVCaptureMetadataOutput object and set it as the output device to the capture session.
-            let captureMetadataOutput = AVCaptureMetadataOutput()
-            captureSession.addOutput(captureMetadataOutput)
-            
-            // Set delegate and use the default dispatch queue to execute the call back
-            captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-            captureMetadataOutput.metadataObjectTypes = supportedCodeTypes
-//            captureMetadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
-            
-        } catch {
-            // If any error occurs, simply print it out and don't continue any more.
-            print(error)
-            return
-        }
+            do {
+                // Get an instance of the AVCaptureDeviceInput class using the previous device object.
+                let input = try AVCaptureDeviceInput(device: captureDevice)
+                
+                // Set the input device on the capture session.
+                captureSession.addInput(input)
+                
+                // Initialize a AVCaptureMetadataOutput object and set it as the output device to the capture session.
+                let captureMetadataOutput = AVCaptureMetadataOutput()
+                captureSession.addOutput(captureMetadataOutput)
+                
+                // Set delegate and use the default dispatch queue to execute the call back
+                captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+                captureMetadataOutput.metadataObjectTypes = supportedCodeTypes
+    //            captureMetadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
+                
+            } catch {
+                // If any error occurs, simply print it out and don't continue any more.
+                print(error)
+                return
+            }
         }
         
         
@@ -289,6 +293,8 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
             view.addSubview(qrCodeFrameView)
             view.bringSubviewToFront(qrCodeFrameView)
         }
+        
+
     }
 
     override func didReceiveMemoryWarning() {
@@ -297,7 +303,6 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
     }
     @objc func back () {
         self.captureSession.stopRunning()
-        
         self.navigationController?.popViewController(animated: true)
         
     }
@@ -305,7 +310,6 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
     func launchApp(decodedURL: String) {
         self.captureSession.stopRunning()
         self.onScanSuccess!(decodedURL)
-        
         self.navigationController?.popViewController(animated: true)
         
     }
@@ -313,6 +317,10 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
     layer.videoOrientation = orientation
     videoPreviewLayer?.frame = self.view.bounds
   }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
   
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()

@@ -46,13 +46,18 @@ class Method: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    let imageContainer : UIView = {
+        let imageContainer = UIView()
+        imageContainer.translatesAutoresizingMaskIntoConstraints = false
+        imageContainer.layer.borderWidth = 1
+        imageContainer.layer.borderColor = UIColor(203,203,203).cgColor
+        imageContainer.layer.cornerRadius = 5
+        return imageContainer
+    }()
 
     let walletMethodImage: UIImageView = {
-        let bundle = Bundle(for: Method.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "ptBank", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView()
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
@@ -92,6 +97,7 @@ class Method: UITableViewCell {
         containerView.addSubview(bankNameLabel)
         containerView.addSubview(checkedImage)
         containerView.addSubview(bankContentLabel)
+        containerView.addSubview(imageContainer)
         // contentView.addSubview(walletMethodImage)
         setupConstraints()
     }
@@ -110,10 +116,15 @@ class Method: UITableViewCell {
         containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
         containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
         
-        walletMethodImage.heightAnchor.constraint(equalToConstant: 26).isActive = true
-        walletMethodImage.widthAnchor.constraint(equalToConstant: 26).isActive = true
-        walletMethodImage.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16).isActive = true
-        walletMethodImage.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        imageContainer.heightAnchor.constraint(equalToConstant: 24).isActive = true
+        imageContainer.widthAnchor.constraint(equalToConstant: 24).isActive = true
+        imageContainer.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16).isActive = true
+        imageContainer.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        
+        walletMethodImage.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        walletMethodImage.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        walletMethodImage.centerXAnchor.constraint(equalTo: imageContainer.centerXAnchor).isActive = true
+        walletMethodImage.centerYAnchor.constraint(equalTo: imageContainer.centerYAnchor).isActive = true
         
         checkedImage.heightAnchor.constraint(equalToConstant: 12).isActive = true
         checkedImage.widthAnchor.constraint(equalToConstant: 6).isActive = true
@@ -173,21 +184,38 @@ class Method: UITableViewCell {
             bankNameLabel.text = presentable.title
             bankContentLabel.text = presentable.label
         }
-        print(presentable.type)
-        if (presentable.type.isEqual("LINKED")) {
-            let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
-            DispatchQueue.global().async {
-                let data = try? Data(contentsOf: url!) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
-                DispatchQueue.main.async {
-                    self.walletMethodImage.image = UIImage(data: data!)
-                }
-            }
-        }
-        if (presentable.type.isEqual("BANK_CARD")) {
+        if (presentable.type.isEqual("WALLET")) {
             let bundle = Bundle(for: Method.self)
             let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
             let resourceBundle = Bundle(url: bundleURL!)
-            let image = UIImage(named: "ptAtm", in: resourceBundle, compatibleWith: nil)
+            let image = UIImage(named: "iconWallet", in: resourceBundle, compatibleWith: nil)
+            self.walletMethodImage.image = image
+        }
+        else if (presentable.type.isEqual("LINKED")) {
+            if (presentable.dataLinked != nil) {
+                let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode!).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
+                DispatchQueue.global().async {
+                    if let sureURL = url as URL? {
+                        let data = try? Data(contentsOf: sureURL) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
+                        DispatchQueue.main.async {
+                            self.walletMethodImage.image = UIImage(data: data!)
+                        }
+                    }
+                }
+                
+            }
+        }
+        else if (presentable.type.isEqual("BANK_CARD")) {
+            let bundle = Bundle(for: Method.self)
+            let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+            let resourceBundle = Bundle(url: bundleURL!)
+            let image = UIImage(named: "fill1", in: resourceBundle, compatibleWith: nil)
+            self.walletMethodImage.image = image
+        } else {
+            let bundle = Bundle(for: Method.self)
+            let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+            let resourceBundle = Bundle(url: bundleURL!)
+            let image = UIImage(named: "iconWallet", in: resourceBundle, compatibleWith: nil)
             self.walletMethodImage.image = image
         }
         

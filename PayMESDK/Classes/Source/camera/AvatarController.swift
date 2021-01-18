@@ -61,6 +61,9 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
         pressCamera.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
         // Do any additional setup after loading the view, typically from a nib.
+        
+        KYCController.kycDecide(currentVC: self)
+
     }
     
     @objc func back () {

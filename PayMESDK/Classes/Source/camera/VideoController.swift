@@ -71,6 +71,8 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         
         view.bringSubviewToFront(backButton)
         // Do any additional setup after loading the view, typically from a nib.
+        
+        KYCController.kycDecide(currentVC: self)
     }
     
     @objc func back () {

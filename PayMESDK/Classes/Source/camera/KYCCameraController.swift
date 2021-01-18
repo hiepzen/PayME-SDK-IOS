@@ -8,6 +8,8 @@
 import Foundation
 import UIKit
 import AVFoundation
+
+
 class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     let session = AVCaptureSession()
     var camera : AVCaptureDevice?
@@ -70,7 +72,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         view.addSubview(frontSide)
         view.addSubview(getPhoto)
         view.addSubview(titleButton)
-        
+                
         initializeCaptureSession()
         if #available(iOS 11, *) {
           let guide = view.safeAreaLayoutGuide
@@ -132,6 +134,8 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         getPhoto.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         titleButton.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
+        
+        KYCController.kycDecide(currentVC: self)
         // Do any additional setup after loading the view, typically from a nib.
     }
     

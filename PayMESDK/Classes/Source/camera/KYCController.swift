@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AVFoundation
 
 public class KYCController{
     internal static var imageDocument : [UIImage]?
@@ -23,34 +24,28 @@ public class KYCController{
     public func kyc(){
         PayME.currentVC?.navigationItem.hidesBackButton = true
         PayME.currentVC?.navigationController?.isNavigationBarHidden = true
-        if (KYCController.flowKYC!["kycIdentifyImg"] == true) {
-            let kycDocument = KYCCameraController()
-            if PayME.currentVC?.navigationController != nil {
-               PayME.currentVC?.navigationController?.pushViewController(kycDocument, animated: true)
-            } else {
-               PayME.currentVC?.present(kycDocument, animated: true, completion: nil)
-            }
-        } else if (KYCController.flowKYC!["kycFace"] == true) {
-            let avatarController = AvatarController()
-            if PayME.currentVC?.navigationController != nil {
-                PayME.currentVC?.navigationController?.pushViewController(avatarController, animated: true)
-            } else {
-                PayME.currentVC?.present(avatarController, animated: true, completion: nil)
-            }
+        var popupKYC = PopupKYC()
+        if (KYCController.flowKYC!["kycIdentifyImg"]! == true) {
+            popupKYC.active = 0
+            PayME.currentVC?.present(popupKYC, animated: true)
+        } else if (KYCController.flowKYC!["kycFace"]! == true) {
+            popupKYC.active = 1
+            PayME.currentVC?.present(popupKYC, animated: true)
         } else if (KYCController.flowKYC!["kycVideo"] == true) {
-            let videoController = VideoController()
-            if PayME.currentVC?.navigationController != nil {
-                PayME.currentVC?.navigationController?.pushViewController(videoController, animated: true)
-            } else {
-                PayME.currentVC?.present(videoController, animated: true, completion: nil)
-            }
+            popupKYC.active = 2
+            PayME.currentVC?.present(popupKYC, animated: true)
         }
     }
     
     internal static func uploadKYC() {
         let uploadKYC = UploadKYC(imageDocument: KYCController.imageDocument, imageAvatar: KYCController.imageAvatar, videoKYC: KYCController.videoKYC, active: KYCController.active)
         uploadKYC.upload()
-
+    }
+    
+    internal static func kycDecide(currentVC : UIViewController) {
+        if AVCaptureDevice.authorizationStatus(for: AVMediaType.video) !=  AVAuthorizationStatus.authorized {
+            currentVC.navigationController?.pushViewController(PermissionCamera(), animated: true)
+        }
     }
     /*
     private func kycByDocument() {

@@ -254,11 +254,18 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             print(message)
             if let dictionary = message.body as? [String: AnyObject] {
                 setupCamera(dictionary: dictionary)
-
             }
         }
         if message.name == onCommunicate {
             if let dictionary = message.body as? [String: AnyObject] {
+                let actions = (dictionary["actions"] as? String) ?? ""
+                if (actions == "onRegisterSuccess") {
+                    let data = dictionary["data"]!["Init"] as! [String : AnyObject]
+                    PayME.dataInit = data
+                    PayME.accessToken = (data["accessToken"] as? String) ?? ""
+                    PayME.kycState = (data["kyc"]!["kycState"] as? String) ?? ""
+                    PayME.handShake = (data["handShake"] as? String) ?? ""
+                }
                 self.onSuccess!(dictionary)
             }
         }
@@ -273,35 +280,17 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
         }
         if message.name == onClose {
-            print(message.name)
             self.onCloseWebview()
         }
         if message.name == onPay {
-            PayME.openQRCode(currentVC: self)
-        }
-        if message.name == onRegisterSuccess {
-            if let dictionary = message.body as? [String: AnyObject] {
-                print(dictionary)
-                /*
-                if let accessToken = dictionary["accessToken"] as? String {
-                    PayME.accessToken = accessToken
-                }
-                if let handShake = dictionary["handShake"] as? String {
-                    PayME.handShake = handShake
-                }
-                if let kyc = dictionary["kyc"] as? [String: AnyObject] {
-                    let kycState = kyc["state"] as? String
-                    PayME.kycState = kycState ?? ""
-                }
-                */
-            }
-
+            PayME.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
         }
     }
     
 
     func setupCamera(dictionary: [String: AnyObject]) {
         var dictionary = dictionary as! [String: Bool]
+        // dictionary = ["kycIdentifyImg": true, "kycFace": true, "kycVideo": true]
         var kycController = KYCController(flowKYC: dictionary)
         kycController.kyc()
     }

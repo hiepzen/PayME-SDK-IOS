@@ -110,12 +110,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         let succeeded = payInfo["succeeded"] as! Bool
                         if (succeeded == true) {
                             DispatchQueue.main.async {
-                                self.securityCode.removeFromSuperview()
                                 self.setupSuccess()
                             }
                         } else {
                             DispatchQueue.main.async {
-                                self.securityCode.removeFromSuperview()
                                 self.setupFail()
                                 self.failView.failLabel.text = message
                             }
@@ -141,7 +139,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
 
                         })
                     } else {
-                        self.securityCode.removeFromSuperview()
                         self.setupFail()
                         self.failView.failLabel.text = message
                     }
@@ -164,12 +161,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 let succeeded = payInfo["succeeded"] as! Bool
                 if (succeeded == true) {
                     DispatchQueue.main.async {
-                        self.otpView.removeFromSuperview()
                         self.setupSuccess()
                     }
                 } else {
                     DispatchQueue.main.async {
-                        self.otpView.removeFromSuperview()
                         self.setupFail()
                         self.failView.failLabel.text = message
                     }
@@ -210,113 +205,22 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     let securityCode = SecurityCode()
     let successView = SuccessView()
     let failView = FailView()
-    
+    var keyBoardHeight : CGFloat = 0
+    let screenSize:CGRect = UIScreen.main.bounds
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        view.addSubview(methodsView)
         setupMethods()
-    }
-    
-    func setupOTP() {
-        view.addSubview(otpView)
-        otpView.translatesAutoresizingMaskIntoConstraints = false
-        otpView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
-        otpView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
-        otpView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0).isActive = true
-        otpView.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: 0).isActive = true
-        otpView.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: 0).isActive = true
-        otpView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0).isActive = true
-        otpView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor, constant: 10).isActive = true
-        self.updateViewConstraints()
-        self.view.layoutIfNeeded()
-        self.panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
-        NotificationCenter.default.addObserver(self, selector: #selector(Methods.keyboardWillShowOtp), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(Methods.keyboardWillHideOtp), name: UIResponder.keyboardWillHideNotification, object: nil)
-        otpView.otpView.properties.delegate = self
-        otpView.otpView.becomeFirstResponder()
-    }
-    
-    func setupSecurity() {
-        view.addSubview(securityCode)
-        securityCode.translatesAutoresizingMaskIntoConstraints = false
-        securityCode.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
-        securityCode.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
-        securityCode.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0).isActive = true
-        securityCode.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: 0).isActive = true
-        securityCode.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: 0).isActive = true
-        securityCode.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0).isActive = true
-        securityCode.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.otpView.bottomAnchor, constant: 10).isActive = true
-        self.updateViewConstraints()
-        self.view.layoutIfNeeded()
-        self.panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
-        NotificationCenter.default.addObserver(self, selector: #selector(Methods.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(Methods.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        securityCode.otpView.properties.delegate = self
-        securityCode.otpView.becomeFirstResponder()
-    }
-    
-    func setupFail() {
-        view.addSubview(failView)
-        failView.translatesAutoresizingMaskIntoConstraints = false
-        failView.isUserInteractionEnabled = true
-        failView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
-        failView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
-        failView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0).isActive = true
-        failView.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: 0).isActive = true
-        failView.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: 0).isActive = true
-        failView.roleLabel.text = formatMoney(input: self.amount)
-        if (self.note == "") {
-            failView.memoLabel.text = "Không có nội dung"
-        } else {
-            failView.memoLabel.text = self.note
-        }
-        failView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        failView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: failView.button.bottomAnchor, constant: 10).isActive = true
-        self.updateViewConstraints()
-        self.view.layoutIfNeeded()
-        self.panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
-    }
-    
-    func setupSuccess() {
-        view.addSubview(successView)
-        successView.translatesAutoresizingMaskIntoConstraints = false
-        successView.isUserInteractionEnabled = true
-        successView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
-        successView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
-        successView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0).isActive = true
-        successView.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: 0).isActive = true
-        successView.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: 0).isActive = true
-        successView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        successView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        successView.roleLabel.text = formatMoney(input: self.amount)
-        if (self.note == "") {
-            successView.memoLabel.text = "Không có nội dung"
-        } else {
-            successView.memoLabel.text = self.note
-        }
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: successView.button.bottomAnchor, constant: 10).isActive = true
-        self.updateViewConstraints()
-        self.view.layoutIfNeeded()
-        self.panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
         
+
     }
     
     func setupMethods() {
         methodsView.backgroundColor = .white
         methodsView.isUserInteractionEnabled = true
-        methodsView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
-        methodsView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
-        methodsView.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: 0).isActive = true
-        methodsView.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: 0).isActive = true
+            
         
         methodsView.addSubview(closeButton)
         methodsView.addSubview(txtLabel)
@@ -341,10 +245,12 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         tableView.delegate = self
         tableView.dataSource = self
         
-        detailView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        detailView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        methodsView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        
+        detailView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+        detailView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
         detailView.heightAnchor.constraint(equalToConstant: 118.0).isActive = true
-        detailView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        detailView.centerXAnchor.constraint(equalTo: methodsView.centerXAnchor).isActive = true
         detailView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 16.0).isActive = true
         
         price.topAnchor.constraint(equalTo: detailView.topAnchor, constant: 15).isActive = true
@@ -362,10 +268,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         memoLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         
         methodTitle.topAnchor.constraint(equalTo: detailView.bottomAnchor, constant: 10).isActive = true
-        methodTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+        methodTitle.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 30).isActive = true
         
-        txtLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 19).isActive = true
-        txtLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        txtLabel.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 19).isActive = true
+        txtLabel.centerXAnchor.constraint(equalTo: methodsView.centerXAnchor).isActive = true
         
         /*
         tableView.topAnchor.constraint(equalTo: methodTitle.topAnchor, constant: 10).isActive = true
@@ -374,16 +280,19 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         */
 
         tableView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor, constant: 10).isActive = true
-        tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
-        tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
+        tableView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 30).isActive = true
+        tableView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -30).isActive = true
         tableView.alwaysBounceVertical = false
 
-        closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 19).isActive = true
-        closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
+        closeButton.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 19).isActive = true
+        closeButton.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -30).isActive = true
         closeButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
         closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        
+        view = methodsView
+        
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 10).isActive = true
 
         self.showSpinner(onView: self.view)
@@ -393,6 +302,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 let balance = wallet["balance"] as! Int
                 API.getTransferMethods(onSuccess: {response in
                            // Update UI
+                    print(response)
+
                     let methodsReponse = response["Utility"]!["GetPaymentMethod"] as! [String:AnyObject]
                     let items = methodsReponse["methods"] as! [[String:AnyObject]]
                     var responseData : [MethodInfo] = []
@@ -424,12 +335,13 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         self.removeSpinner()
                         self.data = responseData
                         self.tableView.reloadData()
-                        self.tableView.heightAnchor.constraint(equalToConstant: self.tableView.contentSize.height).isActive = true
+                        self.tableView.heightAnchor.constraint(equalToConstant: self.tableView.contentSize.height+10).isActive = true
                         self.tableView.alwaysBounceVertical = false
                         self.tableView.isScrollEnabled = false
+                        self.bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: self.tableView.bottomAnchor, constant: 20).isActive = true
                         self.view.layoutIfNeeded()
                         self.panModalSetNeedsLayoutUpdate()
-                        self.panModalTransition(to: .shortForm)
+                        self.panModalTransition(to: .longForm)
                     }
             },onError: {error in
                 self.onError!(error)
@@ -440,6 +352,80 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             self.removeSpinner()
         })
     }
+    
+    func setupOTP() {
+        view = otpView
+        otpView.translatesAutoresizingMaskIntoConstraints = false
+        otpView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        otpView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor, constant: 10).isActive = true
+        self.updateViewConstraints()
+        self.view.layoutIfNeeded()
+        self.panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .shortForm)
+        NotificationCenter.default.addObserver(self, selector: #selector(Methods.keyboardWillShowOtp), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(Methods.keyboardWillHideOtp), name: UIResponder.keyboardWillHideNotification, object: nil)
+        otpView.otpView.properties.delegate = self
+        otpView.otpView.becomeFirstResponder()
+    }
+    
+    func setupSecurity() {
+        view = securityCode
+        
+        securityCode.translatesAutoresizingMaskIntoConstraints = false
+        securityCode.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        securityCode.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.otpView.bottomAnchor, constant: 10).isActive = true
+        self.updateViewConstraints()
+        self.view.layoutIfNeeded()
+        self.panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .shortForm)
+        NotificationCenter.default.addObserver(self, selector: #selector(Methods.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(Methods.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        securityCode.otpView.properties.delegate = self
+        securityCode.otpView.becomeFirstResponder()
+    }
+    
+    func setupFail() {
+        view = failView
+        failView.translatesAutoresizingMaskIntoConstraints = false
+        failView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        failView.roleLabel.text = formatMoney(input: self.amount)
+        if (self.note == "") {
+            failView.memoLabel.text = "Không có nội dung"
+        } else {
+            failView.memoLabel.text = self.note
+        }
+        failView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        failView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: failView.button.bottomAnchor, constant: 10).isActive = true
+        self.updateViewConstraints()
+        self.view.layoutIfNeeded()
+        self.panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .shortForm)
+    }
+    
+    func setupSuccess() {
+        view = successView
+        successView.translatesAutoresizingMaskIntoConstraints = false
+        successView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        successView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        successView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        successView.roleLabel.text = formatMoney(input: self.amount)
+        if (self.note == "") {
+            successView.memoLabel.text = "Không có nội dung"
+        } else {
+            successView.memoLabel.text = self.note
+        }
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: successView.button.bottomAnchor, constant: 10).isActive = true
+        self.updateViewConstraints()
+        self.view.layoutIfNeeded()
+        self.panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .shortForm)
+        
+    }
+    
+    
     
     override func viewDidLayoutSubviews() {
         let topPoint = CGPoint(x: detailView.frame.minX+10, y: detailView.bounds.midY + 15)
@@ -466,12 +452,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if (data[indexPath.row].type == "WALLET"){
-            methodsView.removeFromSuperview()
             setupSecurity()
         }
         if (data[indexPath.row].type == "LINKED") {
             if (appENV!.isEqual("SANDBOX")) {
-                print(appENV)
                 self.onError!(["message" : "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
                 return
             }
@@ -481,7 +465,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 let succeeded = pay["Pay"]!["succeeded"] as! Bool
                 if (succeeded == true) {
                     self.removeSpinner()
-                    self.methodsView.removeFromSuperview()
                     self.setupSuccess()
                 } else {
                     let payment = pay["Pay"]!["payment"] as! [String:AnyObject]
@@ -489,7 +472,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     if (state == "REQUIRED_OTP") {
                         self.transaction = payment["transaction"] as! String
                         self.removeSpinner()
-                        self.methodsView.removeFromSuperview()
                         self.setupOTP()
                         self.active = indexPath.row
                     } else if(state == "REQUIRED_VERIFY"){
@@ -500,12 +482,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                             webViewController.form = html!
                             webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                                 webViewController.dismiss(animated: true)
-                                self.methodsView.removeFromSuperview()
                                 self.setupSuccess()
                             })
                             webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                                 webViewController.dismiss(animated: true)
-                                self.methodsView.removeFromSuperview()
                                 self.setupFail()
                                 self.failView.failLabel.text = responseFromWebView
                             })
@@ -528,7 +508,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             }
             self.showSpinner(onView: self.view)
             API.getBankList(onSuccess: { bankListResponse in
-                self.methodsView.removeFromSuperview()
                 let banks = bankListResponse["Setting"]!["banks"] as! [[String:AnyObject]]
                 var listBank : [Bank] = []
                 for bank in banks{
@@ -550,7 +529,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     @objc func payATM() {
-        print("Hello")
         let cardNumber = atmView.cardNumberField.text
         let cardHolder = atmView.nameField.text
         let issuedAt = atmView.dateField.text
@@ -587,37 +565,39 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                                 let succeeded = pay["succeeded"] as! Bool
                                 if (succeeded == true) {
                                     DispatchQueue.main.async {
-                                        self.atmView.removeFromSuperview()
                                         self.setupSuccess()
                                     }
                                 } else {
-                                    let statePay = pay["payment"] as! [String:AnyObject]
-                                    
-                                    let state = statePay["state"] as! String
+                                    let statePay = pay["payment"] as? [String:AnyObject]
+                                    if (statePay == nil) {
+                                        let message = pay["message"] as! String
+                                        self.setupFail()
+                                        self.failView.failLabel.text = message
+                                        self.removeSpinner()
+                                        return
+                                    }
+                                    let state = statePay!["state"] as! String
                                     if (state == "REQUIRED_VERIFY")
                                     {
-                                        let html = statePay["html"] as? String
+                                        let html = statePay!["html"] as? String
                                         if (html != nil) {
                                             self.removeSpinner()
                                             let webViewController = WebViewController()
                                             webViewController.form = html!
                                             webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                                                 webViewController.dismiss(animated: true)
-                                                self.atmView.removeFromSuperview()
                                                 self.setupSuccess()
                                             })
                                             webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                                                 webViewController.dismiss(animated: true)
                                                 self.removeSpinner()
-                                                self.atmView.removeFromSuperview()
                                                 self.setupFail()
                                                 self.failView.failLabel.text = responseFromWebView
                                             })
                                             self.presentPanModal(webViewController)
                                         }
                                     } else {
-                                        let message = statePay["message"] as! String
-                                        self.atmView.removeFromSuperview()
+                                        let message = statePay!["message"] as! String
                                         self.setupFail()
                                         self.failView.failLabel.text = message
                                         self.removeSpinner()
@@ -639,14 +619,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     func setupATMView(){
-        view.addSubview(atmView)
+        view = atmView
         atmView.translatesAutoresizingMaskIntoConstraints = false
         atmView.isUserInteractionEnabled = true
-        atmView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
-        atmView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
-        atmView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0).isActive = true
-        atmView.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: 0).isActive = true
-        atmView.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: 0).isActive = true
+        atmView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
         // atmView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         atmView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         atmView.button.addTarget(self, action: #selector(payATM), for: .touchUpInside)
@@ -656,13 +632,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         } else {
             atmView.memoLabel.text = self.note
         }
-        
         atmView.memoLabel.text = self.note
-
-
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmView.button.bottomAnchor, constant: 10).isActive = true
         self.atmView.dateField.delegate = self
         self.atmView.cardNumberField.delegate = self
+        
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmView.button.bottomAnchor, constant: 10).isActive = true
         self.updateViewConstraints()
         self.view.layoutIfNeeded()
         self.panModalSetNeedsLayoutUpdate()
@@ -674,32 +648,23 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     @objc func keyboardWillShowATM(notification: NSNotification) {
         guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
-            
+
           // if keyboard size is not available for some reason, dont do anything
           return
         }
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmView.button.bottomAnchor, constant: keyboardSize.height).isActive = true
-        self.view.layoutIfNeeded()
+        view = atmView
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmView.button.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
+
+        self.keyBoardHeight = keyboardSize.height
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
     }
     @objc func keyboardWillHideATM(notification: NSNotification) {
-        atmView.removeFromSuperview()
-        view.addSubview(atmView)
-        atmView.translatesAutoresizingMaskIntoConstraints = false
-        atmView.isUserInteractionEnabled = true
-        atmView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
-        atmView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
-        atmView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0).isActive = true
-        atmView.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: 0).isActive = true
-        atmView.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: 0).isActive = true
-        // atmView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        atmView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmView.button.bottomAnchor, constant: 10).isActive = true
         self.updateViewConstraints()
         self.view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
+        panModalTransition(to: .longForm)
     }
     
     @objc func keyboardWillShowOtp(notification: NSNotification) {
@@ -731,6 +696,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
           // if keyboard size is not available for some reason, dont do anything
           return
         }
+        
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.otpView.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
         self.view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
@@ -843,6 +809,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
 
     var longFormHeight: PanModalHeight {
+        
         return .intrinsicHeight
     }
 
