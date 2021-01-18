@@ -285,6 +285,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
        setEnv(env: envData[Array(envData.keys)[row]], text: Array(envData.keys)[row])
         pickerView.isHidden = true
+        self.logout(sender: logoutButton)
     }
     
     @objc func logout(sender: UIButton!) {
