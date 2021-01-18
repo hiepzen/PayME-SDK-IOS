@@ -147,24 +147,26 @@ import PayMESDK
 class ViewController: UIViewController {
     let payme : PayME;
     @IBAction func click(_ sender: Any) {
-	      payme.openLinkWallet(currentVC: self,
-	      action: Action.OPEN, 
-	      amount: nil, 
-	      description : nil,
-	      extraData: nil,);
+	payme.openLinkWallet(
+		currentVC: self,
+		action: Action.OPEN, 
+		amount: nil, 
+		description : nil,
+		extraData: nil
+		);
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        payme = PayME(  appID: appID, 
-			publicKey: self.PUBLIC_KEY, 
-			connectToken: self.connectToken, 
-			appPrivateKey: self.PRIVATE_KEY, 
-			env: currentEnv, 
-			configColor: ["#75255b", "#a81308"]
+        payme = PayME(  
+		appID: appID, 
+		publicKey: self.PUBLIC_KEY, 
+		connectToken: self.connectToken, 
+		appPrivateKey: self.PRIVATE_KEY, 
+		env: currentEnv, 
+		configColor: ["#75255b", "#a81308"]
 		)
     }
-
 }
 ```
 
