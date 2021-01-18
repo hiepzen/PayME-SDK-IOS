@@ -156,7 +156,13 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        payme = PayME(appID: appID, publicKey: self.PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: self.PRIVATE_KEY, env: currentEnv, configColor: ["#75255b", "#a81308"])
+        payme = PayME(  appID: appID, 
+			publicKey: self.PUBLIC_KEY, 
+			connectToken: self.connectToken, 
+			appPrivateKey: self.PRIVATE_KEY, 
+			env: currentEnv, 
+			configColor: ["#75255b", "#a81308"]
+		)
     }
 
 }
