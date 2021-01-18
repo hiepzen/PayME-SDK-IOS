@@ -48,7 +48,7 @@ let payme = PayME( appId : "AppToken",
                    connectToken : "ConnectToken",
                    appPrivateKey : "AppPrivateKey", 
                    configColor : ["#07A922"] 
-                   env: Payme.Env.SANDBOX
+                   env: PayME.Env.SANDBOX
                    )
 ```
 
