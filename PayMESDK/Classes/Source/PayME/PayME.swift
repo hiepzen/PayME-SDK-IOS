@@ -198,23 +198,40 @@ public class PayME{
             bottomSafeArea = currentVC.bottomLayoutGuide.length
         }
         PayME.initSDK(onSuccess: {success in
-            print(success)
-        }, onError: {error in
-            print(error)
-        })
-        API.registerClient(onSuccess: { response in
-            let result = response["Client"]!["Register"] as! [String: AnyObject]
-            let clientID = result["clientId"] as! String
-            PayME.clientID = clientID
-            //PayME.openQRCode(currentVC: currentVC)
-          
+            let message = success["message"] as? String
+            let accessToken = success["accessToken"] as? String
+            let succeeded = success["succeeded"] as? Bool
+            let phone = success["phone"] as? String
+            let kycID = success["kyc"]!["kycID"] as? Int
+            let handShake = success["handShake"] as? String
+            let isExistInMainWallet = success["isExistInMainWallet"] as? Bool
+            let kycState = success["kyc"]!["kycState"] as? String
+            let identifyNumber = success["kyc"]!["identifyNumber"] as? String
+            let reason = success["kyc"]!["reason"] as? String
+            let sentAt = success["kyc"]!["sentAt"] as? String
+            
             let data =
-                """
+            """
             {
               "connectToken":  "\(PayME.connectToken)",
               "appToken": "\(PayME.appID)",
               "clientId": "\(PayME.clientID)",
               "configColor":["\(handleColor(input:PayME.configColor))"],
+              "dataInit" : {
+                    "message" : "\(checkStringNil(input: message))",
+                    "accessToken": "\(checkStringNil(input: accessToken))",
+                    "phone": "\(checkStringNil(input: phone))",
+                    "succeeded": \(succeeded!),
+                    "isExistInMainWallet": \(isExistInMainWallet!),
+                    "handShake": "\(checkStringNil(input: handShake))",
+                    "kyc" : {
+                        "kycId": "\(checkIntNil(input: kycID))",
+                        "state": "\(checkStringNil(input: kycState))",
+                        "identifyNumber": "\(checkStringNil(input: identifyNumber))",
+                        "reason" : "\(checkStringNil(input: reason))",
+                        "sentAt" : "\(checkStringNil(input: sentAt))"
+                    }
+              },
               "partner" : {
                    "type":"IOS",
                    "paddingTop":\(topSafeArea),
@@ -228,6 +245,7 @@ public class PayME{
                 "showLog" : "1"
             }
             """
+            print(data)
             let webViewController = WebViewController(nibName: "WebView", bundle: nil)
             let url = urlWebview(env: PayME.env)
 
@@ -252,11 +270,9 @@ public class PayME{
                 currentVC.present(navigationController, animated: true, completion: {
                 })
             }
-            
-        }, onError: { error in
+        }, onError: {error in
             onError(error)
         })
-
     }
 
     public func abc() {
