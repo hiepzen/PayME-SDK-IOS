@@ -43,7 +43,8 @@ public class KYCController{
     }
     
     internal static func kycDecide(currentVC : UIViewController) {
-        if AVCaptureDevice.authorizationStatus(for: AVMediaType.video) !=  AVAuthorizationStatus.authorized {
+        let authStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
+        if authStatus ==  AVAuthorizationStatus.denied {
             currentVC.navigationController?.pushViewController(PermissionCamera(), animated: true)
         }
     }

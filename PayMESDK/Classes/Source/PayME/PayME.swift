@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import Alamofire
 import CryptoSwift
+import AVFoundation
 
 public class PayME{
     internal static var appPrivateKey: String = ""

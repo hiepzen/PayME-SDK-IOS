@@ -169,48 +169,7 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
         view.addSubview(titleChoiceButton)
         view.addSubview(titleToggleFlash)
         // Get the back-facing camera for capturing videos
-        KYCController.kycDecide(currentVC: self)
-        if let captureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
         
-            if(captureDevice.isFocusModeSupported(.continuousAutoFocus)) {
-                try! captureDevice.lockForConfiguration()
-                captureDevice.focusMode = .continuousAutoFocus
-                captureDevice.unlockForConfiguration()
-            }
-            
-            do {
-                // Get an instance of the AVCaptureDeviceInput class using the previous device object.
-                let input = try AVCaptureDeviceInput(device: captureDevice)
-                
-                // Set the input device on the capture session.
-                captureSession.addInput(input)
-                
-                // Initialize a AVCaptureMetadataOutput object and set it as the output device to the capture session.
-                let captureMetadataOutput = AVCaptureMetadataOutput()
-                captureSession.addOutput(captureMetadataOutput)
-                
-                // Set delegate and use the default dispatch queue to execute the call back
-                captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-                captureMetadataOutput.metadataObjectTypes = supportedCodeTypes
-    //            captureMetadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
-                
-            } catch {
-                // If any error occurs, simply print it out and don't continue any more.
-                print(error)
-                return
-            }
-        }
-        
-        
-        
-        // Initialize the video preview layer and add it as a sublayer to the viewPreview view's layer.
-        videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        videoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        videoPreviewLayer?.frame = view.layer.bounds
-        view.layer.addSublayer(videoPreviewLayer!)
-        
-        // Start video capture.
-        captureSession.startRunning()
         
         if #available(iOS 11, *) {
           let guide = view.safeAreaLayoutGuide
@@ -248,12 +207,7 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
         backButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
         
         // Move the message label and top bar to the front
-        view.bringSubviewToFront(backButton)
-        view.bringSubviewToFront(logoPayME)
-        view.bringSubviewToFront(getPhoto)
-        view.bringSubviewToFront(flash)
-        view.bringSubviewToFront(titleChoiceButton)
-        view.bringSubviewToFront(titleToggleFlash)
+        
 
         self.shapeLayer?.removeFromSuperlayer()
 
@@ -320,6 +274,63 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        AVCaptureDevice.requestAccess(for: .video) { success in
+          if success { // if request is granted (success is true)
+
+          } else { // if request is denied (success is false)
+            DispatchQueue.main.async {
+                KYCController.kycDecide(currentVC: self)
+            }
+          }
+        }
+        if let captureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
+        
+            if(captureDevice.isFocusModeSupported(.continuousAutoFocus)) {
+                try! captureDevice.lockForConfiguration()
+                captureDevice.focusMode = .continuousAutoFocus
+                captureDevice.unlockForConfiguration()
+            }
+            
+            do {
+                // Get an instance of the AVCaptureDeviceInput class using the previous device object.
+                let input = try AVCaptureDeviceInput(device: captureDevice)
+                
+                // Set the input device on the capture session.
+                captureSession.addInput(input)
+                
+                // Initialize a AVCaptureMetadataOutput object and set it as the output device to the capture session.
+                let captureMetadataOutput = AVCaptureMetadataOutput()
+                captureSession.addOutput(captureMetadataOutput)
+                
+                // Set delegate and use the default dispatch queue to execute the call back
+                captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+                captureMetadataOutput.metadataObjectTypes = supportedCodeTypes
+    //            captureMetadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
+                
+            } catch {
+                // If any error occurs, simply print it out and don't continue any more.
+                print(error)
+                return
+            }
+        }
+        
+        
+        
+        // Initialize the video preview layer and add it as a sublayer to the viewPreview view's layer.
+        videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        videoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        videoPreviewLayer?.frame = view.layer.bounds
+        view.layer.addSublayer(videoPreviewLayer!)
+        
+        // Start video capture.
+        captureSession.startRunning()
+        
+        view.bringSubviewToFront(backButton)
+        view.bringSubviewToFront(logoPayME)
+        view.bringSubviewToFront(getPhoto)
+        view.bringSubviewToFront(flash)
+        view.bringSubviewToFront(titleChoiceButton)
+        view.bringSubviewToFront(titleToggleFlash)
     }
   
   override func viewDidLayoutSubviews() {

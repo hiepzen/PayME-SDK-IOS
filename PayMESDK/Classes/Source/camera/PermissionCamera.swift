@@ -153,6 +153,12 @@ class PermissionCamera: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     @objc func back () {
+        let authStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
+        if authStatus ==  AVAuthorizationStatus.denied {
+            var navigationArray = self.navigationController!.viewControllers
+            navigationArray.remove(at: navigationArray.count - 2)
+            self.navigationController?.viewControllers = navigationArray
+        }
         self.navigationController?.popViewController(animated: true)
         
     }
@@ -163,7 +169,10 @@ class PermissionCamera: UIViewController {
         if success { // if request is granted (success is true)
             self.navigationController?.popViewController(animated: true)
         } else { // if request is denied (success is false)
-            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+            DispatchQueue.main.async {
+                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+            }
+            
         }
       }
     }

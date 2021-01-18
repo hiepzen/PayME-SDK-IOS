@@ -76,10 +76,11 @@ public class UploadKYC{
                         PayME.currentVC?.removeSpinner()
                         return
                     }
+                    self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
                 }
             },onError: {error in
                 PayME.currentVC?.removeSpinner()
-                print(error)
+                self.toastMess(title: "Lỗi", message: error["message"] as? String ?? "Something went wrong")
             })
             self.dispatchGroup.leave()
         }
