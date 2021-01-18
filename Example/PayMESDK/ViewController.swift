@@ -231,16 +231,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     // generate token ( demo, don't apply this to your code, generate from your server)
     @objc func submit(sender: UIButton!) {
         //PayME.showKYCCamera(currentVC: self)
-        
-        
-
         // Getting
-
-
         if (userIDTextField.text != "") {
-            let defaults = UserDefaults.standard
-            defaults.set(userIDTextField.text ?? "", forKey: "userID")
-            defaults.set(phoneTextField.text ?? "", forKey: "phoneNumber")
             if (self.currentEnv == PayME.Env.PRODUCTION) {
                 let alert = UIAlertController(title: "Lỗi", message: "Chưa hỗ trợ môi trường này!", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
@@ -254,10 +246,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 appPrivateKey: UserDefaults.standard.string(forKey: "secretKey") ?? "",
                 env: self.currentEnv,
                 configColor: ["#75255b", "#a81308"])
-            
-            let alert = UIAlertController(title: "Success", message: "Tạo token thành công", preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
             self.loginButton.backgroundColor = UIColor.gray
             self.logoutButton.backgroundColor = UIColor.white
             }
@@ -486,37 +474,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        let appToken = UserDefaults.standard.string(forKey: "appToken") ?? ""
-        if (appToken == ""){
-            UserDefaults.standard.set(APP_ID, forKey: "appToken")
-        }
-        let secretKey = UserDefaults.standard.string(forKey: "secretKey") ?? ""
-        if (secretKey == ""){
-            UserDefaults.standard.set(PRIVATE_KEY, forKey: "secretKey")
-        }
-        let publicKey = UserDefaults.standard.string(forKey: "publicKey") ?? ""
-        if (publicKey == ""){
-            UserDefaults.standard.set(PUBLIC_KEY, forKey: "publicKey")
-        }
-        
-        let connectToken = UserDefaults.standard.string(forKey: "connectToken") ?? ""
-        if (connectToken != "") {
-            self.setConnectToken(token: connectToken)
-            self.loginButton.backgroundColor = UIColor.gray
-            self.logoutButton.backgroundColor = UIColor.white
-        } else {
-            self.connectToken = ""
-            self.loginButton.backgroundColor = UIColor.white
-            self.logoutButton.backgroundColor = UIColor.gray
-        }
-        
-        let env = UserDefaults.standard.string(forKey: "env") ?? ""
-        if (env == ""){
-            self.setEnv(env: PayME.Env.DEV, text: "dev")
-        } else {
-            envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
-            self.setEnv(env: envData[env], text: env)
-        }
     }
 
     func toastMess(title: String, value: String?) {
@@ -673,12 +630,37 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
         
-        let defaults = UserDefaults.standard
-        if let stringOne = defaults.string(forKey: "userID") {
-            userIDTextField.text = stringOne
+        let appToken = UserDefaults.standard.string(forKey: "appToken") ?? ""
+        if (appToken == ""){
+            UserDefaults.standard.set(APP_ID, forKey: "appToken")
         }
-        if let stringTwo = defaults.string(forKey: "phoneNumber") {
-            phoneTextField.text = stringTwo
+        let secretKey = UserDefaults.standard.string(forKey: "secretKey") ?? ""
+        if (secretKey == ""){
+            UserDefaults.standard.set(PRIVATE_KEY, forKey: "secretKey")
+        }
+        let publicKey = UserDefaults.standard.string(forKey: "publicKey") ?? ""
+        if (publicKey == ""){
+            UserDefaults.standard.set(PUBLIC_KEY, forKey: "publicKey")
+        }
+        
+        let connectToken = UserDefaults.standard.string(forKey: "connectToken") ?? ""
+        if (connectToken != "") {
+            self.setConnectToken(token: connectToken)
+            self.loginButton.backgroundColor = UIColor.gray
+            self.logoutButton.backgroundColor = UIColor.white
+            self.submit(sender: self.loginButton)
+        } else {
+            self.connectToken = ""
+            self.loginButton.backgroundColor = UIColor.white
+            self.logoutButton.backgroundColor = UIColor.gray
+        }
+        
+        let env = UserDefaults.standard.string(forKey: "env") ?? ""
+        if (env == ""){
+            self.setEnv(env: PayME.Env.DEV, text: "dev")
+        } else {
+            envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
+            self.setEnv(env: envData[env], text: env)
         }
     
     }
