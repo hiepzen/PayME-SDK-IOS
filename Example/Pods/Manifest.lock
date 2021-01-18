@@ -73,7 +73,7 @@ PODS:
     - nanopb/encode (= 2.30906.0)
   - nanopb/decode (2.30906.0)
   - nanopb/encode (2.30906.0)
-  - PayMESDK (0.0.24):
+  - PayMESDK (0.0.25):
     - Alamofire
     - CryptoSwift (= 1.0)
     - lottie-ios
@@ -124,7 +124,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: 3dc4ff0d5e4840e2fa8eef0889620e8c33d4218c
   lottie-ios: 3a3758ef5a008e762faec9c9d50a39842f26d124
   nanopb: 1bf24dd71191072e120b83dd02d08f3da0d65e53
-  PayMESDK: c078361f9f5146a360bda025fd775b0bf43b91ef
+  PayMESDK: 0596aba56ac95aff93971ab4fe16c159a599a062
   PromisesObjC: 8c196f5a328c2cba3e74624585467a557dcb482f
   SwiftyRSA: 6e528fb1b1a87d5111c48081083b141d6d65f1cf
 
