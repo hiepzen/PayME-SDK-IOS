@@ -9,14 +9,112 @@
 import UIKit
 import PayMESDK
 
-class ViewController: UIViewController{
+class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     
     var payME : PayME?
     var activeTextField : UITextField? = nil
+    let envData : Dictionary = ["dev": PayME.Env.DEV, "sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION]
+    
+    let environment: UILabel = {
+        let label = UILabel()
+        label.font = label.font.withSize(16)
+        label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Environment"
+        return label
+    }()
+    let dropDown: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.contentEdgeInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    let envList: UIPickerView = {
+        let list = UIPickerView()
+        list.layer.borderColor = UIColor.black.cgColor
+        list.layer.borderWidth = 0.5
+        list.backgroundColor = .white
+        list.translatesAutoresizingMaskIntoConstraints = false
+        return list
+    }()
+    let settingButton : UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "setting.svg"), for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    let userIDLabel: UILabel = {
+        let label = UILabel()
+        label.font = label.font.withSize(16)
+        label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "UserID"
+        return label
+    }()
+    let userIDTextField: UITextField = {
+        let textField = UITextField()
+        textField.layer.borderColor = UIColor.black.cgColor
+        textField.layer.borderWidth = 0.5
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.setLeftPaddingPoints(10)
+        textField.keyboardType = .numberPad
+        return textField
+    }()
+    
+    let phoneLabel: UILabel = {
+        let label = UILabel()
+        label.font = label.font.withSize(16)
+        label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Phone number"
+        return label
+    }()
+    let phoneTextField: UITextField = {
+        let textField = UITextField()
+        textField.layer.borderColor = UIColor.black.cgColor
+        textField.layer.borderWidth = 0.5
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.setLeftPaddingPoints(10)
+        textField.keyboardType = .numberPad
+        return textField
+    }()
+    
+    let loginButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 15
+        button.setTitle("Login", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    let logoutButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 15
+        button.setTitle("Logout", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    let sdkContainer: UIView = {
+        let container = UIView()
+        container.backgroundColor = UIColor.lightGray
+        container.isHidden = true
+        container.translatesAutoresizingMaskIntoConstraints = false
+        return container
+    }()
     
     let balance: UILabel = {
         let label = UILabel()
-        label.font = label.font.withSize(12)
+        label.font = label.font.withSize(14)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Balance"
@@ -30,53 +128,9 @@ class ViewController: UIViewController{
         label.text = "0"
         return label
     }()
-    let userIDLabel: UILabel = {
-        let label = UILabel()
-        label.font = label.font.withSize(16)
-        label.backgroundColor = .clear
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "User ID"
-        return label
-    }()
-    
-    let userIDTextField: UITextField = {
-        let textField = UITextField()
-        textField.layer.borderColor = UIColor.black.cgColor
-        textField.layer.borderWidth = 0.5
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Yêu cầu"
-        textField.text = "382985150225588"
-        textField.setLeftPaddingPoints(10)
-        textField.keyboardType = .numberPad
-        return textField
-    }()
-    let phoneLabel: UILabel = {
-        let label = UILabel()
-        label.font = label.font.withSize(16)
-        label.backgroundColor = .clear
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Số điện thoại"
-        return label
-    }()
-    
-    let phoneTextField: UITextField = {
-        let textField = UITextField()
-        textField.layer.borderColor = UIColor.black.cgColor
-        textField.layer.borderWidth = 0.5
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Không yêu cầu"
-        textField.text = "0944074825"
-        textField.setLeftPaddingPoints(10)
-        textField.keyboardType = .numberPad
-        return textField
-    }()
-    
-    let submitButton: UIButton = {
+    let refreshButton : UIButton = {
         let button = UIButton()
-        button.layer.borderColor = UIColor.black.cgColor
-        button.layer.borderWidth = 0.5
-        button.setTitle("Tạo Connect Token", for: .normal)
-        button.setTitleColor(UIColor.black, for: .normal)
+        button.setImage(UIImage(named: "refresh.png"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -85,17 +139,23 @@ class ViewController: UIViewController{
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
         button.layer.borderWidth = 0.5
-        button.setTitle("Mở SDK", for: .normal)
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
+        button.setTitle("Open Wallet", for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    
     let depositButton: UIButton = {
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
         button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
         button.setTitle("Nạp tiền ví", for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -103,6 +163,7 @@ class ViewController: UIViewController{
         let textField = UITextField()
         textField.layer.borderColor = UIColor.black.cgColor
         textField.layer.borderWidth = 0.5
+        textField.backgroundColor = UIColor.white
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Nhập số tiền"
         textField.text = "10000"
@@ -115,8 +176,11 @@ class ViewController: UIViewController{
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
         button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
         button.setTitle("Rút tiền ví", for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -124,6 +188,7 @@ class ViewController: UIViewController{
         let textField = UITextField()
         textField.layer.borderColor = UIColor.black.cgColor
         textField.layer.borderWidth = 0.5
+        textField.backgroundColor = UIColor.white
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Nhập số tiền"
         textField.text = "10000"
@@ -136,35 +201,19 @@ class ViewController: UIViewController{
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
         button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
         button.setTitle("Thanh toán", for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
-    let devButton: UIButton = {
-        let button = UIButton()
-        button.layer.borderColor = UIColor.black.cgColor
-        button.layer.borderWidth = 0.5
-        button.setTitle("Dev", for: .normal)
-        button.setTitleColor(UIColor.black, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    let sbButton: UIButton = {
-        let button = UIButton()
-        button.layer.borderColor = UIColor.black.cgColor
-        button.layer.borderWidth = 0.5
-        button.setTitle("SB", for: .normal)
-        button.setTitleColor(UIColor.black, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     let moneyPay: UITextField = {
         let textField = UITextField()
         textField.layer.borderColor = UIColor.black.cgColor
         textField.layer.borderWidth = 0.5
+        textField.backgroundColor = UIColor.white
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Nhập số tiền"
         textField.text = "10000"
@@ -173,16 +222,9 @@ class ViewController: UIViewController{
         return textField
     }()
     
-    let refreshButton : UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(named: "refresh.png"), for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     private let PUBLIC_KEY: String = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi\nwIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ=="
     private let PRIVATE_KEY: String = "MIIBPAIBAAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKiwIhTJpAi1XnbfOSrW/Eb\nw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQJBAJSfTrSCqAzyAo59Ox+m\nQ1ZdsYWBhxc2084DwTHM8QN/TZiyF4fbVYtjvyhG8ydJ37CiG7d9FY1smvNG3iDC\ndwECIQDygv2UOuR1ifLTDo4YxOs2cK3+dAUy6s54mSuGwUeo4QIhAK7SiYDyGwGo\nCwqjOdgOsQkJTGoUkDs8MST0MtmPAAs9AiEAjLT1/nBhJ9V/X3f9eF+g/bhJK+8T\nKSTV4WE1wP0Z3+ECIA9E3DWi77DpWG2JbBfu0I+VfFMXkLFbxH8RxQ8zajGRAiEA\n8Ly1xJ7UW3up25h9aa9SILBpGqWtJlNQgfVKBoabzsU="
-    private let appID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II"
+    private let APP_ID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II"
     private var connectToken: String = ""
     private var currentEnv: PayME.Env = PayME.Env.DEV
     
@@ -196,17 +238,29 @@ class ViewController: UIViewController{
 
 
         if (userIDTextField.text != "") {
-            self.connectToken = PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
-            
             let defaults = UserDefaults.standard
             defaults.set(userIDTextField.text ?? "", forKey: "userID")
             defaults.set(phoneTextField.text ?? "", forKey: "phoneNumber")
-            
-            self.payME = PayME(appID: appID, publicKey: self.PUBLIC_KEY, connectToken: self.connectToken, appPrivateKey: self.PRIVATE_KEY, env: currentEnv, configColor: ["#75255b", "#a81308"])
+            if (self.currentEnv == PayME.Env.PRODUCTION) {
+                let alert = UIAlertController(title: "Lỗi", message: "Chưa hỗ trợ môi trường này!", preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+            } else {
+            self.setConnectToken(token: PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!))
+            self.payME = PayME(
+                appID: UserDefaults.standard.string(forKey: "appToken") ?? "",
+                publicKey: UserDefaults.standard.string(forKey: "publicKey") ?? "",
+                connectToken: self.connectToken,
+                appPrivateKey: UserDefaults.standard.string(forKey: "secretKey") ?? "",
+                env: self.currentEnv,
+                configColor: ["#75255b", "#a81308"])
             
             let alert = UIAlertController(title: "Success", message: "Tạo token thành công", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
+            self.loginButton.backgroundColor = UIColor.gray
+            self.logoutButton.backgroundColor = UIColor.white
+            }
         } else {
            let alert = UIAlertController(title: "Success", message: "Vui lòng nhập userID", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
@@ -214,29 +268,44 @@ class ViewController: UIViewController{
         }
     }
     
-    @objc func changeEnv(sender: UIButton!) {
-            if (currentEnv == PayME.Env.DEV) {
-                currentEnv = PayME.Env.SANDBOX
-                self.payME = nil
-                self.connectToken = ""
-                let alert = UIAlertController(title: "Thành công", message: "Chuyển sang môi trường sandbox thành công", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                devButton.setTitle("SB", for: .normal)
-
-            } else {
-                currentEnv = PayME.Env.DEV
-                self.payME = nil
-                self.connectToken = ""
-                let alert = UIAlertController(title: "Thành công", message: "Chuyển sang môi trường DEV thành công", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                devButton.setTitle("Dev", for: .normal)
-
-            }
+    func setConnectToken(token: String!) {
+        self.connectToken = token
+        UserDefaults.standard.set(token, forKey: "connectToken")
+        if (token == ""){
+            self.sdkContainer.isHidden = true
+            self.userIDTextField.isEnabled = true
+            self.phoneTextField.isEnabled = true
+        } else {
+            UserDefaults.standard.set(self.userIDTextField.text, forKey: "userID")
+            UserDefaults.standard.set(self.phoneTextField.text, forKey: "phone")
+            self.sdkContainer.isHidden = false
+        }
     }
-
     
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return envData.count
+    }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return Array(envData.keys)[row]
+    }
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+       setEnv(env: envData[Array(envData.keys)[row]], text: Array(envData.keys)[row])
+        pickerView.isHidden = true
+        self.logout(sender: logoutButton)
+    }
+    
+    @objc func logout(sender: UIButton!) {
+        self.setConnectToken(token: "")
+        UserDefaults.standard.set("", forKey: "userID")
+        UserDefaults.standard.set("", forKey: "phone")
+        self.loginButton.backgroundColor = UIColor.white
+        self.logoutButton.backgroundColor = UIColor.gray
+    }
+    
+
     @objc func openWalletAction(sender: UIButton!) {
         if (self.connectToken != "") {
             payME!.openWallet(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil,
@@ -398,6 +467,57 @@ class ViewController: UIViewController{
       // move back the root view origin to zero
       self.view.frame.origin.y = 0
     }
+    
+    @IBAction func onPressSetting(_ sender: UIButton){
+        let vc =  SettingsView()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @IBAction func onPressDropDown(_ sender: UIButton){
+        self.envList.isHidden = !self.envList.isHidden
+    }
+    
+    func setEnv(env: PayME.Env!, text: String!){
+        self.currentEnv = env
+        UserDefaults.standard.set(text, forKey: "env")
+        self.dropDown.setTitle(text, for: .normal)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        let appToken = UserDefaults.standard.string(forKey: "appToken") ?? ""
+        if (appToken == ""){
+            UserDefaults.standard.set(APP_ID, forKey: "appToken")
+        }
+        let secretKey = UserDefaults.standard.string(forKey: "secretKey") ?? ""
+        if (secretKey == ""){
+            UserDefaults.standard.set(PRIVATE_KEY, forKey: "secretKey")
+        }
+        let publicKey = UserDefaults.standard.string(forKey: "publicKey") ?? ""
+        if (publicKey == ""){
+            UserDefaults.standard.set(PUBLIC_KEY, forKey: "publicKey")
+        }
+        
+        let connectToken = UserDefaults.standard.string(forKey: "connectToken") ?? ""
+        if (connectToken != "") {
+            self.setConnectToken(token: connectToken)
+            self.loginButton.backgroundColor = UIColor.gray
+            self.logoutButton.backgroundColor = UIColor.white
+        } else {
+            self.connectToken = ""
+            self.loginButton.backgroundColor = UIColor.white
+            self.logoutButton.backgroundColor = UIColor.gray
+        }
+        
+        let env = UserDefaults.standard.string(forKey: "env") ?? ""
+        if (env == ""){
+            self.setEnv(env: PayME.Env.DEV, text: "dev")
+        } else {
+            envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
+            self.setEnv(env: envData[env], text: env)
+        }
+    }
 
     func toastMess(title: String, value: String?) {
         let alert = UIAlertController(title: title, message: value ?? "Có lỗi xảy ra", preferredStyle: UIAlertController.Style.alert)
@@ -410,107 +530,148 @@ class ViewController: UIViewController{
         self.hideKeyboardWhenTappedAround()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-
-        self.view.addSubview(balance)
-        self.view.addSubview(priceLabel)
+        
+        self.view.addSubview(environment)
+        self.view.addSubview(dropDown)
+        self.view.addSubview(envList)
+        self.view.addSubview(settingButton)
         self.view.addSubview(userIDLabel)
         self.view.addSubview(userIDTextField)
         self.view.addSubview(phoneLabel)
         self.view.addSubview(phoneTextField)
-        self.view.addSubview(submitButton)
-        self.view.addSubview(openWalletButton)
-        self.view.addSubview(depositButton)
-        self.view.addSubview(moneyDeposit)
-        self.view.addSubview(withDrawButton)
-        self.view.addSubview(moneyWithDraw)
-        self.view.addSubview(payButton)
-        self.view.addSubview(moneyPay)
-        self.view.addSubview(refreshButton)
-        self.view.addSubview(devButton)
+        self.view.addSubview(loginButton)
+        self.view.addSubview(logoutButton)
+        self.view.addSubview(sdkContainer)
+        
+        sdkContainer.addSubview(balance)
+        sdkContainer.addSubview(priceLabel)
+        sdkContainer.addSubview(refreshButton)
+        sdkContainer.addSubview(openWalletButton)
+        sdkContainer.addSubview(depositButton)
+        sdkContainer.addSubview(moneyDeposit)
+        sdkContainer.addSubview(withDrawButton)
+        sdkContainer.addSubview(moneyWithDraw)
+        sdkContainer.addSubview(payButton)
+        sdkContainer.addSubview(moneyPay)
+        
+        self.view.bringSubview(toFront: envList)
+        
         phoneTextField.delegate = self
         moneyDeposit.delegate = self
         moneyWithDraw.delegate = self
         moneyPay.delegate = self
+        envList.delegate = self
         
-        balance.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
-        balance.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        environment.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
+        environment.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         
-        priceLabel.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
-        priceLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -30).isActive = true
+        dropDown.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
+        dropDown.leadingAnchor.constraint(equalTo: environment.trailingAnchor, constant: 30).isActive = true
+        dropDown.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        dropDown.widthAnchor.constraint(equalToConstant: 150).isActive = true
+        dropDown.addTarget(self, action: #selector(onPressDropDown(_:)), for: .touchUpInside)
+        
+        envList.isHidden = true
+        envList.topAnchor.constraint(equalTo: dropDown.bottomAnchor).isActive = true
+        envList.centerXAnchor.constraint(equalTo: dropDown.centerXAnchor).isActive = true
+        envList.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        
+        
+        settingButton.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
+        settingButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        settingButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        settingButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        settingButton.addTarget(self, action: #selector(onPressSetting(_:)), for: .touchUpInside)
+        
+        userIDLabel.topAnchor.constraint(equalTo: environment.bottomAnchor, constant: 20).isActive = true
+        userIDLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        
+        userIDTextField.topAnchor.constraint(equalTo: userIDLabel.bottomAnchor, constant: 5).isActive = true
+        userIDTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        userIDTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        userIDTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        userIDTextField.text = UserDefaults.standard.string(forKey: "userID") ?? ""
+        
+        
+        phoneLabel.topAnchor.constraint(equalTo: userIDTextField.bottomAnchor, constant: 20).isActive = true
+        phoneLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        
+        phoneTextField.topAnchor.constraint(equalTo: phoneLabel.bottomAnchor, constant: 5).isActive = true
+        phoneTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        phoneTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        phoneTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        phoneTextField.text = UserDefaults.standard.string(forKey: "phone") ?? ""
+        
+        loginButton.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 20).isActive = true
+        loginButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        loginButton.trailingAnchor.constraint(equalTo: self.view.centerXAnchor, constant: -5).isActive = true
+        loginButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        loginButton.addTarget(self, action: #selector(submit), for: .touchUpInside)
+        
+        logoutButton.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 20).isActive = true
+        logoutButton.leadingAnchor.constraint(equalTo: self.view.centerXAnchor, constant: 5).isActive = true
+        logoutButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        logoutButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        logoutButton.addTarget(self, action: #selector(logout), for: .touchUpInside)
+        
+        sdkContainer.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 20).isActive = true
+        sdkContainer.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        sdkContainer.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        sdkContainer.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -50).isActive = true
+        
+        balance.topAnchor.constraint(equalTo: sdkContainer.topAnchor, constant: 20).isActive = true
+        balance.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         
         refreshButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         refreshButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        refreshButton.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 8).isActive = true
-        refreshButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
-        refreshButton.backgroundColor = .red
+        refreshButton.topAnchor.constraint(equalTo: sdkContainer.topAnchor, constant: 20).isActive = true
+        refreshButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         refreshButton.addTarget(self, action: #selector(getBalance(_:)), for: .touchUpInside)
         
-        userIDLabel.topAnchor.constraint(equalTo: balance.bottomAnchor, constant: 30).isActive = true
-        userIDLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        priceLabel.topAnchor.constraint(equalTo: sdkContainer.topAnchor, constant: 20).isActive = true
+        priceLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -30).isActive = true
         
-        devButton.topAnchor.constraint(equalTo: balance.bottomAnchor, constant: 20).isActive = true
-        devButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -10).isActive = true
-        
-        userIDTextField.topAnchor.constraint(equalTo: userIDLabel.bottomAnchor, constant: 10).isActive = true
-        userIDTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        userIDTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        userIDTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        
-        phoneLabel.topAnchor.constraint(equalTo: userIDTextField.bottomAnchor, constant: 10).isActive = true
-        phoneLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        
-        phoneTextField.topAnchor.constraint(equalTo: phoneLabel.bottomAnchor, constant: 10).isActive = true
-        phoneTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        phoneTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        phoneTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        // Do any additional setup after loading the view.
-        submitButton.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 10).isActive = true
-        submitButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        submitButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        submitButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        submitButton.addTarget(self, action: #selector(submit), for: .touchUpInside)
-        
-        openWalletButton.topAnchor.constraint(equalTo: submitButton.bottomAnchor, constant: 10).isActive = true
-        openWalletButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        openWalletButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        openWalletButton.topAnchor.constraint(equalTo: refreshButton.bottomAnchor, constant: 30).isActive = true
+        openWalletButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        openWalletButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         openWalletButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         openWalletButton.addTarget(self, action: #selector(openWalletAction), for: .touchUpInside)
         
-        depositButton.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 10).isActive = true
-        depositButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        depositButton.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 20).isActive = true
+        depositButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         depositButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        depositButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        depositButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         depositButton.addTarget(self, action: #selector(depositAction), for: .touchUpInside)
-
-        moneyDeposit.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 10).isActive = true
-        moneyDeposit.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 5).isActive = true
-        moneyDeposit.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        moneyDeposit.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        moneyDeposit.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 20).isActive = true
+        moneyDeposit.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true
+        moneyDeposit.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        moneyDeposit.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
         withDrawButton.topAnchor.constraint(equalTo: depositButton.bottomAnchor, constant: 10).isActive = true
-        withDrawButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        withDrawButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         withDrawButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        withDrawButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-
-        moneyWithDraw.topAnchor.constraint(equalTo: depositButton.bottomAnchor, constant: 10).isActive = true
-        moneyWithDraw.leadingAnchor.constraint(equalTo: withDrawButton.trailingAnchor, constant: 5).isActive = true
-        moneyWithDraw.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        moneyWithDraw.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        
+        withDrawButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         withDrawButton.addTarget(self, action: #selector(withDrawAction), for: .touchUpInside)
         
-        payButton.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
-        payButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        payButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        payButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-
-        moneyPay.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
-        moneyPay.leadingAnchor.constraint(equalTo: payButton.trailingAnchor, constant: 5).isActive = true
-        moneyPay.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        moneyPay.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        moneyWithDraw.topAnchor.constraint(equalTo: depositButton.bottomAnchor, constant: 10).isActive = true
+        moneyWithDraw.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true
+        moneyWithDraw.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        moneyWithDraw.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
-        devButton.addTarget(self, action: #selector(changeEnv), for: .touchUpInside)
+        
+        
+        payButton.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
+        payButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        payButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        payButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         payButton.addTarget(self, action: #selector(payAction), for: .touchUpInside)
+        
+        moneyPay.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
+        moneyPay.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true
+        moneyPay.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
         
         let defaults = UserDefaults.standard
         if let stringOne = defaults.string(forKey: "userID") {
