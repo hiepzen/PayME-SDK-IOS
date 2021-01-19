@@ -222,9 +222,21 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return textField
     }()
     
-    private let PUBLIC_KEY: String = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi\nwIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ=="
-    private let PRIVATE_KEY: String = "MIIBPAIBAAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKiwIhTJpAi1XnbfOSrW/Eb\nw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQJBAJSfTrSCqAzyAo59Ox+m\nQ1ZdsYWBhxc2084DwTHM8QN/TZiyF4fbVYtjvyhG8ydJ37CiG7d9FY1smvNG3iDC\ndwECIQDygv2UOuR1ifLTDo4YxOs2cK3+dAUy6s54mSuGwUeo4QIhAK7SiYDyGwGo\nCwqjOdgOsQkJTGoUkDs8MST0MtmPAAs9AiEAjLT1/nBhJ9V/X3f9eF+g/bhJK+8T\nKSTV4WE1wP0Z3+ECIA9E3DWi77DpWG2JbBfu0I+VfFMXkLFbxH8RxQ8zajGRAiEA\n8Ly1xJ7UW3up25h9aa9SILBpGqWtJlNQgfVKBoabzsU="
-    private let APP_ID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II"
+    private let PUBLIC_KEY: String = """
+    MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMwvSFz/mOfxBSVkGeqfRv3oQaCsx9V2
+    hqdL4Y0PK+r2P+8Jd9pOS61uehd1gsjU1/xMFHWFGKrH6lO8+TSLGukCAwEAAQ==
+    """
+    private let PRIVATE_KEY: String = """
+    MIIBOgIBAAJBAIpXByu/SQKImCFT5xTyqLe6zcqDAL/aapD4kYueJiSTFQYzobNx
+    UA7wRqsljHGfouFXB0gguiPjtoRWgY9XMpMCAwEAAQJALQVFgCcwS3LIj5AOk/Kk
+    laZlcpJPnCAoriU2uIkvQJdijzoz6baxQDY5xfxwBh7wExmKGvUWxR/qt7ULVf1a
+    AQIhAMVtGD6vc0zVBuIoWFE2RDYt28WN37p5zC1NtpRebnzjAiEAs2I4WSyUQSzD
+    P0yR0P+khUI/8oy/iZ/VSASAxzmjkpECIQCTRaZoXIkuL1tLKb14F3saz2q6G/Nh
+    L6pXwTkJxMe28QIgTiPG7/FfU1SwaG5uRmBVxkapnHp7JPQe8BQmFKKjAkECIBM4
+    Hel54r1RnKQVUtiLphlZgesayKzrtK2kAgssWKi1
+    """
+        
+    private let APP_ID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6NH0.U60jaOwKcaQ6bUX-6O21RMOoFR_5ZkjpGgj6rus0r60"
     private var connectToken: String = ""
     private var currentEnv: PayME.Env = PayME.Env.DEV
     
@@ -241,11 +253,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             self.setConnectToken(token: PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!))
             self.payME = PayME(
                 appID: UserDefaults.standard.string(forKey: "appToken") ?? "",
-                publicKey: UserDefaults.standard.string(forKey: "publicKey") ?? "",
+                publicKey: self.PUBLIC_KEY,
                 connectToken: self.connectToken,
-                appPrivateKey: UserDefaults.standard.string(forKey: "secretKey") ?? "",
+                appPrivateKey: self.PRIVATE_KEY,
                 env: self.currentEnv,
                 configColor: ["#75255b", "#a81308"])
+            print(UserDefaults.standard.string(forKey: "secretKey") ?? "")
             self.loginButton.backgroundColor = UIColor.gray
             self.logoutButton.backgroundColor = UIColor.white
             }
@@ -478,7 +491,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     func toastMess(title: String, value: String?) {
         let alert = UIAlertController(title: title, message: value ?? "Có lỗi xảy ra", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-        self.present(alert, animated: true, completion: nil)
+        DispatchQueue.main.async {
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     override func viewDidLoad() {

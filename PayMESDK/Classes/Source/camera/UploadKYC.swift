@@ -71,19 +71,16 @@ public class UploadKYC{
                                     PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0],navigationArray[1]]
                                     (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
                                 }
-                                return
                             }
                         }
                     } else {
                         DispatchQueue.main.async {
                             PayME.currentVC?.removeSpinner()
-                            return
+                            self.toastMess(title: "Lỗi", message: result["message"] as? String ?? "Something went wrong")
                         }
-                        self.toastMess(title: "Lỗi", message: result["message"] as? String ?? "Something went wrong")
                     }
                 }
             },onError: {error in
-                print(error)
                 if let extensions = error["extensions"] as? [String:AnyObject] {
                     let code = extensions["code"] as? Int
                     if (code != nil) {

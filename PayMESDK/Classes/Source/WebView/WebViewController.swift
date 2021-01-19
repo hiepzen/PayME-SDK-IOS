@@ -192,6 +192,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             } else {
                 myRequest = URLRequest(url: URL(string: "http://localhost:3000/")!)
             }
+            print(myURL)
             
             if #available(iOS 11.0, *) {
                 webView.scrollView.contentInsetAdjustmentBehavior = .never;

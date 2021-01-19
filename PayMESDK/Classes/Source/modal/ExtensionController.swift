@@ -59,6 +59,23 @@ extension UITextField {
     }
 }
 
+extension String {
+      var fixedBase64Format: Self {
+        let offset = count % 4
+        guard offset != 0 else { return self }
+        return padding(toLength: count + 4 - offset, withPad: "=", startingAt: 0)
+      }
+    func fromBase64() -> String? {
+            guard let data = Data(base64Encoded: fixedBase64Format) else {
+                    return nil
+            }
+            return String(data: data, encoding: .utf8)
+    }
+    func toBase64() -> String {
+            return Data(self.utf8).base64EncodedString()
+    }
+}
+
 extension UIViewController {
     func showSpinner(onView : UIView) {
         let currentWindow: UIWindow? = UIApplication.shared.keyWindow

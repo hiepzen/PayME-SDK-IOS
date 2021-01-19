@@ -125,10 +125,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                     let statePay = pay["payment"] as? [String:AnyObject]
                                     if (statePay == nil) {
                                         let message = pay["message"] as! String
-
-                                        self.setupFail()
                                         self.failView.failLabel.text = message
-                                        
+                                        self.setupFail()
                                         self.removeSpinner()
                                         return
                                     }
@@ -147,15 +145,15 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                             webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                                                 webViewController.dismiss(animated: true)
                                                 self.removeSpinner()
-                                                self.setupFail()
                                                 self.failView.failLabel.text = responseFromWebView
+                                                self.setupFail()
                                             })
                                             self.presentPanModal(webViewController)
                                         }
                                     } else {
                                         let message = statePay!["message"] as! String
-                                        self.setupFail()
                                         self.failView.failLabel.text = message
+                                        self.setupFail()
                                         self.removeSpinner()
                                     }
                                 }

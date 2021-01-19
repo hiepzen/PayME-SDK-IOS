@@ -11,6 +11,7 @@ import UIKit
 import Alamofire
 import CryptoSwift
 import AVFoundation
+import SwCrypt
 
 public class PayME{
     internal static var appPrivateKey: String = ""
@@ -47,10 +48,11 @@ public class PayME{
     }
     
     public init(appID: String, publicKey: String, connectToken: String, appPrivateKey: String, env: Env, configColor: [String]) {
-        PayME.appPrivateKey = trimKeyRSA(key: appPrivateKey);
+        print(appPrivateKey)
         PayME.appID = appID;
         PayME.connectToken = connectToken;
-        PayME.publicKey = trimKeyRSA(key:publicKey);
+        PayME.publicKey = publicKey;
+        PayME.appPrivateKey = appPrivateKey;
         PayME.env = env;
         PayME.configColor = configColor;
         PayME.accessToken = ""
@@ -94,7 +96,7 @@ public class PayME{
     public static func genConnectToken(userId: String, phone: String) -> String {
         let data : [String: Any] = ["timestamp": (Date().timeIntervalSince1970), "userId" : "\(userId)", "phone" : "\(phone)"]
         let params = try? JSONSerialization.data(withJSONObject: data)
-        let aes = try? AES(key: Array("3zA9HDejj1GnyVK0".utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
+        let aes = try? AES(key: Array("zfQpwE6iHbOeAfgX".utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
         let dataEncrypted = try? aes!.encrypt(Array(String(data: params!, encoding: .utf8)!.utf8))
         print(dataEncrypted!.toBase64()!)
         return dataEncrypted!.toBase64()!
@@ -317,6 +319,9 @@ public class PayME{
             """
             {
               "connectToken":  "\(PayME.connectToken)",
+              "publicKey": "\(PayME.publicKey)",
+              "privateKey": "\(PayME.appPrivateKey)",
+              "xApi": "\(PayME.appID)",
               "appToken": "\(PayME.appID)",
               "clientId": "\(PayME.clientID)",
               "configColor":["\(handleColor(input:PayME.configColor))"],
@@ -348,6 +353,7 @@ public class PayME{
                 "showLog" : "1"
             }
             """
+    
             let webViewController = WebViewController(nibName: "WebView", bundle: nil)
             let url = urlWebview(env: PayME.env)
 

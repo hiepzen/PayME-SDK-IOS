@@ -85,7 +85,9 @@ public class NetworkRequest {
     ) {
         let encryptKey = "10000000"
         guard let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey) else {
-            onError([500 : "Public Key sai định dạng" as Any])
+            DispatchQueue.main.async {
+                onError([500 : "Public Key sai định dạng" as Any])
+            }
             return
         }
         
@@ -152,7 +154,9 @@ public class NetworkRequest {
             let xAPIActionResponse = headers.allHeaderFields["x-api-action"] as! String
             
             guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
-                onError([500 : "Private Key sai định dạng" as Any])
+                DispatchQueue.main.async {
+                    onError([500 : "Private Key sai định dạng" as Any])
+                }
                 return
             }
             
@@ -197,6 +201,7 @@ public class NetworkRequestGraphQL {
     private var params: Data?
     private var publicKey: String
     private var privateKey: String
+    private var appToken : String
     
     init(url: String, path: String, token: String, params: Data?, publicKey: String, privateKey: String) {
         self.url = url
@@ -205,6 +210,20 @@ public class NetworkRequestGraphQL {
         self.params = params
         self.publicKey = publicKey
         self.privateKey = privateKey
+        let temp = PayME.appID.components(separatedBy: ".")
+        let appToken = temp[1].fromBase64()
+        if (appToken != nil) {
+            let data = Data(appToken!.utf8)
+            if let finalJSON = try? (JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) as? Dictionary<String, AnyObject>) {
+                let appId = finalJSON!["appId"] as? Int
+                let stringAppId = String(appId ?? 0)
+                self.appToken = stringAppId
+            } else {
+                self.appToken = ""
+            }
+        } else {
+            self.appToken = ""
+        }
     }
     
     public func setOnRequest(
@@ -282,7 +301,9 @@ public class NetworkRequestGraphQL {
         let encryptKey = "10000000"
         
         guard let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey) else {
-            onError(["message" : "Public Key sai định dạng" as AnyObject])
+            DispatchQueue.main.async {
+                onError(["message" : "Public Key sai định dạng" as AnyObject])
+            }
             return
         }
         let xAPIAction = CryptoAES.encryptAES(text: path, password: encryptKey)
@@ -308,7 +329,7 @@ public class NetworkRequestGraphQL {
         request.addValue(self.token, forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("app", forHTTPHeaderField: "x-api-client")
+        request.addValue(appToken, forHTTPHeaderField: "x-api-client")
         request.addValue(xAPIKey, forHTTPHeaderField: "x-api-key")
         request.addValue(xAPIAction, forHTTPHeaderField: "x-api-action")
         request.addValue(xAPIValidate, forHTTPHeaderField: "x-api-validate")
@@ -346,9 +367,10 @@ public class NetworkRequestGraphQL {
             let xAPIKeyResponse = headers.allHeaderFields["x-api-key"] as! String
             let xAPIValidateResponse = headers.allHeaderFields["x-api-validate"] as! String
             let xAPIActionResponse = headers.allHeaderFields["x-api-action"] as! String
-            
             guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
-                onError(["message" : "Private Key sai định dạng" as AnyObject])
+                DispatchQueue.main.async {
+                    onError(["message" : "Private Key sai định dạng" as AnyObject])
+                }
                 return
             }
             
@@ -358,7 +380,7 @@ public class NetworkRequestGraphQL {
             validateString += self.token
             validateString += xAPIMessageResponse
             validateString += decryptKey
-         
+            
             let validateMD5 = CryptoAES.MD5(validateString)!
             let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey)
             let formattedString = self.formatString(dataRaw : stringJSON)

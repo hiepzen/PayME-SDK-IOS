@@ -34,8 +34,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                             
                         } else {
                                 self.securityCode.removeFromSuperview()
-                                self.setupFail()
                                 self.failView.failLabel.text = message
+                                self.setupFail()
                             
                         }
                         self.removeSpinner()
@@ -60,8 +60,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         })
                     } else {
                         self.securityCode.removeFromSuperview()
-                        self.setupFail()
                         self.failView.failLabel.text = message
+                        self.setupFail()
                     }
                     
                 }
@@ -88,8 +88,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 } else {
                     DispatchQueue.main.async {
                         self.otpView.removeFromSuperview()
-                        self.setupFail()
                         self.failView.failLabel.text = message
+                        self.setupFail()
                     }
                 }
                 self.removeSpinner()
@@ -446,17 +446,18 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                             webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                                 webViewController.dismiss(animated: true)
                                 self.methodsView.removeFromSuperview()
-                                self.setupFail()
                                 self.failView.failLabel.text = responseFromWebView
+                                self.setupFail()
                             })
                             self.presentPanModal(webViewController)
                         }
                     } else {
                         self.removeSpinner()
                         self.methodsView.removeFromSuperview()
-                        self.setupFail()
                         let message = payment["message"] as? String
                         self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
+                        self.setupFail()
+                        
                     }
                 }
             }, onError: { flowError in
