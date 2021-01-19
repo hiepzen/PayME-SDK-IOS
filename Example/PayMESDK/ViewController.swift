@@ -11,9 +11,12 @@ import PayMESDK
 
 class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     
+    var floatingButtonController: FloatingButtonController = FloatingButtonController()
     var payME : PayME?
     var activeTextField : UITextField? = nil
     let envData : Dictionary = ["dev": PayME.Env.DEV, "sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION]
+  
+
     
     let environment: UILabel = {
         let label = UILabel()
@@ -472,7 +475,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        navigationController?.isNavigationBarHidden = false
+        let isShowLog = UserDefaults.standard.bool(forKey: "isShowLog")
+        if (isShowLog) {
+            self.floatingButtonController.showWindow()
+        } else {
+            self.floatingButtonController.hideWindow()
+        }
     }
 
     func toastMess(title: String, value: String?) {

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2016408525B1990600B84552 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016408425B1990600B84552 /* SettingsView.swift */; };
 		2016409025B5784C00B84552 /* FloatingButtonController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016408F25B5784C00B84552 /* FloatingButtonController.swift */; };
+		2016409225B6867300B84552 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016409125B6867300B84552 /* ListViewController.swift */; };
 		52712E1D2589F4BD00C31DCD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 52712E1C2589F4BD00C31DCD /* GoogleService-Info.plist */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
@@ -23,6 +24,7 @@
 		1A94455197E9788A249F4432 /* Pods-PayMESDK_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PayMESDK_Example.release.xcconfig"; path = "Target Support Files/Pods-PayMESDK_Example/Pods-PayMESDK_Example.release.xcconfig"; sourceTree = "<group>"; };
 		2016408425B1990600B84552 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		2016408F25B5784C00B84552 /* FloatingButtonController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingButtonController.swift; sourceTree = "<group>"; };
+		2016409125B6867300B84552 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		4B578284507BDE8E91EBCCB0 /* PayMESDK.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = PayMESDK.podspec; path = ../PayMESDK.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		51D1ACA6B52098FAAAC4EE39 /* Pods_PayMESDK_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PayMESDK_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		52712E1C2589F4BD00C31DCD /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				52712E1C2589F4BD00C31DCD /* GoogleService-Info.plist */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
+				2016409125B6867300B84552 /* ListViewController.swift */,
 			);
 			name = "Example for PayMESDK";
 			path = PayMESDK;
@@ -313,6 +316,7 @@
 				2016408525B1990600B84552 /* SettingsView.swift in Sources */,
 				2016409025B5784C00B84552 /* FloatingButtonController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
+				2016409225B6867300B84552 /* ListViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
