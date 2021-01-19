@@ -290,7 +290,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     func setupCamera(dictionary: [String: AnyObject]) {
         var dictionary = dictionary as! [String: Bool]
-        // dictionary = ["kycIdentifyImg": true, "kycFace": true, "kycVideo": true]
         var kycController = KYCController(flowKYC: dictionary)
         kycController.kyc()
     }

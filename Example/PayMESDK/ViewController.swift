@@ -372,7 +372,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let amount = Int(moneyPay.text!)
                 if (amount! >= 10000){
                     let amountPay = amount!
-                    payME!.pay(currentVC: self, storeId: 1, orderId: 1, amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in}, onError: {error in
+                    payME!.pay(currentVC: self, storeId: 1, orderId: "hello", amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in}, onError: {error in
                         let message = error["message"] as? String
                         self.toastMess(title: "Lỗi", value: message)
                         }

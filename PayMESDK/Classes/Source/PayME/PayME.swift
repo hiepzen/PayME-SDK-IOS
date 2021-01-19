@@ -419,7 +419,7 @@ public class PayME{
                         let methods = Methods()
                         Methods.amount = (detect["amount"] as? Int) ?? 0
                         Methods.storeId = (detect["stordeId"] as? Int) ?? 0
-                        Methods.orderId = (detect["orderId"] as? Int) ?? 0
+                        Methods.orderId = (detect["orderId"] as? String) ?? ""
                         Methods.note = (detect["note"] as? String) ?? ""
                         methods.appENV = PayME.appENV
                         methods.onSuccess = onSuccess
@@ -438,7 +438,7 @@ public class PayME{
                                 methods.appENV = PayME.appENV
                                 Methods.amount = (detect["amount"] as? Int) ?? 0
                                 Methods.storeId = (detect["stordeId"] as? Int) ?? 0
-                                Methods.orderId = (detect["orderId"] as? Int) ?? 0
+                                Methods.orderId = (detect["orderId"] as? String) ?? ""
                                 Methods.note = (detect["note"] as? String) ?? ""
                                 methods.onSuccess = onSuccess
                                 methods.onError = onError
@@ -482,7 +482,7 @@ public class PayME{
         return nil
     }
     
-    public func pay(currentVC : UIViewController,storeId: Int, orderId: Int, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
+    public func pay(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
         API.getSetting(onSuccess: {success in
             print(success)
         }, onError: {error in

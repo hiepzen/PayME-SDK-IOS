@@ -84,7 +84,11 @@ public class NetworkRequest {
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         let encryptKey = "10000000"
-        let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey)
+        guard let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey) else {
+            onError([500 : "Public Key sai định dạng" as Any])
+            return
+        }
+        
         let xAPIAction = CryptoAES.encryptAES(text: path, password: encryptKey)
         var xAPIMessage = ""
         if self.params != nil{
@@ -110,7 +114,7 @@ public class NetworkRequest {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("app", forHTTPHeaderField: "x-api-client")
-        request.addValue(xAPIKey!, forHTTPHeaderField: "x-api-key")
+        request.addValue(xAPIKey, forHTTPHeaderField: "x-api-key")
         request.addValue(xAPIAction, forHTTPHeaderField: "x-api-action")
         request.addValue(xAPIValidate, forHTTPHeaderField: "x-api-validate")
         let jsonBody = ["x-api-message": xAPIMessage]
@@ -147,17 +151,20 @@ public class NetworkRequest {
             let xAPIValidateResponse = headers.allHeaderFields["x-api-validate"] as! String
             let xAPIActionResponse = headers.allHeaderFields["x-api-action"] as! String
             
-            let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey)
+            guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
+                onError([500 : "Private Key sai định dạng" as Any])
+                return
+            }
             
             var validateString = ""
             validateString += xAPIActionResponse
             validateString += "POST"
             validateString += self.token
             validateString += xAPIMessageResponse
-            validateString += decryptKey!
+            validateString += decryptKey
          
             let validateMD5 = CryptoAES.MD5(validateString)!
-            let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey!)
+            let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey)
             let dataJSON = stringJSON.data(using: .utf8)
             guard let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options: []) as? Dictionary<String, AnyObject> else {
                 return
@@ -273,7 +280,11 @@ public class NetworkRequestGraphQL {
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         let encryptKey = "10000000"
-        let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey)
+        
+        guard let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey) else {
+            onError(["message" : "Public Key sai định dạng" as AnyObject])
+            return
+        }
         let xAPIAction = CryptoAES.encryptAES(text: path, password: encryptKey)
         var xAPIMessage = ""
         if self.params != nil{
@@ -298,7 +309,7 @@ public class NetworkRequestGraphQL {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("app", forHTTPHeaderField: "x-api-client")
-        request.addValue(xAPIKey!, forHTTPHeaderField: "x-api-key")
+        request.addValue(xAPIKey, forHTTPHeaderField: "x-api-key")
         request.addValue(xAPIAction, forHTTPHeaderField: "x-api-action")
         request.addValue(xAPIValidate, forHTTPHeaderField: "x-api-validate")
         let jsonBody = ["x-api-message": xAPIMessage]
@@ -336,17 +347,20 @@ public class NetworkRequestGraphQL {
             let xAPIValidateResponse = headers.allHeaderFields["x-api-validate"] as! String
             let xAPIActionResponse = headers.allHeaderFields["x-api-action"] as! String
             
-            let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey)
+            guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
+                onError(["message" : "Private Key sai định dạng" as AnyObject])
+                return
+            }
             
             var validateString = ""
             validateString += xAPIActionResponse
             validateString += "POST"
             validateString += self.token
             validateString += xAPIMessageResponse
-            validateString += decryptKey!
+            validateString += decryptKey
          
             let validateMD5 = CryptoAES.MD5(validateString)!
-            let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey!)
+            let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey)
             let formattedString = self.formatString(dataRaw : stringJSON)
             let dataJSON = formattedString.data(using: .utf8)
             if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options:[]) as? Dictionary<String, AnyObject> {
