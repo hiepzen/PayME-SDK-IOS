@@ -33,10 +33,10 @@ Hệ thống PayME sẽ cung cấp cho app tích hợp các thông tin sau:
 
 Bên App sẽ cung cấp cho hệ thống PayME các thông tin sau:
 
-- **AppPublicKey** : Sẽ gửi qua hệ thống backend của PayME dùng để mã hóa.
+- **AppPublicKey** : Sẽ gửi qua hệ thống backend của PayME dùng để mã hóa. (không truyền vào SDK này )
 - **AppPrivateKey**: Sẽ truyền vào PayME SDK để thực hiện việc giải mã.
 
-Chuẩn mã hóa: RSA-512bit.
+Chuẩn mã hóa: RSA-512bit. Có thể dùng tool sau để sinh ra [tại đây](https://travistidwell.com/jsencrypt/demo/)
 
 ### Khởi tạo PayME SDK:
 
@@ -53,11 +53,11 @@ let payme = PayME( appId : "AppToken",
 ```
 
 Trong đó các thông số có dạng:
-- appPrivateKey:
+- appPrivateKey:là private key của app tự sinh ra như trên
 
 "MIIBPAIBAAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKiwIhTJpAi1XnbfOSrW/Eb\nw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQJBAJSfTrSCqAzyAo59Ox+m\nQ1ZdsYWBhxc2084DwTHM8QN/TZiyF4fbVYtjvyhG8ydJ37CiG7d9FY1smvNG3iDC\ndwECIQDygv2UOuR1ifLTDo4YxOs2cK3+dAUy6s54mSuGwUeo4QIhAK7SiYDyGwGo\nCwqjOdgOsQkJTGoUkDs8MST0MtmPAAs9AiEAjLT1/nBhJ9V/X3f9eF+g/bhJK+8T\nKSTV4WE1wP0Z3+ECIA9E3DWi77DpWG2JbBfu0I+VfFMXkLFbxH8RxQ8zajGRAiEA\n8Ly1xJ7UW3up25h9aa9SILBpGqWtJlNQgfVKBoabzsU="
 
-- publicKey:
+- publicKey: là public key được PayME cung cấp cho mỗi app riêng biệt.
 
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II"
 
