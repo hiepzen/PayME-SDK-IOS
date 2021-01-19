@@ -40,7 +40,7 @@ class SettingsView: UIViewController{
         label.font = label.font.withSize(16)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "App Secret Key"
+        label.text = "App Public Key"
         return label
     }()
     let appPKTextField: UITextField = {
