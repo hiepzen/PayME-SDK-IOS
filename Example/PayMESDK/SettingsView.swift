@@ -40,7 +40,7 @@ class SettingsView: UIViewController{
         label.font = label.font.withSize(16)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "App Secret Key"
+        label.text = "App Public Key"
         return label
     }()
     let appPKTextField: UITextField = {
@@ -63,6 +63,23 @@ class SettingsView: UIViewController{
         return button
     }()
     
+    let checkBox: UIButton = {
+       let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    let showLogLabel: UILabel = {
+        let label = UILabel()
+        label.font = label.font.withSize(16)
+        label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Show Console log"
+        return label
+    }()
+    
+    var isShowLog: Bool = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Settings"
@@ -76,6 +93,11 @@ class SettingsView: UIViewController{
         self.view.addSubview(appPublicKey)
         self.view.addSubview(appPKTextField)
         self.view.addSubview(saveButton)
+        self.view.addSubview(checkBox)
+        self.view.addSubview(showLogLabel)
+        
+        let isShow = UserDefaults.standard.bool(forKey: "isShowLog")
+        setShowLog(showLog: isShow)
         
         appToken.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 30).isActive = true
         appToken.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
@@ -108,18 +130,42 @@ class SettingsView: UIViewController{
         saveButton.bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor, constant: -30).isActive = true
         saveButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
         saveButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        saveButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        saveButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
         saveButton.addTarget(self, action: #selector(onPressSave(_:)), for: .touchUpInside)
+        
+        checkBox.topAnchor.constraint(equalTo: appPKTextField.bottomAnchor, constant: 20).isActive = true
+        checkBox.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        checkBox.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        checkBox.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        checkBox.addTarget(self, action: #selector(onPressCheckbox(_:)), for: .touchUpInside)
 
+        showLogLabel.topAnchor.constraint(equalTo: appPKTextField.bottomAnchor, constant: 20).isActive = true
+        showLogLabel.leadingAnchor.constraint(equalTo: checkBox.trailingAnchor, constant: 10).isActive = true
+    }
+    
+    func setShowLog(showLog: Bool) {
+        isShowLog = showLog
+        if (showLog) {
+            checkBox.setImage(UIImage(named: "checked.svg"), for: .normal)
+        } else {
+            checkBox.setImage(UIImage(named: "uncheck.svg"), for: .normal)
+        }
+    }
+    
+    @IBAction func onPressCheckbox(_ sender: UIButton){
+        setShowLog(showLog: !isShowLog)
     }
     
     @IBAction func onPressSave(_ sender: UIButton){
         UserDefaults.standard.set(self.appTokenTextField.text, forKey: "appToken")
         UserDefaults.standard.set(self.appSKTextField.text, forKey: "secretKey")
         UserDefaults.standard.set(self.appPKTextField.text, forKey: "publicKey")
-        let alert = UIAlertController(title: "Saved", message: "Đã lưu cài đặt!", preferredStyle: UIAlertController.Style.alert)
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-        self.present(alert, animated: true, completion: nil)
+        UserDefaults.standard.set(self.isShowLog, forKey: "isShowLog")
+        navigationController?.popToRootViewController(animated: true)
+//
+//        let alert = UIAlertController(title: "Saved", message: "Đã lưu cài đặt!", preferredStyle: UIAlertController.Style.alert)
+//        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+//        self.present(alert, animated: true, completion: nil)
     }
 }
 
