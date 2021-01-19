@@ -15,8 +15,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var payME : PayME?
     var activeTextField : UITextField? = nil
     let envData : Dictionary = ["dev": PayME.Env.DEV, "sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION]
-  
-
+    
+    
     
     let environment: UILabel = {
         let label = UILabel()
@@ -225,9 +225,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return textField
     }()
     
-    private let PUBLIC_KEY: String = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi\nwIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ=="
-    private let PRIVATE_KEY: String = "MIIBPAIBAAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKiwIhTJpAi1XnbfOSrW/Eb\nw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQJBAJSfTrSCqAzyAo59Ox+m\nQ1ZdsYWBhxc2084DwTHM8QN/TZiyF4fbVYtjvyhG8ydJ37CiG7d9FY1smvNG3iDC\ndwECIQDygv2UOuR1ifLTDo4YxOs2cK3+dAUy6s54mSuGwUeo4QIhAK7SiYDyGwGo\nCwqjOdgOsQkJTGoUkDs8MST0MtmPAAs9AiEAjLT1/nBhJ9V/X3f9eF+g/bhJK+8T\nKSTV4WE1wP0Z3+ECIA9E3DWi77DpWG2JbBfu0I+VfFMXkLFbxH8RxQ8zajGRAiEA\n8Ly1xJ7UW3up25h9aa9SILBpGqWtJlNQgfVKBoabzsU="
-    private let APP_ID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II"
+    private let PUBLIC_KEY: String = """
+        -----BEGIN PUBLIC KEY-----
+        MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMwvSFz/mOfxBSVkGeqfRv3oQaCsx9V2
+        hqdL4Y0PK+r2P+8Jd9pOS61uehd1gsjU1/xMFHWFGKrH6lO8+TSLGukCAwEAAQ==
+        -----END PUBLIC KEY-----
+        """
+    private let PRIVATE_KEY: String = """
+        MIIBOgIBAAJBAIpXByu/SQKImCFT5xTyqLe6zcqDAL/aapD4kYueJiSTFQYzobNxUA7wRqsljHGfouFXB0gguiPjtoRWgY9XMpMCAwEAAQJALQVFgCcwS3LIj5AOk/KklaZlcpJPnCAoriU2uIkvQJdijzoz6baxQDY5xfxwBh7wExmKGvUWxR/qt7ULVf1aAQIhAMVtGD6vc0zVBuIoWFE2RDYt28WN37p5zC1NtpRebnzjAiEAs2I4WSyUQSzDP0yR0P+khUI/8oy/iZ/VSASAxzmjkpECIQCTRaZoXIkuL1tLKb14F3saz2q6G/NhL6pXwTkJxMe28QIgTiPG7/FfU1SwaG5uRmBVxkapnHp7JPQe8BQmFKKjAkECIBM4Hel54r1RnKQVUtiLphlZgesayKzrtK2kAgssWKi1
+        """
+    private let APP_ID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6NH0.U60jaOwKcaQ6bUX-6O21RMOoFR_5ZkjpGgj6rus0r60"
+    
     private var connectToken: String = ""
     private var currentEnv: PayME.Env = PayME.Env.DEV
     
@@ -241,21 +249,21 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             } else {
-            let newConnectToken = PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
+                let newConnectToken = PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
                 Log.custom.push(title: "Connect Token Generator", message: newConnectToken)
-            self.setConnectToken(token: newConnectToken)
-            self.payME = PayME(
-                appID: UserDefaults.standard.string(forKey: "appToken") ?? "",
-                publicKey: UserDefaults.standard.string(forKey: "publicKey") ?? "",
-                connectToken: self.connectToken,
-                appPrivateKey: UserDefaults.standard.string(forKey: "secretKey") ?? "",
-                env: self.currentEnv,
-                configColor: ["#75255b", "#a81308"])
-            self.loginButton.backgroundColor = UIColor.gray
-            self.logoutButton.backgroundColor = UIColor.white
+                self.setConnectToken(token: newConnectToken)
+                self.payME = PayME(
+                    appID: UserDefaults.standard.string(forKey: "appToken") ?? "",
+                    publicKey: UserDefaults.standard.string(forKey: "publicKey") ?? "",
+                    connectToken: self.connectToken,
+                    appPrivateKey: UserDefaults.standard.string(forKey: "secretKey") ?? "",
+                    env: self.currentEnv,
+                    configColor: ["#75255b", "#a81308"])
+                self.loginButton.backgroundColor = UIColor.gray
+                self.logoutButton.backgroundColor = UIColor.white
             }
         } else {
-           let alert = UIAlertController(title: "Success", message: "Vui lòng nhập userID", preferredStyle: UIAlertController.Style.alert)
+            let alert = UIAlertController(title: "Success", message: "Vui lòng nhập userID", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
@@ -285,7 +293,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return Array(envData.keys)[row]
     }
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-       setEnv(env: envData[Array(envData.keys)[row]], text: Array(envData.keys)[row])
+        setEnv(env: envData[Array(envData.keys)[row]], text: Array(envData.keys)[row])
         pickerView.isHidden = true
         self.logout(sender: logoutButton)
     }
@@ -299,17 +307,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         Log.custom.push(title: "Log out", message: "Success")
     }
     
-
+    
     @objc func openWalletAction(sender: UIButton!) {
         if (self.connectToken != "") {
             payME!.openWallet(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil,
-            onSuccess: { success in
-                Log.custom.push(title: "Open wallet", message: success)
-            }, onError: {error in
-                Log.custom.push(title: "Open wallet", message: error)
-                let message = error["message"] as? String
-                self.toastMess(title: "Lỗi", value: message)
-            })
+                              onSuccess: { success in
+                                Log.custom.push(title: "Open wallet", message: success)
+                              }, onError: {error in
+                                Log.custom.push(title: "Open wallet", message: error)
+                                let message = error["message"] as? String
+                                self.toastMess(title: "Lỗi", value: message)
+                              })
         } else {
             toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
         }
@@ -327,17 +335,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         let message = error["message"] as? String
                         self.toastMess(title: "Lỗi", value: message)
                     })
-
+                    
                 } else {
                     toastMess(title: "Lỗi", value: "Vui lòng nạp hơn 10.000VND")
                 }
             } else {
                 toastMess(title: "Lỗi", value: "Vui lòng nạp hơn 10.000VND")
-
+                
             }
         } else {
             toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
-
+            
         }
     }
     
@@ -348,24 +356,24 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 if (amount! >= 10000){
                     let amountWithDraw = amount!
                     self.payME!.withdraw(currentVC: self, amount: amountWithDraw, description: "", extraData: nil,
-                     onSuccess: {success in
-                        Log.custom.push(title: "withdraw", message: success)
-                        
-                    }, onError: {error in
-                        Log.custom.push(title: "withdraw", message: error)
-                        let message = error["message"] as? String
-                        self.toastMess(title: "Lỗi", value: message)
-                    })
+                                         onSuccess: {success in
+                                            Log.custom.push(title: "withdraw", message: success)
+                                            
+                                         }, onError: {error in
+                                            Log.custom.push(title: "withdraw", message: error)
+                                            let message = error["message"] as? String
+                                            self.toastMess(title: "Lỗi", value: message)
+                                         })
                 } else {
                     toastMess(title: "Lỗi", value: "Vui lòng rút hơn 10.000VND")
                 }
             } else {
                 toastMess(title: "Lỗi", value: "Vui lòng rút hơn 10.000VND")
-
+                
             }
         } else {
             toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
-
+            
         }
         
     }
@@ -381,7 +389,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         Log.custom.push(title: "pay", message: error)
                         let message = error["message"] as? String
                         self.toastMess(title: "Lỗi", value: message)
-                        }
+                    }
                     )
                 } else {
                     toastMess(title: "Lỗi", value: "Vui lòng thanh toán hơn 10.000VND")
@@ -393,7 +401,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             
         } else {
             toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
-
+            
         }
     }
     
@@ -403,7 +411,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 Log.custom.push(title: "get Wallet Info", message: a)
                 var str = ""
                 if let v = a["Wallet"]!["balance"]! {
-                   str = "\(v)"
+                    str = "\(v)"
                 }
                 let alert = UIAlertController(title: "Thành công", message: "Lấy balance thành công", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
@@ -415,7 +423,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let message = error["message"] as? String
                 self.priceLabel.text = "0"
                 self.toastMess(title: "Lỗi", value: message)
-
+                
             })
         }
         else {
@@ -435,33 +443,33 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
     @objc func keyboardWillShow(notification: NSNotification) {
         guard let keyboardSize = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
-
-          // if keyboard size is not available for some reason, dont do anything
-          return
+            
+            // if keyboard size is not available for some reason, dont do anything
+            return
         }
-
+        
         var shouldMoveViewUp = false
-
+        
         // if active text field is not nil
         if let activeTextField = activeTextField {
-
-          let bottomOfTextField = activeTextField.convert(activeTextField.bounds, to: self.view).maxY;
-          
-          let topOfKeyboard = self.view.frame.height - keyboardSize.height
-
-          // if the bottom of Textfield is below the top of keyboard, move up
-          if bottomOfTextField > topOfKeyboard {
-            shouldMoveViewUp = true
-          }
+            
+            let bottomOfTextField = activeTextField.convert(activeTextField.bounds, to: self.view).maxY;
+            
+            let topOfKeyboard = self.view.frame.height - keyboardSize.height
+            
+            // if the bottom of Textfield is below the top of keyboard, move up
+            if bottomOfTextField > topOfKeyboard {
+                shouldMoveViewUp = true
+            }
         }
-
+        
         if(shouldMoveViewUp) {
-          self.view.frame.origin.y = 0 - keyboardSize.height
+            self.view.frame.origin.y = 0 - keyboardSize.height
         }
     }
     @objc func keyboardWillHide(notification: NSNotification) {
-      // move back the root view origin to zero
-      self.view.frame.origin.y = 0
+        // move back the root view origin to zero
+        self.view.frame.origin.y = 0
     }
     
     @IBAction func onPressSetting(_ sender: UIButton){
@@ -489,11 +497,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             self.floatingButtonController.hideWindow()
         }
     }
-
+    
     func toastMess(title: String, value: String?) {
         let alert = UIAlertController(title: title, message: value ?? "Có lỗi xảy ra", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-        self.present(alert, animated: true, completion: nil)
+        DispatchQueue.main.async {
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     override func viewDidLoad() {
@@ -642,7 +652,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyPay.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true
         moneyPay.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
-
+        
         
         let appToken = UserDefaults.standard.string(forKey: "appToken") ?? ""
         if (appToken == ""){
@@ -657,6 +667,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             UserDefaults.standard.set(PUBLIC_KEY, forKey: "publicKey")
         }
         
+        let env = UserDefaults.standard.string(forKey: "env") ?? ""
+        if (env == ""){
+            self.setEnv(env: PayME.Env.DEV, text: "dev")
+        } else {
+            envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
+            self.setEnv(env: envData[env], text: env)
+        }
+        
         let connectToken = UserDefaults.standard.string(forKey: "connectToken") ?? ""
         if (connectToken != "") {
             self.setConnectToken(token: connectToken)
@@ -669,28 +687,22 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             self.logoutButton.backgroundColor = UIColor.gray
         }
         
-        let env = UserDefaults.standard.string(forKey: "env") ?? ""
-        if (env == ""){
-            self.setEnv(env: PayME.Env.DEV, text: "dev")
-        } else {
-            envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
-            self.setEnv(env: envData[env], text: env)
-        }
-    
+       
+        
     }
     
 }
 extension ViewController : UITextFieldDelegate {
-  // when user select a textfield, this method will be called
-  func textFieldDidBeginEditing(_ textField: UITextField) {
-    // set the activeTextField to the selected textfield
-    self.activeTextField = textField
-  }
+    // when user select a textfield, this method will be called
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        // set the activeTextField to the selected textfield
+        self.activeTextField = textField
+    }
     
-  // when user click 'done' or dismiss the keyboard
-  func textFieldDidEndEditing(_ textField: UITextField) {
-    self.activeTextField = nil
-  }
+    // when user click 'done' or dismiss the keyboard
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        self.activeTextField = nil
+    }
 }
 
 extension UITextField {
