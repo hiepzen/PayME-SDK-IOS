@@ -21,7 +21,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 let securtiySucceeded = securityResponse ["succeeded"] as! Bool
                 if (securtiySucceeded == true) {
                     let securityCode = securityResponse["securityCode"] as! String
-                    API.transferWallet(storeId: 1, orderId: 1, securityCode: securityCode, extraData: Methods.extraData, note: Methods.note, amount: Methods.amount, onSuccess: { response in
+                    API.transferWallet(storeId: Methods.storeId, orderId: Methods.orderId, securityCode: securityCode, extraData: Methods.extraData, note: Methods.note, amount: Methods.amount, onSuccess: { response in
                         print(response)
                         self.onSuccess!(response)
                         let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String:AnyObject]
@@ -106,7 +106,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     var bankName : String = ""
     var data : [MethodInfo] = []
     static var storeId : Int = 0
-    static var orderId : Int = 0
+    static var orderId : String = ""
     static var amount : Int = 10000
     static var note : String = ""
     static var extraData : String = ""
@@ -342,7 +342,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         self.updateViewConstraints()
         self.view.layoutIfNeeded()
         self.panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
+        panModalTransition(to: .longForm)
     }
     
     func setupSuccess() {
@@ -367,7 +367,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         self.updateViewConstraints()
         self.view.layoutIfNeeded()
         self.panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
+        panModalTransition(to: .longForm)
         
     }
     
@@ -399,7 +399,9 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         tableView.deselectRow(at: indexPath, animated: true)
         if (data[indexPath.row].type == "WALLET"){
             if (data[indexPath.row].amount! < Methods.amount) {
-                self.onError!(["mesage" : "Vui lòng kiểm tra lại số dư tài khoản" as AnyObject])
+                self.dismiss(animated: true, completion: {
+                    self.onError!(["message" : "Vui lòng kiểm tra lại số dư tài khoản" as AnyObject])
+                })
                 return
             }
             methodsView.removeFromSuperview()

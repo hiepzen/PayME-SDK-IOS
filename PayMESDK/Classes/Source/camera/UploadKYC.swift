@@ -54,42 +54,49 @@ public class UploadKYC{
             self.dispatchGroup.enter()
             API.verifyKYC(pathFront: self.pathFront, pathBack: self.pathBack, pathAvatar: self.pathAvatar, pathVideo: self.pathVideo,
               onSuccess: { response in
-                let result = response["Account"]!["KYC"] as! [String: AnyObject]
-                let succeeded = result["succeeded"] as! Bool
-                if (succeeded == true) {
-                    DispatchQueue.main.async {
-                        PayME.currentVC?.removeSpinner()
-                        guard let navigationController = PayME.currentVC?.navigationController else { return }
-                        let navigationArray = navigationController.viewControllers
-                        if PayME.isRecreateNavigationController {
-                            PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
-                            let rootViewController = navigationArray.first
-                            (rootViewController as! WebViewController).reload()
-                        } else {
-                            PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0],navigationArray[1]]
-                            (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
+                if let result = response["Account"]!["KYC"] as? [String: AnyObject]
+                {
+                    let succeeded = result["succeeded"] as? Bool
+                    if (succeeded != nil) {
+                        if (succeeded! == true) {
+                            DispatchQueue.main.async {
+                                PayME.currentVC?.removeSpinner()
+                                guard let navigationController = PayME.currentVC?.navigationController else { return }
+                                let navigationArray = navigationController.viewControllers
+                                if PayME.isRecreateNavigationController {
+                                    PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                                    let rootViewController = navigationArray.first
+                                    (rootViewController as! WebViewController).reload()
+                                } else {
+                                    PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0],navigationArray[1]]
+                                    (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
+                                }
+                                return
+                            }
                         }
-                        return
+                    } else {
+                        DispatchQueue.main.async {
+                            PayME.currentVC?.removeSpinner()
+                            return
+                        }
+                        self.toastMess(title: "Lỗi", message: result["message"] as? String ?? "Something went wrong")
                     }
-                } else {
-                    DispatchQueue.main.async {
-                        PayME.currentVC?.removeSpinner()
-                        return
-                    }
-                    self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
                 }
             },onError: {error in
                 print(error)
-                let code = error["extensions"]!["code"] as? Int
-                if (code != nil) {
-                    if (code == 401) {
-                        guard let navigationController = PayME.currentVC?.navigationController else { return }
-                        let navigationArray = navigationController.viewControllers
-                        PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                if let extensions = error["extensions"] as? [String:AnyObject] {
+                    let code = extensions["code"] as? Int
+                    if (code != nil) {
+                        if (code == 401) {
+                            guard let navigationController = PayME.currentVC?.navigationController else { return }
+                            let navigationArray = navigationController.viewControllers
+                            PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                        }
                     }
+                    self.toastMess(title: "Lỗi", message: error["message"] as? String ?? "Something went wrong")
+                    PayME.currentVC?.removeSpinner()
                 }
-                self.toastMess(title: "Lỗi", message: error["message"] as? String ?? "Something went wrong")
-                PayME.currentVC?.removeSpinner()
+                
             })
             self.dispatchGroup.leave()
         }

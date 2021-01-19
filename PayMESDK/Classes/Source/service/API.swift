@@ -168,7 +168,7 @@ internal class API {
     
     internal static func transferATM(
         storeId: Int,
-        orderId: Int,
+        orderId: String,
         extraData: String,
         note: String,
         cardNumber: String,
@@ -312,7 +312,7 @@ internal class API {
     internal static func transferByLinkedBank(
         transaction: String,
         storeId: Int,
-        orderId: Int,
+        orderId: String,
         linkedId: Int,
         extraData: String,
         note: String,
@@ -468,7 +468,7 @@ internal class API {
     
     internal static func checkFlowLinkedBank(
         storeId: Int,
-        orderId: Int,
+        orderId: String,
         linkedId: Int,
         extraData: String,
         note: String,
@@ -559,7 +559,7 @@ internal class API {
     
     internal static func transferWallet(
         storeId: Int,
-        orderId: Int,
+        orderId: String,
         securityCode: String,
         extraData: String,
         note: String,
