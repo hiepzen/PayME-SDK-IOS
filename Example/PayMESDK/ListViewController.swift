@@ -4,21 +4,25 @@ class ListItem: UITableViewCell {
 
     let logLabel: UILabel = {
         let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
         return label
     }()
     
     func setupCell() {
         self.contentView.addSubview(logLabel)
         logLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5).isActive = true
-        logLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20).isActive = true
+        logLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10).isActive = true
+        logLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10).isActive = true
+        logLabel.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
     }
 
 }
 
 class ModalController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    var logListData = ["1", "2", "3", "4", "5", "6"]
+    var logListData: [String] = Log.custom.logList
     
     let logLabel : UILabel = {
         let label = UILabel()
@@ -81,6 +85,12 @@ class ModalController: UIViewController, UITableViewDataSource, UITableViewDeleg
         cell.setupCell()
         cell.logLabel.text = logListData[indexPath.row]
         return cell
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        UIPasteboard.general.string = logListData[indexPath.row]
+        let alert = UIAlertController(title: "Copy", message: "Copied to clipboard", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
     
     @objc func onPressClose(){

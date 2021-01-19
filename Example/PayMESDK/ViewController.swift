@@ -241,7 +241,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             } else {
-            self.setConnectToken(token: PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!))
+            let newConnectToken = PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
+                Log.custom.push(title: "Connect Token Generator", message: newConnectToken)
+            self.setConnectToken(token: newConnectToken)
             self.payME = PayME(
                 appID: UserDefaults.standard.string(forKey: "appToken") ?? "",
                 publicKey: UserDefaults.standard.string(forKey: "publicKey") ?? "",
@@ -294,6 +296,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         UserDefaults.standard.set("", forKey: "phone")
         self.loginButton.backgroundColor = UIColor.white
         self.logoutButton.backgroundColor = UIColor.gray
+        Log.custom.push(title: "Log out", message: "Success")
     }
     
 
@@ -301,9 +304,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         if (self.connectToken != "") {
             payME!.openWallet(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil,
             onSuccess: { success in
-                print(success)
+                Log.custom.push(title: "Open wallet", message: success)
             }, onError: {error in
-                print(error)
+                Log.custom.push(title: "Open wallet", message: error)
                 let message = error["message"] as? String
                 self.toastMess(title: "Lỗi", value: message)
             })
@@ -318,9 +321,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 if (amount! >= 10000){
                     let amountDeposit = amount!
                     self.payME!.deposit(currentVC: self, amount: amountDeposit, description: "", extraData: nil, onSuccess: {success in
-                        print(success)
+                        Log.custom.push(title: "deposit", message: success)
                     }, onError: {error in
-                        print(error)
+                        Log.custom.push(title: "deposit", message: error)
                         let message = error["message"] as? String
                         self.toastMess(title: "Lỗi", value: message)
                     })
@@ -346,10 +349,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     let amountWithDraw = amount!
                     self.payME!.withdraw(currentVC: self, amount: amountWithDraw, description: "", extraData: nil,
                      onSuccess: {success in
-                        print(success)
+                        Log.custom.push(title: "withdraw", message: success)
                         
                     }, onError: {error in
-                        print(error)
+                        Log.custom.push(title: "withdraw", message: error)
                         let message = error["message"] as? String
                         self.toastMess(title: "Lỗi", value: message)
                     })
@@ -372,7 +375,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let amount = Int(moneyPay.text!)
                 if (amount! >= 10000){
                     let amountPay = amount!
-                    payME!.pay(currentVC: self, storeId: 1, orderId: "hello", amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in}, onError: {error in
+                    payME!.pay(currentVC: self, storeId: 1, orderId: "hello", amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in
+                        Log.custom.push(title: "pay", message: success)
+                    }, onError: {error in
+                        Log.custom.push(title: "pay", message: error)
                         let message = error["message"] as? String
                         self.toastMess(title: "Lỗi", value: message)
                         }
@@ -394,7 +400,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @IBAction func getBalance(_ sender: Any) {
         if (self.connectToken != "") {
             PayME.getWalletInfo(onSuccess: {a in
-                print(a)
+                Log.custom.push(title: "get Wallet Info", message: a)
                 var str = ""
                 if let v = a["Wallet"]!["balance"]! {
                    str = "\(v)"
@@ -405,7 +411,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     self.priceLabel.text = str
                 })
             }, onError: {error in
-                print(error)
+                Log.custom.push(title: "get Wallet Info", message: error)
                 let message = error["message"] as? String
                 self.priceLabel.text = "0"
                 self.toastMess(title: "Lỗi", value: message)
