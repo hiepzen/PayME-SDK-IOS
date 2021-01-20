@@ -24,12 +24,16 @@ class SettingsView: UIViewController{
         label.text = "App Token"
         return label
     }()
-    let appTokenTextField: UITextField = {
-        let textField = UITextField()
+    let appTokenTextField: UITextView = {
+        let textField = UITextView()
         textField.layer.borderColor = UIColor.black.cgColor
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.setLeftPaddingPoints(10)
+        textField.sizeToFit()
+        textField.font = .systemFont(ofSize: 14)
+        textField.isEditable = true
+        textField.isScrollEnabled = false
+//        textField.setLeftPaddingPoints(10)
         return textField
     }()
     
@@ -41,12 +45,16 @@ class SettingsView: UIViewController{
         label.text = "App Secret Key"
         return label
     }()
-    let appSKTextField: UITextField = {
-        let textField = UITextField()
+    let appSKTextField: UITextView = {
+        let textField = UITextView()
         textField.layer.borderColor = UIColor.black.cgColor
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.setLeftPaddingPoints(10)
+        textField.sizeToFit()
+        textField.font = .systemFont(ofSize: 14)
+        textField.isEditable = true
+        textField.isScrollEnabled = false
+//        textField.setLeftPaddingPoints(10)
         return textField
     }()
     
@@ -58,12 +66,16 @@ class SettingsView: UIViewController{
         label.text = "App Public Key"
         return label
     }()
-    let appPKTextField: UITextField = {
-        let textField = UITextField()
+    let appPKTextField: UITextView = {
+        let textField = UITextView()
         textField.layer.borderColor = UIColor.black.cgColor
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.setLeftPaddingPoints(10)
+        textField.sizeToFit()
+        textField.font = .systemFont(ofSize: 14)
+        textField.isEditable = true
+        textField.isScrollEnabled = false
+//        textField.setLeftPaddingPoints(10)
         return textField
     }()
     
@@ -108,9 +120,9 @@ class SettingsView: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.hideKeyboardWhenTappedAround()
         self.title = "Settings"
         self.view.backgroundColor = .white
-       
         
         self.view.addSubview(appToken)
         self.view.addSubview(appTokenTextField)
@@ -132,7 +144,6 @@ class SettingsView: UIViewController{
         appTokenTextField.topAnchor.constraint(equalTo: appToken.bottomAnchor, constant: 5).isActive = true
         appTokenTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         appTokenTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        appTokenTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
         appTokenTextField.text = UserDefaults.standard.string(forKey: "appToken") ?? ""
         
         appSecretKey.topAnchor.constraint(equalTo: appTokenTextField.bottomAnchor, constant: 20).isActive = true
@@ -141,7 +152,6 @@ class SettingsView: UIViewController{
         appSKTextField.topAnchor.constraint(equalTo: appSecretKey.bottomAnchor, constant: 5).isActive = true
         appSKTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         appSKTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        appSKTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
         appSKTextField.text = UserDefaults.standard.string(forKey: "secretKey") ?? ""
         
         appPublicKey.topAnchor.constraint(equalTo: appSKTextField.bottomAnchor, constant: 20).isActive = true
@@ -150,7 +160,6 @@ class SettingsView: UIViewController{
         appPKTextField.topAnchor.constraint(equalTo: appPublicKey.bottomAnchor, constant: 5).isActive = true
         appPKTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         appPKTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        appPKTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
         appPKTextField.text = UserDefaults.standard.string(forKey: "publicKey") ?? ""
         
         
