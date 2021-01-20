@@ -8,6 +8,7 @@
 
 import UIKit
 import PayMESDK
+import CryptoSwift
 
 class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     
@@ -251,6 +252,16 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     private var connectToken: String = ""
     private var currentEnv: PayME.Env = PayME.Env.DEV
     
+    func genConnectToken(userId: String, phone: String) -> String {
+        let secretKey = UserDefaults.standard.string(forKey: "secretKey") ?? ""
+        Log.custom.push(title: "Secret key login", message: secretKey)
+        let data : [String: Any] = ["timestamp": (Date().timeIntervalSince1970), "userId" : "\(userId)", "phone" : "\(phone)"]
+        let params = try? JSONSerialization.data(withJSONObject: data)
+        let aes = try? AES(key: Array(secretKey.utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
+        let dataEncrypted = try? aes!.encrypt(Array(String(data: params!, encoding: .utf8)!.utf8))
+        print(dataEncrypted!.toBase64()!)
+        return dataEncrypted!.toBase64()!
+    }
     // generate token ( demo, don't apply this to your code, generate from your server)
     @objc func submit(sender: UIButton!) {
         //PayME.showKYCCamera(currentVC: self)
@@ -261,14 +272,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
             } else {
-                let newConnectToken = PayME.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
+                let newConnectToken = self.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
                 Log.custom.push(title: "Connect Token Generator", message: newConnectToken)
                 self.setConnectToken(token: newConnectToken)
                 self.payME = PayME(
                     appToken: self.APP_TOKEN,
                     publicKey: self.PUBLIC_KEY,
                     connectToken: self.connectToken,
-                    appPrivateKey: self.PRIVATE_KEY,
+                    appPrivateKey: UserDefaults.standard.string(forKey: "privateKey") ?? "",
                     env: self.currentEnv,
                     configColor: ["#75255b", "#a81308"])
                 self.loginButton.backgroundColor = UIColor.gray
@@ -665,18 +676,22 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyPay.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
-        
+       
         let appToken = UserDefaults.standard.string(forKey: "appToken") ?? ""
         if (appToken == ""){
             UserDefaults.standard.set(APP_TOKEN, forKey: "appToken")
         }
-        let secretKey = UserDefaults.standard.string(forKey: "secretKey") ?? ""
-        if (secretKey == ""){
-            UserDefaults.standard.set(PRIVATE_KEY, forKey: "secretKey")
+        let privateKey = UserDefaults.standard.string(forKey: "privateKey") ?? ""
+        if (privateKey == ""){
+            UserDefaults.standard.set(PRIVATE_KEY, forKey: "privateKey")
         }
         let publicKey = UserDefaults.standard.string(forKey: "publicKey") ?? ""
         if (publicKey == ""){
             UserDefaults.standard.set(PUBLIC_KEY, forKey: "publicKey")
+        }
+        let secretKey = UserDefaults.standard.string(forKey: "secretKey") ?? ""
+        if (secretKey == ""){
+            UserDefaults.standard.set(SECRET_KEY, forKey: "secretKey")
         }
         
         let env = UserDefaults.standard.string(forKey: "env") ?? ""
