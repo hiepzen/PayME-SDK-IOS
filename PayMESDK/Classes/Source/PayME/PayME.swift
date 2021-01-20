@@ -522,7 +522,7 @@ public class PayME{
             return
         }
         if (amount > Methods.max) {
-            onError(["message" : "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: Methods.max))" as AnyObject])
+            onError(["message" : "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: Methods.max))" as AnyObject])
             return
         }
         if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {

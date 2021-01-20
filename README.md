@@ -53,15 +53,39 @@ let payme = PayME( appId : "AppToken",
 ```
 
 Trong đó các thông số có dạng:
-- appPrivateKey:là private key của app tự sinh ra như trên
 
-"MIIBPAIBAAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKiwIhTJpAi1XnbfOSrW/Eb\nw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQJBAJSfTrSCqAzyAo59Ox+m\nQ1ZdsYWBhxc2084DwTHM8QN/TZiyF4fbVYtjvyhG8ydJ37CiG7d9FY1smvNG3iDC\ndwECIQDygv2UOuR1ifLTDo4YxOs2cK3+dAUy6s54mSuGwUeo4QIhAK7SiYDyGwGo\nCwqjOdgOsQkJTGoUkDs8MST0MtmPAAs9AiEAjLT1/nBhJ9V/X3f9eF+g/bhJK+8T\nKSTV4WE1wP0Z3+ECIA9E3DWi77DpWG2JbBfu0I+VfFMXkLFbxH8RxQ8zajGRAiEA\n8Ly1xJ7UW3up25h9aa9SILBpGqWtJlNQgfVKBoabzsU="
+- appPrivateKey: là private key của app tự sinh ra như trên
+
+```swift
+private let PRIVATE_KEY: String =
+  """
+  -----BEGIN RSA PRIVATE KEY-----
+  MIIBOwIBAAJBAOkNeYrZOhKTS6OcPEmbdRGDRgMHIpSpepulZJGwfg1IuRM+ZFBm
+  F6NgzicQDNXLtaO5DNjVw1o29BFoK0I6+sMCAwEAAQJAVCsGq2vaulyyI6vIZjkb
+  5bBId8164r/2xQHNuYRJchgSJahHGk46ukgBdUKX9IEM6dAQcEUgQH+45ARSSDor
+  mQIhAPt81zvT4oK1txaWEg7LRymY2YzB6PihjLPsQUo1DLf3AiEA7Tv005jvNbNC
+  pRyXcfFIy70IHzVgUiwPORXQDqJhWJUCIQDeDiZR6k4n0eGe7NV3AKCOJyt4cMOP
+  vb1qJOKlbmATkwIhALKSJfi8rpraY3kLa4fuGmCZ2qo7MFTKK29J1wGdAu99AiAQ
+  dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx**********==
+  -----END RSA PRIVATE KEY-----
+  """
+```
 
 - publicKey: là public key được PayME cung cấp cho mỗi app riêng biệt.
 
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MX0.wNtHVZ-olKe7OAkgLigkTSsLVQKv_YL9fHKzX9mn9II"
+ ```swift
+ private let PUBLIC_KEY: String =
+      """
+      -----BEGIN PUBLIC KEY-----
+      MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi
+      wIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J**********
+      -----END PUBLIC KEY-----
+      """
+    
+ ```
 
-- configColor : là tham số màu để có thể thay đổi màu sắc giao dịch ví PayME, kiểu dữ liệu là chuỗi với định dạng #rrggbb. Nếu như truyền 2 màu thì giao diện PayME sẽ gradient theo 2 màu truyền vào.
+-   configColor : là tham số màu để có thể thay đổi màu sắc giao dịch ví PayME, kiểu dữ liệu là chuỗi với định dạng #rrggbb. Nếu như truyền 2 màu thì giao diện PayME sẽ gradient theo 2 màu truyền vào.
+
 
 ![image](https://developers.payme.vn/public/configcolor.png)
 
@@ -70,7 +94,7 @@ Cách tạo **connectToken**:
 connectToken cần để truyền gọi api từ tới PayME và sẽ được tạo từ hệ thống backend của app tích hợp. Cấu trúc như sau:
 
 ```swift
-connectToken = AES256("{ timestamp: 34343242342, 
+connectToken = AES256("{ timestamp: "2021-01-20T06:53:07.621Z", 
                          userId : "ABC", 
                          phone : "0909998877" }" 
                       + secretKey )
@@ -78,7 +102,7 @@ connectToken = AES256("{ timestamp: 34343242342,
 
 | **Tham số**   | **Bắt buộc** | **Giải thích**                                               |
 | :------------ | :----------- | :----------------------------------------------------------- |
-| **timestamp** | Yes          | Thời gian tạo ra connectToken theo định danh Unix time, Dùng để xác định thời gian timeout cùa connectToken. xem https://en.wikipedia.org/wiki/Unix_time |
+| **timestamp** | Yes          | Thời gian tạo ra connectToken theo định dạng iSO 8601 , Dùng để xác định thời gian timeout cùa connectToken. Ví dụ 2021-01-20T06:53:07.621Z |
 | ***userId***  | Yes          | là giá trị cố định duy nhất tương ứng với mỗi tài khoản khách hàng ở dịch vụ, thường giá trị này do server hệ thống được tích hợp cấp cho PayME SDK |
 | ***phone***   | No           | Số điện thoại của hệ thống tích hợp, nếu hệ thống không dùng số điện thoại thì có thể không cần truyền lên hoặc truyền null |
 
@@ -221,9 +245,9 @@ public func pay(
 | [amount](https://www.notion.so/amount-f0a6c8422a11417a96bc898ad4ccffae) | Yes          | Số tiền cần thanh toán bên app truyền qua cho SDK            |
 | [description](https://www.notion.so/description-f1f792f387f046bfb9432e4b94b76618) | No           | Mô tả nếu có                                                 |
 | [extraData](https://www.notion.so/extraData-1aaad5976cca478d80f47b3c2f8bb804) | Yes          | Khi thực hiện thanh toans thì app cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IBN lại hệ thống backend tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết. |
-| <code>storeId</code> | Yes |  |
-| <code>orderId</code> | Yes | Mã đơn hàng |
-| <code>note</code> | No | Ghi chú trên giao dịch |
+| <code>storeId</code> | Yes | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
+| <code>orderId</code> | Yes | Mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch |
+| <code>note</code> | No | Mô tả giao dịch từ phía đối tác |
 | <code>onSuccess</code> | Yes | Callback trả kết quả khi thành công |
 | <code>onError</code> | Yes | Callback trả kết quả khi thất bại
 
@@ -270,3 +294,4 @@ public func getAccountInfo(
     onError: @escaping ([String:AnyObject])->()
 )
 ```
+
