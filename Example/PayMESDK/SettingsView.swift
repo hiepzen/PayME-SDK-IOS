@@ -203,7 +203,15 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         contentView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
         contentView.heightAnchor.constraint(equalTo: self.view.heightAnchor).isActive = true
         
-        appToken.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30).isActive = true
+        secretKey.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30).isActive = true
+        secretKey.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        
+        secretKeyTextField.topAnchor.constraint(equalTo: secretKey.bottomAnchor, constant: 5).isActive = true
+        secretKeyTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        secretKeyTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
+        secretKeyTextField.text = UserDefaults.standard.string(forKey: "secretKey") ?? ""
+        
+        appToken.topAnchor.constraint(equalTo: secretKeyTextField.bottomAnchor, constant: 40).isActive = true
         appToken.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
         
         appTokenTextField.topAnchor.constraint(equalTo: appToken.bottomAnchor, constant: 5).isActive = true
@@ -227,21 +235,13 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         appPKTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
         appPKTextField.text = UserDefaults.standard.string(forKey: "publicKey") ?? ""
         
-        secretKey.topAnchor.constraint(equalTo: appPKTextField.bottomAnchor, constant: 20).isActive = true
-        secretKey.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
-        
-        secretKeyTextField.topAnchor.constraint(equalTo: secretKey.bottomAnchor, constant: 5).isActive = true
-        secretKeyTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
-        secretKeyTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
-        secretKeyTextField.text = UserDefaults.standard.string(forKey: "secretKey") ?? ""
-        
-        checkBox.topAnchor.constraint(equalTo: secretKeyTextField.bottomAnchor, constant: 20).isActive = true
+        checkBox.topAnchor.constraint(equalTo: appPKTextField.bottomAnchor, constant: 20).isActive = true
         checkBox.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
         checkBox.heightAnchor.constraint(equalToConstant: 20).isActive = true
         checkBox.widthAnchor.constraint(equalToConstant: 20).isActive = true
         checkBox.addTarget(self, action: #selector(onPressCheckbox(_:)), for: .touchUpInside)
 
-        showLogLabel.topAnchor.constraint(equalTo: secretKeyTextField.bottomAnchor, constant: 20).isActive = true
+        showLogLabel.topAnchor.constraint(equalTo: appPKTextField.bottomAnchor, constant: 20).isActive = true
         showLogLabel.leadingAnchor.constraint(equalTo: checkBox.trailingAnchor, constant: 10).isActive = true
         
         restoreButton.topAnchor.constraint(equalTo: checkBox.bottomAnchor, constant: 20).isActive = true

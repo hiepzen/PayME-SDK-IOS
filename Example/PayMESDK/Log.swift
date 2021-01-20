@@ -16,4 +16,8 @@ class Log {
         Swift.print(customLog)
         logList.append(customLog)
     }
+    
+    public func clear(){
+        self.logList = []
+    }
 }

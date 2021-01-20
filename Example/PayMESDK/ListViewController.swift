@@ -47,6 +47,15 @@ class ModalController: UIViewController, UITableViewDataSource, UITableViewDeleg
         return view
     }()
     
+    let clearButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Clear", for: .normal)
+        button.setTitleColor(UIColor.white, for: .normal)
+        button.backgroundColor = UIColor.black
+        button.layer.cornerRadius = 25
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,6 +63,7 @@ class ModalController: UIViewController, UITableViewDataSource, UITableViewDeleg
         self.view.addSubview(logLabel)
         self.view.addSubview(closeButton)
         self.view.addSubview(logContainer)
+        self.view.addSubview(clearButton)
         
         logLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 50).isActive = true
         logLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
@@ -67,8 +77,22 @@ class ModalController: UIViewController, UITableViewDataSource, UITableViewDeleg
         logContainer.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20).isActive = true
         logContainer.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -50).isActive = true
         
+        clearButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        clearButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        clearButton.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 50).isActive = true
+        clearButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        clearButton.addTarget(self, action: #selector(onPressClear), for: .touchUpInside)
+        
         logContainer.dataSource = self
         logContainer.delegate = self
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if ((logListData.count - 1) > 0) {
+            logContainer.scrollToRow(at: IndexPath(row: logListData.count - 1, section: 0), at: UITableViewScrollPosition.bottom, animated: true)
+            
+        }
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -84,6 +108,9 @@ class ModalController: UIViewController, UITableViewDataSource, UITableViewDeleg
         let cell = ListItem()
         cell.setupCell()
         cell.logLabel.text = logListData[indexPath.row]
+        if (indexPath.row == logListData.count - 1) {
+            cell.backgroundColor = .lightGray
+        }
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -95,5 +122,13 @@ class ModalController: UIViewController, UITableViewDataSource, UITableViewDeleg
     
     @objc func onPressClose(){
         self.dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func onPressClear(){
+        Log.custom.clear()
+        self.logListData = []
+        DispatchQueue.main.async{
+            self.logContainer.reloadData()
+        }
     }
 }
