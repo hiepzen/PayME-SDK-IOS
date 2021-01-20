@@ -247,6 +247,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx33R4ANzm9w==
     -----END RSA PRIVATE KEY-----
     """
+    
+    private let SECRET_KEY: String = "zfQpwE6iHbOeAfgX"
         
     private let APP_TOKEN: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Njg2OH0.JyIdhQEX_Lx9CXRH4iHM8DqamLrMQJk5rhbslNW4GzY"
     private var connectToken: String = ""
