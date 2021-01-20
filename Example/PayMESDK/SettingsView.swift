@@ -1,10 +1,9 @@
 import UIKit
 
-class SettingsView: UIViewController{
+class SettingsView: UIViewController, UIScrollViewDelegate{
     private let PUBLIC_KEY: String =
     "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi" + "\n" +
     "wIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ=="
-    
     private let PRIVATE_KEY: String =
     "MIIBOwIBAAJBAOkNeYrZOhKTS6OcPEmbdRGDRgMHIpSpepulZJGwfg1IuRM+ZFBm"   + "\n" +
     "F6NgzicQDNXLtaO5DNjVw1o29BFoK0I6+sMCAwEAAQJAVCsGq2vaulyyI6vIZjkb"   + "\n" +
@@ -13,8 +12,26 @@ class SettingsView: UIViewController{
     "pRyXcfFIy70IHzVgUiwPORXQDqJhWJUCIQDeDiZR6k4n0eGe7NV3AKCOJyt4cMOP"   + "\n" +
     "vb1qJOKlbmATkwIhALKSJfi8rpraY3kLa4fuGmCZ2qo7MFTKK29J1wGdAu99AiAQ"   + "\n" +
     "dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx33R4ANzm9w=="
-        
+    private var SECRET_KEY: String = "zfQpwE6iHbOeAfgX"
     private let APP_ID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Njg2OH0.JyIdhQEX_Lx9CXRH4iHM8DqamLrMQJk5rhbslNW4GzY"
+    
+    lazy var container: UIScrollView = {
+       let view = UIScrollView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isScrollEnabled = true
+        view.isPagingEnabled = false
+        view.showsVerticalScrollIndicator = true
+        view.showsHorizontalScrollIndicator = false
+        view.bounces = false
+        return view
+    }()
+    
+    let contentView: UIView = {
+       let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.sizeToFit()
+        return view
+    }()
     
     let appToken: UILabel = {
         let label = UILabel()
@@ -37,12 +54,12 @@ class SettingsView: UIViewController{
         return textField
     }()
     
-    let appSecretKey: UILabel = {
+    let appPrivateKey: UILabel = {
         let label = UILabel()
         label.font = label.font.withSize(16)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "App Secret Key"
+        label.text = "App Private Key (RSA)"
         return label
     }()
     let appSKTextField: UITextView = {
@@ -63,7 +80,7 @@ class SettingsView: UIViewController{
         label.font = label.font.withSize(16)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "App Public Key"
+        label.text = "PayME Public Key (RSA)"
         return label
     }()
     let appPKTextField: UITextView = {
@@ -116,6 +133,26 @@ class SettingsView: UIViewController{
         return button
     }()
     
+    let secretKey: UILabel = {
+        let label = UILabel()
+        label.font = label.font.withSize(16)
+        label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Secret key (AES)"
+        return label
+    }()
+    let secretKeyTextField: UITextView = {
+        let textField = UITextView()
+        textField.layer.borderColor = UIColor.black.cgColor
+        textField.layer.borderWidth = 0.5
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.sizeToFit()
+        textField.font = .systemFont(ofSize: 14)
+        textField.isEditable = true
+        textField.isScrollEnabled = false
+        return textField
+    }()
+    
     var isShowLog: Bool = false
     
     override func viewDidLoad() {
@@ -124,43 +161,28 @@ class SettingsView: UIViewController{
         self.title = "Settings"
         self.view.backgroundColor = .white
         
-        self.view.addSubview(appToken)
-        self.view.addSubview(appTokenTextField)
-        self.view.addSubview(appSecretKey)
-        self.view.addSubview(appSKTextField)
-        self.view.addSubview(appPublicKey)
-        self.view.addSubview(appPKTextField)
+        container.delegate = self
+        
+        self.view.addSubview(container)
         self.view.addSubview(saveButton)
-        self.view.addSubview(checkBox)
-        self.view.addSubview(showLogLabel)
-        self.view.addSubview(restoreButton)
+        
+        container.addSubview(contentView)
+        
+        contentView.addSubview(appToken)
+        contentView.addSubview(appTokenTextField)
+        contentView.addSubview(appPrivateKey)
+        contentView.addSubview(appSKTextField)
+        contentView.addSubview(appPublicKey)
+        contentView.addSubview(appPKTextField)
+        contentView.addSubview(checkBox)
+        contentView.addSubview(showLogLabel)
+        contentView.addSubview(restoreButton)
+        contentView.addSubview(secretKey)
+        contentView.addSubview(secretKeyTextField)
         
         let isShow = UserDefaults.standard.bool(forKey: "isShowLog")
         setShowLog(showLog: isShow)
         
-        appToken.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 30).isActive = true
-        appToken.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        
-        appTokenTextField.topAnchor.constraint(equalTo: appToken.bottomAnchor, constant: 5).isActive = true
-        appTokenTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        appTokenTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        appTokenTextField.text = UserDefaults.standard.string(forKey: "appToken") ?? ""
-        
-        appSecretKey.topAnchor.constraint(equalTo: appTokenTextField.bottomAnchor, constant: 20).isActive = true
-        appSecretKey.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        
-        appSKTextField.topAnchor.constraint(equalTo: appSecretKey.bottomAnchor, constant: 5).isActive = true
-        appSKTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        appSKTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        appSKTextField.text = UserDefaults.standard.string(forKey: "secretKey") ?? ""
-        
-        appPublicKey.topAnchor.constraint(equalTo: appSKTextField.bottomAnchor, constant: 20).isActive = true
-        appPublicKey.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        
-        appPKTextField.topAnchor.constraint(equalTo: appPublicKey.bottomAnchor, constant: 5).isActive = true
-        appPKTextField.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        appPKTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        appPKTextField.text = UserDefaults.standard.string(forKey: "publicKey") ?? ""
         
         
         saveButton.bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor, constant: -30).isActive = true
@@ -169,19 +191,63 @@ class SettingsView: UIViewController{
         saveButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
         saveButton.addTarget(self, action: #selector(onPressSave(_:)), for: .touchUpInside)
         
-        checkBox.topAnchor.constraint(equalTo: appPKTextField.bottomAnchor, constant: 20).isActive = true
-        checkBox.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        container.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+        container.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        container.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+        container.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -40).isActive = true
+        
+        contentView.topAnchor.constraint(equalTo: container.topAnchor).isActive = true
+        contentView.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
+        contentView.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
+        contentView.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
+        contentView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
+        contentView.heightAnchor.constraint(equalTo: self.view.heightAnchor).isActive = true
+        
+        appToken.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30).isActive = true
+        appToken.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        
+        appTokenTextField.topAnchor.constraint(equalTo: appToken.bottomAnchor, constant: 5).isActive = true
+        appTokenTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        appTokenTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
+        appTokenTextField.text = UserDefaults.standard.string(forKey: "appToken") ?? ""
+        
+        appPrivateKey.topAnchor.constraint(equalTo: appTokenTextField.bottomAnchor, constant: 20).isActive = true
+        appPrivateKey.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        
+        appSKTextField.topAnchor.constraint(equalTo: appPrivateKey.bottomAnchor, constant: 5).isActive = true
+        appSKTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        appSKTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
+        appSKTextField.text = UserDefaults.standard.string(forKey: "privateKey") ?? ""
+        
+        appPublicKey.topAnchor.constraint(equalTo: appSKTextField.bottomAnchor, constant: 20).isActive = true
+        appPublicKey.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        
+        appPKTextField.topAnchor.constraint(equalTo: appPublicKey.bottomAnchor, constant: 5).isActive = true
+        appPKTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        appPKTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
+        appPKTextField.text = UserDefaults.standard.string(forKey: "publicKey") ?? ""
+        
+        secretKey.topAnchor.constraint(equalTo: appPKTextField.bottomAnchor, constant: 20).isActive = true
+        secretKey.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        
+        secretKeyTextField.topAnchor.constraint(equalTo: secretKey.bottomAnchor, constant: 5).isActive = true
+        secretKeyTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        secretKeyTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
+        secretKeyTextField.text = UserDefaults.standard.string(forKey: "secretKey") ?? ""
+        
+        checkBox.topAnchor.constraint(equalTo: secretKeyTextField.bottomAnchor, constant: 20).isActive = true
+        checkBox.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
         checkBox.heightAnchor.constraint(equalToConstant: 20).isActive = true
         checkBox.widthAnchor.constraint(equalToConstant: 20).isActive = true
         checkBox.addTarget(self, action: #selector(onPressCheckbox(_:)), for: .touchUpInside)
 
-        showLogLabel.topAnchor.constraint(equalTo: appPKTextField.bottomAnchor, constant: 20).isActive = true
+        showLogLabel.topAnchor.constraint(equalTo: secretKeyTextField.bottomAnchor, constant: 20).isActive = true
         showLogLabel.leadingAnchor.constraint(equalTo: checkBox.trailingAnchor, constant: 10).isActive = true
         
         restoreButton.topAnchor.constraint(equalTo: checkBox.bottomAnchor, constant: 20).isActive = true
-        restoreButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        restoreButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        restoreButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        restoreButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
+        restoreButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
+        restoreButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
         restoreButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         restoreButton.addTarget(self, action: #selector(onPressRestore(_:)), for: .touchUpInside)
     }
@@ -201,8 +267,9 @@ class SettingsView: UIViewController{
     
     @IBAction func onPressSave(_ sender: UIButton){
         UserDefaults.standard.set(self.appTokenTextField.text, forKey: "appToken")
-        UserDefaults.standard.set(self.appSKTextField.text, forKey: "secretKey")
+        UserDefaults.standard.set(self.appSKTextField.text, forKey: "privateKey")
         UserDefaults.standard.set(self.appPKTextField.text, forKey: "publicKey")
+        UserDefaults.standard.set(self.secretKeyTextField.text, forKey: "secretKey")
         UserDefaults.standard.set(self.isShowLog, forKey: "isShowLog")
         navigationController?.popToRootViewController(animated: true)
 //
@@ -215,7 +282,8 @@ class SettingsView: UIViewController{
         self.appTokenTextField.text = APP_ID
         self.appSKTextField.text = PRIVATE_KEY
         self.appPKTextField.text = PUBLIC_KEY
-        self.isShowLog = false
+        self.secretKeyTextField.text = SECRET_KEY
+        self.setShowLog(showLog: false)
     }
 }
 
