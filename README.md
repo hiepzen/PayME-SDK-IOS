@@ -249,7 +249,7 @@ public func pay(
 | <code>orderId</code> | Yes | Mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch |
 | <code>note</code> | No | Mô tả giao dịch từ phía đối tác |
 | <code>onSuccess</code> | Yes | Callback trả kết quả khi thành công |
-| <code>onError</code> | Yes | Callback trả kết quả khi thất bại
+| <code>onError</code> | Yes | Callback trả kết quả khi thất bại |
 
 Trong trường hợp app tích hợp cần lấy số dư để tự hiển thị lên UI trên app thì có thể dùng hàm, hàm này không hiển thị UI của PayME SDK
 
