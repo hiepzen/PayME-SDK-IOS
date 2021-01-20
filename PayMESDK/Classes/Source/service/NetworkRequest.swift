@@ -42,7 +42,12 @@ public class NetworkRequest {
         }
         request.httpBody = self.params
         
-        let task = URLSession.shared.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+        let sessionConfig = URLSessionConfiguration.default
+        sessionConfig.timeoutIntervalForRequest = 30.0
+        sessionConfig.timeoutIntervalForResource = 60.0
+        let session = URLSession(configuration: sessionConfig)
+        
+        let task = session.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) -> Void in
         if (error != nil) {
             DispatchQueue.main.async {
                 if (error?.localizedDescription != nil) {
@@ -123,7 +128,12 @@ public class NetworkRequest {
         let dataBody = try? JSONSerialization.data(withJSONObject: jsonBody)
         request.httpBody = dataBody!
         
-        let task = URLSession.shared.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+        let sessionConfig = URLSessionConfiguration.default
+        sessionConfig.timeoutIntervalForRequest = 30.0
+        sessionConfig.timeoutIntervalForResource = 60.0
+        let session = URLSession(configuration: sessionConfig)
+        
+        let task = session.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error != nil) {
                 DispatchQueue.main.async {
                     if (error?.localizedDescription != nil) {
@@ -227,8 +237,11 @@ public class NetworkRequestGraphQL {
 
         }
         request.httpBody = self.params
-        
-        let task = URLSession.shared.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+        let sessionConfig = URLSessionConfiguration.default
+        sessionConfig.timeoutIntervalForRequest = 30.0
+        sessionConfig.timeoutIntervalForResource = 60.0
+        let session = URLSession(configuration: sessionConfig)
+        let task = session.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) -> Void in
         if (error != nil) {
             DispatchQueue.main.async {
                 if (error?.localizedDescription != nil) {
@@ -322,7 +335,12 @@ public class NetworkRequestGraphQL {
         let dataBody = try? JSONSerialization.data(withJSONObject: jsonBody)
         request.httpBody = dataBody!
         
-        let task = URLSession.shared.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+        let sessionConfig = URLSessionConfiguration.default
+        sessionConfig.timeoutIntervalForRequest = 30.0
+        sessionConfig.timeoutIntervalForResource = 60.0
+        let session = URLSession(configuration: sessionConfig)
+        
+        let task = session.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error != nil) {
                 DispatchQueue.main.async {
                     if (error?.localizedDescription != nil) {
@@ -405,24 +423,27 @@ public class NetworkRequestGraphQL {
         task.resume()
     }
     func formatString(dataRaw: String) -> String {
-        var str = ""
-        str = dataRaw.replacingOccurrences(of: "\\r",with: "");
+        var str = dataRaw
+        str = str.replacingOccurrences(of: "\\r",with: "");
         str = str.replacingOccurrences(of: "\\n",with: "");
+        str = String(str.dropFirst(1).dropLast(1))
         let regex = try! NSRegularExpression(pattern: "\\\\\"", options: NSRegularExpression.Options.caseInsensitive)
         let range = NSMakeRange(0, str.count)
         let modString = regex.stringByReplacingMatches(in: str, options: [], range: range, withTemplate: "\"")
         str = modString.replacingOccurrences(of: "\\\\",with: "\\");
-        //str = str.replacingOccurrences(of: "\\\"",with: "\"");
-        str = String(str.dropFirst(1).dropLast(1))
+        str = str.replacingOccurrences(of: "\\\"}", with: "\"}")
+        
+        let detect = """
+        {"data":{"Setting":{"configs"
+        """
+        if (str.contains(detect)) {
+            str = str.replacingOccurrences(of: "\"{", with: "{")
+            str = str.replacingOccurrences(of: "}\"", with: "}")
+            str = str.replacingOccurrences(of: "\\", with: "")
+            str = str.replacingOccurrences(of: "\"\"", with: "\"")
+        }
         print(str)
         return str
-        /*
-        str = str.replacingOccurrences(of: "\"{", with: "{")
-        str = str.replacingOccurrences(of: "}\"", with: "}")
-        str = str.replacingOccurrences(of: "\\", with: "")
-        str = str.replacingOccurrences(of: "\"\"", with: "\"")
-        */
-        // return str
     }
 }
 

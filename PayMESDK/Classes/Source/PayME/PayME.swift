@@ -409,15 +409,7 @@ public class PayME{
                 if (succeeded == true) {
                     currentVC.removeSpinner()
                     if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
-                        let methods = Methods()
-                        Methods.amount = (detect["amount"] as? Int) ?? 0
-                        Methods.storeId = (detect["stordeId"] as? Int) ?? 0
-                        Methods.orderId = (detect["orderId"] as? String) ?? ""
-                        Methods.note = (detect["note"] as? String) ?? ""
-                        methods.appENV = PayME.appENV
-                        methods.onSuccess = onSuccess
-                        methods.onError = onError
-                        currentVC.presentPanModal(methods)
+                        PayME.payQR(currentVC: currentVC, storeId: (detect["stordeId"] as? Int) ?? 0, orderId: (detect["orderId"] as? String) ?? "", amount: (detect["amount"] as? Int) ?? 0, note: (detect["note"] as? String) ?? "", extraData: nil, onSuccess: onSuccess, onError: onError)
                     } else {
                         PayME.initSDK(onSuccess: { success in
                             let accessToken = success["accessToken"] as? String
@@ -427,15 +419,7 @@ public class PayME{
                             PayME.kycState = kycState ?? ""
                             PayME.appENV = appENV ?? ""
                             if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
-                                let methods = Methods()
-                                methods.appENV = PayME.appENV
-                                Methods.amount = (detect["amount"] as? Int) ?? 0
-                                Methods.storeId = (detect["stordeId"] as? Int) ?? 0
-                                Methods.orderId = (detect["orderId"] as? String) ?? ""
-                                Methods.note = (detect["note"] as? String) ?? ""
-                                methods.onSuccess = onSuccess
-                                methods.onError = onError
-                                currentVC.presentPanModal(methods)
+                                PayME.payQR(currentVC: currentVC, storeId: (detect["stordeId"] as? Int) ?? 0, orderId: (detect["orderId"] as? String) ?? "", amount: (detect["amount"] as? Int) ?? 0, note: (detect["note"] as? String) ?? "", extraData: nil, onSuccess: onSuccess, onError: onError)
                             } else {
                                 onError(["message" : "Vui lòng mở webview để kích hoạt hoặc định danh tài khoản" as AnyObject])
                             }
@@ -450,7 +434,6 @@ public class PayME{
             }, onError: { error in
                 currentVC.removeSpinner()
                 currentVC.presentPanModal(QRNotFound())
-                
             })
         })
         qrScan.setScanFail(onScanFail: { error in
@@ -476,11 +459,72 @@ public class PayME{
     }
     
     public func pay(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
-        API.getSetting(onSuccess: {success in
-            print(success)
-        }, onError: {error in
-            print(error)
-        })
+        if (Methods.min == 0 && Methods.max == 0) {
+            API.getSetting(onSuccess: { success in
+                let configs = success["Setting"]!["configs"] as! [[String:AnyObject]]
+                var flag = false
+                for tempConfig in configs {
+                    var key = (tempConfig["key"] as? String) ?? ""
+                    if (key == "limit.param.amount.payment")
+                    {
+                        flag = true
+                        let min = (tempConfig["value"]!["min"] as? Int) ?? 10000
+                        let max = (tempConfig["value"]!["max"] as? Int) ?? 100000000
+                        Methods.min = min
+                        Methods.max = max
+                        PayME.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, onSuccess: onSuccess, onError: onError)
+                        break
+                    }
+                }
+                if (flag == false) {
+                    onError(["message" : "Không lấy được config thanh toán, vui lòng thử lại sau" as AnyObject])
+                }
+            }, onError: {error in
+                onError(error)
+            })
+        } else {
+            PayME.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, onSuccess: onSuccess, onError: onError)
+        }
+    }
+    
+    public static func payQR(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
+        if (Methods.min == 0 && Methods.max == 0) {
+            API.getSetting(onSuccess: { success in
+                let configs = success["Setting"]!["configs"] as! [[String:AnyObject]]
+                var flag = false
+                for tempConfig in configs {
+                    var key = (tempConfig["key"] as? String) ?? ""
+                    if (key == "limit.param.amount.payment")
+                    {
+                        flag = true
+                        let min = (tempConfig["value"]!["min"] as? Int) ?? 10000
+                        let max = (tempConfig["value"]!["max"] as? Int) ?? 100000000
+                        Methods.min = min
+                        Methods.max = max
+                        PayME.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, onSuccess: onSuccess, onError: onError)
+                        break
+                    }
+                }
+                if (flag == false) {
+                    onError(["message" : "Không lấy được config thanh toán, vui lòng thử lại sau" as AnyObject])
+                }
+            }, onError: {error in
+                onError(error)
+            })
+        } else {
+            PayME.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, onSuccess: onSuccess, onError: onError)
+        }
+    }
+    
+    internal static func payAction(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
+        if (amount < Methods.min) {
+            onError(["message" : "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: Methods.min))" as AnyObject])
+            return
+        }
+        if (amount > Methods.max) {
+            onError(["message" : "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: Methods.max))" as AnyObject])
+            return
+        }
         if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
             PayME.currentVC = currentVC
             let methods = Methods()
@@ -521,6 +565,7 @@ public class PayME{
             })
         }
     }
+    
     public static func getWalletInfo(
         onSuccess: @escaping ([String: AnyObject]) -> (),
         onError: @escaping ([String: AnyObject]) -> ()
