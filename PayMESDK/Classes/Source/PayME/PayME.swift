@@ -11,11 +11,10 @@ import UIKit
 import Alamofire
 import CryptoSwift
 import AVFoundation
-import SwCrypt
 
 public class PayME{
     internal static var appPrivateKey: String = ""
-    internal static var appID: String = ""
+    internal static var appToken: String = ""
     internal static var publicKey: String = ""
     internal static var connectToken : String = ""
     internal static var env : Env!
@@ -35,6 +34,7 @@ public class PayME{
     internal static var kycState : String = ""
     internal static var appENV: String = ""
     internal static var dataInit : [String:AnyObject]? = nil
+    internal static var appId: String = ""
 
     public enum Action: String {
         case OPEN = "OPEN"
@@ -47,9 +47,20 @@ public class PayME{
         case DEV = "dev"
     }
     
-    public init(appID: String, publicKey: String, connectToken: String, appPrivateKey: String, env: Env, configColor: [String]) {
-        print(appPrivateKey)
-        PayME.appID = appID;
+    public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, env: Env, configColor: [String]) {
+        PayME.appToken = appToken;
+        let temp = PayME.appToken.components(separatedBy: ".")
+        let jwt = temp[1].fromBase64()
+        if (jwt != nil) {
+            let data = Data(jwt!.utf8)
+            if let finalJSON = try? (JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) as? Dictionary<String, AnyObject>) {
+                PayME.appId = String((finalJSON!["appId"] as? Int) ?? 0)
+            } else {
+                PayME.appId = ""
+            }
+        } else {
+            PayME.appId = ""
+        }
         PayME.connectToken = connectToken;
         PayME.publicKey = publicKey;
         PayME.appPrivateKey = appPrivateKey;
@@ -60,38 +71,9 @@ public class PayME{
         PayME.kycState = ""
         PayME.appENV = ""
         PayME.dataInit = nil
+        
     }
-    
-    public func setPrivateKey(appPrivateKey : String) {
-        PayME.appPrivateKey = appPrivateKey
-    }
-    public func setAppID(appID : String) {
-        PayME.appID = appID
-    }
-    public func setPublicKey(publicKey: String) {
-        PayME.publicKey = publicKey
-    }
-    public func setAppPrivateKey(appPrivateKey: String) {
-        PayME.appPrivateKey = appPrivateKey
-    }
-    public func getAppID() -> String {
-        return PayME.appID
-    }
-    public func getPublicKey() -> String{
-        return PayME.publicKey
-    }
-    public func getConnectToken() -> String{
-        return PayME.connectToken
-    }
-    public func getAppPrivateKey() -> String {
-        return PayME.appPrivateKey
-    }
-    public func getEnv() -> Env {
-        return PayME.env
-    }
-    public func setEnv(env: Env) {
-        PayME.env = env
-    }
+
     
     public static func genConnectToken(userId: String, phone: String) -> String {
         let data : [String: Any] = ["timestamp": (Date().timeIntervalSince1970), "userId" : "\(userId)", "phone" : "\(phone)"]
@@ -282,6 +264,12 @@ public class PayME{
         }
     }
     
+    internal func encryptAES(data: String) -> String {
+        let aes = try? AES(key: Array("LkaWasflkjfqr2g3".utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
+        let dataEncrypted = try? aes!.encrypt(Array(data.utf8))
+        return dataEncrypted!.toBase64()!
+    }
+    
     public func openWallet(currentVC : UIViewController, action : Action, amount: Int?, description: String?, extraData: String?,
                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
                            onError: @escaping ([String:AnyObject]) -> ()
@@ -319,10 +307,10 @@ public class PayME{
             """
             {
               "connectToken":  "\(PayME.connectToken)",
-              "publicKey": "\(PayME.publicKey)",
-              "privateKey": "\(PayME.appPrivateKey)",
-              "xApi": "\(PayME.appID)",
-              "appToken": "\(PayME.appID)",
+              "publicKey": "\(PayME.publicKey.replacingOccurrences(of: "\n", with: ""))",
+              "privateKey": "\(PayME.appPrivateKey.replacingOccurrences(of: "\n", with: ""))",
+              "xApi": "\(PayME.appId)",
+              "appToken": "\(PayME.appToken)",
               "clientId": "\(PayME.clientID)",
               "configColor":["\(handleColor(input:PayME.configColor))"],
               "dataInit" : {
@@ -353,13 +341,12 @@ public class PayME{
                 "showLog" : "1"
             }
             """
-    
             let webViewController = WebViewController(nibName: "WebView", bundle: nil)
             let url = urlWebview(env: PayME.env)
 
             PayME.webviewController = webViewController
 
-            webViewController.urlRequest = url + "\(data)"
+            webViewController.urlRequest = url + "\(self.encryptAES(data: data))"
             webViewController.setOnSuccessCallback(onSuccess: onSuccess)
             webViewController.setOnErrorCallback(onError: onError)
 

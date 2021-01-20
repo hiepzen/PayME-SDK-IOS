@@ -64,20 +64,7 @@ internal func urlUpload(env: PayME.Env) -> String {
     return "https://static.payme.vn/"
 }
 internal func trimKeyRSA(key: String) -> String {
-    if(key.contains("PUBLIC")) {
-        let indexStart = key.index(key.startIndex, offsetBy: 26)
-        let firstTemp  = key[indexStart...]
-        let indexEnd = key.index(firstTemp.endIndex, offsetBy: -25)
-        let secondTemp = firstTemp[...indexEnd]
-        return String(secondTemp)
-    } else if(key.contains("PRIVATE")) {
-        let indexStart = key.index(key.startIndex, offsetBy: 31)
-        let firstTemp  = key[indexStart...]
-        let indexEnd = key.index(firstTemp.endIndex, offsetBy: -30)
-        let secondTemp = firstTemp[...indexEnd]
-        return String(secondTemp)
-    }
-    return key
+    return key.replacingOccurrences(of: "-----BEGIN PUBLIC KEY-----", with: "").replacingOccurrences(of: "-----END PUBLIC KEY-----", with: "").replacingOccurrences(of: "-----BEGIN RSA PRIVATE KEY-----", with: "").replacingOccurrences(of: "-----END RSA PRIVATE KEY-----", with: "").replacingOccurrences(of: "-----BEGIN PRIVATE KEY-----", with: "").replacingOccurrences(of: "-----END PRIVATE KEY-----", with: "")
 }
 internal func toastMess(title: String, message: String){
     let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)

@@ -1024,7 +1024,7 @@ internal class API {
         """
         let variables : [String: Any] = [
             "initInput" : [
-            "appToken": PayME.appID,
+            "appToken": PayME.appToken,
             "connectToken": PayME.connectToken,
             "clientId": clientID
             ]

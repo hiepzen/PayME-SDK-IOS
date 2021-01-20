@@ -23,7 +23,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.view.backgroundColor = .white
         atmView.price.text = "\(formatMoney(input: Methods.amount)) đ"
         contentLabel.text = "Nội dung"
         if (Methods.note == "") {

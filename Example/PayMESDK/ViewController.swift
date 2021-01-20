@@ -225,20 +225,29 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return textField
     }()
     
+
     private let PUBLIC_KEY: String =
-    "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi" + "\n" +
-    "wIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ=="
+    """
+    -----BEGIN PUBLIC KEY-----
+    MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi
+    wIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ==
+    -----END PUBLIC KEY-----
+    """
     
     private let PRIVATE_KEY: String =
-    "MIIBOwIBAAJBAOkNeYrZOhKTS6OcPEmbdRGDRgMHIpSpepulZJGwfg1IuRM+ZFBm"   + "\n" +
-    "F6NgzicQDNXLtaO5DNjVw1o29BFoK0I6+sMCAwEAAQJAVCsGq2vaulyyI6vIZjkb"   + "\n" +
-    "5bBId8164r/2xQHNuYRJchgSJahHGk46ukgBdUKX9IEM6dAQcEUgQH+45ARSSDor"   + "\n" +
-    "mQIhAPt81zvT4oK1txaWEg7LRymY2YzB6PihjLPsQUo1DLf3AiEA7Tv005jvNbNC"   + "\n" +
-    "pRyXcfFIy70IHzVgUiwPORXQDqJhWJUCIQDeDiZR6k4n0eGe7NV3AKCOJyt4cMOP"   + "\n" +
-    "vb1qJOKlbmATkwIhALKSJfi8rpraY3kLa4fuGmCZ2qo7MFTKK29J1wGdAu99AiAQ"   + "\n" +
-    "dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx33R4ANzm9w=="
+    """
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIBOwIBAAJBAOkNeYrZOhKTS6OcPEmbdRGDRgMHIpSpepulZJGwfg1IuRM+ZFBm
+    F6NgzicQDNXLtaO5DNjVw1o29BFoK0I6+sMCAwEAAQJAVCsGq2vaulyyI6vIZjkb
+    5bBId8164r/2xQHNuYRJchgSJahHGk46ukgBdUKX9IEM6dAQcEUgQH+45ARSSDor
+    mQIhAPt81zvT4oK1txaWEg7LRymY2YzB6PihjLPsQUo1DLf3AiEA7Tv005jvNbNC
+    pRyXcfFIy70IHzVgUiwPORXQDqJhWJUCIQDeDiZR6k4n0eGe7NV3AKCOJyt4cMOP
+    vb1qJOKlbmATkwIhALKSJfi8rpraY3kLa4fuGmCZ2qo7MFTKK29J1wGdAu99AiAQ
+    dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx33R4ANzm9w==
+    -----END RSA PRIVATE KEY-----
+    """
         
-    private let APP_ID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Njg2OH0.JyIdhQEX_Lx9CXRH4iHM8DqamLrMQJk5rhbslNW4GzY"
+    private let APP_TOKEN: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Njg2OH0.JyIdhQEX_Lx9CXRH4iHM8DqamLrMQJk5rhbslNW4GzY"
     private var connectToken: String = ""
     private var currentEnv: PayME.Env = PayME.Env.DEV
     
@@ -256,10 +265,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 Log.custom.push(title: "Connect Token Generator", message: newConnectToken)
                 self.setConnectToken(token: newConnectToken)
                 self.payME = PayME(
-                    appID: UserDefaults.standard.string(forKey: "appToken") ?? "",
-                    publicKey: UserDefaults.standard.string(forKey: "publicKey") ?? "",
+                    appToken: self.APP_TOKEN,
+                    publicKey: self.PUBLIC_KEY,
                     connectToken: self.connectToken,
-                    appPrivateKey: UserDefaults.standard.string(forKey: "secretKey") ?? "",
+                    appPrivateKey: self.PRIVATE_KEY,
                     env: self.currentEnv,
                     configColor: ["#75255b", "#a81308"])
                 self.loginButton.backgroundColor = UIColor.gray
@@ -386,7 +395,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let amount = Int(moneyPay.text!)
                 if (amount! >= 10000){
                     let amountPay = amount!
-                    payME!.pay(currentVC: self, storeId: 1, orderId: "hello", amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in
+                    payME!.pay(currentVC: self, storeId: 6868, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in
                         Log.custom.push(title: "pay", message: success)
                     }, onError: {error in
                         Log.custom.push(title: "pay", message: error)
@@ -659,7 +668,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         let appToken = UserDefaults.standard.string(forKey: "appToken") ?? ""
         if (appToken == ""){
-            UserDefaults.standard.set(APP_ID, forKey: "appToken")
+            UserDefaults.standard.set(APP_TOKEN, forKey: "appToken")
         }
         let secretKey = UserDefaults.standard.string(forKey: "secretKey") ?? ""
         if (secretKey == ""){

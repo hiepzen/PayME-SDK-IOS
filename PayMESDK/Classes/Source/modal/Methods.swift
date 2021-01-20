@@ -267,6 +267,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         self.panModalTransition(to: .longForm)
                     }
             },onError: {error in
+                self.removeSpinner()
                 self.onError!(error)
                 self.dismiss(animated: true, completion: {
                     self.onError!(error)
@@ -483,6 +484,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 }
                 let atmModal = ATMModal()
                 atmModal.listBank = listBank
+                atmModal.onSuccess = self.onSuccess
+                atmModal.onError = self.onError
                 self.dismiss(animated: true, completion: {
                     PayME.currentVC!.presentPanModal(atmModal)
                 })

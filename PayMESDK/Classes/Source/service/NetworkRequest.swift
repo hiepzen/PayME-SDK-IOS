@@ -201,7 +201,6 @@ public class NetworkRequestGraphQL {
     private var params: Data?
     private var publicKey: String
     private var privateKey: String
-    private var appToken : String
     
     init(url: String, path: String, token: String, params: Data?, publicKey: String, privateKey: String) {
         self.url = url
@@ -210,20 +209,6 @@ public class NetworkRequestGraphQL {
         self.params = params
         self.publicKey = publicKey
         self.privateKey = privateKey
-        let temp = PayME.appID.components(separatedBy: ".")
-        let appToken = temp[1].fromBase64()
-        if (appToken != nil) {
-            let data = Data(appToken!.utf8)
-            if let finalJSON = try? (JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) as? Dictionary<String, AnyObject>) {
-                let appId = finalJSON!["appId"] as? Int
-                let stringAppId = String(appId ?? 0)
-                self.appToken = stringAppId
-            } else {
-                self.appToken = ""
-            }
-        } else {
-            self.appToken = ""
-        }
     }
     
     public func setOnRequest(
@@ -302,7 +287,7 @@ public class NetworkRequestGraphQL {
         
         guard let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey) else {
             DispatchQueue.main.async {
-                onError(["message" : "Public Key sai định dạng" as AnyObject])
+                onError(["message" : "Mã hóa thất bại" as AnyObject])
             }
             return
         }
@@ -329,7 +314,7 @@ public class NetworkRequestGraphQL {
         request.addValue(self.token, forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue(appToken, forHTTPHeaderField: "x-api-client")
+        request.addValue(PayME.appId, forHTTPHeaderField: "x-api-client")
         request.addValue(xAPIKey, forHTTPHeaderField: "x-api-key")
         request.addValue(xAPIAction, forHTTPHeaderField: "x-api-action")
         request.addValue(xAPIValidate, forHTTPHeaderField: "x-api-validate")
@@ -369,7 +354,7 @@ public class NetworkRequestGraphQL {
             let xAPIActionResponse = headers.allHeaderFields["x-api-action"] as! String
             guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
                 DispatchQueue.main.async {
-                    onError(["message" : "Private Key sai định dạng" as AnyObject])
+                    onError(["message" : "Giải mã thất bại" as AnyObject])
                 }
                 return
             }
@@ -427,8 +412,17 @@ public class NetworkRequestGraphQL {
         let range = NSMakeRange(0, str.count)
         let modString = regex.stringByReplacingMatches(in: str, options: [], range: range, withTemplate: "\"")
         str = modString.replacingOccurrences(of: "\\\\",with: "\\");
+        //str = str.replacingOccurrences(of: "\\\"",with: "\"");
         str = String(str.dropFirst(1).dropLast(1))
+        print(str)
         return str
+        /*
+        str = str.replacingOccurrences(of: "\"{", with: "{")
+        str = str.replacingOccurrences(of: "}\"", with: "}")
+        str = str.replacingOccurrences(of: "\\", with: "")
+        str = str.replacingOccurrences(of: "\"\"", with: "\"")
+        */
+        // return str
     }
 }
 

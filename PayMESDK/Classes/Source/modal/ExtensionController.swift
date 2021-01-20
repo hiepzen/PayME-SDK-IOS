@@ -74,6 +74,23 @@ extension String {
     func toBase64() -> String {
             return Data(self.utf8).base64EncodedString()
     }
+    
+    func stringByReplacingFirstOccurrenceOfString(
+            target: String, withString replaceString: String) -> String
+    {
+        if let range = self.range(of: target) {
+            return self.replacingCharacters(in: range, with: replaceString)
+        }
+        return self
+    }
+    func replaceAll(target: String, withString: String) -> String
+    {
+        let regex = try! NSRegularExpression(pattern: target, options: NSRegularExpression.Options.caseInsensitive)
+        let range = NSMakeRange(0, self.count)
+        let modString = regex.stringByReplacingMatches(in: self, options: [], range: range, withTemplate: withString)
+        return modString
+    }
+    
 }
 
 extension UIViewController {
