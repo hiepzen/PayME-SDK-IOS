@@ -234,7 +234,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     wIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ==
     -----END PUBLIC KEY-----
     """
-    
     private let PRIVATE_KEY: String =
     """
     -----BEGIN RSA PRIVATE KEY-----
@@ -247,10 +246,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx33R4ANzm9w==
     -----END RSA PRIVATE KEY-----
     """
+    private let APP_TOKEN: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Njg2OH0.JyIdhQEX_Lx9CXRH4iHM8DqamLrMQJk5rhbslNW4GzY"
     
     private let SECRET_KEY: String = "zfQpwE6iHbOeAfgX"
-        
-    private let APP_TOKEN: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Njg2OH0.JyIdhQEX_Lx9CXRH4iHM8DqamLrMQJk5rhbslNW4GzY"
+    
     private var connectToken: String = ""
     private var currentEnv: PayME.Env = PayME.Env.DEV
     
@@ -278,12 +277,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 Log.custom.push(title: "Connect Token Generator", message: newConnectToken)
                 self.setConnectToken(token: newConnectToken)
                 self.payME = PayME(
-                    appToken: self.APP_TOKEN,
-                    publicKey: self.PUBLIC_KEY,
+                    appToken: UserDefaults.standard.string(forKey: "appToken") ?? "",
+                    publicKey: UserDefaults.standard.string(forKey: "publicKey") ?? "",
                     connectToken: self.connectToken,
                     appPrivateKey: UserDefaults.standard.string(forKey: "privateKey") ?? "",
                     env: self.currentEnv,
                     configColor: ["#75255b", "#a81308"])
+                self.getBalance(self.refreshButton)
                 self.loginButton.backgroundColor = UIColor.gray
                 self.logoutButton.backgroundColor = UIColor.white
             }
