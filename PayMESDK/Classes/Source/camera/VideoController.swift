@@ -232,7 +232,7 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
                 print(error.localizedDescription)
             }
         }
-        
+        session.startRunning()
     }
     
 }

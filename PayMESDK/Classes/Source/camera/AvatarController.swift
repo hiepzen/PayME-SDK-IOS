@@ -144,8 +144,8 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
                 cameraPreviewLayer?.borderColor = UIColor(13,170,39).cgColor
                 cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
                 view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
-                session.startRunning()
             }
+            session.startRunning()
         } catch {
             print(error.localizedDescription)
         }

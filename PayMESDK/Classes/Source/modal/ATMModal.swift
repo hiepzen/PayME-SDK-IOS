@@ -459,7 +459,9 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         //initially identify your textfield
 
         if textField == atmView.dateField {
-
+            let allowedCharacters = CharacterSet(charactersIn:"+0123456789 ")//Here change this characters based on your requirement
+            let characterSet = CharacterSet(charactersIn: string)
+    
             // check the chars length dd -->2 at the same time calculate the dd-MM --> 5
             if (atmView.dateField.text?.count == 2) {
                 //Handle backspace being pressed
@@ -469,9 +471,11 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                 }
             }
             // check the condition not exceed 9 chars
-            return !(textField.text!.count > 4 && (string.count ) > range.length)
+            return allowedCharacters.isSuperset(of: characterSet) && !(textField.text!.count > 4 && (string.count ) > range.length)
         }
         if textField == atmView.cardNumberField {
+            let allowedCharacters = CharacterSet(charactersIn:"+0123456789 ")//Here change this characters based on your requirement
+            let characterSet = CharacterSet(charactersIn: string)
             if (atmView.cardNumberField.text!.count >= 5) {
                 if !(string == "") {
                     print(string)
@@ -526,9 +530,9 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             }
             
             if (bankDetect != nil) {
-                return textField.text!.count + 1 <= bankDetect!.cardNumberLength
+                return allowedCharacters.isSuperset(of: characterSet) && textField.text!.count + 1 <= bankDetect!.cardNumberLength
             }
-            return !(textField.text!.count > 19 && (string.count ) > range.length)
+            return allowedCharacters.isSuperset(of: characterSet) && !(textField.text!.count > 19 && (string.count ) > range.length)
 
         }
         return true

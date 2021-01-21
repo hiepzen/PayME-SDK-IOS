@@ -282,8 +282,8 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
                 cameraPreviewLayer?.borderColor = UIColor(255,255,255).cgColor
                 cameraPreviewLayer?.connection!.videoOrientation = AVCaptureVideoOrientation.portrait
                 view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
-                session.startRunning()
             }
+            session.startRunning()
         } catch {
             print(error.localizedDescription)
         }

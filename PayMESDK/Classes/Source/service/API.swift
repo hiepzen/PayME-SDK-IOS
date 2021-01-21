@@ -9,6 +9,16 @@ import Foundation
 import Alamofire
 
 internal class API {
+    
+    private static var alamoFireManager: Session = {
+     let configuration = URLSessionConfiguration.default
+     configuration.timeoutIntervalForRequest = 30
+     configuration.timeoutIntervalForResource = 60
+     let sessionManger = Session(configuration: configuration, startRequestsImmediately: true)
+     return sessionManger
+
+    }()
+    
     static var isRoot: Bool {
 
         guard TARGET_IPHONE_SIMULATOR != 1 else { return false }
@@ -53,7 +63,7 @@ internal class API {
         let path = url + "/Upload"
         let headers : HTTPHeaders = ["Content-type": "multipart/form-data",
                                      "Content-Disposition" : "form-data"]
-        AF.upload(multipartFormData: { (multipartFormData) in
+        alamoFireManager.upload(multipartFormData: { (multipartFormData) in
             multipartFormData.append(videoURL, withName: "files", fileName: "video.mp4", mimeType: "video/mp4")
         }, to: path, method: .post, headers: headers)
         .response { response in
@@ -375,6 +385,7 @@ internal class API {
           "query": sql,
           "variables": variables,
         ]
+        print(variables)
         let params = try? JSONSerialization.data(withJSONObject: json)
         print(variables)
         print(PayME.accessToken)
@@ -715,7 +726,9 @@ internal class API {
         let imageData = imageFront.jpegData(compressionQuality: 1)
         let headers : HTTPHeaders = ["Content-type": "multipart/form-data",
                                      "Content-Disposition" : "form-data"]
-        AF.upload(multipartFormData: { (multipartFormData) in
+        
+        
+        alamoFireManager.upload(multipartFormData: { (multipartFormData) in
                 multipartFormData.append(imageData!, withName: "files", fileName: "imageFront.png", mimeType: "image/png")
                 if (imageBack != nil) {
                     let imageDataBack = imageBack!.jpegData(compressionQuality: 1)

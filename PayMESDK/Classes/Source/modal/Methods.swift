@@ -75,25 +75,23 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             })
         } else if(field == otpView.otpView) {
             API.transferByLinkedBank(transaction: transaction, storeId: Methods.storeId, orderId: Methods.orderId, linkedId: (data[active!].dataLinked?.linkedId)!, extraData: Methods.extraData, note: Methods.note, otp: code, amount: Methods.amount, onSuccess: { response in
+                print(response)
+                self.removeSpinner()
                 self.onSuccess!(response)
                 let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String:AnyObject]
                 let payInfo = paymentInfo["Pay"] as! [String:AnyObject]
                 let message = payInfo["message"] as! String
                 let succeeded = payInfo["succeeded"] as! Bool
                 if (succeeded == true) {
-                    DispatchQueue.main.async {
-                        self.otpView.removeFromSuperview()
-                        self.setupSuccess()
-                    }
+                    self.otpView.removeFromSuperview()
+                    self.setupSuccess()
                 } else {
-                    DispatchQueue.main.async {
-                        self.otpView.removeFromSuperview()
-                        self.failView.failLabel.text = message
-                        self.setupFail()
-                    }
+                    self.otpView.removeFromSuperview()
+                    self.failView.failLabel.text = message
+                    self.setupFail()
                 }
-                self.removeSpinner()
             }, onError: { error in
+                print(error)
                 self.onError!(error)
                 self.removeSpinner()
                 self.dismiss(animated: true, completion: {
@@ -285,9 +283,13 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     func setupOTP() {
-        view = otpView
+        view.addSubview(otpView)
+        
         otpView.translatesAutoresizingMaskIntoConstraints = false
         otpView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        otpView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+        otpView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        
         otpView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor, constant: 10).isActive = true
         self.updateViewConstraints()
@@ -303,9 +305,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     func setupSecurity() {
         
         view.addSubview(securityCode)
-        
-        securityCode.translatesAutoresizingMaskIntoConstraints = false
-        
+                
         securityCode.translatesAutoresizingMaskIntoConstraints = false
         securityCode.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
         securityCode.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true

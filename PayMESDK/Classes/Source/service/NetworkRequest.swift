@@ -442,7 +442,6 @@ public class NetworkRequestGraphQL {
             str = str.replacingOccurrences(of: "\\", with: "")
             str = str.replacingOccurrences(of: "\"\"", with: "\"")
         }
-        print(str)
         return str
     }
 }

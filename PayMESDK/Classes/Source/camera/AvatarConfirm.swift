@@ -44,7 +44,7 @@ class AvatarConfirm: UIViewController {
         titleLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textAlignment = .center
-        titleLabel.text = "Xác nhận hình chụp"
+        titleLabel.text = "Xác nhận ảnh"
         return titleLabel
     }()
     
