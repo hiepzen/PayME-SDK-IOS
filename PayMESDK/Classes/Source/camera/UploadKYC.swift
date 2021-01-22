@@ -17,8 +17,6 @@ public class UploadKYC{
     private var pathBack : String?
     private var pathAvatar : String?
     private var pathVideo : String?
-    let dispatchGroup = DispatchGroup()
-    let serialQueue = DispatchQueue(label: "uploadQueue")
 
     public init(imageDocument : [UIImage]?, imageAvatar : UIImage?, videoKYC : URL?, active: Int?){
         self.imageDocument = imageDocument
@@ -26,104 +24,142 @@ public class UploadKYC{
         self.videoKYC = videoKYC
         self.active = active
     }
+    
     public func upload(){
-        
-        /*
-        if(flowKYC["a"] == true){
-            PayME.currentVC?.navigationItem.hidesBackButton = true
-            PayME.currentVC?.navigationController?.isNavigationBarHidden = true
-            var kycDocument = KYCCameraController()
-            PayME.currentVC?.navigationController?.pushViewController(kycDocument, animated: true)
-            dispatchGroup.enter()
-        }
-        */
-        DispatchQueue.main.async {
-            PayME.currentVC?.navigationItem.hidesBackButton = true
-            PayME.currentVC?.navigationController?.isNavigationBarHidden = true
-            PayME.currentVC?.showSpinner(onView: (PayME.currentVC?.view)!)
-        }
-        dispatchGroup.enter()
+        PayME.currentVC?.navigationItem.hidesBackButton = true
+        PayME.currentVC?.navigationController?.isNavigationBarHidden = true
+        PayME.currentVC?.showSpinner(onView: (PayME.currentVC?.view)!)
         uploadDocument()
-        uploadAvatar()
-        uploadVideo()
-        verifyKYC()
     }
+    
     private func verifyKYC() {
-        serialQueue.async{
-            self.dispatchGroup.wait()
-            self.dispatchGroup.enter()
-            API.verifyKYC(pathFront: self.pathFront, pathBack: self.pathBack, pathAvatar: self.pathAvatar, pathVideo: self.pathVideo,
-              onSuccess: { response in
-                if let result = response["Account"]!["KYC"] as? [String: AnyObject]
-                {
-                    let succeeded = result["succeeded"] as? Bool
-                    if (succeeded != nil) {
-                        if (succeeded! == true) {
-                            DispatchQueue.main.async {
-                                PayME.currentVC?.removeSpinner()
-                                guard let navigationController = PayME.currentVC?.navigationController else { return }
-                                let navigationArray = navigationController.viewControllers
-                                if PayME.isRecreateNavigationController {
-                                    PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
-                                    let rootViewController = navigationArray.first
-                                    (rootViewController as! WebViewController).reload()
-                                } else {
-                                    PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0],navigationArray[1]]
-                                    (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
-                                }
-                            }
-                        }
-                    } else {
+        API.verifyKYC(pathFront: self.pathFront, pathBack: self.pathBack, pathAvatar: self.pathAvatar, pathVideo: self.pathVideo,
+          onSuccess: { response in
+            print(response)
+            if let result = response["Account"]!["KYC"] as? [String: AnyObject]
+            {
+                let succeeded = result["succeeded"] as? Bool
+                if (succeeded != nil) {
+                    if (succeeded! == true) {
                         DispatchQueue.main.async {
                             PayME.currentVC?.removeSpinner()
-                            self.toastMess(title: "Lỗi", message: result["message"] as? String ?? "Something went wrong")
-                        }
-                    }
-                }
-            },onError: {error in
-                if let extensions = error["extensions"] as? [String:AnyObject] {
-                    let code = extensions["code"] as? Int
-                    if (code != nil) {
-                        if (code == 401) {
                             guard let navigationController = PayME.currentVC?.navigationController else { return }
                             let navigationArray = navigationController.viewControllers
-                            PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                            if PayME.isRecreateNavigationController {
+                                PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                                let rootViewController = navigationArray.first
+                                (rootViewController as! WebViewController).reload()
+                            } else {
+                                PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0],navigationArray[1]]
+                                (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
+                            }
                         }
                     }
-                    self.toastMess(title: "Lỗi", message: error["message"] as? String ?? "Something went wrong")
+                } else {
                     PayME.currentVC?.removeSpinner()
+                    self.toastMess(title: "Lỗi", message: result["message"] as? String ?? "Something went wrong")
                 }
-                
-            })
-            self.dispatchGroup.leave()
-        }
+            }
+        },onError: {error in
+            if let extensions = error["extensions"] as? [String:AnyObject] {
+                let code = extensions["code"] as? Int
+                if (code != nil) {
+                    if (code == 401) {
+                        guard let navigationController = PayME.currentVC?.navigationController else { return }
+                        let navigationArray = navigationController.viewControllers
+                        PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                    }
+                }
+                self.toastMess(title: "Lỗi", message: error["message"] as? String ?? "Something went wrong")
+                PayME.currentVC?.removeSpinner()
+            }
+            
+        })
     }
     
     private func uploadVideo() {
-        serialQueue.async{
-            self.dispatchGroup.wait()
-            self.dispatchGroup.enter()
-            if (self.videoKYC != nil) {
-                API.uploadVideoKYC(videoURL: self.videoKYC!, onSuccess: {response in
+        if (self.videoKYC != nil) {
+            API.uploadVideoKYC(videoURL: self.videoKYC!, onSuccess: {response in
+                print(response)
+                 let code = response["code"]! as! Int
+                 if (code == 1000) {
+                    let data = response["data"] as! [[String:Any]]
+                    self.pathVideo = data[0]["path"] as? String ?? ""
+                    self.verifyKYC()
+                 } else {
+                    PayME.currentVC?.removeSpinner()
+                    self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
+                }
+            }, onError: {error in
+                PayME.currentVC?.removeSpinner()
+                self.toastMess(title: "Lỗi", message: (error["message"] as? String) ?? "Something went wrong")
+            })
+        } else {
+            verifyKYC()
+        }
+    }
+    
+    private func uploadAvatar() {
+        if (self.imageAvatar != nil) {
+            API.uploadImageKYC(imageFront: self.imageAvatar!, imageBack: nil,
+            onSuccess: {response in
+                 let code = response["code"]! as! Int
+                 if (code == 1000) {
+                    let data = response["data"] as! [[String:Any]]
+                    self.pathAvatar = data[0]["path"] as? String ?? ""
+                    self.uploadVideo()
+                 } else {
+                    PayME.currentVC?.removeSpinner()
+                    self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
+                }
+            }, onError: {error in
+                PayME.currentVC?.removeSpinner()
+                self.toastMess(title: "Lỗi", message: (error["message"] as? String) ?? "Something went wrong")
+            })
+        } else {
+            uploadVideo()
+        }
+    }
+    
+    private func uploadDocument() {
+        if (self.imageDocument != nil) {
+            if (self.active == 2) {
+                API.uploadImageKYC(imageFront: self.imageDocument![0], imageBack: nil,
+                onSuccess: {response in
                      let code = response["code"]! as! Int
                      if (code == 1000) {
                         let data = response["data"] as! [[String:Any]]
-                        self.pathVideo = data[0]["path"] as? String ?? ""
-                        
+                        self.pathFront = data[0]["path"] as? String ?? ""
+                        self.uploadAvatar()
                      } else {
+                        PayME.currentVC?.removeSpinner()
                         self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
                     }
-                    self.dispatchGroup.leave()
+                    
                 }, onError: {error in
-                    DispatchQueue.main.async {
-                        PayME.currentVC?.removeSpinner()
-                        self.toastMess(title: "Lỗi", message: "Something went wrong")
-                        return
-                    }
+                    PayME.currentVC?.removeSpinner()
+                    self.toastMess(title: "Lỗi", message: (error["message"] as? String) ?? "Something went wrong")
                 })
             } else {
-                self.dispatchGroup.leave()
+                API.uploadImageKYC(imageFront: self.imageDocument![0], imageBack: self.imageDocument![1], onSuccess: {response in
+                     let code = response["code"]! as! Int
+                     if (code == 1000) {
+                        let data = response["data"] as! [[String:Any]]
+                        self.pathFront = data[0]["path"] as? String ?? ""
+                        self.pathBack = data[1]["path"] as? String ?? ""
+                        self.uploadAvatar()
+                     } else {
+                        PayME.currentVC?.removeSpinner()
+                        self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
+                    }
+                    
+                }, onError: {error in
+                    PayME.currentVC?.removeSpinner()
+                    self.toastMess(title: "Lỗi", message: (error["message"] as? String) ?? "Something went wrong")
+                })
             }
+        }  else {
+            uploadAvatar()
         }
     }
     
@@ -132,81 +168,5 @@ public class UploadKYC{
         alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
         PayME.currentVC?.present(alert, animated: true, completion: nil)
     }
-    
-    private func uploadAvatar() {
-        serialQueue.async{
-            self.dispatchGroup.wait()
-            self.dispatchGroup.enter()
-            if (self.imageAvatar != nil) {
-                API.uploadImageKYC(imageFront: self.imageAvatar!, imageBack: nil,
-                onSuccess: {response in
-                     let code = response["code"]! as! Int
-                     if (code == 1000) {
-                        let data = response["data"] as! [[String:Any]]
-                        self.pathAvatar = data[0]["path"] as? String ?? ""
-                     } else {
-                        self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
-                    }
-                    self.dispatchGroup.leave()
-                }, onError: {error in
-                    DispatchQueue.main.async {
-                        PayME.currentVC?.removeSpinner()
-                        self.toastMess(title: "Lỗi", message: "Something went wrong")
-                        return
-                    }
-                })
-            } else {
-                self.dispatchGroup.leave()
-            }
-        }
-    }
-    
-    private func uploadDocument() {
-        serialQueue.async{
-            if (self.imageDocument != nil) {
-                if (self.active == 2) {
-                    API.uploadImageKYC(imageFront: self.imageDocument![0], imageBack: nil,
-                    onSuccess: {response in
-                         let code = response["code"]! as! Int
-                         if (code == 1000) {
-                            let data = response["data"] as! [[String:Any]]
-                            self.pathFront = data[0]["path"] as? String ?? ""
-                         } else {
-                            self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
-                        }
-                        self.dispatchGroup.leave()
-                    }, onError: {error in
-                        DispatchQueue.main.async {
-                            PayME.currentVC?.removeSpinner()
-                            self.toastMess(title: "Lỗi", message: "Something went wrong")
-                            return
-                        }
-                    })
-                } else {
-                    API.uploadImageKYC(imageFront: self.imageDocument![0], imageBack: self.imageDocument![1], onSuccess: {response in
-                             let code = response["code"]! as! Int
-                             if (code == 1000) {
-                                let data = response["data"] as! [[String:Any]]
-                                self.pathFront = data[0]["path"] as? String ?? ""
-                                self.pathBack = data[1]["path"] as? String ?? ""
-                             } else {
-                                self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
-                            }
-                            self.dispatchGroup.leave()
-                    }, onError: {error in
-                        DispatchQueue.main.async {
-                            PayME.currentVC?.removeSpinner()
-                            self.toastMess(title: "Lỗi", message: "Something went wrong")
-                            return
-                        }
-                    })
-                }
-            }  else {
-                self.dispatchGroup.leave()
-            }
-        }
-    }
-    
-    
     
 }

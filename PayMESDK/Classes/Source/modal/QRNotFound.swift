@@ -51,7 +51,7 @@ class QRNotFound: UIViewController, PanModalPresentable {
         nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         nameLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 20.0).isActive = true
         roleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        roleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4.0).isActive = true
+        roleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 18.0).isActive = true
         roleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
         roleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
         button.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -92,12 +92,10 @@ class QRNotFound: UIViewController, PanModalPresentable {
         return bgImage
     }()
     
-    
-    
     let nameLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor(24,26,65)
-        label.font = UIFont(name: "Lato-Bold", size: 25)
+        label.font = UIFont.systemFont(ofSize: 21, weight: .semibold)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -107,7 +105,7 @@ class QRNotFound: UIViewController, PanModalPresentable {
         let label = UILabel()
         label.textColor = UIColor(115,115,115)
         label.backgroundColor = .clear
-        label.font = UIFont(name: "Lato-Regular", size: 15)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

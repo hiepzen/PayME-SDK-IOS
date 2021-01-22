@@ -1,12 +1,14 @@
-//
-//  OTPInput.swift
-//  PayMESDK
-//
-//  Created by HuyOpen on 1/17/21.
-//
 
+//
+//  KAPinField.swift
+//  KAPinCode
+//
+//  Created by Alexis Creuzot on 15/10/2018.
+//  Copyright © 2018 alexiscreuzot. All rights reserved.
+//
 import UIKit
 
+// Mark: - KAPinFieldDelegate
 public protocol OTPInputDelegate : AnyObject {
     func pinField(_ field: OTPInput, didChangeTo string: String, isValid: Bool) // Optional
     func pinField(_ field: OTPInput, didFinishWith code: String)
@@ -15,51 +17,72 @@ public protocol OTPInputDelegate : AnyObject {
 public extension OTPInputDelegate {
     func pinField(_ field: OTPInput, didChangeTo string: String, isValid: Bool) {}
 }
+
+public struct OTPInputProperties {
+    public weak var delegate : OTPInputDelegate? = nil
+    public var numberOfCharacters: Int = 4 {
+        didSet {
+            precondition(numberOfCharacters >= 0, "🚫 Number of character must be >= 0, with 0 meaning dynamic")
+        }
+    }
+    public var validCharacters: String = "0123456789" {
+        didSet {
+            precondition(validCharacters.count > 0, "🚫 There must be at least 1 valid character")
+            precondition(!validCharacters.contains(token), "🚫 Valid characters can't contain token \"\(token)\"")
+        }
+    }
+    public var token: Character = "•" {
+        didSet {
+            precondition(!validCharacters.contains(token), "🚫 token can't be one of the valid characters \"\(token)\"")
+            
+            // Change space to insecable space
+            if token == " " {
+                self.token = " "
+            }
+        }
+    }
+    public var animateFocus : Bool = true
+    public var isSecure : Bool = false
+    public var secureToken: Character = "•"
+    public var isUppercased: Bool = false
+}
+
+public struct OTPAppearance {
+    public var font : OTPFont? = .menlo(40)
+    public var tokenColor : UIColor?
+    public var tokenFocusColor : UIColor?
+    public var textColor : UIColor?
+    public var kerning : CGFloat = 20.0
+    public var backColor : UIColor = UIColor.clear
+    public var backBorderColor : UIColor = UIColor.clear
+    public var backBorderWidth : CGFloat = 1
+    public var backCornerRadius : CGFloat = 4
+    public var backOffset : CGFloat = 4
+    public var backFocusColor : UIColor?
+    public var backBorderFocusColor : UIColor?
+    public var backActiveColor : UIColor?
+    public var backBorderActiveColor : UIColor?
+    public var backRounded : Bool = false
+    public var keyboardType: UIKeyboardType = .numberPad
+}
+
 // Mark: - KAPinField Class
 public class OTPInput : UITextField {
-    
-    public struct OTPInputProperty {
-        public weak var delegate : OTPInputDelegate? = nil
-        public var numberOfCharacters: Int = 6 {
-            didSet {
-                precondition(numberOfCharacters >= 0, "🚫 Number of character must be >= 0, with 0 meaning dynamic")
-            }
-        }
-        public var validCharacters: String = "0123456789" {
-            didSet {
-                precondition(validCharacters.count > 0, "🚫 There must be at least 1 valid character")
-                precondition(!validCharacters.contains(token), "🚫 Valid characters can't contain token \"\(token)\"")
-            }
-        }
-        public var token: Character = "•" {
-            didSet {
-                precondition(!validCharacters.contains(token), "🚫 token can't be one of the valid characters \"\(token)\"")
-                
-                // Change space to insecable space
-                if token == " " {
-                    self.token = " "
-                }
-            }
-        }
-        public var animateFocus : Bool = true
-        public var isSecure : Bool = false
-        public var secureToken: Character = "•"
-        public var isUppercased: Bool = false
-    }
     
     
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
+        print("SJHQGDJHGQS")
         self.reload()
     }
     
     // Mark: - Public vars
-    public var properties = OTPInputProperty() {
+    public var properties = OTPInputProperties() {
         didSet {
             self.reload()
         }
     }
-    public var appearance = KAPinFieldAppearance() {
+    public var appearance = OTPAppearance() {
         didSet {
             self.reloadAppearance()
         }
@@ -174,7 +197,7 @@ public class OTPInput : UITextField {
         for (index, v) in self.backViews.enumerated() {
             let x = CGFloat(index) * digitWidth + offset
             var vFrame = CGRect(x: x,
-                                y: -1,
+                                y: 0,
                                 width: digitWidth,
                                 height: self.bounds.height)
             vFrame.origin.x += self.appearance.backOffset / 2
@@ -605,3 +628,47 @@ private extension UITextInput {
 
 // Mark: - KA_MonospacedFont
 // Helper to provide monospaced fonts via literal
+public enum OTPFont {
+    
+    case courier(CGFloat)
+    case courierBold(CGFloat)
+    case courierBoldOblique(CGFloat)
+    case courierOblique(CGFloat)
+    case courierNewBoldItalic(CGFloat)
+    case courierNewBold(CGFloat)
+    case courierNewItalic(CGFloat)
+    case courierNew(CGFloat)
+    case menloBold(CGFloat)
+    case menloBoldItalic(CGFloat)
+    case menloItalic(CGFloat)
+    case menlo(CGFloat)
+    
+    func font() -> UIFont {
+        switch self {
+        case .courier(let size) :
+            return UIFont(name: "Courier", size: size)!
+        case .courierBold(let size) :
+            return UIFont(name: "Courier-Bold", size: size)!
+        case .courierBoldOblique(let size) :
+            return UIFont(name: "Courier-BoldOblique", size: size)!
+        case .courierOblique(let size) :
+            return UIFont(name: "Courier-Oblique", size: size)!
+        case .courierNewBoldItalic(let size) :
+            return UIFont(name: "CourierNewPS-BoldItalicMT", size: size)!
+        case .courierNewBold(let size) :
+            return UIFont(name: "CourierNewPS-BoldMT", size: size)!
+        case .courierNewItalic(let size) :
+            return UIFont(name: "CourierNewPS-ItalicMT", size: size)!
+        case .courierNew(let size) :
+            return UIFont(name: "CourierNewPSMT", size: size)!
+        case .menloBold(let size) :
+            return UIFont(name: "Menlo-Bold", size: size)!
+        case .menloBoldItalic(let size) :
+            return UIFont(name: "Menlo-BoldItalic", size: size)!
+        case .menloItalic(let size) :
+            return UIFont(name: "Menlo-Italic", size: size)!
+        case .menlo(let size) :
+            return UIFont(name: "Menlo-Regular", size: size)!
+        }
+    }
+}

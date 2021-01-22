@@ -19,7 +19,7 @@ class OTP: UIViewController, PanModalPresentable {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
+        view.backgroundColor = .white
         view.addSubview(nameLabel)
         view.addSubview(roleLabel)
         view.addSubview(button)
@@ -99,9 +99,10 @@ class OTP: UIViewController, PanModalPresentable {
         txtField.topAnchor.constraint(equalTo: roleLabel.bottomAnchor).isActive = true
         txtField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
-        otpView.topAnchor.constraint(equalTo: button.bottomAnchor, constant: 19).isActive = true
-        otpView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 50).isActive = true
-        otpView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50).isActive = true
+        otpView.topAnchor.constraint(equalTo: button.bottomAnchor, constant: 20).isActive = true
+        otpView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15).isActive = true
+        otpView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15).isActive = true
+        otpView.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         closeButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.bottomAnchor, constant: 10).isActive = true
@@ -246,21 +247,28 @@ class OTP: UIViewController, PanModalPresentable {
         return label
     }()
     
-    let otpView : KAPinField = {
-        let pinField = KAPinField()
+    let otpView : OTPInput = {
+        let pinField = OTPInput()
         pinField.layer.cornerRadius = 10
         pinField.clipsToBounds = true
         pinField.translatesAutoresizingMaskIntoConstraints = false
-        pinField.backgroundColor = UIColor.init(242,244,243)
-        pinField.appearance.font = .menloBold(40) // Default to appearance.MonospacedFont.menlo(40)
-        pinField.appearance.kerning = 20 // Space between characters, default to 16
-        pinField.appearance.tokenColor = UIColor.black.withAlphaComponent(0.3) // token color, default to text color
+        pinField.backgroundColor = .clear
+        pinField.properties.numberOfCharacters = 6
+        pinField.appearance.font = .menloBold(26) // Default to appearance.MonospacedFont.menlo(40)
+        pinField.appearance.kerning = 35 // Space between characters, default to 16
+        pinField.appearance.tokenColor = .clear // token color, default to text color
+        pinField.appearance.textColor = UIColor(11,11,11)
         pinField.properties.animateFocus = false
-        pinField.appearance.backOffset = 0 // Backviews spacing between each other
-        pinField.appearance.backColor = UIColor.init(242,244,243)
-        pinField.appearance.backActiveColor = UIColor.white
-        pinField.appearance.keyboardType = UIKeyboardType.numberPad // Specify keyboard type
-        pinField.appearance.backCornerRadius = 0
+        pinField.appearance.backOffset = 10 // Backviews spacing between each other
+        pinField.appearance.backColor = UIColor(242,244,243)
+        pinField.appearance.backBorderWidth = 1
+        pinField.appearance.backBorderColor = .clear
+        pinField.appearance.backCornerRadius = 15
+        pinField.appearance.backFocusColor = UIColor.clear
+        pinField.appearance.backBorderFocusColor = UIColor(10,146,32)
+        pinField.appearance.backActiveColor = UIColor(242,244,243)
+        pinField.appearance.backBorderActiveColor = UIColor.clear
+        pinField.appearance.backRounded = false
         return pinField
     }()
     

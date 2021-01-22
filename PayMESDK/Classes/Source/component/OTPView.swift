@@ -29,57 +29,47 @@ internal class OTPView: UIView {
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
-    
-    let nameLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = UIColor(24,26,65)
-        label.font = UIFont(name: "Lato-Bold", size: 25)
-        label.backgroundColor = .clear
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
 
     let roleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(115,115,115)
+        label.textColor = UIColor(11,11,11)
         label.backgroundColor = .clear
-        label.font = UIFont(name: "Lato-Regular", size: 15)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
-    
-    let button : UIButton = {
-        let button = UIButton()
-        button.backgroundColor = UIColor(8,148,31)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = 10
-        return button
     }()
     
     let txtLabel : UILabel = {
         let label = UILabel()
         label.textColor = UIColor(26,26,26)
         label.backgroundColor = .clear
-        label.font = UIFont(name: "Lato-SemiBold", size: 20)
+        label.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    let otpView : KAPinField = {
-        let pinField = KAPinField()
+    let otpView : OTPInput = {
+        let pinField = OTPInput()
         pinField.layer.cornerRadius = 10
         pinField.clipsToBounds = true
         pinField.translatesAutoresizingMaskIntoConstraints = false
-        pinField.backgroundColor = UIColor.init(242,244,243)
-        pinField.appearance.font = .menloBold(40) // Default to appearance.MonospacedFont.menlo(40)
-        pinField.appearance.kerning = 20 // Space between characters, default to 16
-        pinField.appearance.tokenColor = UIColor.black.withAlphaComponent(0.3) // token color, default to text color
+        pinField.backgroundColor = .clear
+        pinField.properties.numberOfCharacters = 6
+        pinField.appearance.font = .menloBold(26) // Default to appearance.MonospacedFont.menlo(40)
+        pinField.appearance.kerning = 35 // Space between characters, default to 16
+        pinField.appearance.tokenColor = .clear // token color, default to text color
+        pinField.appearance.textColor = UIColor(11,11,11)
         pinField.properties.animateFocus = false
-        pinField.appearance.backOffset = 0 // Backviews spacing between each other
-        pinField.appearance.backColor = UIColor.init(242,244,243)
-        pinField.appearance.backActiveColor = UIColor.white
-        pinField.appearance.keyboardType = UIKeyboardType.numberPad // Specify keyboard type
-        pinField.appearance.backCornerRadius = 0
+        pinField.appearance.backOffset = 10 // Backviews spacing between each other
+        pinField.appearance.backColor = UIColor(242,244,243)
+        pinField.appearance.backBorderWidth = 1
+        pinField.appearance.backBorderColor = .clear
+        pinField.appearance.backCornerRadius = 15
+        pinField.appearance.backFocusColor = UIColor.clear
+        pinField.appearance.backBorderFocusColor = UIColor(10,146,32)
+        pinField.appearance.backActiveColor = UIColor(242,244,243)
+        pinField.appearance.backBorderActiveColor = UIColor.clear
+        pinField.appearance.backRounded = false
         return pinField
     }()
     
@@ -87,7 +77,6 @@ internal class OTPView: UIView {
         super.init(frame: CGRect.zero)
         
         backgroundColor = .white
-        self.addSubview(nameLabel)
         self.addSubview(roleLabel)
         self.addSubview(image)
         self.addSubview(closeButton)
@@ -96,11 +85,11 @@ internal class OTPView: UIView {
 
         
         txtLabel.text = "Xác thực OTP"
-        roleLabel.text = "OTP đã được gửi tới SDT của bạn."
+        roleLabel.text = "Nhập mã OTP PVComBank đã được gửi qua số điện thoại đăng ký thẻ"
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
-        // txtField.becomeFirstResponder()
+        // txtField.becomeFirstResponder().
         // self.hideKeyboardWhenTappedAround()
 
         
@@ -118,9 +107,10 @@ internal class OTPView: UIView {
         roleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
         roleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
         
-        otpView.topAnchor.constraint(equalTo: roleLabel.bottomAnchor, constant: 10).isActive = true
-        otpView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 50).isActive = true
-        otpView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -50).isActive = true
+        otpView.topAnchor.constraint(equalTo: roleLabel.bottomAnchor, constant: 20).isActive = true
+        otpView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 15).isActive = true
+        otpView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -15).isActive = true
+        otpView.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
     }
     

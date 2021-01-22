@@ -40,7 +40,7 @@ class VideoConfirm: UIViewController {
         titleLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textAlignment = .center
-        titleLabel.text = "Xác nhận hình chụp"
+        titleLabel.text = "Xác nhận video"
         return titleLabel
     }()
     
@@ -117,8 +117,8 @@ class VideoConfirm: UIViewController {
         
         
         confirmTitle.topAnchor.constraint(equalTo: videoView.bottomAnchor, constant: 21).isActive = true
-        confirmTitle.leadingAnchor.constraint(equalTo: videoView.leadingAnchor).isActive = true
-        confirmTitle.trailingAnchor.constraint(equalTo: videoView.trailingAnchor).isActive = true
+        confirmTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
+        confirmTitle.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
         
         backButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10).isActive = true
         backButton.heightAnchor.constraint(equalToConstant: 32).isActive = true

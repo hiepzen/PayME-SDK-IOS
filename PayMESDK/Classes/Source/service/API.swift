@@ -56,7 +56,7 @@ internal class API {
     internal static func uploadVideoKYC(
         videoURL: URL,
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onError: @escaping ([Int:Any]) -> ()
+        onError: @escaping ([String:AnyObject]) -> ()
     ){
         print(videoURL)
         let url = urlUpload(env: PayME.env)
@@ -66,18 +66,72 @@ internal class API {
         alamoFireManager.upload(multipartFormData: { (multipartFormData) in
             multipartFormData.append(videoURL, withName: "files", fileName: "video.mp4", mimeType: "video/mp4")
         }, to: path, method: .post, headers: headers)
-        .response { response in
-            do {
-                if response.response?.statusCode == 200 {
-                    let jsonData = response.data
-                    let parsedData = try JSONSerialization.jsonObject(with: jsonData!) as! Dictionary<String, AnyObject>
-                    onSuccess(parsedData)
+        .responseJSON { response in
+            let result = response.result
+            switch result {
+            case .success(let value):
+                onSuccess(value as! Dictionary<String, AnyObject>)
+                // Do something with value
+            case .failure(let error):
+                if let underlyingError = error.underlyingError {
+                    if let urlError = underlyingError as? URLError {
+                        switch urlError.code {
+                        case .timedOut:
+                            print("Timed out error")
+                            onError(["code" : 500 as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
+                        case .notConnectedToInternet:
+                            onError(["code" : 500 as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
+                        default:
+                            onError(["code" : 500 as AnyObject, "message": "Something went wrong" as AnyObject])
+                        }
+                    }
                 }
-            } catch {
-                onError([500: "Some thing went wrong"])
             }
         }
+    }
+    
+    internal static func uploadImageKYC(
+        imageFront: UIImage,
+        imageBack: UIImage?,
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+        onError: @escaping ([String:AnyObject]) -> ()
+    ) {
+        let url = urlUpload(env: PayME.env)
+        let path = url + "/Upload"
+        let imageData = imageFront.jpegData(compressionQuality: 1)
+        let headers : HTTPHeaders = ["Content-type": "multipart/form-data",
+                                     "Content-Disposition" : "form-data"]
         
+        
+        alamoFireManager.upload(multipartFormData: { (multipartFormData) in
+                multipartFormData.append(imageData!, withName: "files", fileName: "imageFront.png", mimeType: "image/png")
+                if (imageBack != nil) {
+                    let imageDataBack = imageBack!.jpegData(compressionQuality: 1)
+                    multipartFormData.append(imageDataBack!, withName: "files", fileName: "imageBack.png", mimeType: "image/png")
+                }
+            }, to: path, method: .post, headers: headers)
+            .responseJSON { response in
+                let result = response.result
+                switch result {
+                case .success(let value):
+                    onSuccess(value as! Dictionary<String, AnyObject>)
+                    // Do something with value
+                case .failure(let error):
+                    if let underlyingError = error.underlyingError {
+                        if let urlError = underlyingError as? URLError {
+                            switch urlError.code {
+                            case .timedOut:
+                                print("Timed out error")
+                                onError(["code" : 500 as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
+                            case .notConnectedToInternet:
+                                onError(["code" : 500 as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
+                            default:
+                                onError(["code" : 500 as AnyObject, "message": "Something went wrong" as AnyObject])
+                            }
+                        }
+                    }
+                }
+            }
     }
     
     internal static func getSetting (
@@ -713,39 +767,6 @@ internal class API {
         
         
         
-    }
-    
-    internal static func uploadImageKYC(
-        imageFront: UIImage,
-        imageBack: UIImage?,
-        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onError: @escaping ([Int:Any]) -> ()
-    ) {
-        let url = urlUpload(env: PayME.env)
-        let path = url + "/Upload"
-        let imageData = imageFront.jpegData(compressionQuality: 1)
-        let headers : HTTPHeaders = ["Content-type": "multipart/form-data",
-                                     "Content-Disposition" : "form-data"]
-        
-        
-        alamoFireManager.upload(multipartFormData: { (multipartFormData) in
-                multipartFormData.append(imageData!, withName: "files", fileName: "imageFront.png", mimeType: "image/png")
-                if (imageBack != nil) {
-                    let imageDataBack = imageBack!.jpegData(compressionQuality: 1)
-                    multipartFormData.append(imageDataBack!, withName: "files", fileName: "imageBack.png", mimeType: "image/png")
-                }
-            }, to: path, method: .post, headers: headers)
-            .response { response in
-                do {
-                    if response.response?.statusCode == 200 {
-                        let jsonData = response.data
-                        let parsedData = try JSONSerialization.jsonObject(with: jsonData!) as! Dictionary<String, AnyObject>
-                        onSuccess(parsedData)
-                    }
-                } catch {
-                    onError([500: "Some thing went wrong"])
-                }
-            }
     }
     
     

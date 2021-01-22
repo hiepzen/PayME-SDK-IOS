@@ -32,7 +32,8 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         self.view.backgroundColor = .black
         view.addSubview(backButton)
         view.addSubview(guideLabel)
-        
+        view.addSubview(animationButton)
+
         setupAnimation()
         
         if #available(iOS 11, *) {
@@ -176,7 +177,6 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         animationButton.setPlayRange(fromMarker: "touchDownStart",
         toMarker: "touchDownEnd",
         event: .touchDown)
-        view.addSubview(animationButton)
     }
     
     let guideLabel : UILabel = {
@@ -195,6 +195,7 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     
     override func viewWillAppear(_ animated: Bool){
         initializeCaptureSession()
+        setupAnimation()
     }
     
     func initializeCaptureSession() {

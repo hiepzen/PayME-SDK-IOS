@@ -29,15 +29,6 @@ internal class SecurityCode: UIView {
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
-    
-    let nameLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = UIColor(24,26,65)
-        label.font = UIFont(name: "Lato-Bold", size: 25)
-        label.backgroundColor = .clear
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
 
     let roleLabel: UILabel = {
         let label = UILabel()
@@ -46,14 +37,6 @@ internal class SecurityCode: UIView {
         label.font =  UIFont.systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
-    
-    let button : UIButton = {
-        let button = UIButton()
-        button.backgroundColor = UIColor(8,148,31)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = 10
-        return button
     }()
     
     let txtLabel : UILabel = {
@@ -87,7 +70,6 @@ internal class SecurityCode: UIView {
         super.init(frame: CGRect.zero)
         
         backgroundColor = .white
-        self.addSubview(nameLabel)
         self.addSubview(roleLabel)
         self.addSubview(image)
         self.addSubview(closeButton)

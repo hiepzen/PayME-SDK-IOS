@@ -363,7 +363,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             }
         } else {
             toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
-            
         }
     }
     
@@ -401,7 +400,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let amount = Int(moneyPay.text!)
                 if (amount! >= 10000){
                     let amountPay = amount!
-                    payME!.pay(currentVC: self, storeId: 6868, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in
+                    payME!.pay(currentVC: self, storeId: 4, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in
                         Log.custom.push(title: "pay", message: success)
                     }, onError: {error in
                         Log.custom.push(title: "pay", message: error)

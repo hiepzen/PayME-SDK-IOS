@@ -378,12 +378,11 @@ public class PayME{
     
     public func deposit(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
                         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                        onError: @escaping ([String : AnyObject]) -> ()) {
-        // currentVC.presentPanModal(Test())
-        //PayME.currentVC = currentVC
-        //currentVC.present(PopupKYC(active: 0), animated: true)
-        //abc()
+                        onError: @escaping ([String : AnyObject]) -> ())
+    {
+        
         openWallet(currentVC: currentVC, action: PayME.Action.DEPOSIT, amount: amount, description: nil, extraData: nil, onSuccess: onSuccess, onError: onError)
+    
     }
     
     public func withdraw(currentVC : UIViewController, amount: Int?, description: String?, extraData: String?,
