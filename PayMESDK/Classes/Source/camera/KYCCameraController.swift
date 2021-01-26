@@ -74,6 +74,9 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         view.addSubview(frontSide)
         view.addSubview(getPhoto)
         view.addSubview(titleButton)
+        
+        getPhoto.isHidden = true
+        titleButton.isHidden = true
                 
         if #available(iOS 11, *) {
           let guide = view.safeAreaLayoutGuide

@@ -262,6 +262,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @objc func submit() {
         //PayME.showKYCCamera(currentVC: self)
         // Getting
+
         if (userIDTextField.text != "") {
             if (self.currentEnv == PayME.Env.PRODUCTION) {
                 self.removeSpinner()
@@ -338,7 +339,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                                 Log.custom.push(title: "Open wallet", message: success)
                               }, onError: {error in
                                 Log.custom.push(title: "Open wallet", message: error)
-                                if let code = error["code"] as? PayME.ResponseCode {
+                                if let code = error["code"] as? Int {
                                     if (code != PayME.ResponseCode.USER_CANCELLED) {
                                         let message = error["message"] as? String
                                         self.toastMess(title: "Lỗi", value: message)
@@ -359,7 +360,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         Log.custom.push(title: "deposit", message: success)
                     }, onError: {error in
                         Log.custom.push(title: "deposit", message: error)
-                        if let code = error["code"] as? PayME.ResponseCode {
+                        if let code = error["code"] as? Int {
                             if (code != PayME.ResponseCode.USER_CANCELLED) {
                                 let message = error["message"] as? String
                                 self.toastMess(title: "Lỗi", value: message)
@@ -391,7 +392,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                                             
                                          }, onError: {error in
                                             Log.custom.push(title: "withdraw", message: error)
-                                            if let code = error["code"] as? PayME.ResponseCode {
+                                            if let code = error["code"] as? Int {
                                                 if (code != PayME.ResponseCode.USER_CANCELLED) {
                                                     let message = error["message"] as? String
                                                     self.toastMess(title: "Lỗi", value: message)
@@ -422,7 +423,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     }, onError: {error in
                         Log.custom.push(title: "pay", message: error)
                         print(error)
-                        if let code = error["code"] as? PayME.ResponseCode {
+                        if let code = error["code"] as? Int {
                             if (code != PayME.ResponseCode.USER_CANCELLED) {
                                 let message = error["message"] as? String
                                 self.toastMess(title: "Lỗi", value: message)

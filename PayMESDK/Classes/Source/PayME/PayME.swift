@@ -47,16 +47,16 @@ public class PayME{
         case PRODUCTION = "production"
         case DEV = "dev"
     }
-    public enum ResponseCode: Int {
-        case EXPIRED = 401
-        case NETWORK = -1
-        case SYSTEM = -2
-        case LIMIT = -3
-        case ACCOUNT_NOT_ACTIVETES = -4
-        case ACCOUNT_NOT_KYC = -5
-        case PAYMENT_ERROR = -6
-        case ERROR_KEY_ENCODE = -7
-        case USER_CANCELLED = -8
+    public struct ResponseCode {
+        public static let EXPIRED = 401
+        public static let NETWORK = -1
+        public static let SYSTEM = -2
+        public static let LIMIT = -3
+        public static let ACCOUNT_NOT_ACTIVETES = -4
+        public static let ACCOUNT_NOT_KYC = -5
+        public static let PAYMENT_ERROR = -6
+        public static let ERROR_KEY_ENCODE = -7
+        public static let USER_CANCELLED = -8
     }
     
     public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, env: Env, configColor: [String], showLog: Int = 0) {
@@ -330,6 +330,7 @@ public class PayME{
                 })
             }
         }, onError: {error in
+            print(error)
             onError(error)
         })
     }
@@ -383,12 +384,13 @@ public class PayME{
     internal static func openQRCode(currentVC : UIViewController, onSuccess: @escaping ([String:AnyObject]) -> (), onError: @escaping ([String:AnyObject]) -> ()) {
         let qrScan = QRScannerController()
         qrScan.setScanSuccess(onScanSuccess: { response in
+            
             API.readQRContent(qrContent: response, onSuccess: { response in
                 let payment = response["OpenEWallet"]!["Payment"] as! [String:AnyObject]
                 let detect = payment["Detect"] as! [String:AnyObject]
                 let succeeded = detect["succeeded"] as! Bool
                 if (succeeded == true) {
-                    currentVC.removeSpinner()
+                    // currentVC.removeSpinner()
                     if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
                         PayME.payQR(currentVC: currentVC, storeId: (detect["stordeId"] as? Int) ?? 0, orderId: (detect["orderId"] as? String) ?? "", amount: (detect["amount"] as? Int) ?? 0, note: (detect["note"] as? String) ?? "", extraData: nil, onSuccess: onSuccess, onError: onError)
                     } else {
@@ -402,17 +404,17 @@ public class PayME{
                         }
                     }
                 } else {
-                    currentVC.removeSpinner()
+                    //currentVC.removeSpinner()
                     currentVC.presentPanModal(QRNotFound())
                 }
             }, onError: { error in
-                currentVC.removeSpinner()
+                //currentVC.removeSpinner()
                 currentVC.presentPanModal(QRNotFound())
             })
         })
         qrScan.setScanFail(onScanFail: { error in
             onError(["message": error as AnyObject])
-            currentVC.removeSpinner()
+            //currentVC.removeSpinner()
             currentVC.presentPanModal(QRNotFound())
         })
         currentVC.navigationItem.hidesBackButton = true
@@ -488,7 +490,6 @@ public class PayME{
             return
         }
         if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
-            PayME.currentVC = currentVC
             let methods = Methods()
             methods.onSuccess = onSuccess
             methods.onError = onError
@@ -498,11 +499,10 @@ public class PayME{
             Methods.note = note ?? ""
             Methods.extraData = extraData ?? ""
             methods.appENV = PayME.appENV
-            PayME.currentVC!.presentPanModal(methods)
+            currentVC.presentPanModal(methods)
         } else {
             PayME.initSDK(onSuccess: { success in
                 if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
-                    PayME.currentVC = currentVC
                     let methods = Methods()
                     methods.onSuccess = onSuccess
                     methods.onError = onError
@@ -512,7 +512,7 @@ public class PayME{
                     methods.appENV = PayME.appENV
                     Methods.note = note ?? ""
                     Methods.extraData = extraData ?? ""
-                    PayME.currentVC!.presentPanModal(methods)
+                    currentVC.presentPanModal(methods)
                 } else {
                     if (PayME.accessToken == "") {
                         onError(["code" : PayME.ResponseCode.ACCOUNT_NOT_ACTIVETES as AnyObject, "message" : "Tài khoản chưa kích hoạt" as AnyObject])

@@ -275,7 +275,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
                 
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 10).isActive = true
-
         self.showSpinner(onView: self.view)
         print("hello")
         API.getWalletInfo(
@@ -323,7 +322,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         self.panModalTransition(to: .longForm)
                         self.removeSpinner()
                     }
-                    self.removeSpinner()
 
             },onError: {error in
                 self.removeSpinner()
