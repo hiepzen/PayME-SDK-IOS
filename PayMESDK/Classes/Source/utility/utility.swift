@@ -71,3 +71,47 @@ internal func toastMess(title: String, message: String){
     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
     PayME.currentVC?.present(alert, animated: true, completion: nil)
 }
+
+internal func toDateString(format: String, date: Date ) -> String
+{
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = format
+    return dateFormatter.string(from: date)
+}
+
+internal func toDate(dateString: String) -> Date? {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+    return dateFormatter.date(from: dateString)
+}
+
+internal func getMethodText(method: String) -> String {
+    if (method == "WALLET") {
+        return "Ví PayME"
+    }
+    if (method == "BANK_CARD") {
+        return "Thẻ ATM nội địa"
+    }
+    if (method == "BANK_ACCOUNT" || method == "BANK_QR_CODE") {
+        return "Tài khoản ngân hàng"
+    }
+    if (method == "BANK_TRANSFER") {
+        return "Chuyển tiền"
+    }
+    if (method == "LINKED") {
+        return "Tài khoản liên kết"
+    }
+    return method
+}
+
+internal func convertStringToDictionary(text: String) -> [String:AnyObject]? {
+    if let data = text.data(using: .utf8) {
+        do {
+            let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String:AnyObject]
+            return json
+        } catch {
+            print("Something went wrong")
+        }
+    }
+    return nil
+}

@@ -16,7 +16,6 @@ internal class API {
      configuration.timeoutIntervalForResource = 60
      let sessionManger = Session(configuration: configuration, startRequestsImmediately: true)
      return sessionManger
-
     }()
     
     static var isRoot: Bool {
@@ -252,6 +251,14 @@ internal class API {
               Pay(input: $payInput) {
                 succeeded
                 message
+                history {
+                  payment {
+                    transaction
+                    method
+                    description
+                  }
+                  createdAt
+                }
                 payment {
                   ... on PaymentBankCardResponsed {
                     state
@@ -300,7 +307,6 @@ internal class API {
                 },
                 onSuccess: { data in
                     onSuccess(data)
-                  // print("onSuccess \(data)")
                 }
             )
         } else {
@@ -389,12 +395,20 @@ internal class API {
         let path = "/graphql"
         let sql =
         """
-        mutation PayMutation($payInput: OpenEWalletPaymentPayInput!) {
+        mutation Mutation($payInput: OpenEWalletPaymentPayInput!) {
           OpenEWallet {
             Payment {
               Pay(input: $payInput) {
                 succeeded
                 message
+                history {
+                  payment {
+                    transaction
+                    method
+                    description
+                  }
+                  createdAt
+                }
                 payment {
                   ... on PaymentLinkedResponsed {
                     state
@@ -551,6 +565,14 @@ internal class API {
               Pay(input: $payInput) {
                 succeeded
                 message
+                history {
+                  payment {
+                    transaction
+                    method
+                    description
+                  }
+                  createdAt
+                }
                 payment {
                   ... on PaymentLinkedResponsed {
                     state
@@ -636,12 +658,20 @@ internal class API {
         let path = "/graphql"
         let sql =
         """
-        mutation Mutation($payInput: OpenEWalletPaymentPayInput!) {
+        mutation PayMutation($payInput: OpenEWalletPaymentPayInput!) {
           OpenEWallet {
             Payment {
               Pay(input: $payInput) {
                 succeeded
                 message
+                history {
+                  payment {
+                    transaction
+                    method
+                    description
+                  }
+                  createdAt
+                }
               }
             }
           }

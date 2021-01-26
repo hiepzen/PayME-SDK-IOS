@@ -71,6 +71,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
     
     @objc func closeAction() {
+        self.onError!(["code" : PayME.ResponseCode.USER_CANCELLED as AnyObject, "message" : "Đóng modal thanh toán" as AnyObject])
         self.dismiss(animated: true, completion: nil)
 
     }
@@ -114,55 +115,90 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                 onSuccess: { success in
                     print(success)
                     let payment = success["OpenEWallet"]!["Payment"] as! [String:AnyObject]
-                    let pay = payment["Pay"] as! [String:AnyObject]
-                    let succeeded = pay["succeeded"] as! Bool
-                    if (succeeded == true) {
-                        DispatchQueue.main.async {
-                            self.removeSpinner()
-                            self.setupSuccess()
+                    if let payInfo = payment["Pay"] as? [String:AnyObject] {
+                        if let history = payInfo["history"] as? [String:AnyObject] {
+                            if let createdAt = history["createdAt"] as? String {
+                                if let date = toDate(dateString: createdAt) {
+                                    let formatDate = toDateString(format: "HH:mm dd/mm/yyyy", date: date)
+                                    self.successView.timeTransactionDetail.text = formatDate
+                                    self.failView.timeTransactionDetail.text = formatDate
+                                }
+                            }
+                            if let payment = history["payment"] as? [String: AnyObject] {
+                                if let method = payment["method"] as? String {
+                                    self.successView.methodContent.text = getMethodText(method: method)
+                                    self.failView.methodContent.text = getMethodText(method: method)
+                                }
+                                if let transaction = payment["transaction"] as? String {
+                                    self.successView.transactionNumber.text = transaction
+                                    self.failView.transactionNumber.text = transaction
+                                }
+                                if let description = payment["description"] as? String {
+                                    self.successView.cardNumberContent.text = description
+                                    self.failView.cardNumberContent.text = description
+                                    self.successView.cardNumberLabel.text = "Số thẻ"
+                                    self.failView.cardNumberLabel.text = "Số thẻ"
+                                }
+                            }
                         }
-                    } else {
-                        let statePay = pay["payment"] as? [String:AnyObject]
-                        if (statePay == nil) {
-                            let message = pay["message"] as! String
-                            self.failView.failLabel.text = message
-                            self.setupFail()
-                            self.removeSpinner()
-                            return
-                        }
-                        let state = statePay!["state"] as! String
-                        if (state == "REQUIRED_VERIFY")
-                        {
-                            let html = statePay!["html"] as? String
-                            if (html != nil) {
+                        let succeeded = payInfo["succeeded"] as! Bool
+                        if (succeeded == true) {
+                            DispatchQueue.main.async {
+                                self.onSuccess!(success)
                                 self.removeSpinner()
-                                let webViewController = WebViewController()
-                                webViewController.form = html!
-                                webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
-                                    webViewController.dismiss(animated: true)
-                                    self.setupSuccess()
-                                })
-                                webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
-                                    webViewController.dismiss(animated: true)
-                                    self.removeSpinner()
-                                    self.failView.failLabel.text = responseFromWebView
-                                    self.setupFail()
-                                })
-                                self.presentPanModal(webViewController)
+                                self.setupSuccess()
                             }
                         } else {
-                            let message = statePay!["message"] as! String
-                            self.failView.failLabel.text = message
-                            self.setupFail()
-                            self.removeSpinner()
+                            let statePay = payInfo["payment"] as? [String:AnyObject]
+                            if (statePay == nil) {
+                                let message = payInfo["message"] as? String
+                                self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
+                                self.onError!(["code" : PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message" : (message ?? "Có lỗi xảy ra") as AnyObject])
+                                self.setupFail()
+                                self.removeSpinner()
+                                return
+                            }
+                            let state = statePay!["state"] as! String
+                            if (state == "REQUIRED_VERIFY")
+                            {
+                                let html = statePay!["html"] as? String
+                                if (html != nil) {
+                                    self.removeSpinner()
+                                    let webViewController = WebViewController()
+                                    webViewController.form = html!
+                                    webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
+                                        webViewController.dismiss(animated: true)
+                                        self.onSuccess!(success)
+                                        self.setupSuccess()
+                                    })
+                                    webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
+                                        webViewController.dismiss(animated: true)
+                                        self.removeSpinner()
+                                        self.failView.failLabel.text = responseFromWebView
+                                        self.onError!(["code" : PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message" : responseFromWebView as AnyObject])
+                                        self.setupFail()
+                                    })
+                                    self.presentPanModal(webViewController)
+                                }
+                            } else {
+                                let message = statePay!["message"] as? String
+                                self.onError!(["code" : PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message" : (message ?? "Có lỗi xảy ra") as AnyObject])
+                                self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
+                                self.setupFail()
+                                self.removeSpinner()
+                            }
                         }
+                    } else {
+                        self.onError!(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Có lỗi xảy ra" as AnyObject])
                     }
                 }, onError: { error in
                     self.onError!(error)
                     self.removeSpinner()
-                    self.dismiss(animated: true, completion: {
-                        self.toastMessError(title: "Lỗi", message: error["message"] as! String)
-                    })
+                    if let code = error["code"] as? Int {
+                        if(code == 401) {
+                            self.dismiss(animated: true, completion: nil)
+                        }
+                    }
             })
         }
     }

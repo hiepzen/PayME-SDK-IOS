@@ -246,14 +246,14 @@ public class NetworkRequestGraphQL {
             DispatchQueue.main.async {
                 if (error?.localizedDescription != nil) {
                     if (error?.localizedDescription == "The Internet connection appears to be offline.") {
-                        onError(["code" : 500 as AnyObject, "message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
+                        onError(["code" : PayME.ResponseCode.NETWORK as AnyObject, "message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
                         return
                     } else {
-                        onError(["code" : 500 as AnyObject, "message" : error?.localizedDescription as AnyObject])
+                        onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : error?.localizedDescription as AnyObject])
                         return
                     }
                 } else {
-                    onError(["code" : 500 as AnyObject, "message" : "Something went wrong" as AnyObject])
+                    onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Something went wrong" as AnyObject])
                     return
                 }
             }
@@ -262,7 +262,16 @@ public class NetworkRequestGraphQL {
             if let finalJSON = try? (JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as? Dictionary<String, AnyObject>) {
                 if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
                     DispatchQueue.main.async {
-                        onError(errors[0])
+                        var code = PayME.ResponseCode.SYSTEM
+                        if let extensions = errors[0]["extensions"] as? [String:AnyObject] {
+                            if let responseCode = extensions["code"] as? Int {
+                                if responseCode == 401 {
+                                    code = PayME.ResponseCode.EXPIRED
+                                }
+                            }
+                        }
+                        let message = (errors[0]["message"] as? String) ?? "Something went wrong"
+                        onError(["code": code as AnyObject, "message": message as AnyObject])
                     }
                     return
                 }
@@ -277,13 +286,13 @@ public class NetworkRequestGraphQL {
                     let code = finalJSON!["code"] as! Int
                     if let data = finalJSON!["data"] as? [String:AnyObject] {
                         DispatchQueue.main.async {
-                            onError(data)
+                            onError(["code": code as AnyObject, "message": data["message"] as AnyObject])
                         }
                         return
                     }
                 } else {
                     DispatchQueue.main.async {
-                        onError(["code" : 500 as AnyObject, "message" : "Something went wrong" as AnyObject])
+                        onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Something went wrong" as AnyObject])
                         return
                     }
                 }
@@ -300,7 +309,7 @@ public class NetworkRequestGraphQL {
         
         guard let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey) else {
             DispatchQueue.main.async {
-                onError(["message" : "Mã hóa thất bại" as AnyObject])
+                onError(["code": PayME.ResponseCode.ERROR_KEY_ENCODE as AnyObject, "message" : "Mã hóa thất bại" as AnyObject])
             }
             return
         }
@@ -345,14 +354,14 @@ public class NetworkRequestGraphQL {
                 DispatchQueue.main.async {
                     if (error?.localizedDescription != nil) {
                         if (error?.localizedDescription == "The Internet connection appears to be offline.") {
-                            onError(["code" : 500 as AnyObject, "message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
+                            onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
                             return
                         } else {
-                            onError(["code" : 500 as AnyObject, "message" : error?.localizedDescription as AnyObject])
+                            onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : error?.localizedDescription as AnyObject])
                             return
                         }
                     } else {
-                        onError(["code" : 500 as AnyObject, "message" : "Something went wrong" as AnyObject])
+                        onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Something went wrong" as AnyObject])
                         return
                     }
                 }
@@ -372,7 +381,7 @@ public class NetworkRequestGraphQL {
             let xAPIActionResponse = headers.allHeaderFields["x-api-action"] as! String
             guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
                 DispatchQueue.main.async {
-                    onError(["message" : "Giải mã thất bại" as AnyObject])
+                    onError(["code": PayME.ResponseCode.ERROR_KEY_ENCODE as AnyObject, "message" : "Giải mã thất bại" as AnyObject])
                 }
                 return
             }
@@ -391,7 +400,16 @@ public class NetworkRequestGraphQL {
             if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options:[]) as? Dictionary<String, AnyObject> {
                 if let errors = finalJSON!["errors"] as? [[String:AnyObject]] {
                     DispatchQueue.main.async {
-                        onError(errors[0])
+                        var code = PayME.ResponseCode.SYSTEM
+                        if let extensions = errors[0]["extensions"] as? [String:AnyObject] {
+                            if let responseCode = extensions["code"] as? Int {
+                                if responseCode == 401 {
+                                    code = PayME.ResponseCode.EXPIRED
+                                }
+                            }
+                        }
+                        let message = (errors[0]["message"] as? String) ?? "Something went wrong"
+                        onError(["code": code as AnyObject, "message": message as AnyObject])
                     }
                     return
                 }
@@ -406,13 +424,13 @@ public class NetworkRequestGraphQL {
                     let code = finalJSON!["code"] as! Int
                     if let data = finalJSON!["data"] as? [String:AnyObject] {
                         DispatchQueue.main.async {
-                            onError(data)
+                            onError(["code": code as AnyObject, "message": data["message"] as AnyObject])
                         }
                         return
                     }
                 } else {
                     DispatchQueue.main.async {
-                        onError(["code" : 500 as AnyObject, "message" : "Something went wrong" as AnyObject])
+                        onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Something went wrong" as AnyObject])
                         return
                     }
                 }

@@ -155,6 +155,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    
     let moneyDeposit: UITextField = {
         let textField = UITextField()
         textField.layer.borderColor = UIColor.black.cgColor
@@ -222,24 +223,25 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     private let PUBLIC_KEY: String =
     """
     -----BEGIN PUBLIC KEY-----
-    MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMwvSFz/mOfxBSVkGeqfRv3oQaCsx9V2
-    hqdL4Y0PK+r2P+8Jd9pOS61uehd1gsjU1/xMFHWFGKrH6lO8+TSLGukCAwEAAQ==
+    MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi
+    wIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ==
     -----END PUBLIC KEY-----
     """
+    
     private let PRIVATE_KEY: String =
     """
     -----BEGIN RSA PRIVATE KEY-----
-    MIIBOgIBAAJBAIpXByu/SQKImCFT5xTyqLe6zcqDAL/aapD4kYueJiSTFQYzobNx
-    UA7wRqsljHGfouFXB0gguiPjtoRWgY9XMpMCAwEAAQJALQVFgCcwS3LIj5AOk/Kk
-    laZlcpJPnCAoriU2uIkvQJdijzoz6baxQDY5xfxwBh7wExmKGvUWxR/qt7ULVf1a
-    AQIhAMVtGD6vc0zVBuIoWFE2RDYt28WN37p5zC1NtpRebnzjAiEAs2I4WSyUQSzD
-    P0yR0P+khUI/8oy/iZ/VSASAxzmjkpECIQCTRaZoXIkuL1tLKb14F3saz2q6G/Nh
-    L6pXwTkJxMe28QIgTiPG7/FfU1SwaG5uRmBVxkapnHp7JPQe8BQmFKKjAkECIBM4
-    Hel54r1RnKQVUtiLphlZgesayKzrtK2kAgssWKi1
+    MIIBOwIBAAJBAOkNeYrZOhKTS6OcPEmbdRGDRgMHIpSpepulZJGwfg1IuRM+ZFBm
+    F6NgzicQDNXLtaO5DNjVw1o29BFoK0I6+sMCAwEAAQJAVCsGq2vaulyyI6vIZjkb
+    5bBId8164r/2xQHNuYRJchgSJahHGk46ukgBdUKX9IEM6dAQcEUgQH+45ARSSDor
+    mQIhAPt81zvT4oK1txaWEg7LRymY2YzB6PihjLPsQUo1DLf3AiEA7Tv005jvNbNC
+    pRyXcfFIy70IHzVgUiwPORXQDqJhWJUCIQDeDiZR6k4n0eGe7NV3AKCOJyt4cMOP
+    vb1qJOKlbmATkwIhALKSJfi8rpraY3kLa4fuGmCZ2qo7MFTKK29J1wGdAu99AiAQ
+    dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx33R4ANzm9w==
     -----END RSA PRIVATE KEY-----
     """
-    
-    private let APP_TOKEN: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6NH0.U60jaOwKcaQ6bUX-6O21RMOoFR_5ZkjpGgj6rus0r60"
+        
+    private let APP_TOKEN: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Njg2OH0.JyIdhQEX_Lx9CXRH4iHM8DqamLrMQJk5rhbslNW4GzY"
     
     private let SECRET_KEY: String = "zfQpwE6iHbOeAfgX"
     
@@ -257,11 +259,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return dataEncrypted!.toBase64()!
     }
     // generate token ( demo, don't apply this to your code, generate from your server)
-    @objc func submit(sender: UIButton!) {
+    @objc func submit() {
         //PayME.showKYCCamera(currentVC: self)
         // Getting
         if (userIDTextField.text != "") {
             if (self.currentEnv == PayME.Env.PRODUCTION) {
+                self.removeSpinner()
                 let alert = UIAlertController(title: "Lỗi", message: "Chưa hỗ trợ môi trường này!", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
@@ -275,7 +278,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     connectToken: self.connectToken,
                     appPrivateKey: UserDefaults.standard.string(forKey: "privateKey") ?? "",
                     env: self.currentEnv,
-                    configColor: ["#75255b", "#a81308"])
+                    configColor: ["#75255b", "#a81308"],
+                    showLog: 1
+                )
                 self.getBalance(self.refreshButton)
                 self.loginButton.backgroundColor = UIColor.gray
                 self.logoutButton.backgroundColor = UIColor.white
@@ -333,8 +338,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                                 Log.custom.push(title: "Open wallet", message: success)
                               }, onError: {error in
                                 Log.custom.push(title: "Open wallet", message: error)
-                                let message = error["message"] as? String
-                                self.toastMess(title: "Lỗi", value: message)
+                                if let code = error["code"] as? PayME.ResponseCode {
+                                    if (code != PayME.ResponseCode.USER_CANCELLED) {
+                                        let message = error["message"] as? String
+                                        self.toastMess(title: "Lỗi", value: message)
+                                    }
+                                }
                               })
         } else {
             toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
@@ -350,8 +359,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         Log.custom.push(title: "deposit", message: success)
                     }, onError: {error in
                         Log.custom.push(title: "deposit", message: error)
-                        let message = error["message"] as? String
-                        self.toastMess(title: "Lỗi", value: message)
+                        if let code = error["code"] as? PayME.ResponseCode {
+                            if (code != PayME.ResponseCode.USER_CANCELLED) {
+                                let message = error["message"] as? String
+                                self.toastMess(title: "Lỗi", value: message)
+                            }
+                        }
                     })
                     
                 } else {
@@ -378,8 +391,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                                             
                                          }, onError: {error in
                                             Log.custom.push(title: "withdraw", message: error)
-                                            let message = error["message"] as? String
-                                            self.toastMess(title: "Lỗi", value: message)
+                                            if let code = error["code"] as? PayME.ResponseCode {
+                                                if (code != PayME.ResponseCode.USER_CANCELLED) {
+                                                    let message = error["message"] as? String
+                                                    self.toastMess(title: "Lỗi", value: message)
+                                                }
+                                            }
                                          })
                 } else {
                     toastMess(title: "Lỗi", value: "Vui lòng rút hơn 10.000VND")
@@ -400,12 +417,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let amount = Int(moneyPay.text!)
                 if (amount! >= 10000){
                     let amountPay = amount!
-                    payME!.pay(currentVC: self, storeId: 4, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in
+                    payME!.pay(currentVC: self, storeId: 6868, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in
                         Log.custom.push(title: "pay", message: success)
                     }, onError: {error in
                         Log.custom.push(title: "pay", message: error)
-                        let message = error["message"] as? String
-                        self.toastMess(title: "Lỗi", value: message)
+                        print(error)
+                        if let code = error["code"] as? PayME.ResponseCode {
+                            if (code != PayME.ResponseCode.USER_CANCELLED) {
+                                let message = error["message"] as? String
+                                self.toastMess(title: "Lỗi", value: message)
+                            }
+                        }
+                        
                     }
                     )
                 } else {
@@ -423,8 +446,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
     
     @IBAction func getBalance(_ sender: Any) {
+        self.showSpinner(onView: self.view)
         if (self.connectToken != "") {
-            PayME.getWalletInfo(onSuccess: {a in
+            payME!.getWalletInfo(onSuccess: {a in
+                self.removeSpinner()
                 Log.custom.push(title: "get Wallet Info", message: a)
                 var str = ""
                 if let v = a["Wallet"]!["balance"]! {
@@ -436,14 +461,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     self.priceLabel.text = str
                 })
             }, onError: {error in
+                self.removeSpinner()
                 Log.custom.push(title: "get Wallet Info", message: error)
                 let message = error["message"] as? String
                 self.priceLabel.text = "0"
                 self.toastMess(title: "Lỗi", value: message)
-                
             })
         }
         else {
+            self.removeSpinner()
             toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
         }
         
@@ -482,7 +508,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 shouldMoveViewUp = true
             }
         }
-        
         if(shouldMoveViewUp) {
             self.view.frame.origin.y = 0 - keyboardSize.height
         }
@@ -698,13 +723,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
             self.setEnv(env: envData[env], text: env)
         }
-        
         let connectToken = UserDefaults.standard.string(forKey: "connectToken") ?? ""
         if (connectToken != "") {
             self.setConnectToken(token: connectToken)
             self.loginButton.backgroundColor = UIColor.gray
             self.logoutButton.backgroundColor = UIColor.white
-            self.submit(sender: self.loginButton)
+            self.submit()
         } else {
             self.connectToken = ""
             self.loginButton.backgroundColor = UIColor.white
@@ -753,3 +777,30 @@ extension UIViewController {
     }
     
 }
+
+var vSpinner : UIView?
+ 
+extension UIViewController {
+    func showSpinner(onView : UIView) {
+        let spinnerView = UIView.init(frame: onView.bounds)
+        spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+        let ai = UIActivityIndicatorView.init(activityIndicatorStyle: .whiteLarge)
+        ai.startAnimating()
+        ai.center = spinnerView.center
+        
+        DispatchQueue.main.async {
+            spinnerView.addSubview(ai)
+            onView.addSubview(spinnerView)
+        }
+        
+        vSpinner = spinnerView
+    }
+    
+    func removeSpinner() {
+        DispatchQueue.main.async {
+            vSpinner?.removeFromSuperview()
+            vSpinner = nil
+        }
+    }
+}
+

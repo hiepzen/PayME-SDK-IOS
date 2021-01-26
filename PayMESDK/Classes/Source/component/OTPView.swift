@@ -110,7 +110,7 @@ internal class OTPView: UIView {
         otpView.topAnchor.constraint(equalTo: roleLabel.bottomAnchor, constant: 20).isActive = true
         otpView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 15).isActive = true
         otpView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -15).isActive = true
-        otpView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        otpView.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
     }
     

@@ -261,13 +261,24 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             if let dictionary = message.body as? [String: AnyObject] {
                 let actions = (dictionary["actions"] as? String) ?? ""
                 if (actions == "onRegisterSuccess") {
-                    let data = dictionary["data"]!["Init"] as! [String : AnyObject]
-                    PayME.dataInit = data
-                    PayME.accessToken = (data["accessToken"] as? String) ?? ""
-                    PayME.kycState = (data["kyc"]!["kycState"] as? String) ?? ""
-                    PayME.handShake = (data["handShake"] as? String) ?? ""
+                    if let data = dictionary["data"] as? [String : AnyObject] {
+                        if let dataInit = data["Init"] as? [String: AnyObject] {
+                            PayME.dataInit = dataInit
+                            PayME.accessToken = (dataInit["accessToken"] as? String) ?? ""
+                            PayME.kycState = (dataInit["kyc"]!["state"] as? String) ?? ""
+                            PayME.handShake = (dataInit["handShake"] as? String) ?? ""
+                            print(PayME.accessToken)
+                            print(PayME.kycState)
+                            print(PayME.handShake)
+                        }
+                    }
+                    self.onSuccess!(dictionary)
                 }
-                self.onSuccess!(dictionary)
+                if (actions == "onNetWorkError") {
+                    if let data = dictionary["data"] as? [String : AnyObject] {
+                        self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : data["message"] as AnyObject])
+                    }
+                }
             }
         }
         if message.name == onErrorBack {
@@ -290,9 +301,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     
 
     func setupCamera(dictionary: [String: AnyObject]) {
-        var dictionary = dictionary as! [String: Bool]
-        var kycController = KYCController(flowKYC: dictionary)
-        kycController.kyc()
+        if let dictionary = dictionary as? [String: Bool] {
+            let kycController = KYCController(flowKYC: dictionary)
+            kycController.kyc()
+        }
     }
     
     func onCloseWebview() {

@@ -126,6 +126,7 @@ extension UIViewController {
     
     func removeSpinner() {
         DispatchQueue.main.async {
+            print(vSpinner)
             vSpinner?.removeFromSuperview()
             vSpinner = nil
         }
