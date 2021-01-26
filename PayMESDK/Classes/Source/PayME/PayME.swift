@@ -481,6 +481,8 @@ public class PayME{
     }
     
     internal static func payAction(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
+        
+        PayME.currentVC = currentVC
         if (amount < Methods.min) {
             onError(["code" : PayME.ResponseCode.LIMIT as AnyObject,"message" : "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: Methods.min))" as AnyObject])
             return
