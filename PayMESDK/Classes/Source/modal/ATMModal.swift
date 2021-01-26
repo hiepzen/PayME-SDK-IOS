@@ -75,6 +75,9 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         self.dismiss(animated: true, completion: nil)
 
     }
+    @objc func closeDone() {
+        self.dismiss(animated: true, completion: nil)
+    }
     
     @objc func payATM() {
         let cardNumber = atmView.cardNumberField.text
@@ -211,7 +214,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         successView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
         successView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
         successView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        successView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        successView.button.addTarget(self, action: #selector(closeDone), for: .touchUpInside)
         successView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         successView.roleLabel.text = formatMoney(input: Methods.amount)
         if (Methods.note == "") {
@@ -242,7 +245,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         } else {
             failView.memoLabel.text = Methods.note
         }
-        failView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        failView.button.addTarget(self, action: #selector(closeDone), for: .touchUpInside)
         failView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: failView.button.bottomAnchor, constant: 10).isActive = true
         self.updateViewConstraints()
