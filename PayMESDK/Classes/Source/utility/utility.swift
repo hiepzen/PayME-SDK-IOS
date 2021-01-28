@@ -115,3 +115,22 @@ internal func convertStringToDictionary(text: String) -> [String:AnyObject]? {
     }
     return nil
 }
+internal func checkCondition(onError: @escaping ([String:AnyObject]) -> ()) -> Bool {
+    if (PayME.loggedIn == false || PayME.dataInit == nil) {
+        onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message" : "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+        return false
+    }
+    if !(Reachability.isConnectedToNetwork()){
+        onError(["code" : PayME.ResponseCode.NETWORK as AnyObject, "message" : "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
+        return false
+    }
+    if (PayME.accessToken == "") {
+        onError(["code" : PayME.ResponseCode.ACCOUNT_NOT_ACTIVETES as AnyObject, "message" : "Tài khoản chưa kích hoạt" as AnyObject])
+        return false
+    }
+    if (PayME.kycState != "APPROVED") {
+        onError(["code" : PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message" : "Tài khoản chưa định danh" as AnyObject])
+        return false
+    }
+    return true
+}

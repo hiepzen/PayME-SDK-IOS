@@ -171,8 +171,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     var onError : (([String:AnyObject]) -> ())? = nil
     var onSuccess : (([String:AnyObject]) -> ())? = nil
     var appENV : String?
-    static var min : Int = 0
-    static var max : Int = 0
+    static var min : Int = 10000
+    static var max : Int = 100000000
 
     let methodsView : UIView = {
         let methodsView  = UIView()

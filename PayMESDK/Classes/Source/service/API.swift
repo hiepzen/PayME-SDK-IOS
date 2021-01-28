@@ -164,7 +164,6 @@ internal class API {
                 },
                 onSuccess: { data in
                     onSuccess(data)
-                  // print("onSuccess \(data)")
                 }
             )
         } else {

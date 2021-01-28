@@ -75,6 +75,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.setLeftPaddingPoints(10)
+        textField.placeholder = "Optional"
         textField.keyboardType = .numberPad
         return textField
     }()
@@ -282,9 +283,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     configColor: ["#75255b", "#a81308"],
                     showLog: 1
                 )
-                self.getBalance(self.refreshButton)
-                self.loginButton.backgroundColor = UIColor.gray
-                self.logoutButton.backgroundColor = UIColor.white
+                self.payME?.login(onSuccess: {success in
+                    self.getBalance(self.refreshButton)
+                    self.loginButton.backgroundColor = UIColor.gray
+                    self.logoutButton.backgroundColor = UIColor.white
+                }, onError: {error in
+                    print(error)
+                    self.toastMess(title: "Lỗi", value: (error["message"] as? String) ?? "Something went wrong")
+                })
+                
             }
         } else {
             let alert = UIAlertController(title: "Success", message: "Vui lòng nhập userID", preferredStyle: UIAlertController.Style.alert)
@@ -323,6 +330,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
     
     @objc func logout(sender: UIButton!) {
+        self.payME?.logout()
         self.setConnectToken(token: "")
         UserDefaults.standard.set("", forKey: "userID")
         UserDefaults.standard.set("", forKey: "phone")
@@ -719,7 +727,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         let env = UserDefaults.standard.string(forKey: "env") ?? ""
         if (env == ""){
-            self.setEnv(env: PayME.Env.DEV, text: "dev")
+            self.setEnv(env: PayME.Env.SANDBOX, text: "sandbox")
         } else {
             envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
             self.setEnv(env: envData[env], text: env)
