@@ -148,6 +148,8 @@ class PopupKYC: UIViewController {
 private class PopupDocument: UIView {
     let rootView = UIStackView()
     let screenSize:CGRect = UIScreen.main.bounds
+    let animationView = AnimationView()
+
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -227,16 +229,6 @@ private class PopupDocument: UIView {
         return button
     }()
     
-    let imageView : UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "scanCmnd", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
-        bgImage.translatesAutoresizingMaskIntoConstraints = false
-        return bgImage
-    }()
-    
     let iconChecked1 : UIImageView = {
         let bundle = Bundle(for: QRScannerController.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
@@ -280,7 +272,7 @@ private class PopupDocument: UIView {
         self.addSubview(rootView)
         
         self.rootView.addSubview(continueButton)
-        self.rootView.addSubview(imageView)
+        self.rootView.addSubview(animationView)
         self.rootView.addSubview(titleLabel)
         self.rootView.addSubview(contentLabel)
         self.rootView.addSubview(hint1)
@@ -318,11 +310,15 @@ private class PopupDocument: UIView {
         rootView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
         rootView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
 
-        imageView.centerXAnchor.constraint(equalTo: self.rootView.centerXAnchor).isActive = true
-        imageView.topAnchor.constraint(equalTo: self.rootView.topAnchor, constant: 22).isActive = true
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        animationView.widthAnchor.constraint(equalToConstant: 193).isActive = true
+        animationView.heightAnchor.constraint(equalToConstant: 213).isActive = true
+        animationView.topAnchor.constraint(equalTo: self.rootView.topAnchor, constant: 22).isActive = true
+        animationView.centerXAnchor.constraint(equalTo: self.rootView.centerXAnchor).isActive = true
+        animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
         
         titleLabel.centerXAnchor.constraint(equalTo: rootView.centerXAnchor).isActive = true
-        titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 5).isActive = true
+        titleLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 5).isActive = true
         titleLabel.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 20).isActive = true
         titleLabel.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
         
@@ -378,6 +374,15 @@ private class PopupDocument: UIView {
         continueButton.heightAnchor.constraint(equalToConstant: 45).isActive = true
         continueButton.widthAnchor.constraint(equalTo: rootView.widthAnchor, constant: -34).isActive = true
         continueButton.bottomAnchor.constraint(equalTo: rootView.bottomAnchor, constant: -20).isActive = true
+        
+        let bundle = Bundle(for: Success.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let animation = Animation.named("Chup_CMNN", bundle: resourceBundle!)
+        animationView.animation = animation
+        animationView.contentMode = .scaleAspectFit
+        animationView.loopMode = .loop
+        animationView.play()
     }
     
     required init?(coder aDecoder: NSCoder) {
