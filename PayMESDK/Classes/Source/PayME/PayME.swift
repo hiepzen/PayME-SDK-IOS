@@ -91,10 +91,11 @@ public class PayME{
         PayME.loggedIn = false
         PayME.dataInit = nil
         PayME.showLog = showLog
-        
+        print(PayME.appId)
+        print(PayME.appToken)
     }
 
-    
+    /*
     public static func genConnectToken(userId: String, phone: String) -> String {
         let data : [String: Any] = ["timestamp": (Date().timeIntervalSince1970), "userId" : "\(userId)", "phone" : "\(phone)"]
         let params = try? JSONSerialization.data(withJSONObject: data)
@@ -103,6 +104,7 @@ public class PayME{
         print(dataEncrypted!.toBase64()!)
         return dataEncrypted!.toBase64()!
     }
+     */
     
     // cần thay API
     
@@ -238,6 +240,7 @@ public class PayME{
     ){
         PayME.initSDK(onSuccess: { success in
             PayME.loggedIn = true
+            print(success)
             onSuccess(success)
         }, onError: { error in
             PayME.loggedIn = false
@@ -245,11 +248,16 @@ public class PayME{
         })
     }
     
-    public func logout(){
+    internal static func logoutAction() {
+        PayME.loggedIn = false
         PayME.accessToken = ""
         PayME.handShake = ""
         PayME.kycState = ""
         PayME.dataInit = nil
+    }
+    
+    public func logout(){
+        PayME.logoutAction()
     }
     
     internal func encryptAES(data: String) -> String {
@@ -288,12 +296,14 @@ public class PayME{
         let accessToken = PayME.dataInit!["accessToken"] as? String
         let succeeded = PayME.dataInit!["succeeded"] as? Bool
         let phone = PayME.dataInit!["phone"] as? String
-        let kycID = PayME.dataInit!["kyc"]!["kycID"] as? Int
+        let kycID = PayME.dataInit!["kyc"]!["kycId"] as? Int
         let handShake = PayME.dataInit!["handShake"] as? String
-        let kycState = PayME.dataInit!["kyc"]!["kycState"] as? String
+        let kycState = PayME.dataInit!["kyc"]!["state"] as? String
         let identifyNumber = PayME.dataInit!["kyc"]!["identifyNumber"] as? String
         let reason = PayME.dataInit!["kyc"]!["reason"] as? String
         let sentAt = PayME.dataInit!["kyc"]!["sentAt"] as? String
+        
+        print(PayME.dataInit)
         
         let data =
         """
@@ -332,6 +342,7 @@ public class PayME{
             "showLog" : "\(PayME.showLog)"
         }
         """
+        print(data)
         let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         let url = urlWebview(env: PayME.env)
 

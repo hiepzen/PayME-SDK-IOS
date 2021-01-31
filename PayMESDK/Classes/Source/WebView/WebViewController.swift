@@ -92,6 +92,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var imageFront : UIImage?
     var imageBack : UIImage?
     var active: Int?
+    var individualTaskTimer : Timer!
     
     /*let content = """
           <!DOCTYPE html><html><body>
@@ -132,13 +133,34 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         webView.navigationDelegate = self
         view = webView
     }
+    
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        self.individualTaskTimer = Timer.scheduledTimer(timeInterval: 60.0, target: self, selector: Selector(("onCloseWebview")), userInfo: nil, repeats: false)
         self.showSpinner(onView: PayME.currentVC!.view)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        print("abc")
+        self.individualTaskTimer.invalidate()
         self.removeSpinner()
     }
+    
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        print("error")
+        print(error)
+        self.individualTaskTimer.invalidate()
+        onCloseWebview()
+        self.removeSpinner()
+    }
+    
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        print("error")
+        print(error)
+        self.individualTaskTimer.invalidate()
+        onCloseWebview()
+        self.removeSpinner()
+    }
+    
     private func getZoomDisableScript() -> WKUserScript {
         let source: String = "var meta = document.createElement('meta');" +
             "meta.name = 'viewport';" +
@@ -214,7 +236,29 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             */
             webView.loadHTMLString(self.form, baseURL: nil)
         }
+        
      }
+    /*
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+       // some other code
+        NotificationCenter.default.addObserver(self, selector: #selector(goingAway), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(activeAgain), name: UIApplication.didBecomeActiveNotification, object: nil)
+
+    }
+    
+    @objc func activeAgain() {
+        if (self.individualTaskTimer != nil) {
+            self.individualTaskTimer!.invalidate()
+        }
+    }
+    
+    @objc func goingAway() {
+        individualTaskTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
+            self.navigationController?.popViewController(animated: true)
+        }
+    }
+    */
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if (self.form != "") {
@@ -252,7 +296,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
-            print(message)
             if let dictionary = message.body as? [String: AnyObject] {
                 setupCamera(dictionary: dictionary)
             }
@@ -267,15 +310,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                             PayME.accessToken = (dataInit["accessToken"] as? String) ?? ""
                             PayME.kycState = (dataInit["kyc"]!["state"] as? String) ?? ""
                             PayME.handShake = (dataInit["handShake"] as? String) ?? ""
-                            print(PayME.accessToken)
-                            print(PayME.kycState)
-                            print(PayME.handShake)
                         }
                     }
                     self.onSuccess!(dictionary)
                 }
                 if (actions == "onNetWorkError") {
                     if let data = dictionary["data"] as? [String : AnyObject] {
+                        self.removeSpinner()
                         self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : data["message"] as AnyObject])
                     }
                 }
@@ -283,10 +324,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         }
         if message.name == onErrorBack {
             if let dictionary = message.body as? [String: AnyObject] {
-                print(dictionary)
+                self.removeSpinner()
                 let code = dictionary["code"] as! Int
                 if (code == 401) {
                     self.navigationController?.popViewController(animated: true)
+                    PayME.logoutAction()
                 }
                 self.onError!(dictionary)
             }

@@ -1109,13 +1109,16 @@ internal class API {
                 }
             )
         } else {
+            print("ád")
             // check lai nil Token
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
             request.setOnRequestCrypto(
                 onError: { error in
+                    print(error)
                     onError(error)
                 },
                 onSuccess: { data in
+                    print(data)
                     onSuccess(data)
                 }
             )

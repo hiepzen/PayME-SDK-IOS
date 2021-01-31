@@ -252,7 +252,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     func genConnectToken(userId: String, phone: String) -> String {
         let secretKey = UserDefaults.standard.string(forKey: "secretKey") ?? ""
         Log.custom.push(title: "Secret key login", message: secretKey)
-        let data : [String: Any] = ["timestamp": (Date().timeIntervalSince1970), "userId" : "\(userId)", "phone" : "\(phone)"]
+        let iSO8601DateFormatter = ISO8601DateFormatter()
+        let isoDate = iSO8601DateFormatter.string(from: Date())
+        let data : [String: Any] = ["timestamp": isoDate, "userId" : "\(userId)", "phone" : "\(phone)"]
         let params = try? JSONSerialization.data(withJSONObject: data)
         let aes = try? AES(key: Array(secretKey.utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
         let dataEncrypted = try? aes!.encrypt(Array(String(data: params!, encoding: .utf8)!.utf8))
@@ -265,12 +267,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         // Getting
 
         if (userIDTextField.text != "") {
-            if (self.currentEnv == PayME.Env.PRODUCTION) {
-                self.removeSpinner()
-                let alert = UIAlertController(title: "Lỗi", message: "Chưa hỗ trợ môi trường này!", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-            } else {
+            
                 let newConnectToken = self.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
                 Log.custom.push(title: "Connect Token Generator", message: newConnectToken)
                 self.setConnectToken(token: newConnectToken)
@@ -283,16 +280,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     configColor: ["#75255b", "#a81308"],
                     showLog: 1
                 )
+            self.showSpinner(onView: self.view)
                 self.payME?.login(onSuccess: {success in
+                    self.sdkContainer.isHidden = false
                     self.getBalance(self.refreshButton)
                     self.loginButton.backgroundColor = UIColor.gray
                     self.logoutButton.backgroundColor = UIColor.white
                 }, onError: {error in
                     print(error)
+                    self.sdkContainer.isHidden = true
+                    self.removeSpinner()
                     self.toastMess(title: "Lỗi", value: (error["message"] as? String) ?? "Something went wrong")
                 })
-                
-            }
         } else {
             let alert = UIAlertController(title: "Success", message: "Vui lòng nhập userID", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
@@ -303,14 +302,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     func setConnectToken(token: String!) {
         self.connectToken = token
         UserDefaults.standard.set(token, forKey: "connectToken")
-        if (token == ""){
-            self.sdkContainer.isHidden = true
-            self.userIDTextField.isEnabled = true
-            self.phoneTextField.isEnabled = true
-        } else {
+        if (token != ""){
             UserDefaults.standard.set(self.userIDTextField.text, forKey: "userID")
             UserDefaults.standard.set(self.phoneTextField.text, forKey: "phone")
-            self.sdkContainer.isHidden = false
         }
     }
     
@@ -331,6 +325,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     @objc func logout(sender: UIButton!) {
         self.payME?.logout()
+        self.sdkContainer.isHidden = true
         self.setConnectToken(token: "")
         UserDefaults.standard.set("", forKey: "userID")
         UserDefaults.standard.set("", forKey: "phone")
@@ -455,7 +450,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
     
     @IBAction func getBalance(_ sender: Any) {
-        self.showSpinner(onView: self.view)
         if (self.connectToken != "") {
             payME!.getWalletInfo(onSuccess: {a in
                 self.removeSpinner()

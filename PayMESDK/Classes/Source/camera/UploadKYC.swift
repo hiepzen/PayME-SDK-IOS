@@ -65,6 +65,7 @@ public class UploadKYC{
                 let code = extensions["code"] as? Int
                 if (code != nil) {
                     if (code == 401) {
+                        PayME.logoutAction()
                         guard let navigationController = PayME.currentVC?.navigationController else { return }
                         let navigationArray = navigationController.viewControllers
                         PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]

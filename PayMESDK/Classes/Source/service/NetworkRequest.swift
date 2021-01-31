@@ -369,7 +369,26 @@ public class NetworkRequestGraphQL {
             }
             
             let json = try? (JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as! Dictionary<String, AnyObject>)
+            
             guard let xAPIMessageResponse = json?["x-api-message"] as? String else {
+                if let code = json?["code"] as? Int {
+                    if let data = json!["data"] as? [String:AnyObject] {
+                        DispatchQueue.main.async {
+                            onError(["code": code as AnyObject, "message": data["message"] as AnyObject])
+                            return
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi hệ thống!" as AnyObject])
+                            return
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi hệ thống!" as AnyObject])
+                        return
+                    }
+                }
                 return
             }
             

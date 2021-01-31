@@ -22,7 +22,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     if let history = payInfo["history"] as? [String:AnyObject] {
                         if let createdAt = history["createdAt"] as? String {
                             if let date = toDate(dateString: createdAt) {
-                                let formatDate = toDateString(format: "HH:mm dd/mm/yyyy", date: date)
+                                let formatDate = toDateString(date: date)
                                 self.successView.timeTransactionDetail.text = formatDate
                                 self.failView.timeTransactionDetail.text = formatDate
                             }
@@ -62,6 +62,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 self.removeSpinner()
                 if let code = error["code"] as? Int {
                     if(code == 401) {
+                        PayME.logoutAction()
                         self.dismiss(animated: true, completion: nil)
                     }
                 }
@@ -90,7 +91,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         if let history = payInfo["history"] as? [String:AnyObject] {
                             if let createdAt = history["createdAt"] as? String {
                                 if let date = toDate(dateString: createdAt) {
-                                    let formatDate = toDateString(format: "HH:mm dd/mm/yyyy", date: date)
+                                    print(date)
+                                    let formatDate = toDateString(date: date)
                                     self.successView.timeTransactionDetail.text = formatDate
                                     self.failView.timeTransactionDetail.text = formatDate
                                 }
@@ -123,6 +125,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         self.removeSpinner()
                         if let code = error["code"] as? Int {
                             if(code == 401) {
+                                PayME.logoutAction()
                                 self.dismiss(animated: true, completion: nil)
                             }
                         }
@@ -149,6 +152,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             }, onError: {errorSecurity in
                 if let code = errorSecurity["code"] as? Int {
                     if(code == 401) {
+                        PayME.logoutAction()
                         self.dismiss(animated: true, completion: nil)
                     }
                 }
@@ -488,7 +492,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     if let history = payInfo["history"] as? [String:AnyObject] {
                         if let createdAt = history["createdAt"] as? String {
                             if let date = toDate(dateString: createdAt) {
-                                let formatDate = toDateString(format: "HH:mm dd/mm/yyyy", date: date)
+                                let formatDate = toDateString(date: date)
                                 self.successView.timeTransactionDetail.text = formatDate
                                 self.failView.timeTransactionDetail.text = formatDate
                             }
@@ -572,6 +576,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 self.removeSpinner()
                 if let code = flowError["code"] as? Int {
                     if(code == 401) {
+                        PayME.logoutAction()
                         self.dismiss(animated: true, completion: nil)
                     }
                 }

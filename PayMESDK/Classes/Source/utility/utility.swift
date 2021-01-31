@@ -72,16 +72,18 @@ internal func toastMess(title: String, message: String){
     PayME.currentVC?.present(alert, animated: true, completion: nil)
 }
 
-internal func toDateString(format: String, date: Date ) -> String
+internal func toDateString(date: Date ) -> String
 {
     let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = format
+    dateFormatter.dateFormat = "HH:mm dd/MM/yyyy"
+    print(dateFormatter.string(from: date))
     return dateFormatter.string(from: date)
 }
 
 internal func toDate(dateString: String) -> Date? {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+    print(dateFormatter.date(from: dateString))
     return dateFormatter.date(from: dateString)
 }
 
