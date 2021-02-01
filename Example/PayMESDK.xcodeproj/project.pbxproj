@@ -11,6 +11,7 @@
 		2016409025B5784C00B84552 /* FloatingButtonController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016408F25B5784C00B84552 /* FloatingButtonController.swift */; };
 		2016409225B6867300B84552 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016409125B6867300B84552 /* ListViewController.swift */; };
 		2016409425B6BCFF00B84552 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016409325B6BCFF00B84552 /* Log.swift */; };
+		2048643125C7ECB300BA4AEC /* EnvironmentSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2048643025C7ECB300BA4AEC /* EnvironmentSettings.swift */; };
 		528E222C25BFEEEA007767C0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 528E222B25BFEEEA007767C0 /* GoogleService-Info.plist */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
@@ -27,6 +28,7 @@
 		2016408F25B5784C00B84552 /* FloatingButtonController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingButtonController.swift; sourceTree = "<group>"; };
 		2016409125B6867300B84552 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		2016409325B6BCFF00B84552 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		2048643025C7ECB300BA4AEC /* EnvironmentSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSettings.swift; sourceTree = "<group>"; };
 		4B578284507BDE8E91EBCCB0 /* PayMESDK.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = PayMESDK.podspec; path = ../PayMESDK.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		51D1ACA6B52098FAAAC4EE39 /* Pods_PayMESDK_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PayMESDK_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		528E222B25BFEEEA007767C0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 				2016408F25B5784C00B84552 /* FloatingButtonController.swift */,
 				2016409125B6867300B84552 /* ListViewController.swift */,
 				2016409325B6BCFF00B84552 /* Log.swift */,
+				2048643025C7ECB300BA4AEC /* EnvironmentSettings.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
@@ -321,6 +324,7 @@
 			files = (
 				2016408525B1990600B84552 /* SettingsView.swift in Sources */,
 				2016409025B5784C00B84552 /* FloatingButtonController.swift in Sources */,
+				2048643125C7ECB300BA4AEC /* EnvironmentSettings.swift in Sources */,
 				2016409425B6BCFF00B84552 /* Log.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				2016409225B6867300B84552 /* ListViewController.swift in Sources */,

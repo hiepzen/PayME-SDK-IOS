@@ -220,37 +220,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return textField
     }()
     
-
-    private let PUBLIC_KEY: String =
-    """
-    -----BEGIN PUBLIC KEY-----
-    MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi
-    wIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ==
-    -----END PUBLIC KEY-----
-    """
-    
-    private let PRIVATE_KEY: String =
-    """
-    -----BEGIN RSA PRIVATE KEY-----
-    MIIBOwIBAAJBAOkNeYrZOhKTS6OcPEmbdRGDRgMHIpSpepulZJGwfg1IuRM+ZFBm
-    F6NgzicQDNXLtaO5DNjVw1o29BFoK0I6+sMCAwEAAQJAVCsGq2vaulyyI6vIZjkb
-    5bBId8164r/2xQHNuYRJchgSJahHGk46ukgBdUKX9IEM6dAQcEUgQH+45ARSSDor
-    mQIhAPt81zvT4oK1txaWEg7LRymY2YzB6PihjLPsQUo1DLf3AiEA7Tv005jvNbNC
-    pRyXcfFIy70IHzVgUiwPORXQDqJhWJUCIQDeDiZR6k4n0eGe7NV3AKCOJyt4cMOP
-    vb1qJOKlbmATkwIhALKSJfi8rpraY3kLa4fuGmCZ2qo7MFTKK29J1wGdAu99AiAQ
-    dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx33R4ANzm9w==
-    -----END RSA PRIVATE KEY-----
-    """
-        
-    private let APP_TOKEN: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Njg2OH0.JyIdhQEX_Lx9CXRH4iHM8DqamLrMQJk5rhbslNW4GzY"
-    
-    private let SECRET_KEY: String = "zfQpwE6iHbOeAfgX"
-    
     private var connectToken: String = ""
-    private var currentEnv: PayME.Env = PayME.Env.DEV
+    private var currentEnv: PayME.Env = PayME.Env.SANDBOX
     
     func genConnectToken(userId: String, phone: String) -> String {
-        let secretKey = UserDefaults.standard.string(forKey: "secretKey") ?? ""
+        let secretKey = EnvironmentSettings.standard.secretKey
         Log.custom.push(title: "Secret key login", message: secretKey)
         let iSO8601DateFormatter = ISO8601DateFormatter()
         let isoDate = iSO8601DateFormatter.string(from: Date())
@@ -272,10 +246,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 Log.custom.push(title: "Connect Token Generator", message: newConnectToken)
                 self.setConnectToken(token: newConnectToken)
                 self.payME = PayME(
-                    appToken: UserDefaults.standard.string(forKey: "appToken") ?? "",
-                    publicKey: UserDefaults.standard.string(forKey: "publicKey") ?? "",
+                    appToken: EnvironmentSettings.standard.appToken,
+                    publicKey: EnvironmentSettings.standard.publicKey,
                     connectToken: self.connectToken,
-                    appPrivateKey: UserDefaults.standard.string(forKey: "privateKey") ?? "",
+                    appPrivateKey: EnvironmentSettings.standard.privateKey,
                     env: self.currentEnv,
                     configColor: ["#75255b", "#a81308"],
                     showLog: 1
@@ -531,6 +505,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     func setEnv(env: PayME.Env!, text: String!){
         self.currentEnv = env
+        EnvironmentSettings.standard.changeEnvironment(env: text)
         UserDefaults.standard.set(text, forKey: "env")
         self.dropDown.setTitle(text, for: .normal)
     }
@@ -700,24 +675,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyPay.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true
         moneyPay.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        
-       
-        let appToken = UserDefaults.standard.string(forKey: "appToken") ?? ""
-        if (appToken == ""){
-            UserDefaults.standard.set(APP_TOKEN, forKey: "appToken")
-        }
-        let privateKey = UserDefaults.standard.string(forKey: "privateKey") ?? ""
-        if (privateKey == ""){
-            UserDefaults.standard.set(PRIVATE_KEY, forKey: "privateKey")
-        }
-        let publicKey = UserDefaults.standard.string(forKey: "publicKey") ?? ""
-        if (publicKey == ""){
-            UserDefaults.standard.set(PUBLIC_KEY, forKey: "publicKey")
-        }
-        let secretKey = UserDefaults.standard.string(forKey: "secretKey") ?? ""
-        if (secretKey == ""){
-            UserDefaults.standard.set(SECRET_KEY, forKey: "secretKey")
-        }
+
         
         let env = UserDefaults.standard.string(forKey: "env") ?? ""
         if (env == ""){
@@ -729,8 +687,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         let connectToken = UserDefaults.standard.string(forKey: "connectToken") ?? ""
         if (connectToken != "") {
             self.setConnectToken(token: connectToken)
-            self.loginButton.backgroundColor = UIColor.gray
-            self.logoutButton.backgroundColor = UIColor.white
             self.submit()
         } else {
             self.connectToken = ""

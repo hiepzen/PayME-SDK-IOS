@@ -1,20 +1,6 @@
 import UIKit
 
 class SettingsView: UIViewController, UIScrollViewDelegate{
-    private let PUBLIC_KEY: String =
-    "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi" + "\n" +
-    "wIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ=="
-    private let PRIVATE_KEY: String =
-    "MIIBOwIBAAJBAOkNeYrZOhKTS6OcPEmbdRGDRgMHIpSpepulZJGwfg1IuRM+ZFBm"   + "\n" +
-    "F6NgzicQDNXLtaO5DNjVw1o29BFoK0I6+sMCAwEAAQJAVCsGq2vaulyyI6vIZjkb"   + "\n" +
-    "5bBId8164r/2xQHNuYRJchgSJahHGk46ukgBdUKX9IEM6dAQcEUgQH+45ARSSDor"   + "\n" +
-    "mQIhAPt81zvT4oK1txaWEg7LRymY2YzB6PihjLPsQUo1DLf3AiEA7Tv005jvNbNC"   + "\n" +
-    "pRyXcfFIy70IHzVgUiwPORXQDqJhWJUCIQDeDiZR6k4n0eGe7NV3AKCOJyt4cMOP"   + "\n" +
-    "vb1qJOKlbmATkwIhALKSJfi8rpraY3kLa4fuGmCZ2qo7MFTKK29J1wGdAu99AiAQ"   + "\n" +
-    "dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx33R4ANzm9w=="
-    private var SECRET_KEY: String = "zfQpwE6iHbOeAfgX"
-    private let APP_ID: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Njg2OH0.JyIdhQEX_Lx9CXRH4iHM8DqamLrMQJk5rhbslNW4GzY"
-    
     lazy var container: UIScrollView = {
        let view = UIScrollView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -50,7 +36,6 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         textField.font = .systemFont(ofSize: 14)
         textField.isEditable = true
         textField.isScrollEnabled = false
-//        textField.setLeftPaddingPoints(10)
         return textField
     }()
     
@@ -209,7 +194,7 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         secretKeyTextField.topAnchor.constraint(equalTo: secretKey.bottomAnchor, constant: 5).isActive = true
         secretKeyTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
         secretKeyTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
-        secretKeyTextField.text = UserDefaults.standard.string(forKey: "secretKey") ?? ""
+        secretKeyTextField.text = EnvironmentSettings.standard.secretKey
         
         appToken.topAnchor.constraint(equalTo: secretKeyTextField.bottomAnchor, constant: 40).isActive = true
         appToken.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
@@ -217,7 +202,7 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         appTokenTextField.topAnchor.constraint(equalTo: appToken.bottomAnchor, constant: 5).isActive = true
         appTokenTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
         appTokenTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
-        appTokenTextField.text = UserDefaults.standard.string(forKey: "appToken") ?? ""
+        appTokenTextField.text = EnvironmentSettings.standard.appToken
         
         appPrivateKey.topAnchor.constraint(equalTo: appTokenTextField.bottomAnchor, constant: 20).isActive = true
         appPrivateKey.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
@@ -225,7 +210,7 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         appSKTextField.topAnchor.constraint(equalTo: appPrivateKey.bottomAnchor, constant: 5).isActive = true
         appSKTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
         appSKTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
-        appSKTextField.text = UserDefaults.standard.string(forKey: "privateKey") ?? ""
+        appSKTextField.text = EnvironmentSettings.standard.privateKey
         
         appPublicKey.topAnchor.constraint(equalTo: appSKTextField.bottomAnchor, constant: 20).isActive = true
         appPublicKey.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
@@ -233,7 +218,7 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         appPKTextField.topAnchor.constraint(equalTo: appPublicKey.bottomAnchor, constant: 5).isActive = true
         appPKTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
         appPKTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
-        appPKTextField.text = UserDefaults.standard.string(forKey: "publicKey") ?? ""
+        appPKTextField.text = EnvironmentSettings.standard.publicKey
         
         checkBox.topAnchor.constraint(equalTo: appPKTextField.bottomAnchor, constant: 20).isActive = true
         checkBox.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
@@ -266,10 +251,7 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
     }
     
     @IBAction func onPressSave(_ sender: UIButton){
-        UserDefaults.standard.set(self.appTokenTextField.text, forKey: "appToken")
-        UserDefaults.standard.set(self.appSKTextField.text, forKey: "privateKey")
-        UserDefaults.standard.set(self.appPKTextField.text, forKey: "publicKey")
-        UserDefaults.standard.set(self.secretKeyTextField.text, forKey: "secretKey")
+        EnvironmentSettings.standard.changeSettings(newAppToken: self.appTokenTextField.text, newPrivateKey: self.appSKTextField.text, newPublicKey: self.appPKTextField.text, newSecretKey: self.secretKeyTextField.text)
         UserDefaults.standard.set(self.isShowLog, forKey: "isShowLog")
         navigationController?.popToRootViewController(animated: true)
 //
@@ -279,10 +261,11 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
     }
     
     @IBAction func onPressRestore(_ sender: UIButton){
-        self.appTokenTextField.text = APP_ID
-        self.appSKTextField.text = PRIVATE_KEY
-        self.appPKTextField.text = PUBLIC_KEY
-        self.secretKeyTextField.text = SECRET_KEY
+        EnvironmentSettings.standard.restoreDefault()
+        self.appTokenTextField.text = EnvironmentSettings.standard.appToken
+        self.appSKTextField.text = EnvironmentSettings.standard.privateKey
+        self.appPKTextField.text = EnvironmentSettings.standard.publicKey
+        self.secretKeyTextField.text = EnvironmentSettings.standard.secretKey
         self.setShowLog(showLog: false)
     }
 }
