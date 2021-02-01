@@ -224,27 +224,32 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     private let PUBLIC_KEY: String =
     """
     -----BEGIN PUBLIC KEY-----
-    MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi
-    wIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J0CAwEAAQ==
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmXR5qmL2lLfInmwGYsB2
+    WIgoQobh6UQ0tJ3uhzhBSFkvIHqIdrwBAKURe/1S5ZqplZwb91H+hgEJVyVaBPhW
+    H6TcOG01iBTQkodwUin/JT472G/bWkwbkoM8n9g5uDDG9udd9aB4YJeXQg3vOnxf
+    7bipFW/Hd3155CWYcRZEFG7Q7GGHpuGj8UHV4nIzxhcOpAVhtAyeWI0+h9M9LH1Y
+    RPWOOBcweNNbKjDJf1QhsWr1CtuRP4Zeh9Sg+nGVbuKcfjnZQt+ABD83a4cniSzq
+    Qqe+r2lGubmumo+XQpsJPTg9R/ODmKrkd++6jrHWJbqeITD9xRpDzvgGiWUhhc9F
+    KQIDAQAB
     -----END PUBLIC KEY-----
     """
     
     private let PRIVATE_KEY: String =
     """
     -----BEGIN RSA PRIVATE KEY-----
-    MIIBOwIBAAJBAOkNeYrZOhKTS6OcPEmbdRGDRgMHIpSpepulZJGwfg1IuRM+ZFBm
-    F6NgzicQDNXLtaO5DNjVw1o29BFoK0I6+sMCAwEAAQJAVCsGq2vaulyyI6vIZjkb
-    5bBId8164r/2xQHNuYRJchgSJahHGk46ukgBdUKX9IEM6dAQcEUgQH+45ARSSDor
-    mQIhAPt81zvT4oK1txaWEg7LRymY2YzB6PihjLPsQUo1DLf3AiEA7Tv005jvNbNC
-    pRyXcfFIy70IHzVgUiwPORXQDqJhWJUCIQDeDiZR6k4n0eGe7NV3AKCOJyt4cMOP
-    vb1qJOKlbmATkwIhALKSJfi8rpraY3kLa4fuGmCZ2qo7MFTKK29J1wGdAu99AiAQ
-    dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx33R4ANzm9w==
+    MIIBOQIBAAJAZCKupmrF4laDA7mzlQoxSYlQApMzY7EtyAvSZhJs1NeW5dyoc0XL
+    yM+/Uxuh1bAWgcMLh3/0Tl1J7udJGTWdkQIDAQABAkAjzvM9t7kD84PudR3vEjIF
+    5gCiqxkZcWa5vuCCd9xLUEkdxyvcaLWZEqAjCmF0V3tygvg8EVgZvdD0apgngmAB
+    AiEAvTF57hIp2hkf7WJnueuZNY4zhxn7QNi3CQlGwrjOqRECIQCHfqO53A5rvxCA
+    ILzx7yXHzk6wnMcGnkNu4b5GH8usgQIhAKwv4WbZRRnoD/S+wOSnFfN2DlOBQ/jK
+    xBsHRE1oYT3hAiBSfLx8OAXnfogzGLsupqLfgy/QwYFA/DSdWn0V/+FlAQIgEUXd
+    A8pNN3/HewlpwTGfoNE8zCupzYQrYZ3ld8XPGeQ=
     -----END RSA PRIVATE KEY-----
     """
         
-    private let APP_TOKEN: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Njg2OH0.JyIdhQEX_Lx9CXRH4iHM8DqamLrMQJk5rhbslNW4GzY"
+    private let APP_TOKEN: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6NCwiaWF0IjoxNjExOTAzNjU3fQ.GfTRq6gvO0rU0XHx6JksJXIB1hireYyKaX92mTnMb64"
     
-    private let SECRET_KEY: String = "zfQpwE6iHbOeAfgX"
+    private let SECRET_KEY: String = "240c70d60d85a4c1bef302ca7a38bd8c"
     
     private var connectToken: String = ""
     private var currentEnv: PayME.Env = PayME.Env.DEV
