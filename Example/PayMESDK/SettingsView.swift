@@ -170,7 +170,7 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         
         
         
-        saveButton.bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor, constant: -30).isActive = true
+        saveButton.bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor).isActive = true
         saveButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
         saveButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         saveButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
@@ -179,14 +179,14 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         container.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
         container.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
         container.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
-        container.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -40).isActive = true
+        container.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -20).isActive = true
         
         contentView.topAnchor.constraint(equalTo: container.topAnchor).isActive = true
         contentView.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
         contentView.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
         contentView.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
         contentView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
-        contentView.heightAnchor.constraint(equalTo: self.view.heightAnchor).isActive = true
+        contentView.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: 100).isActive = true
         
         secretKey.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30).isActive = true
         secretKey.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
@@ -230,6 +230,7 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         showLogLabel.leadingAnchor.constraint(equalTo: checkBox.trailingAnchor, constant: 10).isActive = true
         
         restoreButton.topAnchor.constraint(equalTo: checkBox.bottomAnchor, constant: 20).isActive = true
+//        restoreButton.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -20).isActive = true
         restoreButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
         restoreButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
         restoreButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30).isActive = true
