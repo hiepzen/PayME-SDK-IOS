@@ -61,8 +61,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
 
     override func viewDidLayoutSubviews() {
-        let topPoint = CGPoint(x: atmView.detailView.frame.minX+10, y: atmView.detailView.bounds.midY + 15)
-        let bottomPoint = CGPoint(x: atmView.detailView.frame.maxX-10, y: atmView.detailView.bounds.midY + 15)
+        let topPoint = CGPoint(x: atmView.detailView.bounds.minX - 10, y: atmView.detailView.bounds.midY + 15)
+        let bottomPoint = CGPoint(x: atmView.detailView.bounds.maxX, y: atmView.detailView.bounds.midY + 15)
         atmView.detailView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203,203,203), strokeLength: 3, gapLength: 4, width: 0.5)
         atmView.detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
         atmView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)

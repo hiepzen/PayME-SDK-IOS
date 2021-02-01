@@ -437,8 +437,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     
     
     override func viewDidLayoutSubviews() {
-        let topPoint = CGPoint(x: detailView.frame.minX+10, y: detailView.bounds.midY + 15)
-        let bottomPoint = CGPoint(x: detailView.frame.maxX-10, y: detailView.bounds.midY + 15)
+        let topPoint = CGPoint(x: detailView.frame.minX, y: detailView.bounds.midY + 15)
+        let bottomPoint = CGPoint(x: detailView.frame.maxX, y: detailView.bounds.midY + 15)
         detailView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203,203,203), strokeLength: 3, gapLength: 4, width: 0.5)
         successView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203,203,203), strokeLength: 3, gapLength: 4, width: 0.5)
         failView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203,203,203), strokeLength: 3, gapLength: 4, width: 0.5)
