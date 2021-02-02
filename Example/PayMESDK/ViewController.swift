@@ -239,6 +239,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @objc func submit() {
         //PayME.showKYCCamera(currentVC: self)
         // Getting
+        Log.custom.push(title: "Environment variables", message: """
+        {
+            appToken: \(EnvironmentSettings.standard.appToken),
+            publicKey: \(EnvironmentSettings.standard.publicKey),
+            connectToken: \(self.connectToken),
+            appPrivateKey: \(EnvironmentSettings.standard.privateKey),
+            env: \(self.currentEnv)
+        }
+        """)
 
         if (userIDTextField.text != "") {
             
