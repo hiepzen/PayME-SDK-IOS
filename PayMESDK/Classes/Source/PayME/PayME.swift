@@ -37,17 +37,24 @@ public class PayME{
     internal static var appId: String = ""
     internal static var showLog: Int = 0
     internal static var loggedIn : Bool = false
+    internal static var language : Language = PayME.Language.VIETNAM
 
     public enum Action: String {
         case OPEN = "OPEN"
         case DEPOSIT = "DEPOSIT"
         case WITHDRAW = "WITHDRAW"
     }
+    
     public enum Env: String{
         case SANDBOX = "sandbox"
         case PRODUCTION = "production"
         case DEV = "dev"
     }
+    
+    public enum Language: String{
+        case VIETNAM = "vi"
+    }
+    
     public struct ResponseCode {
         public static let EXPIRED = 401
         public static let NETWORK = -1
@@ -61,7 +68,7 @@ public class PayME{
         public static let ACCOUNT_NOT_LOGIN = -9
     }
     
-    public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, env: Env, configColor: [String], showLog: Int = 0) {
+    public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, language: Language? = PayME.Language.VIETNAM, env: Env, configColor: [String], showLog: Int = 0) {
         PayME.appToken = appToken;
         let temp = PayME.appToken.components(separatedBy: ".")
         let jwt = temp[1].fromBase64()
@@ -91,8 +98,9 @@ public class PayME{
         PayME.loggedIn = false
         PayME.dataInit = nil
         PayME.showLog = showLog
-        print(PayME.appId)
-        print(PayME.appToken)
+        if (language != nil) {
+            PayME.language = language!
+        }
     }
 
     /*
@@ -303,7 +311,6 @@ public class PayME{
         let reason = PayME.dataInit!["kyc"]!["reason"] as? String
         let sentAt = PayME.dataInit!["kyc"]!["sentAt"] as? String
         
-        print(PayME.dataInit)
         
         let data =
         """
@@ -342,7 +349,7 @@ public class PayME{
             "showLog" : "\(PayME.showLog)"
         }
         """
-        print(data)
+
         let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         let url = urlWebview(env: PayME.env)
 
@@ -419,7 +426,7 @@ public class PayME{
         }
     }
     
-    public func pay(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
+    public func pay(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?,  onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
         if (checkCondition(onError: onError) == true) {
             PayME.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, onSuccess: onSuccess, onError: onError)
         }
