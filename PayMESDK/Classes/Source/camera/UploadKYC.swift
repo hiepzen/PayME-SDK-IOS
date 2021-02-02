@@ -44,13 +44,32 @@ public class UploadKYC{
                         DispatchQueue.main.async {
                             PayME.currentVC?.removeSpinner()
                             guard let navigationController = PayME.currentVC?.navigationController else { return }
-                            let navigationArray = navigationController.viewControllers
+                            var navigationArray = navigationController.viewControllers
                             if PayME.isRecreateNavigationController {
                                 PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
                                 let rootViewController = navigationArray.first
                                 (rootViewController as! WebViewController).reload()
                             } else {
-                                PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0],navigationArray[1]]
+                                if (self.imageDocument != nil) {
+                                    if (self.active == 2) {
+                                        navigationArray.removeLast()
+                                        navigationArray.removeLast()
+                                    } else {
+                                        navigationArray.removeLast()
+                                        navigationArray.removeLast()
+                                        navigationArray.removeLast()
+                                        navigationArray.removeLast()
+                                    }
+                                }
+                                if (self.imageAvatar != nil) {
+                                    navigationArray.removeLast()
+                                    navigationArray.removeLast()
+                                }
+                                if (self.videoKYC != nil) {
+                                    navigationArray.removeLast()
+                                    navigationArray.removeLast()
+                                }
+                                PayME.currentVC?.navigationController?.viewControllers = navigationArray
                                 (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
                             }
                         }
