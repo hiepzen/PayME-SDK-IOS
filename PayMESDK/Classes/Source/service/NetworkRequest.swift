@@ -253,7 +253,7 @@ public class NetworkRequestGraphQL {
                         return
                     }
                 } else {
-                    onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Something went wrong" as AnyObject])
+                    onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Có lỗi hệ thống!" as AnyObject])
                     return
                 }
             }
@@ -270,7 +270,7 @@ public class NetworkRequestGraphQL {
                                 }
                             }
                         }
-                        let message = (errors[0]["message"] as? String) ?? "Something went wrong"
+                        let message = (errors[0]["message"] as? String) ?? "Có lỗi xảy ra!"
                         onError(["code": code as AnyObject, "message": message as AnyObject])
                     }
                     return
@@ -292,7 +292,7 @@ public class NetworkRequestGraphQL {
                     }
                 } else {
                     DispatchQueue.main.async {
-                        onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Something went wrong" as AnyObject])
+                        onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Không thể kết nỗi tới server" as AnyObject])
                         return
                     }
                 }
@@ -361,7 +361,7 @@ public class NetworkRequestGraphQL {
                             return
                         }
                     } else {
-                        onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Something went wrong" as AnyObject])
+                        onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Có lỗi hệ thống!" as AnyObject])
                         return
                     }
                 }
@@ -379,13 +379,13 @@ public class NetworkRequestGraphQL {
                         }
                     } else {
                         DispatchQueue.main.async {
-                            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi hệ thống!" as AnyObject])
+                            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nối tới server" as AnyObject])
                             return
                         }
                     }
                 } else {
                     DispatchQueue.main.async {
-                        onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi hệ thống!" as AnyObject])
+                        onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nối tới server" as AnyObject])
                         return
                     }
                 }
@@ -427,7 +427,7 @@ public class NetworkRequestGraphQL {
                                 }
                             }
                         }
-                        let message = (errors[0]["message"] as? String) ?? "Something went wrong"
+                        let message = (errors[0]["message"] as? String) ?? "Có lỗi xảy ra!"
                         onError(["code": code as AnyObject, "message": message as AnyObject])
                     }
                     return
@@ -449,7 +449,7 @@ public class NetworkRequestGraphQL {
                     }
                 } else {
                     DispatchQueue.main.async {
-                        onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Something went wrong" as AnyObject])
+                        onError(["code" : PayME.ResponseCode.SYSTEM as AnyObject, "message" : "Không thể kết nỗi tới server" as AnyObject])
                         return
                     }
                 }

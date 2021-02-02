@@ -434,6 +434,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         
     }
     
+    public func animationController(forDismissed dismissed: UIViewController) {
+        
+    }
+    
     
     
     override func viewDidLayoutSubviews() {
