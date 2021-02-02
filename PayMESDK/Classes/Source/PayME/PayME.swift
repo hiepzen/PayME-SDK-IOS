@@ -256,12 +256,15 @@ public class PayME{
             PayME.loggedIn = true
             if (PayME.accessToken == "") {
                 onSuccess(["code" : PayME.CompassPoint.NotActivated as AnyObject, "message" : "Tài khoản chưa kích hoạt" as AnyObject])
+                return
             }
             if (PayME.kycState != "APPROVED") {
                 onSuccess(["code" : PayME.CompassPoint.NotKYC as AnyObject, "message" : "Tài khoản chưa định danh" as AnyObject])
+                return
             }
             if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
                 onSuccess(["code": PayME.CompassPoint.KYCOK as AnyObject, "message" : "Đăng nhập thành công" as AnyObject])
+                return
             }
         }, onError: { error in
             PayME.loggedIn = false
