@@ -399,16 +399,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         Log.custom.push(title: "pay", message: success)
                     }, onError: {error in
                         Log.custom.push(title: "pay", message: error)
-                        print(error)
                         if let code = error["code"] as? Int {
                             if (code != PayME.ResponseCode.USER_CANCELLED) {
                                 let message = error["message"] as? String
                                 self.toastMess(title: "Lỗi", value: message)
                             }
                         }
-                        
-                    }
-                    )
+                    })
                 } else {
                     toastMess(title: "Lỗi", value: "Vui lòng thanh toán hơn 10.000VND")
                 }

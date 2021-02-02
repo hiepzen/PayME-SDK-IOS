@@ -55,6 +55,12 @@ public class PayME{
         case VIETNAM = "vi"
     }
     
+    public enum CompassPoint {
+        case NotActivated
+        case NotKYC
+        case KYCOK
+    }
+    
     public struct ResponseCode {
         public static let EXPIRED = 401
         public static let NETWORK = -1
@@ -248,8 +254,15 @@ public class PayME{
     ){
         PayME.initSDK(onSuccess: { success in
             PayME.loggedIn = true
-            print(success)
-            onSuccess(success)
+            if (PayME.accessToken == "") {
+                onSuccess(["code" : PayME.CompassPoint.NotActivated as AnyObject, "message" : "Tài khoản chưa kích hoạt" as AnyObject])
+            }
+            if (PayME.kycState != "APPROVED") {
+                onSuccess(["code" : PayME.CompassPoint.NotKYC as AnyObject, "message" : "Tài khoản chưa định danh" as AnyObject])
+            }
+            if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
+                onSuccess(["code": PayME.CompassPoint.KYCOK as AnyObject, "message" : "Đăng nhập thành công" as AnyObject])
+            }
         }, onError: { error in
             PayME.loggedIn = false
             onError(error)
@@ -426,9 +439,9 @@ public class PayME{
         }
     }
     
-    public func pay(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?,  onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
+    public func pay(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, isShowResultUI: Bool = true,onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
         if (checkCondition(onError: onError) == true) {
-            PayME.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, onSuccess: onSuccess, onError: onError)
+            PayME.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
         }
     }
     
@@ -438,7 +451,7 @@ public class PayME{
         }
     }
     
-    internal static func payAction(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
+    internal static func payAction(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, isShowResultUI: Bool = true, onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
         if (checkCondition(onError: onError) == true) {
             PayME.currentVC = currentVC
             if (amount < Methods.min) {
@@ -458,6 +471,7 @@ public class PayME{
                 Methods.orderId = orderId
                 Methods.note = note ?? ""
                 Methods.extraData = extraData ?? ""
+                Methods.isShowResultUI = isShowResultUI
                 methods.appENV = PayME.appENV
                 currentVC.presentPanModal(methods)
             } else {
@@ -471,6 +485,7 @@ public class PayME{
                     methods.appENV = PayME.appENV
                     Methods.note = note ?? ""
                     Methods.extraData = extraData ?? ""
+                    Methods.isShowResultUI = isShowResultUI
                     currentVC.presentPanModal(methods)
                 }
             }

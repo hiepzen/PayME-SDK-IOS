@@ -169,6 +169,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     static var amount : Int = 10000
     static var note : String = ""
     static var extraData : String = ""
+    static var isShowResultUI: Bool = true
+    static var isResult: Bool = false
     var transaction : String = ""
     private var active : Int?
     private var bankDetect : Bank?
@@ -202,6 +204,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     func setupMethods() {
+        Methods.isResult = false
         methodsView.backgroundColor = .white
             
         methodsView.translatesAutoresizingMaskIntoConstraints = false
@@ -280,7 +283,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 10).isActive = true
         self.showSpinner(onView: self.view)
-        print("hello")
+
         API.getWalletInfo(
             onSuccess: {walletInfo in
                 let wallet = walletInfo["Wallet"] as! [String:AnyObject]
@@ -384,61 +387,65 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     func setupFail() {
-        view.addSubview(failView)
-        
-        failView.translatesAutoresizingMaskIntoConstraints = false
-        
-        failView.translatesAutoresizingMaskIntoConstraints = false
-        failView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-        failView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-        failView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        failView.roleLabel.text = formatMoney(input: Methods.amount)
-        
-        if (Methods.note == "") {
-            failView.memoLabel.text = "Không có nội dung"
+        Methods.isResult = true
+        if (Methods.isShowResultUI == true) {
+            view.addSubview(failView)
+            
+            failView.translatesAutoresizingMaskIntoConstraints = false
+            
+            failView.translatesAutoresizingMaskIntoConstraints = false
+            failView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+            failView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+            failView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+            failView.roleLabel.text = formatMoney(input: Methods.amount)
+            
+            if (Methods.note == "") {
+                failView.memoLabel.text = "Không có nội dung"
+            } else {
+                failView.memoLabel.text = Methods.note
+            }
+            failView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+            failView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: failView.button.bottomAnchor, constant: 10).isActive = true
+            self.updateViewConstraints()
+            self.view.layoutIfNeeded()
+            self.panModalSetNeedsLayoutUpdate()
+            panModalTransition(to: .longForm)
         } else {
-            failView.memoLabel.text = Methods.note
+            print("hello")
+            self.dismiss(animated: true)
         }
-        failView.button.addTarget(self, action: #selector(closeDone), for: .touchUpInside)
-        failView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: failView.button.bottomAnchor, constant: 10).isActive = true
-        self.updateViewConstraints()
-        self.view.layoutIfNeeded()
-        self.panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .longForm)
+        
     }
     
     func setupSuccess() {
-        view.addSubview(successView)
-        
-        successView.translatesAutoresizingMaskIntoConstraints = false
-        
-        successView.translatesAutoresizingMaskIntoConstraints = false
-        successView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-        successView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-        successView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        successView.roleLabel.text = formatMoney(input: Methods.amount)
-        successView.button.addTarget(self, action: #selector(closeDone), for: .touchUpInside)
-        successView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        successView.roleLabel.text = formatMoney(input: Methods.amount)
-        if (Methods.note == "") {
-            successView.memoLabel.text = "Không có nội dung"
+        Methods.isResult = true
+        if (Methods.isShowResultUI == true) {
+            view.addSubview(successView)
+            successView.translatesAutoresizingMaskIntoConstraints = false
+            successView.translatesAutoresizingMaskIntoConstraints = false
+            successView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+            successView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+            successView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+            successView.roleLabel.text = formatMoney(input: Methods.amount)
+            successView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+            successView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+            successView.roleLabel.text = formatMoney(input: Methods.amount)
+            if (Methods.note == "") {
+                successView.memoLabel.text = "Không có nội dung"
+            } else {
+                successView.memoLabel.text = Methods.note
+            }
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: successView.button.bottomAnchor, constant: 10).isActive = true
+            self.updateViewConstraints()
+            self.view.layoutIfNeeded()
+            self.panModalSetNeedsLayoutUpdate()
+            panModalTransition(to: .longForm)
         } else {
-            successView.memoLabel.text = Methods.note
+            self.dismiss(animated: true)
+            
         }
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: successView.button.bottomAnchor, constant: 10).isActive = true
-        self.updateViewConstraints()
-        self.view.layoutIfNeeded()
-        self.panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .longForm)
-        
     }
-    
-    public func animationController(forDismissed dismissed: UIViewController) {
-        
-    }
-    
-    
     
     override func viewDidLayoutSubviews() {
         let topPoint = CGPoint(x: detailView.frame.minX, y: detailView.bounds.midY + 15)
@@ -457,16 +464,16 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         atmView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
 
     }
+
+    func panModalDidDismiss() {
+        if (Methods.isResult == false) {
+            self.onError!(["code" : PayME.ResponseCode.USER_CANCELLED as AnyObject, "message" : "Đóng modal thanh toán" as AnyObject])
+        }
+    }
     
     @objc
     func closeAction(button:UIButton)
     {
-        self.onError!(["code" : PayME.ResponseCode.USER_CANCELLED as AnyObject, "message" : "Đóng modal thanh toán" as AnyObject])
-        self.dismiss(animated: true, completion: nil)
-    }
-    
-    @objc
-    func closeDone() {
         self.dismiss(animated: true, completion: nil)
     }
     
@@ -527,6 +534,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     } else {
                         if let payment = payInfo["payment"] as? [String:AnyObject] {
                             let state = (payment["state"] as? String) ?? ""
+
                             if (state == "REQUIRED_OTP") {
                                 self.transaction = payment["transaction"] as! String
                                 self.removeSpinner()
@@ -534,6 +542,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                                 self.setupOTP()
                                 self.active = indexPath.row
                             } else if(state == "REQUIRED_VERIFY"){
+                                let message = payment["message"] as? String
                                 let html = payment["html"] as? String
                                 if (html != nil) {
                                     self.removeSpinner()
@@ -542,14 +551,34 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                                     webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                                         webViewController.dismiss(animated: true)
                                         self.methodsView.removeFromSuperview()
-                                        self.onSuccess!(flow)
+                                        let successWebview : [String: AnyObject] = ["OpenEWallet": [
+                                                                                    "Payment": [
+                                                                                         "Pay": [
+                                                                                             "success": true as AnyObject,
+                                                                                             "message": message as AnyObject,
+                                                                                             "history": payInfo["history"] as AnyObject
+                                                                                         ]
+                                                                                    ]
+                                                                                ] as AnyObject
+                                                                            ]
+                                        self.onSuccess!(successWebview)
                                         self.setupSuccess()
                                     })
                                     webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                                         webViewController.dismiss(animated: true)
                                         self.methodsView.removeFromSuperview()
                                         self.failView.failLabel.text = responseFromWebView
-                                        self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message" : responseFromWebView as AnyObject])
+                                        let failWebview : [String: AnyObject] = ["OpenEWallet": [
+                                                                                    "Payment": [
+                                                                                         "Pay": [
+                                                                                             "success": true as AnyObject,
+                                                                                             "message": responseFromWebView as AnyObject,
+                                                                                             "history": payInfo["history"] as AnyObject
+                                                                                         ]
+                                                                                    ]
+                                                                                ] as AnyObject
+                                                                            ]
+                                        self.onError!(failWebview)
                                         self.setupFail()
                                     })
                                     self.presentPanModal(webViewController)
@@ -611,8 +640,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             }, onError: { bankListError in
                 self.onError!(bankListError)
                 self.removeSpinner()
-                print(bankListError)
-                
+                self.toastMessError(title: "Lỗi", message: "Lấy danh sách bank thất bại")
             })
             
         }
