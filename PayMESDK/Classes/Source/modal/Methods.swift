@@ -193,6 +193,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     var failView = FailView()
     var keyBoardHeight : CGFloat = 0
     let screenSize:CGRect = UIScreen.main.bounds
+    static var isATMModal: Bool = false
 
     
     override func viewDidLoad() {
@@ -204,6 +205,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     func setupMethods() {
+        Methods.isATMModal = false
         Methods.isResult = false
         methodsView.backgroundColor = .white
             
@@ -466,7 +468,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
 
     func panModalDidDismiss() {
-        if (Methods.isResult == false) {
+        if (Methods.isResult == false && Methods.isATMModal == false) {
             self.onError!(["code" : PayME.ResponseCode.USER_CANCELLED as AnyObject, "message" : "Đóng modal thanh toán" as AnyObject])
         }
     }
@@ -588,7 +590,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                                 self.methodsView.removeFromSuperview()
                                 let message = payment["message"] as? String
                                 self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message" : (message ?? "Có lỗi xảy ra") as AnyObject])
-
+                                
                                 self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
                                 self.setupFail()
                             }
@@ -632,6 +634,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 atmModal.listBank = listBank
                 atmModal.onSuccess = self.onSuccess
                 atmModal.onError = self.onError
+                Methods.isATMModal = true
                 self.dismiss(animated: true, completion: {
                     PayME.currentVC!.presentPanModal(atmModal)
                 })

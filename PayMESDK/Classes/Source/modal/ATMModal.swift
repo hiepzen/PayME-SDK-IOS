@@ -77,7 +77,6 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
 
     @objc func closeAction() {
-        self.onError!(["code" : PayME.ResponseCode.USER_CANCELLED as AnyObject, "message" : "Đóng modal thanh toán" as AnyObject])
         self.dismiss(animated: true, completion: nil)
 
     }
