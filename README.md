@@ -87,7 +87,7 @@ private let PRIVATE_KEY: String =
 -   configColor : là tham số màu để có thể thay đổi màu sắc giao dịch ví PayME, kiểu dữ liệu là chuỗi với định dạng #rrggbb. Nếu như truyền 2 màu thì giao diện PayME sẽ gradient theo 2 màu truyền vào.
 
 
-![image](https://developers.payme.vn/public/configcolor.png)
+![image](../blob/master/asserts/configColor.png?raw=true)
 
 Cách tạo **connectToken**:
 
