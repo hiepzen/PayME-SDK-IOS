@@ -144,8 +144,15 @@ public class PayME{
         
     }
     
-    public func getService() -> [String:String] {
-        return ["":""]
+    public func getService(
+        onSuccess: @escaping ([String: AnyObject]) -> (),
+        onError: @escaping ([String: AnyObject]) -> ()
+    ) {
+        API.getService(onSuccess: {success in
+            onSuccess(success)
+        }, onError: { error in
+            onError(error)
+        })
     }
     
     internal static func initSDK(
@@ -155,7 +162,6 @@ public class PayME{
         if (PayME.clientID != "") {
             API.initAccount(clientID: PayME.clientID,
                  onSuccess: { responseAccessToken in
-                    print(responseAccessToken)
                     let result = responseAccessToken["OpenEWallet"]!["Init"] as! [String: AnyObject]
                     let accessToken = result["accessToken"] as? String
                     let kycState = result["kyc"]!["state"] as? String
@@ -202,7 +208,6 @@ public class PayME{
                 PayME.clientID = clientID
                 API.initAccount(clientID: PayME.clientID,
                      onSuccess: { responseAccessToken in
-                        print(responseAccessToken)
                         let result = responseAccessToken["OpenEWallet"]!["Init"] as! [String: AnyObject]
                         let accessToken = result["accessToken"] as? String
                         let kycState = result["kyc"]!["state"] as? String
@@ -442,7 +447,7 @@ public class PayME{
         }
     }
     
-    public func pay(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, isShowResultUI: Bool = true,onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
+    public func pay(currentVC : UIViewController,storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, isShowResultUI: Bool = true, onSuccess: @escaping ([String:AnyObject])->(), onError: @escaping ([String:AnyObject])->()) {
         if (checkCondition(onError: onError) == true) {
             PayME.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
         }

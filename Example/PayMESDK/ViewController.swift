@@ -263,8 +263,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     configColor: ["#75255b", "#a81308"],
                     showLog: 1
                 )
-            self.showSpinner(onView: self.view)
+                self.showSpinner(onView: self.view)
                 self.payME?.login(onSuccess: {success in
+                    print(success)
                     self.sdkContainer.isHidden = false
                     self.getBalance(self.refreshButton)
                     self.loginButton.backgroundColor = UIColor.gray

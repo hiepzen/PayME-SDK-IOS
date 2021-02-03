@@ -47,7 +47,8 @@ let payme = PayME( appId : "AppToken",
                    publicKey: "PublicKey", 
                    connectToken : "ConnectToken",
                    appPrivateKey : "AppPrivateKey", 
-                   configColor : ["#07A922"] 
+                   language: PayME.Language.VIETNAM,
+                   configColor : ["#07A922"],
                    env: PayME.Env.SANDBOX
                    )
 ```
@@ -87,7 +88,7 @@ private let PRIVATE_KEY: String =
 -   configColor : là tham số màu để có thể thay đổi màu sắc giao dịch ví PayME, kiểu dữ liệu là chuỗi với định dạng #rrggbb. Nếu như truyền 2 màu thì giao diện PayME sẽ gradient theo 2 màu truyền vào.
 
 
-![image](https://developers.payme.vn/public/configcolor.png)
+![image](../master/assets/configColor.png?raw=true)
 
 Cách tạo **connectToken**:
 
@@ -124,6 +125,26 @@ public func login(
   onError: @escaping ([String: AnyObject]) -> ()
 )
 ```
+
+Khi login thành công sẽ được trả về 1 enum CompassPoint chứa thông tin như sau: 
+
+```swift
+public enum CompassPoint {
+        case NotActivated
+        case NotKYC
+        case KYCOK
+}
+```
+
+Các tính năng như nạp tiền, rút tiền, pay chỉ thực hiện được khi đã kích hoạt ví và gửi định danh thành công. Tức là khi login sẽ được trả về enum CompassPoint với case là KYCOK.
+
+### logout()
+
+```swift
+public func logout()
+```
+
+Dùng để đăng xuất ra khỏi phiên làm việc trên SDK
 
 ### openWallet() - Mở UI chức năng PayME tổng hợp
 
@@ -233,7 +254,8 @@ public func pay(
     orderId: Int, 
     amount: Int, 
     note: String?, 
-    extraData: String?, 
+    extraData: String?,
+    isShowResultUI: Bool,
     onSuccess: @escaping ([String:AnyObject])->(), 
     onError: @escaping ([String:AnyObject])->()
 )
@@ -248,6 +270,7 @@ public func pay(
 | <code>storeId</code> | Yes | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
 | <code>orderId</code> | Yes | Mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch |
 | <code>note</code> | No | Mô tả giao dịch từ phía đối tác |
+| isShowResultUI | No | Đã có giá trị default là true, với ý nghĩa là khi có kết quả thanh toán thì sẽ hiển thị màn hình thành công, thất bại. Khi truyền giá trị là false thì sẽ không có màn hình thành công, thất bại. |
 | <code>onSuccess</code> | Yes | Callback trả kết quả khi thành công |
 | <code>onError</code> | Yes | Callback trả kết quả khi thất bại |
 
@@ -293,5 +316,26 @@ public func getAccountInfo(
     onSuccess: @escaping ([String:AnyObject])->(), 
     onError: @escaping ([String:AnyObject])->()
 )
+```
+
+### getService()
+
+Dùng để xác định các dịch vụ có thể dùng SDK để thanh toán (Điện, nước, học phí...).
+
+```swift
+public func getService(
+        onSuccess: @escaping ([String: AnyObject]) -> (),
+        onError: @escaping ([String: AnyObject]) -> ()
+    )
+```
+
+### openService()
+
+Mở WebSDK để thanh toán dịch vụ. ( Tính năng đang được xây dựng )
+
+```swift
+public func openService( serviceID: String,
+                             onSuccess: @escaping ([String: AnyObject]) -> (),
+                             onError: @escaping ([String: AnyObject]) -> ())
 ```
 

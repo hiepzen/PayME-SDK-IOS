@@ -89,6 +89,55 @@ internal class API {
         }
     }
     
+    internal static func getService (
+        onSuccess: @escaping ([String: AnyObject]) -> (),
+        onError: @escaping ([String: AnyObject]) -> ()
+    ) {
+        let url = urlGraphQL(env: PayME.env)
+        let path = "/graphql"
+        let sql = """
+        query Query($configsAppId: String) {
+          Setting {
+            configs(appId: $configsAppId) {
+              key
+              value
+              tags
+            }
+          }
+        }
+        """
+        let variables : [String: Any] = [
+            "configsAppId": PayME.appId
+        ]
+        let json: [String: Any] = [
+            "query": sql,
+            "variables": variables
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        if (PayME.env == PayME.Env.DEV) {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequest(
+                onError: { error in
+                    onError(error)
+                },
+                onSuccess: { data in
+                    onSuccess(data)
+                }
+            )
+        } else {
+            let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)
+            request.setOnRequestCrypto(
+                onError: { error in
+                    onError(error)
+                },
+                onSuccess: { data in
+                    onSuccess(data)
+                }
+            )
+        }
+    }
+
+    
     internal static func uploadImageKYC(
         imageFront: UIImage,
         imageBack: UIImage?,

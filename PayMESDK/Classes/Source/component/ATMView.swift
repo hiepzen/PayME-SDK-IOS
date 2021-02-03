@@ -281,7 +281,7 @@ internal class ATMView: UIView {
         
         guideTxt.topAnchor.constraint(equalTo: self.cardNumberField.bottomAnchor, constant: 10).isActive = true
         guideTxt.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
-        guideTxt.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
+        guideTxt.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 50).isActive = true
         
         nameField.topAnchor.constraint(equalTo: self.guideTxt.bottomAnchor, constant: 10).isActive = true
         nameField.heightAnchor.constraint(equalToConstant: 40).isActive = true

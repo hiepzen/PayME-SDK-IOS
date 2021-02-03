@@ -316,8 +316,12 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 }
                 if (actions == "onNetWorkError") {
                     if let data = dictionary["data"] as? [String : AnyObject] {
-                        self.removeSpinner()
                         self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : data["message"] as AnyObject])
+                    }
+                }
+                if (actions == "onKYC") {
+                    if let data = dictionary["data"] as? [String : AnyObject] {
+                        setupCamera(dictionary: dictionary)
                     }
                 }
             }
