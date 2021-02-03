@@ -239,21 +239,21 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @objc func submit() {
         //PayME.showKYCCamera(currentVC: self)
         // Getting
-        Log.custom.push(title: "Environment variables", message: """
-        {
-            appToken: \(EnvironmentSettings.standard.appToken),
-            publicKey: \(EnvironmentSettings.standard.publicKey),
-            connectToken: \(self.connectToken),
-            appPrivateKey: \(EnvironmentSettings.standard.privateKey),
-            env: \(self.currentEnv)
-        }
-        """)
-
+        UserDefaults.standard.set(userIDTextField.text, forKey: "userID")
+        UserDefaults.standard.set(phoneTextField.text, forKey: "phone")
         if (userIDTextField.text != "") {
-            
                 let newConnectToken = self.genConnectToken(userId: userIDTextField.text!, phone: phoneTextField.text!)
                 Log.custom.push(title: "Connect Token Generator", message: newConnectToken)
-                self.setConnectToken(token: newConnectToken)
+                self.connectToken = newConnectToken
+                Log.custom.push(title: "Environment variables", message: """
+                {
+                appToken: \(EnvironmentSettings.standard.appToken),
+                publicKey: \(EnvironmentSettings.standard.publicKey),
+                connectToken: \(self.connectToken),
+                appPrivateKey: \(EnvironmentSettings.standard.privateKey),
+                env: \(self.currentEnv)
+                }
+                """)
                 self.payME = PayME(
                     appToken: EnvironmentSettings.standard.appToken,
                     publicKey: EnvironmentSettings.standard.publicKey,
@@ -282,15 +282,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
     }
     
-    func setConnectToken(token: String!) {
-        self.connectToken = token
-        UserDefaults.standard.set(token, forKey: "connectToken")
-        if (token != ""){
-            UserDefaults.standard.set(self.userIDTextField.text, forKey: "userID")
-            UserDefaults.standard.set(self.phoneTextField.text, forKey: "phone")
-        }
-    }
-    
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
@@ -303,18 +294,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         setEnv(env: envData[Array(envData.keys)[row]], text: Array(envData.keys)[row])
         pickerView.isHidden = true
-        self.logout(sender: logoutButton)
     }
     
     @objc func logout(sender: UIButton!) {
         self.payME?.logout()
         self.sdkContainer.isHidden = true
-        self.setConnectToken(token: "")
-        UserDefaults.standard.set("", forKey: "userID")
-        UserDefaults.standard.set("", forKey: "phone")
         self.loginButton.backgroundColor = UIColor.white
         self.logoutButton.backgroundColor = UIColor.gray
-        Log.custom.push(title: "Log out", message: "Success")
     }
     
     
@@ -510,10 +496,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
     
     func setEnv(env: PayME.Env!, text: String!){
-        self.currentEnv = env
         EnvironmentSettings.standard.changeEnvironment(env: text)
         UserDefaults.standard.set(text, forKey: "env")
         self.dropDown.setTitle(text, for: .normal)
+        self.currentEnv = env
+        self.logout(sender: logoutButton)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -690,18 +677,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
             self.setEnv(env: envData[env], text: env)
         }
-        let connectToken = UserDefaults.standard.string(forKey: "connectToken") ?? ""
-        if (connectToken != "") {
-            self.setConnectToken(token: connectToken)
-            self.submit()
-        } else {
-            self.connectToken = ""
-            self.loginButton.backgroundColor = UIColor.white
-            self.logoutButton.backgroundColor = UIColor.gray
-        }
-        
-       
-        
     }
     
 }
