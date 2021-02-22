@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class UploadKYC{
+public class UploadKYC {
     internal var imageDocument : [UIImage]?
     internal var imageAvatar : UIImage?
     internal var videoKYC : URL?
@@ -23,6 +23,10 @@ public class UploadKYC{
         self.imageAvatar = imageAvatar
         self.videoKYC = videoKYC
         self.active = active
+        print(imageDocument)
+        print(imageAvatar)
+        print(videoKYC)
+        print(active)
     }
     
     public func upload(){
@@ -73,6 +77,9 @@ public class UploadKYC{
                                 (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
                             }
                         }
+                    } else {
+                        PayME.currentVC?.removeSpinner()
+                        self.toastMess(title: "Lỗi", message: result["message"] as? String ?? "Something went wrong")
                     }
                 } else {
                     PayME.currentVC?.removeSpinner()
@@ -123,6 +130,7 @@ public class UploadKYC{
         if (self.imageAvatar != nil) {
             API.uploadImageKYC(imageFront: self.imageAvatar!, imageBack: nil,
             onSuccess: {response in
+                 print(response)
                  let code = response["code"]! as! Int
                  if (code == 1000) {
                     let data = response["data"] as! [[String:Any]]
@@ -146,6 +154,7 @@ public class UploadKYC{
             if (self.active == 2) {
                 API.uploadImageKYC(imageFront: self.imageDocument![0], imageBack: nil,
                 onSuccess: {response in
+                    print(response)
                      let code = response["code"]! as! Int
                      if (code == 1000) {
                         let data = response["data"] as! [[String:Any]]

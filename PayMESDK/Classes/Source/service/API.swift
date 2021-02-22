@@ -866,49 +866,29 @@ internal class API {
         }
 
         """
-        var variables : [String: Any]
-        if (pathBack == nil)
-        {
+        var kycInput : [String: Any] = [
+            "clientId" : PayME.clientID
+        ]
+        if (pathBack != nil || pathFront != nil) {
+            var image : [String: Any] = [:]
             if (pathFront != nil) {
-                variables = [
-                    "kycInput": [
-                      "clientId" : PayME.clientID,
-                      "video": pathVideo ?? "",
-                      "face": pathAvatar ?? "",
-                      "image": ["front": pathFront!]
-                  ]
-                ]
-            } else {
-                variables = [
-                    "kycInput": [
-                      "clientId" : PayME.clientID,
-                      "video": pathVideo ?? "",
-                      "face": pathAvatar ?? "",
-                      "image": []
-                  ]
-                ]
+                image.updateValue(pathFront!, forKey: "front")
             }
-        } else {
-            if (pathFront != nil) {
-                variables = [
-                    "kycInput": [
-                      "clientId" : PayME.clientID,
-                      "video": pathVideo ?? "",
-                      "face": pathAvatar ?? "",
-                      "image": ["front":pathFront!,"back":pathBack!]
-                  ]
-                ]
-            } else {
-                variables = [
-                    "kycInput": [
-                        "clientId" : PayME.clientID,
-                        "video": pathVideo ?? "",
-                        "face": pathAvatar ?? "",
-                        "image": ["back":pathBack!]
-                  ]
-                ]
+            if (pathBack != nil) {
+                image.updateValue(pathBack!, forKey: "back")
             }
+            kycInput.updateValue(image, forKey: "image")
         }
+        if (pathVideo != nil) {
+            kycInput.updateValue(pathVideo!, forKey: "video")
+        }
+        if (pathAvatar != nil) {
+            kycInput.updateValue(pathAvatar!, forKey: "face")
+        }
+        let variables : [String: Any] = [
+            "kycInput" : kycInput
+        ]
+        print(variables)
         let json: [String: Any] = [
           "query": sql,
           "variables": variables,
@@ -972,7 +952,6 @@ internal class API {
           "query": sql,
           "variables": variables,
         ]
-        print(variables)
         let params = try? JSONSerialization.data(withJSONObject: json)
         if (PayME.env == PayME.Env.DEV) {
             let request = NetworkRequestGraphQL(url: url, path: path, token: PayME.accessToken, params: params, publicKey: PayME.publicKey, privateKey: PayME.appPrivateKey)

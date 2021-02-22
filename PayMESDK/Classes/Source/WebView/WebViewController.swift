@@ -135,30 +135,38 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
     
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-        self.individualTaskTimer = Timer.scheduledTimer(timeInterval: 60.0, target: self, selector: Selector(("onCloseWebview")), userInfo: nil, repeats: false)
-        self.showSpinner(onView: PayME.currentVC!.view)
+        //self.individualTaskTimer = Timer.scheduledTimer(timeInterval: 60.0, target: self, selector: Selector(("onCloseWebview")), userInfo: nil, repeats: false)
+        //self.showSpinner(onView: PayME.currentVC!.view)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        print("abc")
-        self.individualTaskTimer.invalidate()
-        self.removeSpinner()
-    }
-    
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        print("error")
-        print(error)
-        self.individualTaskTimer.invalidate()
-        onCloseWebview()
+        print("abc123")
+        //self.individualTaskTimer.invalidate()
         self.removeSpinner()
     }
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        print("error")
-        print(error)
-        self.individualTaskTimer.invalidate()
-        onCloseWebview()
+        print("error 01")
+        let wkerror = (error as NSError)
         self.removeSpinner()
+        if (wkerror.code == NSURLErrorNotConnectedToInternet) {
+            self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+        } else {
+            self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+        }
+        onCloseWebview()
+    }
+    
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        print("error 02")
+        let wkerror = (error as NSError)
+        self.removeSpinner()
+        if (wkerror.code == NSURLErrorNotConnectedToInternet) {
+            self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+        } else {
+            self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+        }
+        onCloseWebview()
     }
     
     private func getZoomDisableScript() -> WKUserScript {
@@ -212,7 +220,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             {
                 myRequest = URLRequest(url: myURL!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
             } else {
-                myRequest = URLRequest(url: URL(string: "http://localhost:3000/")!)
+                myRequest = URLRequest(url: URL(string: "http://google.com/")!)
             }
             print(myURL)
             
@@ -297,6 +305,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
             if let dictionary = message.body as? [String: AnyObject] {
+                print(dictionary)
+                KYCController.reset()
                 setupCamera(dictionary: dictionary)
             }
         }
@@ -320,8 +330,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                     }
                 }
                 if (actions == "onKYC") {
+                    print("Hello1")
                     if let data = dictionary["data"] as? [String : AnyObject] {
-                        setupCamera(dictionary: dictionary)
+                        setupCamera(dictionary: data)
                     }
                 }
             }

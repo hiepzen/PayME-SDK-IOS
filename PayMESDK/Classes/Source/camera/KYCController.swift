@@ -15,9 +15,6 @@ public class KYCController{
     internal static var active: Int?
     internal static var flowKYC: [String: Bool]?
 
-
-
-    
     public init(flowKYC: [String: Bool]){
         KYCController.flowKYC = flowKYC
     }
@@ -26,15 +23,26 @@ public class KYCController{
         PayME.currentVC?.navigationController?.isNavigationBarHidden = true
         var popupKYC = PopupKYC()
         if (KYCController.flowKYC!["kycIdentifyImg"]! == true) {
+            print("flow1")
             popupKYC.active = 0
             PayME.currentVC?.present(popupKYC, animated: true)
         } else if (KYCController.flowKYC!["kycFace"]! == true) {
+            print("flow2")
             popupKYC.active = 1
             PayME.currentVC?.present(popupKYC, animated: true)
         } else if (KYCController.flowKYC!["kycVideo"] == true) {
+            print("flow3")
             popupKYC.active = 2
             PayME.currentVC?.present(popupKYC, animated: true)
         }
+    }
+    
+    internal static func reset() {
+        KYCController.imageDocument = nil
+        KYCController.imageAvatar = nil
+        KYCController.videoKYC = nil
+        KYCController.active = nil
+        KYCController.flowKYC = nil
     }
     
     internal static func uploadKYC() {
