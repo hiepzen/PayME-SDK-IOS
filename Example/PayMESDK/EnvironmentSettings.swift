@@ -59,25 +59,25 @@ public class EnvironmentSettings {
                 """
             setStorage()
         case "sandbox":
-            self.appToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6NH0.U60jaOwKcaQ6bUX-6O21RMOoFR_5ZkjpGgj6rus0r60"
-            self.secretKey = "zfQpwE6iHbOeAfgX"
+            self.appToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6MTIsImlhdCI6MTYxMzk5MDU5Nn0.donBYzgUyZ2qJwg2TVu43qCQBmYRkbPCsJwdbmLulQ8"
+            self.secretKey = "ecd336c200e96265e00e312c6ca28d22"
             self.publicKey =
                 """
                 -----BEGIN PUBLIC KEY-----
-                MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMwvSFz/mOfxBSVkGeqfRv3oQaCsx9V2
-                hqdL4Y0PK+r2P+8Jd9pOS61uehd1gsjU1/xMFHWFGKrH6lO8+TSLGukCAwEAAQ==
+                MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIXbBm3mTT7Ovlo9LNJK7noshpk8g+zm
+                ueFTyrU7muUuXKboD7cg1h/K9zMW4qHFG+3LTo4Cc8fjoqbUm4UILgMCAwEAAQ==
                 -----END PUBLIC KEY-----
                 """
             self.privateKey =
                 """
                 -----BEGIN RSA PRIVATE KEY-----
-                MIIBOgIBAAJBAIpXByu/SQKImCFT5xTyqLe6zcqDAL/aapD4kYueJiSTFQYzobNx
-                UA7wRqsljHGfouFXB0gguiPjtoRWgY9XMpMCAwEAAQJALQVFgCcwS3LIj5AOk/Kk
-                laZlcpJPnCAoriU2uIkvQJdijzoz6baxQDY5xfxwBh7wExmKGvUWxR/qt7ULVf1a
-                AQIhAMVtGD6vc0zVBuIoWFE2RDYt28WN37p5zC1NtpRebnzjAiEAs2I4WSyUQSzD
-                P0yR0P+khUI/8oy/iZ/VSASAxzmjkpECIQCTRaZoXIkuL1tLKb14F3saz2q6G/Nh
-                L6pXwTkJxMe28QIgTiPG7/FfU1SwaG5uRmBVxkapnHp7JPQe8BQmFKKjAkECIBM4
-                Hel54r1RnKQVUtiLphlZgesayKzrtK2kAgssWKi1
+                MIIBOQIBAAJAZCKupmrF4laDA7mzlQoxSYlQApMzY7EtyAvSZhJs1NeW5dyoc0XL
+                yM+/Uxuh1bAWgcMLh3/0Tl1J7udJGTWdkQIDAQABAkAjzvM9t7kD84PudR3vEjIF
+                5gCiqxkZcWa5vuCCd9xLUEkdxyvcaLWZEqAjCmF0V3tygvg8EVgZvdD0apgngmAB
+                AiEAvTF57hIp2hkf7WJnueuZNY4zhxn7QNi3CQlGwrjOqRECIQCHfqO53A5rvxCA
+                ILzx7yXHzk6wnMcGnkNu4b5GH8usgQIhAKwv4WbZRRnoD/S+wOSnFfN2DlOBQ/jK
+                xBsHRE1oYT3hAiBSfLx8OAXnfogzGLsupqLfgy/QwYFA/DSdWn0V/+FlAQIgEUXd
+                A8pNN3/HewlpwTGfoNE8zCupzYQrYZ3ld8XPGeQ=
                 -----END RSA PRIVATE KEY-----
                 """
             setStorage()

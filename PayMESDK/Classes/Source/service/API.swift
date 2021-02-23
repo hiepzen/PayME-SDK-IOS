@@ -1048,7 +1048,7 @@ internal class API {
         
         let variables : [String: Any] = [
             "registerInput": [
-              "platform": "IOS",
+              "platform": "IOS_SDK",
               "deviceId": PayME.deviceID,
               "channel": "",
               "version": "1",
