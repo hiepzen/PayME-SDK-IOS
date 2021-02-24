@@ -140,7 +140,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        print("abc123")
         //self.individualTaskTimer.invalidate()
         self.removeSpinner()
     }
@@ -158,15 +157,22 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        print("error 02")
         let wkerror = (error as NSError)
+        if (self.form == "") {
         self.removeSpinner()
-        if (wkerror.code == NSURLErrorNotConnectedToInternet) {
-            self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+            if (wkerror.code == NSURLErrorNotConnectedToInternet) {
+                self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+            } else {
+                self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+            }
+            onCloseWebview()
         } else {
-            self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+            if (wkerror.code != 102) {
+                self.onFailWebView!(wkerror.localizedDescription)
+            } else {
+                // donothing
+            }
         }
-        onCloseWebview()
     }
     
     private func getZoomDisableScript() -> WKUserScript {
