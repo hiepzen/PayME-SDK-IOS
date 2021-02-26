@@ -23,6 +23,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        Methods.isShowCloseModal = true
         self.view.backgroundColor = .white
         atmView.price.text = "\(formatMoney(input: Methods.amount)) đ"
         contentLabel.text = "Nội dung"
@@ -71,7 +72,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
     
     func panModalDidDismiss() {
-        if (Methods.isResult == false) {
+        if (Methods.isShowCloseModal == true) {
             self.onError!(["code" : PayME.ResponseCode.USER_CANCELLED as AnyObject, "message" : "Đóng modal thanh toán" as AnyObject])
         }
     }
@@ -223,6 +224,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                     if let code = error["code"] as? Int {
                         if(code == 401) {
                             PayME.logoutAction()
+                            Methods.isShowCloseModal = false
                             self.dismiss(animated: true, completion: nil)
                         }
                     }
@@ -231,7 +233,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
     
     func setupSuccess() {
-        Methods.isResult = true
+        Methods.isShowCloseModal = false
         if (Methods.isShowResultUI == true) {
             self.result = true
             scrollView.removeFromSuperview()
@@ -260,7 +262,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
     
     func setupFail() {
-        Methods.isResult = true
+        Methods.isShowCloseModal = false
         if (Methods.isShowResultUI == true) {
             self.result = true
             scrollView.removeFromSuperview()
@@ -284,6 +286,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             self.panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .shortForm)
         } else {
+            Methods.isShowCloseModal = false
             self.dismiss(animated: true, completion: nil)
         }
     }

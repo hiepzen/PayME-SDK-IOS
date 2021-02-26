@@ -63,6 +63,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 if let code = error["code"] as? Int {
                     if(code == 401) {
                         PayME.logoutAction()
+                        Methods.isShowCloseModal = false
                         self.dismiss(animated: true, completion: nil)
                     }
                 }
@@ -126,6 +127,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         if let code = error["code"] as? Int {
                             if(code == 401) {
                                 PayME.logoutAction()
+                                Methods.isShowCloseModal = false
                                 self.dismiss(animated: true, completion: nil)
                             }
                         }
@@ -153,6 +155,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 if let code = errorSecurity["code"] as? Int {
                     if(code == 401) {
                         PayME.logoutAction()
+                        Methods.isShowCloseModal = false
                         self.dismiss(animated: true, completion: nil)
                     }
                 }
@@ -170,7 +173,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     static var note : String = ""
     static var extraData : String = ""
     static var isShowResultUI: Bool = true
-    static var isResult: Bool = false
     var transaction : String = ""
     private var active : Int?
     private var bankDetect : Bank?
@@ -179,12 +181,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     var appENV : String?
     static var min : Int = 10000
     static var max : Int = 100000000
-
-    let methodsView : UIView = {
-        let methodsView  = UIView()
-        methodsView.translatesAutoresizingMaskIntoConstraints = false
-        return methodsView
-    }()
+    
     var listBank : [Bank] = []
     let atmView = ATMView()
     let otpView = OTPView()
@@ -193,20 +190,24 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     var failView = FailView()
     var keyBoardHeight : CGFloat = 0
     let screenSize:CGRect = UIScreen.main.bounds
-    static var isATMModal: Bool = false
+    static var isShowCloseModal: Bool = true
+    
+    let methodsView : UIView = {
+        let methodsView  = UIView()
+        methodsView.translatesAutoresizingMaskIntoConstraints = false
+        return methodsView
+    }()
 
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         self.view.addSubview(methodsView)
+        Methods.isShowCloseModal = true
         setupMethods()
-    
     }
     
     func setupMethods() {
-        Methods.isATMModal = false
-        Methods.isResult = false
         methodsView.backgroundColor = .white
             
         methodsView.translatesAutoresizingMaskIntoConstraints = false
@@ -283,7 +284,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
                 
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 10).isActive = true
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 20).isActive = true
         self.showSpinner(onView: self.view)
 
         API.getWalletInfo(
@@ -322,7 +323,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     DispatchQueue.main.async {
                         self.data = responseData
                         self.tableView.reloadData()
-                        self.tableView.heightAnchor.constraint(equalToConstant: self.tableView.contentSize.height+10).isActive = true
+                        self.tableView.heightAnchor.constraint(equalToConstant: self.tableView.contentSize.height+20).isActive = true
                         self.tableView.alwaysBounceVertical = false
                         self.tableView.isScrollEnabled = false
                         self.bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: self.tableView.bottomAnchor, constant: 20).isActive = true
@@ -334,12 +335,14 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
 
             },onError: {error in
                 self.removeSpinner()
+                Methods.isShowCloseModal = false
                 self.dismiss(animated: true, completion: {
                     self.onError!(error)
                 })
            })
         }, onError: {error in
             self.removeSpinner()
+            Methods.isShowCloseModal = false
             self.dismiss(animated: true, completion: {
                 self.onError!(error)
             })
@@ -389,7 +392,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
     
     func setupFail() {
-        Methods.isResult = true
+        Methods.isShowCloseModal = false
         if (Methods.isShowResultUI == true) {
             view.addSubview(failView)
             
@@ -414,14 +417,13 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             self.panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
         } else {
-            print("hello")
             self.dismiss(animated: true)
         }
         
     }
     
     func setupSuccess() {
-        Methods.isResult = true
+        Methods.isShowCloseModal = false
         if (Methods.isShowResultUI == true) {
             view.addSubview(successView)
             successView.translatesAutoresizingMaskIntoConstraints = false
@@ -468,7 +470,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
 
     func panModalDidDismiss() {
-        if (Methods.isResult == false && Methods.isATMModal == false) {
+        if (Methods.isShowCloseModal == true) {
             self.onError!(["code" : PayME.ResponseCode.USER_CANCELLED as AnyObject, "message" : "Đóng modal thanh toán" as AnyObject])
         }
     }
@@ -483,6 +485,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         tableView.deselectRow(at: indexPath, animated: true)
         if (data[indexPath.row].type == "WALLET"){
             if (data[indexPath.row].amount! < Methods.amount) {
+                Methods.isShowCloseModal = false
                 self.dismiss(animated: true, completion: {
                     self.onError!(["code" : PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message" : "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
                 })
@@ -493,6 +496,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         }
         if (data[indexPath.row].type == "LINKED") {
             if (appENV!.isEqual("SANDBOX")) {
+                Methods.isShowCloseModal = false
                 self.dismiss(animated: true, completion: {
                     self.onError!(["code": PayME.ResponseCode.LIMIT as AnyObject, "message" : "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
                 })
@@ -612,6 +616,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 if let code = flowError["code"] as? Int {
                     if(code == 401) {
                         PayME.logoutAction()
+                        Methods.isShowCloseModal = false
                         self.dismiss(animated: true, completion: nil)
                     }
                 }
@@ -634,7 +639,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 atmModal.listBank = listBank
                 atmModal.onSuccess = self.onSuccess
                 atmModal.onError = self.onError
-                Methods.isATMModal = true
+                Methods.isShowCloseModal = false
                 self.dismiss(animated: true, completion: {
                     PayME.currentVC!.presentPanModal(atmModal)
                 })
