@@ -8,9 +8,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var payME : PayME?
     var activeTextField : UITextField? = nil
     let envData : Dictionary = ["dev": PayME.Env.DEV, "sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION]
-    
-    
-    
+
     let environment: UILabel = {
         let label = UILabel()
         label.font = label.font.withSize(16)
@@ -100,7 +98,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
+
+    let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.isScrollEnabled = true
+        scrollView.alwaysBounceVertical = true
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+
     let sdkContainer: UIView = {
         let container = UIView()
         container.backgroundColor = UIColor.lightGray
@@ -194,7 +200,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         textField.keyboardType = .numberPad
         return textField
     }()
-    
+
     let payButton: UIButton = {
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
@@ -207,6 +213,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+
     let moneyPay: UITextField = {
         let textField = UITextField()
         textField.layer.borderColor = UIColor.black.cgColor
@@ -218,6 +225,19 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         textField.setLeftPaddingPoints(10)
         textField.keyboardType = .numberPad
         return textField
+    }()
+
+    let getMethodButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
+        button.setTitle("Lấy danh sách ID phương thức", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     private var connectToken: String = ""
@@ -385,6 +405,22 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
         
     }
+
+    @objc func getListMethod(sender: UIButton!) {
+        toastMess(title: "Lỗi", value: "qwe")
+        payME!.getListPaymentMethodID(
+                onSuccess: { listMethods in
+                    print("Minh Khoa")
+                    print(listMethods)
+                    self.toastMess(title: "Lỗi", value: "asjlkhf")
+                },
+                onError: { error in
+                    let message = error["message"] as? String
+                    self.toastMess(title: "Lỗi", value: message)
+                }
+        )
+    }
+
     @objc func payAction(sender: UIButton!) {
         if (self.connectToken != "") {
             if (moneyPay.text != "") {
@@ -532,21 +568,23 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.hideKeyboardWhenTappedAround()
+        hideKeyboardWhenTappedAround()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
-        self.view.addSubview(environment)
-        self.view.addSubview(dropDown)
-        self.view.addSubview(envList)
-        self.view.addSubview(settingButton)
-        self.view.addSubview(userIDLabel)
-        self.view.addSubview(userIDTextField)
-        self.view.addSubview(phoneLabel)
-        self.view.addSubview(phoneTextField)
-        self.view.addSubview(loginButton)
-        self.view.addSubview(logoutButton)
-        self.view.addSubview(sdkContainer)
+        view.addSubview(environment)
+        view.addSubview(dropDown)
+        view.addSubview(envList)
+        view.addSubview(settingButton)
+        view.addSubview(userIDLabel)
+        view.addSubview(userIDTextField)
+        view.addSubview(phoneLabel)
+        view.addSubview(phoneTextField)
+        view.addSubview(loginButton)
+        view.addSubview(logoutButton)
+        view.addSubview(sdkContainer)
+
+//        scrollView.addSubview(sdkContainer)
         
         sdkContainer.addSubview(balance)
         sdkContainer.addSubview(priceLabel)
@@ -558,8 +596,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(moneyWithDraw)
         sdkContainer.addSubview(payButton)
         sdkContainer.addSubview(moneyPay)
-        
-        self.view.bringSubview(toFront: envList)
+        sdkContainer.addSubview(getMethodButton)
+
+        view.bringSubview(toFront: envList)
         
         phoneTextField.delegate = self
         moneyDeposit.delegate = self
@@ -567,10 +606,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyPay.delegate = self
         envList.delegate = self
         
-        environment.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
-        environment.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
+        environment.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10).isActive = true
+        environment.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
         
-        dropDown.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
+        dropDown.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10).isActive = true
         dropDown.leadingAnchor.constraint(equalTo: environment.trailingAnchor, constant: 30).isActive = true
         dropDown.heightAnchor.constraint(equalToConstant: 30).isActive = true
         dropDown.widthAnchor.constraint(equalToConstant: 150).isActive = true
@@ -581,9 +620,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         envList.centerXAnchor.constraint(equalTo: dropDown.centerXAnchor).isActive = true
         envList.heightAnchor.constraint(equalToConstant: 100).isActive = true
         
-        
-        settingButton.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 10).isActive = true
-        settingButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
+        settingButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10).isActive = true
+        settingButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
         settingButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         settingButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
         settingButton.addTarget(self, action: #selector(onPressSetting(_:)), for: .touchUpInside)
@@ -596,7 +634,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         userIDTextField.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
         userIDTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
         userIDTextField.text = UserDefaults.standard.string(forKey: "userID") ?? ""
-        
         
         phoneLabel.topAnchor.constraint(equalTo: userIDTextField.bottomAnchor, constant: 20).isActive = true
         phoneLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
@@ -618,12 +655,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         logoutButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
         logoutButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         logoutButton.addTarget(self, action: #selector(logout), for: .touchUpInside)
-        
+
+//        scrollView.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 20).isActive = true
+//        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+//        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
+//        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
+
         sdkContainer.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 20).isActive = true
-        sdkContainer.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
-        sdkContainer.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
-        sdkContainer.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -50).isActive = true
-        
+        sdkContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+        sdkContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
+        sdkContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
+
         balance.topAnchor.constraint(equalTo: sdkContainer.topAnchor, constant: 20).isActive = true
         balance.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         
@@ -636,7 +678,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         priceLabel.topAnchor.constraint(equalTo: sdkContainer.topAnchor, constant: 20).isActive = true
         priceLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -30).isActive = true
         
-        openWalletButton.topAnchor.constraint(equalTo: refreshButton.bottomAnchor, constant: 30).isActive = true
+        openWalletButton.topAnchor.constraint(equalTo: refreshButton.bottomAnchor, constant: 10).isActive = true
         openWalletButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         openWalletButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         openWalletButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
@@ -664,13 +706,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyWithDraw.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyWithDraw.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
-        
-        
         payButton.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
         payButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         payButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
         payButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         payButton.addTarget(self, action: #selector(payAction), for: .touchUpInside)
+
+        getMethodButton.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 10).isActive = true
+        getMethodButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        getMethodButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        getMethodButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        getMethodButton.addTarget(self, action: #selector(getListMethod), for: .touchUpInside)
         
         moneyPay.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
         moneyPay.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true

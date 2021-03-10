@@ -1107,6 +1107,7 @@ internal class API {
                 reason
                 sentAt
               }
+              appEnv    
               phone
               isExistInMainWallet
             }

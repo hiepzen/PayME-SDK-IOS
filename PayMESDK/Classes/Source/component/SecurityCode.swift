@@ -70,21 +70,17 @@ internal class SecurityCode: UIView {
         super.init(frame: CGRect.zero)
         
         backgroundColor = .white
-        self.addSubview(roleLabel)
-        self.addSubview(image)
-        self.addSubview(closeButton)
-        self.addSubview(txtLabel)
-        self.addSubview(otpView)
+        addSubview(roleLabel)
+        addSubview(image)
+        addSubview(closeButton)
+        addSubview(txtLabel)
+        addSubview(otpView)
 
-        
         txtLabel.text = "XÁC THỰC GIAO DỊCH"
         roleLabel.text = "Nhập mật khẩu ví PayME  để xác thực"
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
-        // txtField.becomeFirstResponder()
-        // self.hideKeyboardWhenTappedAround()
-
         
         txtLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 19).isActive = true
         txtLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true

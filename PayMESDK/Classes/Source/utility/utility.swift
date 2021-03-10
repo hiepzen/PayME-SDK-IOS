@@ -64,7 +64,7 @@ internal func urlUpload(env: PayME.Env) -> String {
     return "https://static.payme.vn/"
 }
 internal func trimKeyRSA(key: String) -> String {
-    return key.replacingOccurrences(of: "-----BEGIN PUBLIC KEY-----", with: "").replacingOccurrences(of: "-----END PUBLIC KEY-----", with: "").replacingOccurrences(of: "-----BEGIN RSA PRIVATE KEY-----", with: "").replacingOccurrences(of: "-----END RSA PRIVATE KEY-----", with: "").replacingOccurrences(of: "-----BEGIN PRIVATE KEY-----", with: "").replacingOccurrences(of: "-----END PRIVATE KEY-----", with: "")
+    key.replacingOccurrences(of: "-----BEGIN PUBLIC KEY-----", with: "").replacingOccurrences(of: "-----END PUBLIC KEY-----", with: "").replacingOccurrences(of: "-----BEGIN RSA PRIVATE KEY-----", with: "").replacingOccurrences(of: "-----END RSA PRIVATE KEY-----", with: "").replacingOccurrences(of: "-----BEGIN PRIVATE KEY-----", with: "").replacingOccurrences(of: "-----END PRIVATE KEY-----", with: "")
 }
 internal func toastMess(title: String, message: String){
     let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
@@ -83,7 +83,7 @@ internal func toDateString(date: Date ) -> String
 internal func toDate(dateString: String) -> Date? {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-    print(dateFormatter.date(from: dateString))
+    print(dateFormatter.date(from: dateString) as Any)
     return dateFormatter.date(from: dateString)
 }
 
