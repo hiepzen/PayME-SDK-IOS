@@ -318,15 +318,12 @@ public func getAccountInfo(
 )
 ```
 
-### getService()
+### getSupportedServices()
 
 Dùng để xác định các dịch vụ có thể dùng SDK để thanh toán (Điện, nước, học phí...).
 
 ```swift
-public func getService(
-        onSuccess: @escaping ([String: AnyObject]) -> (),
-        onError: @escaping ([String: AnyObject]) -> ()
-    )
+public func getSupportedServices() -> Array<ServiceConfig>
 ```
 
 ### openService()
@@ -334,8 +331,14 @@ public func getService(
 Mở WebSDK để thanh toán dịch vụ. ( Tính năng đang được xây dựng )
 
 ```swift
-public func openService( serviceID: String,
-                             onSuccess: @escaping ([String: AnyObject]) -> (),
-                             onError: @escaping ([String: AnyObject]) -> ())
+public func openService(
+        currentVC : UIViewController,
+        amount: Int?,
+        description: String?,
+        extraData: String?,
+        service: ServiceConfig,
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+        onError: @escaping ([String : AnyObject]) -> ())
+)
 ```
 
