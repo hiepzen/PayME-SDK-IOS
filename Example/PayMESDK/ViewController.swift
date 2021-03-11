@@ -434,7 +434,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     if (self.currentEnv == PayME.Env.PRODUCTION) {
                         storeId = 57956431
                     }
-                    payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note : "Nội dung đơn hàng" , extraData: nil, onSuccess: {success in
+                    payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note : "Nội dung đơn hàng", paymentMethodID: nil , extraData: nil, onSuccess: {success in
                         Log.custom.push(title: "pay", message: success)
                     }, onError: {error in
                         Log.custom.push(title: "pay", message: error)
