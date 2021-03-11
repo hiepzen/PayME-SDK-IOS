@@ -406,9 +406,16 @@ public class PayME {
         }
     }
 
-    public func pay(currentVC: UIViewController, storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, isShowResultUI: Bool = true, onSuccess: @escaping ([String: AnyObject]) -> (), onError: @escaping ([String: AnyObject]) -> ()) {
+    public func pay(
+            currentVC: UIViewController, storeId: Int, orderId: String, amount: Int,
+            note: String?, paymentMethodID: Int?, extraData: String?, isShowResultUI: Bool = true,
+            onSuccess: @escaping ([String: AnyObject]) -> (), onError: @escaping ([String: AnyObject]) -> ()) {
         if (checkCondition(onError: onError) == true) {
-            PayME.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
+            PayME.payAction(
+                    currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
+                    paymentMethodID: paymentMethodID,extraData: extraData, isShowResultUI: isShowResultUI,
+                    onSuccess: onSuccess, onError: onError
+            )
         }
     }
 

@@ -238,7 +238,8 @@ public func withdraw(
     description: String?, 
     extraData: String?,
     onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping ([String : AnyObject]) -> ()) 
+    onError: @escaping ([String : AnyObject]) -> ()
+) 
 ```
 
 Hàm này có ý nghĩa giống như gọi openWallet với action là **Action.Withdraw**.
@@ -250,10 +251,11 @@ Hàm này được dùng khi app cần thanh toán 1 khoản tiền từ ví Pay
 ```swift
 public func pay(
     currentVC : UIViewController,
-    storeId: Int, 
-    orderId: Int, 
-    amount: Int, 
-    note: String?, 
+    storeId: Int,
+    orderId: Int,
+    amount: Int,
+    note: String?,
+    paymentMethodID: Int?,
     extraData: String?,
     isShowResultUI: Bool,
     onSuccess: @escaping ([String:AnyObject])->(), 
@@ -282,7 +284,7 @@ Trong trường hợp app tích hợp cần lấy số dư để tự hiển th�
 public func getWalletInfo(
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onError: @escaping ([Int:Any]) -> ()
-    ) {
+)
 ```
 
 - Trong trường hợp lỗi thì hàm sẽ trả về message mỗi tại hàm onError , khi đó app có thể hiển thị balance là 0.
