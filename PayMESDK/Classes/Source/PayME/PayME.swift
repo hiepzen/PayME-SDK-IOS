@@ -287,10 +287,10 @@ public class PayME {
         let topSafeArea: CGFloat
         let bottomSafeArea: CGFloat
         if #available(iOS 11.0, *) {
-            topSafeArea = currentVC.view.safeAreaInsets.top
+            topSafeArea = PayME.isRecreateNavigationController ? 1 : currentVC.view.safeAreaInsets.top
             bottomSafeArea = currentVC.view.safeAreaInsets.bottom
         } else {
-            topSafeArea = currentVC.topLayoutGuide.length
+            topSafeArea = PayME.isRecreateNavigationController ? 1 : currentVC.topLayoutGuide.length
             bottomSafeArea = currentVC.bottomLayoutGuide.length
         }
 
