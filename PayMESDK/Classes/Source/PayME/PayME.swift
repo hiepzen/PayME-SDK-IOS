@@ -135,7 +135,7 @@ public class PayME {
     }
 
     public func getSupportedServices() -> [ServiceConfig] {
-         PayME.configService
+        PayME.configService
     }
 
     internal static func initSDK(
@@ -189,7 +189,7 @@ public class PayME {
                             return key == "service.main.visible"
                         }) {
                             self.configService = Array<ServiceConfig>()
-                            let values = (configService["value"] as! [String : AnyObject])["listService"] as! [AnyObject]
+                            let values = (configService["value"] as! [String: AnyObject])["listService"] as! [AnyObject]
                             for value in values {
                                 let disable = value["disable"] as! Bool
                                 let enable = value["enable"] as! Bool
@@ -262,9 +262,28 @@ public class PayME {
             return
         }
 
+        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         currentVC.navigationItem.hidesBackButton = true
         currentVC.navigationController?.isNavigationBarHidden = true
         PayME.currentVC = currentVC
+        PayME.webviewController = webViewController
+
+        if currentVC.navigationController != nil {
+            PayME.currentVC = currentVC
+            PayME.rootVC = currentVC
+            currentVC.navigationController?.pushViewController(webViewController, animated: true)
+        } else {
+            let navigationController = UINavigationController(rootViewController: webViewController)
+            PayME.currentVC = webViewController
+            PayME.rootVC = currentVC
+            PayME.isRecreateNavigationController = true
+            if #available(iOS 13.0, *) {
+                PayME.currentVC?.isModalInPresentation = false
+            }
+            currentVC.present(navigationController, animated: true, completion: {
+            })
+        }
+
         let topSafeArea: CGFloat
         let bottomSafeArea: CGFloat
         if #available(iOS 11.0, *) {
@@ -285,7 +304,6 @@ public class PayME {
         let identifyNumber = PayME.dataInit!["kyc"]!["identifyNumber"] as? String
         let reason = PayME.dataInit!["kyc"]!["reason"] as? String
         let sentAt = PayME.dataInit!["kyc"]!["sentAt"] as? String
-
 
         let data =
                 """
@@ -326,30 +344,10 @@ public class PayME {
                 }
                 """
 
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
         let url = urlWebview(env: PayME.env)
-
-        PayME.webviewController = webViewController
-
         webViewController.urlRequest = url + "\(encryptAES(data: data))"
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
-
-        if currentVC.navigationController != nil {
-            PayME.currentVC = currentVC
-            PayME.rootVC = currentVC
-            currentVC.navigationController?.pushViewController(webViewController, animated: true)
-        } else {
-            let navigationController = UINavigationController(rootViewController: webViewController)
-            PayME.currentVC = webViewController
-            PayME.rootVC = currentVC
-            PayME.isRecreateNavigationController = true
-            if #available(iOS 13.0, *) {
-                PayME.currentVC?.isModalInPresentation = true
-            }
-            currentVC.present(navigationController, animated: true, completion: {
-            })
-        }
     }
 
     public func deposit(currentVC: UIViewController, amount: Int?, description: String?, extraData: String?,
@@ -369,8 +367,8 @@ public class PayME {
     }
 
     public func openService(currentVC: UIViewController, amount: Int?, description: String?, extraData: String?, service: ServiceConfig,
-                         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                         onError: @escaping ([String: AnyObject]) -> ()) {
+                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+                            onError: @escaping ([String: AnyObject]) -> ()) {
         if (checkCondition(onError: onError) == true) {
             openWallet(
                     currentVC: currentVC, action: PayME.Action.UTILITY, amount: amount, description: nil,
