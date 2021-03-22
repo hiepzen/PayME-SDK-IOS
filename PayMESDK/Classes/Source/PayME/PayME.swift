@@ -190,10 +190,10 @@ public class PayME {
                         }) {
                             self.configService = Array<ServiceConfig>()
                             let values = (configService["value"] as! [String: AnyObject])["listService"] as! [AnyObject]
+                            print(values)
                             for value in values {
-                                let disable = value["disable"] as! Bool
                                 let enable = value["enable"] as! Bool
-                                if (!disable && enable) {
+                                if (enable) {
                                     self.configService.append(ServiceConfig(value["code"] as! String, value["description"] as! String))
                                 }
                             }
