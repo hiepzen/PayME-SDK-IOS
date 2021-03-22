@@ -15,4 +15,10 @@ public class ServiceConfig {
         self.code = code
         self.description = description
     }
+    public func getCode() -> String {
+        return self.code
+    }
+    public func getDescription() -> String {
+        return self.description
+    }
 }
