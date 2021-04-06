@@ -398,6 +398,8 @@ public class NetworkRequestGraphQL {
             let xAPIKeyResponse = headers.allHeaderFields["x-api-key"] as! String
             let xAPIValidateResponse = headers.allHeaderFields["x-api-validate"] as! String
             let xAPIActionResponse = headers.allHeaderFields["x-api-action"] as! String
+            print("Somethink")
+            print(xAPIKeyResponse)
             guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
                 DispatchQueue.main.async {
                     onError(["code": PayME.ResponseCode.ERROR_KEY_ENCODE as AnyObject, "message" : "Giải mã thất bại" as AnyObject])

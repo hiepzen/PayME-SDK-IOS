@@ -1045,7 +1045,6 @@ internal class API {
           }
         }
         """
-        
         let variables : [String: Any] = [
             "registerInput": [
               "platform": "IOS_SDK",
@@ -1057,6 +1056,7 @@ internal class API {
               "userAgent": UIDevice.current.name
           ]
         ]
+        print(variables)
         let json: [String: Any] = [
           "query": sql,
           "variables": variables,
