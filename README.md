@@ -109,6 +109,21 @@ connectToken = AES256("{ timestamp: "2021-01-20T06:53:07.621Z",
 
 Trong đó ***AES*** là hàm mã hóa theo thuật toán AES. Tùy vào ngôn ngữ ở server mà bên hệ thống dùng thư viện tương ứng. Xem thêm tại đây https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
 
+## Mã lỗi của PayME SDK
+
+| **Hằng số**   | **Mã lỗi** | **Giải thích**                                               |
+| :------------ | :----------- | :----------------------------------------------------------- |
+| **EXPIRED** | 401          | ***token*** hết hạn sử dụng |
+| ***NETWORK***  | -1          | Kết nối mạng bị sự cố |
+| ***SYSTEM***   | -2           | Lỗi hệ thống |
+| ***LIMIT***   | -3           | Lỗi số dư không đủ để thực hiện giao dịch |
+| ***ACCOUNT_NOT_ACTIVETES***   | -4           | Lỗi tài khoản chưa kích hoạt |
+| ***ACCOUNT_NOT_KYC***   | -5           | Lỗi tài khoản chưa định danh |
+| ***PAYMENT_ERROR***   | -6           | Thanh toán thất bại |
+| ***ERROR_KEY_ENCODE***   | -7           | Lỗi mã hóa/giải mã dữ liệu |
+| ***USER_CANCELLED***   | -8           | Người dùng thao tác hủy |
+| ***ACCOUNT_NOT_LOGIN***   | -9           | Lỗi chưa đăng nhập tài khoản |
+
 ## Các chức năng của PayME SDK
 
 ### login()
