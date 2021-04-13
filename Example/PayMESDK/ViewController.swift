@@ -253,7 +253,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         let aes = try? AES(key: Array(secretKey.utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
         let dataEncrypted = try? aes!.encrypt(Array(String(data: params!, encoding: .utf8)!.utf8))
         print(dataEncrypted!.toBase64()!)
-        return "HSTbJmO7kfdnu4Q3ZBGKP555HDXqD3ckFdZ6mQiOPD2Cnsf0zc6ThygVaL0pInNlPCc0l0HGud06zO5UrH1SmKkjKyLtYILkIgbtGfY4B1g="
+        return dataEncrypted!.toBase64()!
     }
     // generate token ( demo, don't apply this to your code, generate from your server)
     @objc func submit() {
