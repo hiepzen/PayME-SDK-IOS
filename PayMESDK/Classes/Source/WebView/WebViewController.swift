@@ -192,8 +192,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
     
      override func viewDidLoad() {
-        self.tabBarController?.tabBar.isHidden = true
-        self.hidesBottomBarWhenPushed = true
         let dataStore = WKWebsiteDataStore.default()
         dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { (records) in
             for record in records {

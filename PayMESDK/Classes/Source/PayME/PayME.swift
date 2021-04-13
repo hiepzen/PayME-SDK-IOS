@@ -267,6 +267,8 @@ public class PayME {
         currentVC.navigationController?.isNavigationBarHidden = true
         PayME.currentVC = currentVC
         PayME.webviewController = webViewController
+        PayME.webviewController?.tabBarController?.tabBar.isHidden = true
+        PayME.webviewController?.hidesBottomBarWhenPushed = true
 
         if currentVC.navigationController != nil {
             PayME.currentVC = currentVC
