@@ -474,7 +474,9 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 })
                 return
             }
-            view.subviews.forEach { $0.removeFromSuperview() }
+            view.subviews.forEach {
+                $0.removeFromSuperview()
+            }
             setupSecurity()
         }
         if (method.type == "LINKED") {
