@@ -7,11 +7,11 @@
 //
 
 import UIKit
-import  WebKit
+import WebKit
 
-class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler, WKNavigationDelegate, PanModalPresentable{
-    var KYCAgain : Bool? = nil
-    
+class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler, WKNavigationDelegate, PanModalPresentable {
+    var KYCAgain: Bool? = nil
+
     var panScrollable: UIScrollView? {
         return nil
     }
@@ -39,30 +39,30 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var showDragIndicator: Bool {
         return false
     }
-    var vc : UIImagePickerController!
-    var urlRequest : String = ""
-    var webView : WKWebView!
+    var vc: UIImagePickerController!
+    var urlRequest: String = ""
+    var webView: WKWebView!
     var onCommunicate: String = "onCommunicate"
     var onClose: String = "onClose"
-    var openCamera : String = "openCamera"
-    var onErrorBack : String = "onError"
-    var onRegisterSuccess : String = "onRegisterSuccess"
-    var onPay : String = "onPay"
+    var openCamera: String = "openCamera"
+    var onErrorBack: String = "onError"
+    var onRegisterSuccess: String = "onRegisterSuccess"
+    var onPay: String = "onPay"
     var form = ""
-    var imageFront : UIImage?
-    var imageBack : UIImage?
+    var imageFront: UIImage?
+    var imageBack: UIImage?
     var active: Int?
-    var individualTaskTimer : Timer!
+    var individualTaskTimer: Timer!
 
     private var onSuccessWebView: ((String) -> ())? = nil
     private var onFailWebView: ((String) -> ())? = nil
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
     private var onError: (([String: AnyObject]) -> ())? = nil
-    
+
     override func loadView() {
         PayME.currentVC?.navigationItem.hidesBackButton = true
         PayME.currentVC?.navigationController?.isNavigationBarHidden = true
-        
+
         let userController: WKUserContentController = WKUserContentController()
         userController.add(self, name: onCommunicate)
         userController.add(self, name: onClose)
@@ -71,7 +71,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onPay)
         userController.add(self, name: onRegisterSuccess)
         userController.addUserScript(self.getZoomDisableScript())
-        
+
         let config = WKWebViewConfiguration()
         config.userContentController = userController
         webView = WKWebView(frame: .zero, configuration: config)
@@ -79,7 +79,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         webView.navigationDelegate = self
         view = webView
     }
-    
+
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         showSpinner(onView: PayME.currentVC!.view)
     }
@@ -87,27 +87,27 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         removeSpinner()
     }
-    
+
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         print("error 01")
         let wkerror = (error as NSError)
         self.removeSpinner()
         if (wkerror.code == NSURLErrorNotConnectedToInternet) {
-            self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+            self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": wkerror.localizedDescription as AnyObject])
         } else {
-            self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+            self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": wkerror.localizedDescription as AnyObject])
         }
         onCloseWebview()
     }
-    
+
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         let wkerror = (error as NSError)
         if (self.form == "") {
-        self.removeSpinner()
+            self.removeSpinner()
             if (wkerror.code == NSURLErrorNotConnectedToInternet) {
-                self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+                self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": wkerror.localizedDescription as AnyObject])
             } else {
-                self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message" : wkerror.localizedDescription as AnyObject])
+                self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": wkerror.localizedDescription as AnyObject])
             }
             onCloseWebview()
         } else {
@@ -118,34 +118,34 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
         }
     }
-    
+
     private func getZoomDisableScript() -> WKUserScript {
         let source: String = "var meta = document.createElement('meta');" +
-            "meta.name = 'viewport';" +
-            "meta.content = 'width=device-width, initial-scale=1.0, maximum- scale=1.0, user-scalable=no';" +
-            "var head = document.getElementsByTagName('head')[0];" + "head.appendChild(meta);"
+                "meta.name = 'viewport';" +
+                "meta.content = 'width=device-width, initial-scale=1.0, maximum- scale=1.0, user-scalable=no';" +
+                "var head = document.getElementsByTagName('head')[0];" + "head.appendChild(meta);"
         return WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
     }
 
-    internal func reload(){
+    internal func reload() {
         self.webView.reload()
     }
-    
-     override func viewDidLoad() {
+
+    override func viewDidLoad() {
         let dataStore = WKWebsiteDataStore.default()
         dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { (records) in
             for record in records {
                 if record.displayName.contains("payme.com.vn") {
                     dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: [record], completionHandler: {
-                        
+
                     })
                 }
             }
         }
         if #available(iOS 9.0, *) {
-          let websiteDataTypes = NSSet(array: [WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache])
-          let date = NSDate(timeIntervalSince1970: 0)
-            WKWebsiteDataStore.default().removeData(ofTypes: websiteDataTypes as! Set<String>, modifiedSince: date as Date, completionHandler:{ })
+            let websiteDataTypes = NSSet(array: [WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache])
+            let date = NSDate(timeIntervalSince1970: 0)
+            WKWebsiteDataStore.default().removeData(ofTypes: websiteDataTypes as! Set<String>, modifiedSince: date as Date, completionHandler: {})
         } else {
             var libraryPath = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.libraryDirectory, FileManager.SearchPathDomainMask.userDomainMask, false).first!
             libraryPath += "/Cookies"
@@ -153,23 +153,21 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             do {
                 try FileManager.default.removeItem(atPath: libraryPath)
             } catch {
-              print("Lỗi")
+                print("Lỗi")
             }
             URLCache.shared.removeAllCachedResponses()
         }
-        if(self.form == "")
-        {
+        if (self.form == "") {
             let urlString = urlRequest.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-            let  myURL = URL(string: urlString!)
-            let myRequest : URLRequest
-            if myURL != nil
-            {
+            let myURL = URL(string: urlString!)
+            let myRequest: URLRequest
+            if myURL != nil {
                 myRequest = URLRequest(url: myURL!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
             } else {
                 myRequest = URLRequest(url: URL(string: "http://google.com/")!)
             }
             print(myURL)
-            
+
             if #available(iOS 11.0, *) {
                 webView.scrollView.contentInsetAdjustmentBehavior = .never;
             } else {
@@ -181,19 +179,18 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         } else {
             webView.loadHTMLString(self.form, baseURL: nil)
         }
-        
-     }
-    
+
+    }
+
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if (self.form != "") {
             print("URL:", navigationAction.request.url)
-            if (navigationAction.request.url != nil)
-            {
+            if (navigationAction.request.url != nil) {
                 let host = navigationAction.request.url!.host ?? ""
                 print(host)
                 //if (navigationAction.request.url!.host!) {
                 if (host == "payme.vn") {
-                    let params = navigationAction.request.url!.queryParameters ?? ["":""]
+                    let params = navigationAction.request.url!.queryParameters ?? ["": ""]
                     if (params["success"] == "true") {
                         self.onSuccessWebView!("success")
                         decisionHandler(.cancel)
@@ -217,7 +214,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             decisionHandler(.allow)
         }
     }
-    
+
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
             if let dictionary = message.body as? [String: AnyObject] {
@@ -230,7 +227,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             if let dictionary = message.body as? [String: AnyObject] {
                 let actions = (dictionary["actions"] as? String) ?? ""
                 if (actions == "onRegisterSuccess") {
-                    if let data = dictionary["data"] as? [String : AnyObject] {
+                    if let data = dictionary["data"] as? [String: AnyObject] {
                         if let dataInit = data["Init"] as? [String: AnyObject] {
                             PayME.dataInit = dataInit
                             PayME.accessToken = (dataInit["accessToken"] as? String) ?? ""
@@ -241,13 +238,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                     self.onSuccess!(dictionary)
                 }
                 if (actions == "onNetWorkError") {
-                    if let data = dictionary["data"] as? [String : AnyObject] {
-                        self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message" : data["message"] as AnyObject])
+                    if let data = dictionary["data"] as? [String: AnyObject] {
+                        self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": data["message"] as AnyObject])
                     }
                 }
                 if (actions == "onKYC") {
                     print("Hello1")
-                    if let data = dictionary["data"] as? [String : AnyObject] {
+                    if let data = dictionary["data"] as? [String: AnyObject] {
                         setupCamera(dictionary: data)
                     }
                 }
@@ -271,7 +268,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             PayME.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
         }
     }
-    
+
 
     func setupCamera(dictionary: [String: AnyObject]) {
         if let dictionary = dictionary as? [String: Bool] {
@@ -279,7 +276,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             kycController.kyc()
         }
     }
-    
+
     func onCloseWebview() {
         if PayME.isRecreateNavigationController {
             self.dismiss(animated: true, completion: nil)
@@ -287,17 +284,20 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             self.navigationController?.popViewController(animated: true)
         }
     }
-    
+
     public func setOnSuccessCallback(onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()) {
         self.onSuccess = onSuccess
     }
-    public func setOnSuccessWebView(onSuccessWebView: @escaping (String) -> ()){
+
+    public func setOnSuccessWebView(onSuccessWebView: @escaping (String) -> ()) {
         self.onSuccessWebView = onSuccessWebView
     }
-    public func setOnFailWebView(onFailWebView: @escaping (String) -> ()){
+
+    public func setOnFailWebView(onFailWebView: @escaping (String) -> ()) {
         self.onFailWebView = onFailWebView
     }
-    public func setOnErrorCallback(onError: @escaping ([String:AnyObject]) -> ()) {
+
+    public func setOnErrorCallback(onError: @escaping ([String: AnyObject]) -> ()) {
         self.onError = onError
     }
 }

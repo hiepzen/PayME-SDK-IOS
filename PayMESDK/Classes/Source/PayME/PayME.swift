@@ -189,8 +189,13 @@ public class PayME {
                             return key == "service.main.visible"
                         }) {
                             self.configService = Array<ServiceConfig>()
-                            let values = (configService["value"] as! [String: AnyObject])["listService"] as! [AnyObject]
-                            print(values)
+                            let values: [AnyObject]
+                            let valueConfigService = configService["value"]
+                            if (valueConfigService is String) {
+                                values = (convertStringToDictionary(text: valueConfigService as! String))!["listService"] as! [AnyObject]
+                            } else {
+                                values = (configService["value"] as AnyObject)["listService"] as! [AnyObject]
+                            }
                             for value in values {
                                 let enable = value["enable"] as! Bool
                                 if (enable) {
@@ -348,6 +353,7 @@ public class PayME {
 
         let url = urlWebview(env: PayME.env)
         webViewController.urlRequest = url + "\(encryptAES(data: data))"
+        print("hihihihih")
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
     }
