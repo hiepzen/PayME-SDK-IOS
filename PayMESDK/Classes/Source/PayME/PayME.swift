@@ -477,6 +477,7 @@ public class PayME {
                 Methods.orderId = orderId
                 Methods.note = note ?? ""
                 Methods.extraData = extraData ?? ""
+                Methods.paymentMethodID = paymentMethodID
                 Methods.isShowResultUI = isShowResultUI
                 currentVC.presentPanModal(methods)
             }

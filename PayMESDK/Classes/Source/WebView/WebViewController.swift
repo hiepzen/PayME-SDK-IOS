@@ -243,7 +243,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                     }
                 }
                 if (actions == "onKYC") {
-                    print("Hello1")
                     if let data = dictionary["data"] as? [String: AnyObject] {
                         setupCamera(dictionary: data)
                     }
