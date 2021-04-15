@@ -73,9 +73,9 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
 
     func pinField(_ field: KAPinField, didFinishWith code: String) {
         if (field == securityCode.otpView) {
-            self.showSpinner(onView: self.view)
-            self.successView = SuccessView(type: 1)
-            self.failView = FailView(type: 1)
+            showSpinner(onView: self.view)
+            successView = SuccessView(type: 1)
+            failView = FailView(type: 1)
             API.createSecurityCode(password: sha256(string: code)!, onSuccess: { securityInfo in
                 let account = securityInfo["Account"]!["SecurityCode"] as! [String: AnyObject]
                 let securityResponse = account["CreateCodeByPassword"] as! [String: AnyObject]
@@ -295,7 +295,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
 
     func getListMethodsAndExecution(execution: (([MethodInfo]) -> Void)? = nil) {
         showSpinner(onView: view)
-
         API.getWalletInfo(onSuccess: { walletInformation in
             let balance = (walletInformation["Wallet"] as! [String: AnyObject])["balance"] as! Int
             API.getTransferMethods(onSuccess: { response in
@@ -320,11 +319,9 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         }
                     }
                     methods.append(methodInformation)
-                    DispatchQueue.main.async {
-                        self.removeSpinner()
-                        execution?(methods)
-                    }
                 }
+                self.removeSpinner()
+                execution?(methods)
             }, onError: { error in
                 self.removeSpinner()
                 Methods.isShowCloseModal = false
@@ -455,7 +452,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
 
     func panModalDidDismiss() {
         if (Methods.isShowCloseModal == true) {
-            self.onError!(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
+            onError!(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
         }
     }
 
@@ -584,9 +581,9 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                             } else {
                                 self.removeSpinner()
                                 self.methodsView.removeFromSuperview()
+                                print("-=-=-=-=-=-=-=-=-=-=vao loi=-=-=-=-=-=-=-=-=-=-")
                                 let message = payment["message"] as? String
                                 self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-
                                 self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
                                 self.setupFail()
                             }

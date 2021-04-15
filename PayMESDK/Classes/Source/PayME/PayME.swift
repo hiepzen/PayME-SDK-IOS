@@ -464,9 +464,6 @@ public class PayME {
                 return
             }
             if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
-                let methods = Methods()
-                methods.onSuccess = onSuccess
-                methods.onError = onError
                 Methods.amount = amount
                 Methods.storeId = storeId
                 Methods.orderId = orderId
@@ -474,6 +471,9 @@ public class PayME {
                 Methods.extraData = extraData ?? ""
                 Methods.paymentMethodID = paymentMethodID
                 Methods.isShowResultUI = isShowResultUI
+                let methods = Methods()
+                methods.onSuccess = onSuccess
+                methods.onError = onError
                 currentVC.presentPanModal(methods)
             }
         }
