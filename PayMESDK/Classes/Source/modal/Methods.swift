@@ -109,7 +109,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         }
 
                         if (succeeded == true) {
-                            self.onSuccess!(response)
+                            let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                            let responseSuccess = [
+                                "payment": ["transaction": paymentInfo["transaction"] as? String]
+                            ] as [String : AnyObject]
+                            self.onSuccess!(responseSuccess)
                             self.securityCode.removeFromSuperview()
                             self.setupSuccess()
                         } else {
@@ -519,7 +523,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     }
                     let succeeded = payInfo["succeeded"] as! Bool
                     if (succeeded == true) {
-                        self.onSuccess!(flow)
+                        let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                        let responseSuccess = [
+                            "payment": ["transaction": paymentInfo["transaction"] as? String]
+                        ] as [String : AnyObject]
+                        self.onSuccess!(responseSuccess)
                         self.removeSpinner()
                         self.methodsView.removeFromSuperview()
                         self.setupSuccess()

@@ -149,8 +149,12 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                             }
                             let succeeded = payInfo["succeeded"] as! Bool
                             if (succeeded == true) {
+                                let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                                let responseSuccess = [
+                                    "payment": ["transaction": paymentInfo["transaction"] as? String]
+                                ] as [String : AnyObject]
                                 DispatchQueue.main.async {
-                                    self.onSuccess!(success)
+                                    self.onSuccess!(responseSuccess)
                                     self.removeSpinner()
                                     self.setupSuccess()
                                 }

@@ -57,10 +57,10 @@ public class PayME {
         case VIETNAM = "vi"
     }
 
-    public enum CompassPoint {
-        case NotActivated
-        case NotKYC
-        case KYCOK
+    public enum KYCState {
+        case NOT_ACTIVATED
+        case NOT_KYC
+        case KYC_APPROVED
     }
 
     public struct ResponseCode {
@@ -218,15 +218,15 @@ public class PayME {
         PayME.initSDK(onSuccess: { success in
             PayME.loggedIn = true
             if (PayME.accessToken == "") {
-                onSuccess(["code": PayME.CompassPoint.NotActivated as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+                onSuccess(["code": PayME.KYCState.NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
                 return
             }
             if (PayME.kycState != "APPROVED") {
-                onSuccess(["code": PayME.CompassPoint.NotKYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
+                onSuccess(["code": PayME.KYCState.NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
                 return
             }
             if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
-                onSuccess(["code": PayME.CompassPoint.KYCOK as AnyObject, "message": "Đăng nhập thành công" as AnyObject])
+                onSuccess(["code": PayME.KYCState.KYC_APPROVED as AnyObject, "message": "Đăng nhập thành công" as AnyObject])
                 return
             }
         }, onError: { error in
