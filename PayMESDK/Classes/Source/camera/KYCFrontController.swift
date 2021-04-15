@@ -163,7 +163,7 @@ class KYCFrontController: UIViewController {
     override func viewDidLayoutSubviews() {
         let colorButton = [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor]
         captureAgain.applyGradient(colors: colorButton, radius: 10)
-        captureAgain.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
+        captureAgain.setTitleColor(.white, for: .normal)
         confirm.applyGradient(colors: colorButton, radius: 10)
         confirm.setTitleColor(.white, for: .normal)
     }

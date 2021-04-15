@@ -129,105 +129,19 @@ class Upload: UIViewController {
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
         captureAgain.addTarget(self, action: #selector(back), for: .touchUpInside)
         confirm.addTarget(self, action: #selector(capture), for: .touchUpInside)
-        // Do any additional setup after loading the view.
     }
+
     @objc func back() {
-        
-        self.navigationController?.popViewController(animated: true)
-        
+        navigationController?.popViewController(animated: true)
     }
-    @objc func capture() {
-        /*
-        if (self.active! != 2) {
-            let kycCameraController = KYCCameraController()
-            print("Camera back")
-            kycCameraController.imageFront = kycImage
-            kycCameraController.active = self.active!
-            kycCameraController.setSuccessCapture(onSuccessCapture: { image,active in
-                let kycBack = KYCBackController()
-                print("kycBack")
-                print(active)
-                kycBack.kycImage = self.kycImage
-                kycBack.kycImageBack = image
-                kycBack.active = active
-                self.navigationController?.pushViewController(kycBack, animated: true)
-                
-                
 
-                //self.webView?.evaluateJavaScript("document.getElementById('ImageReview').src='\(response)'") { (result, error) in
-                    //print(result)
-                //}
-                //self.navigationController?.popViewController(animated: true)
-                /*PayME.uploadImageKYC(imageFront: response, imageBack: nil, onSuccess: { a in
-                    print(a)
-                }, onError: { b in
-                    print(b)
-                })
-                 */
-            })
-            navigationController?.pushViewController(kycCameraController, animated: false)
-        } else {
-            self.showSpinner(onView: self.view)
-            API.uploadImageKYC(imageFront: self.kycImage!,
-                                 imageBack: nil,
-               onSuccess: { response in
-                self.removeSpinner()
-                print(response)
-                let code = response["code"]! as! Int
-                print(code)
-                if (code == 1000) {
-                    let data = response["data"] as! [[String:Any]]
-                    let imageFront = data[0]["path"] as? String ?? ""
-                    var identifyType = "PASSPORT"
-                    PayME.verifyKYC(imageFront: imageFront, imageBack: nil, identifyType: identifyType, onSuccess: {response in
-                        PayME.openWalletAgain(currentVC: self, action: PayME.Action.OPEN, amount: nil, description: nil, extraData: nil, active: self.active!)
-                        
-                    }, onError: { error in
-                        var errorMess : String = ""
-                        error.values.forEach{ value in
-                            let data = value as! [String:AnyObject]
-                            errorMess = data["message"] as! String
-                        }
-                        let alert = UIAlertController(title: "Lỗi", message: errorMess, preferredStyle: UIAlertController.Style.alert)
-                        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                        self.present(alert, animated: true, completion: nil)
-                        
+    @objc func capture() { }
 
-                    })
-                } else {
-                    let alert = UIAlertController(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong", preferredStyle: UIAlertController.Style.alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                    self.present(alert, animated: true, completion: nil)
-                }
-                print(response)
-                                
-            }, onError: { error in
-                self.removeSpinner()
-                let alert = UIAlertController(title: "Success", message: "Something went wrong", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-            })
-        }
-         */
-
-    }
     override func viewDidLayoutSubviews() {
-        captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)
-        captureAgain.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
-        confirm.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+        let colorButton = [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor]
+        captureAgain.applyGradient(colors: colorButton, radius: 10)
+        captureAgain.setTitleColor(.white, for: .normal)
+        confirm.applyGradient(colors: colorButton, radius: 10)
         confirm.setTitleColor(.white, for: .normal)
     }
-    
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }

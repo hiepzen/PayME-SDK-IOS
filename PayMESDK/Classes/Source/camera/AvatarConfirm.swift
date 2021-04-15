@@ -151,22 +151,10 @@ class AvatarConfirm: UIViewController {
         
     }
     override func viewDidLayoutSubviews() {
-        captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)
-        captureAgain.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
-        confirm.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+        let colorButton = [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor]
+        captureAgain.applyGradient(colors: colorButton, radius: 10)
+        captureAgain.setTitleColor(.white, for: .normal)
+        confirm.applyGradient(colors: colorButton, radius: 10)
         confirm.setTitleColor(.white, for: .normal)
     }
-    
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
