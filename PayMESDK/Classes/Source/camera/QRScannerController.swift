@@ -9,8 +9,6 @@ import UIKit
 import AVFoundation
 
 class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-
-    // @IBOutlet var topbar: UIView!
     var imagePicker = UIImagePickerController()
     var captureSession = AVCaptureSession()
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
@@ -111,15 +109,12 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
         guard device.hasTorch else { return }
         do {
             try device.lockForConfiguration()
-
             if (device.torchMode == AVCaptureDevice.TorchMode.on) {
                 device.torchMode = AVCaptureDevice.TorchMode.off
+                flash.backgroundColor = UIColor(28, 28, 28)
             } else {
-                do {
-                    try device.setTorchModeOn(level: 1.0)
-                } catch {
-                    print(error)
-                }
+                try device.setTorchModeOn(level: 1.0)
+                flash.backgroundColor = .lightGray
             }
             device.unlockForConfiguration()
         } catch {
