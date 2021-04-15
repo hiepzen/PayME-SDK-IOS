@@ -433,12 +433,7 @@ public class PayME {
     ) {
         API.getTransferMethods(onSuccess: { response in
             let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
-            var listPaymentMethodID: [Dictionary<String, Any>] = []
-            for item in items {
-                let method: [String: Any] = ["title": item["title"] as! String, "methodId": item["methodId"] as! Int]
-                listPaymentMethodID.append(method)
-            }
-            onSuccess(listPaymentMethodID)
+            onSuccess(items)
         }, onError: { error in onError(error) })
     }
 

@@ -410,8 +410,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         toastMess(title: "Lỗi", value: "qwe")
         payME!.getListPaymentMethodID(
                 onSuccess: { listMethods in
-                    print("Minh Khoa")
-                    print(listMethods)
                     self.toastMess(title: "Lỗi", value: "asjlkhf")
                 },
                 onError: { error in
