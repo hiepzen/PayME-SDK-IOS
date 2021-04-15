@@ -12,7 +12,7 @@ import CommonCrypto
 class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate {
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
-            self.showSpinner(onView: self.view)
+            showSpinner(onView: view)
             API.transferByLinkedBank(transaction: transaction, storeId: Methods.storeId, orderId: Methods.orderId, linkedId: (data[active!].dataLinked?.linkedId)!, extraData: Methods.extraData, note: Methods.note, otp: code, amount: Methods.amount, onSuccess: { response in
                 self.removeSpinner()
                 let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
@@ -462,6 +462,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        active = indexPath.row
         pay(data[indexPath.row])
     }
 
@@ -531,7 +532,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                                 self.removeSpinner()
                                 self.methodsView.removeFromSuperview()
                                 self.setupOTP()
-                                self.active = 0
                             } else if (state == "REQUIRED_VERIFY") {
                                 let message = payment["message"] as? String
                                 let html = payment["html"] as? String
