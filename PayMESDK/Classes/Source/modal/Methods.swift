@@ -84,8 +84,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             API.createSecurityCode(password: sha256(string: code)!, onSuccess: { securityInfo in
                 let account = securityInfo["Account"]!["SecurityCode"] as! [String: AnyObject]
                 let securityResponse = account["CreateCodeByPassword"] as! [String: AnyObject]
-                let securtiySucceeded = securityResponse["succeeded"] as! Bool
-                if (securtiySucceeded == true) {
+                let securitySucceeded = securityResponse["succeeded"] as! Bool
+                if (securitySucceeded == true) {
                     let securityCode = securityResponse["securityCode"] as! String
                     API.transferWallet(storeId: Methods.storeId, orderId: Methods.orderId, securityCode: securityCode, extraData: Methods.extraData, note: Methods.note, amount: Methods.amount, onSuccess: { response in
                         let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
@@ -145,10 +145,13 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     self.removeSpinner()
                     let message = securityResponse["message"] as! String
                     let code = securityResponse["code"] as! String
-                    if (code == "Mật khẩu không chính xác") {
+                    if (code == "PASSWORD_INVALID" || code == "PASSWORD_RETRY_TIMES_OVER") {
                         self.securityCode.otpView.text = ""
-                        self.securityCode.txtErrorMessage.isHidden = false
                         self.securityCode.otpView.reloadAppearance()
+                        self.securityCode.txtErrorMessage.text = message
+                        self.securityCode.txtErrorMessage.isHidden = false
+                        self.panModalSetNeedsLayoutUpdate()
+                        self.panModalTransition(to: .longForm)
                     } else {
                         self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                         self.securityCode.removeFromSuperview()
@@ -377,7 +380,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         securityCode.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
         securityCode.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         securityCode.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.otpView.bottomAnchor, constant: 10).isActive = true
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor, constant: 10).isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()

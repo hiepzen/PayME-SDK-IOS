@@ -89,6 +89,9 @@ internal class SecurityCode: UIView {
         roleLabel.text = "Nhập mật khẩu ví PayME  để xác thực"
         txtErrorMessage.text = "Mật khẩu không chính xác"
         txtErrorMessage.isHidden = true
+        txtErrorMessage.lineBreakMode = .byWordWrapping
+        txtErrorMessage.numberOfLines = 0
+        txtErrorMessage.textAlignment = .center
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
@@ -112,7 +115,9 @@ internal class SecurityCode: UIView {
         otpView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -50).isActive = true
 
         txtErrorMessage.topAnchor.constraint(equalTo: otpView.bottomAnchor, constant: 19).isActive = true
-        txtErrorMessage.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        txtErrorMessage.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        txtErrorMessage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
+        txtErrorMessage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30).isActive = true
     }
     
     required init?(coder aDecoder: NSCoder) {
