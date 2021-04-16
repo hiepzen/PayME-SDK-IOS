@@ -8,6 +8,10 @@
 import UIKit
 import CommonCrypto
 
+enum SecurityState {
+    case PASSWORD_RETRY_TIMES_OVER
+    case PASSWORD_INVALID
+}
 
 class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate {
     func pinField(_ field: OTPInput, didFinishWith code: String) {
@@ -76,6 +80,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             showSpinner(onView: self.view)
             successView = SuccessView(type: 1)
             failView = FailView(type: 1)
+            securityCode.txtErrorMessage.isHidden = true
             API.createSecurityCode(password: sha256(string: code)!, onSuccess: { securityInfo in
                 let account = securityInfo["Account"]!["SecurityCode"] as! [String: AnyObject]
                 let securityResponse = account["CreateCodeByPassword"] as! [String: AnyObject]
@@ -139,12 +144,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 } else {
                     self.removeSpinner()
                     let message = securityResponse["message"] as! String
-                    if (message == "Mật khẩu không chính xác") {
-                        self.toastMessError(title: "Lỗi", message: message)
-                        self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": message as AnyObject])
+                    let code = securityResponse["code"] as! String
+                    if (code == "Mật khẩu không chính xác") {
                         self.securityCode.otpView.text = ""
+                        self.securityCode.txtErrorMessage.isHidden = false
                         self.securityCode.otpView.reloadAppearance()
-
                     } else {
                         self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                         self.securityCode.removeFromSuperview()
@@ -340,9 +344,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height + 4).isActive = true
         tableView.alwaysBounceVertical = false
         tableView.isScrollEnabled = false
+        updateViewConstraints()
         view.layoutIfNeeded()
-        self.panModalTransition(to: .shortForm)
         panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .shortForm)
     }
 
     func setupOTP() {
@@ -400,7 +405,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: failView.button.bottomAnchor, constant: 10).isActive = true
             updateViewConstraints()
             view.layoutIfNeeded()
-            self.panModalSetNeedsLayoutUpdate()
+            panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
         } else {
             dismiss(animated: true)
@@ -427,7 +432,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: successView.button.bottomAnchor, constant: 10).isActive = true
             updateViewConstraints()
             view.layoutIfNeeded()
-            self.panModalSetNeedsLayoutUpdate()
+            panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
         } else {
             dismiss(animated: true)

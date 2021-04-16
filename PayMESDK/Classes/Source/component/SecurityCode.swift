@@ -8,7 +8,6 @@
 import Foundation
 
 internal class SecurityCode: UIView {
-    
     let closeButton : UIButton = {
         let button = UIButton()
         let bundle = Bundle(for: QRNotFound.self)
@@ -47,6 +46,15 @@ internal class SecurityCode: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+
+    let txtErrorMessage : UILabel = {
+        let label = UILabel()
+        label.textColor = .red
+        label.backgroundColor = .clear
+        label.font =  UIFont.systemFont(ofSize: 17, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     let otpView : KAPinField = {
         let pinField = KAPinField()
@@ -75,9 +83,12 @@ internal class SecurityCode: UIView {
         addSubview(closeButton)
         addSubview(txtLabel)
         addSubview(otpView)
+        addSubview(txtErrorMessage)
 
         txtLabel.text = "XÁC THỰC GIAO DỊCH"
         roleLabel.text = "Nhập mật khẩu ví PayME  để xác thực"
+        txtErrorMessage.text = "Mật khẩu không chính xác"
+        txtErrorMessage.isHidden = true
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
@@ -99,7 +110,9 @@ internal class SecurityCode: UIView {
         otpView.topAnchor.constraint(equalTo: roleLabel.bottomAnchor, constant: 10).isActive = true
         otpView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 50).isActive = true
         otpView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -50).isActive = true
-        
+
+        txtErrorMessage.topAnchor.constraint(equalTo: otpView.bottomAnchor, constant: 19).isActive = true
+        txtErrorMessage.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
     }
     
     required init?(coder aDecoder: NSCoder) {

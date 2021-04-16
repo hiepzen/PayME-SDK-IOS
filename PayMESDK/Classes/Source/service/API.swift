@@ -388,6 +388,7 @@ internal class API {
                 securityCode
                 succeeded
                 message
+                code
               }
             }
           }
