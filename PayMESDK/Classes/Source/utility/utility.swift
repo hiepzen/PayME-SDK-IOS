@@ -127,7 +127,7 @@ internal func checkCondition(onError: @escaping ([String:AnyObject]) -> ()) -> B
         return false
     }
     if (PayME.accessToken == "") {
-        onError(["code" : PayME.ResponseCode.ACCOUNT_NOT_ACTIVETES as AnyObject, "message" : "Tài khoản chưa kích hoạt" as AnyObject])
+        onError(["code" : PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message" : "Tài khoản chưa kích hoạt" as AnyObject])
         return false
     }
     if (PayME.kycState != "APPROVED") {
