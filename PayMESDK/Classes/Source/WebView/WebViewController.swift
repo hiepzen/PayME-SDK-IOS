@@ -13,32 +13,33 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var KYCAgain: Bool? = nil
 
     var panScrollable: UIScrollView? {
-        return nil
+        nil
     }
 
     var topOffset: CGFloat {
-        return 0.0
+        0.0
     }
 
     var springDamping: CGFloat {
-        return 1.0
+        1.0
     }
 
     var transitionDuration: Double {
-        return 0.4
+        0.4
     }
 
     var transitionAnimationOptions: UIView.AnimationOptions {
-        return [.allowUserInteraction, .beginFromCurrentState]
+        [.allowUserInteraction, .beginFromCurrentState]
     }
 
     var shouldRoundTopCorners: Bool {
-        return false
+        false
     }
 
     var showDragIndicator: Bool {
-        return false
+        false
     }
+
     var vc: UIImagePickerController!
     var urlRequest: String = ""
     var webView: WKWebView!
@@ -70,7 +71,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onErrorBack)
         userController.add(self, name: onPay)
         userController.add(self, name: onRegisterSuccess)
-        userController.addUserScript(self.getZoomDisableScript())
+        userController.addUserScript(getZoomDisableScript())
 
         let config = WKWebViewConfiguration()
         config.userContentController = userController
@@ -78,10 +79,32 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         webView.uiDelegate = self
         webView.navigationDelegate = self
         view = webView
+
+        if (form == "") {
+            let urlString = urlRequest.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+            let myURL = URL(string: urlString!)
+            let myRequest: URLRequest
+            if myURL != nil {
+                myRequest = URLRequest(url: myURL!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
+            } else {
+                myRequest = URLRequest(url: URL(string: "http://google.com/")!)
+            }
+
+            if #available(iOS 11.0, *) {
+                webView.scrollView.contentInsetAdjustmentBehavior = .never;
+            } else {
+                automaticallyAdjustsScrollViewInsets = false;
+            }
+            webView.scrollView.alwaysBounceVertical = false
+            webView.scrollView.bounces = false
+            webView.load(myRequest)
+        } else {
+            webView.loadHTMLString(form, baseURL: nil)
+        }
     }
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-        showSpinner(onView: PayME.currentVC!.view)
+        showSpinner(onView: PayME.rootVC!.view)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -90,31 +113,29 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         print("error 01")
-        let wkerror = (error as NSError)
-        self.removeSpinner()
-        if (wkerror.code == NSURLErrorNotConnectedToInternet) {
-            self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": wkerror.localizedDescription as AnyObject])
+        let wkError = (error as NSError)
+        removeSpinner()
+        if (wkError.code == NSURLErrorNotConnectedToInternet) {
+            onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": wkError.localizedDescription as AnyObject])
         } else {
-            self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": wkerror.localizedDescription as AnyObject])
+            onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": wkError.localizedDescription as AnyObject])
         }
         onCloseWebview()
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        let wkerror = (error as NSError)
-        if (self.form == "") {
-            self.removeSpinner()
-            if (wkerror.code == NSURLErrorNotConnectedToInternet) {
-                self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": wkerror.localizedDescription as AnyObject])
+        let wkError = (error as NSError)
+        if (form == "") {
+            removeSpinner()
+            if (wkError.code == NSURLErrorNotConnectedToInternet) {
+                onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": wkError.localizedDescription as AnyObject])
             } else {
-                self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": wkerror.localizedDescription as AnyObject])
+                onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": wkError.localizedDescription as AnyObject])
             }
             onCloseWebview()
         } else {
-            if (wkerror.code != 102) {
-                self.onFailWebView!(wkerror.localizedDescription)
-            } else {
-                // donothing
+            if (wkError.code != 102) {
+                onFailWebView!(wkError.localizedDescription)
             }
         }
     }
@@ -128,7 +149,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
     internal func reload() {
-        self.webView.reload()
+        webView.reload()
     }
 
     override func viewDidLoad() {
@@ -157,33 +178,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
             URLCache.shared.removeAllCachedResponses()
         }
-        if (self.form == "") {
-            let urlString = urlRequest.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-            let myURL = URL(string: urlString!)
-            let myRequest: URLRequest
-            if myURL != nil {
-                myRequest = URLRequest(url: myURL!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
-            } else {
-                myRequest = URLRequest(url: URL(string: "http://google.com/")!)
-            }
-            print(myURL)
-
-            if #available(iOS 11.0, *) {
-                webView.scrollView.contentInsetAdjustmentBehavior = .never;
-            } else {
-                self.automaticallyAdjustsScrollViewInsets = false;
-            }
-            webView.scrollView.alwaysBounceVertical = false
-            webView.scrollView.bounces = false
-            webView.load(myRequest)
-        } else {
-            webView.loadHTMLString(self.form, baseURL: nil)
-        }
-
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        if (self.form != "") {
+        if (form != "") {
             print("URL:", navigationAction.request.url)
             if (navigationAction.request.url != nil) {
                 let host = navigationAction.request.url!.host ?? ""
@@ -251,17 +249,17 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         }
         if message.name == onErrorBack {
             if let dictionary = message.body as? [String: AnyObject] {
-                self.removeSpinner()
+                removeSpinner()
                 let code = dictionary["code"] as! Int
                 if (code == 401) {
                     self.navigationController?.popViewController(animated: true)
                     PayME.logoutAction()
                 }
-                self.onError!(dictionary)
+                onError!(dictionary)
             }
         }
         if message.name == onClose {
-            self.onCloseWebview()
+            onCloseWebview()
         }
         if message.name == onPay {
             PayME.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
@@ -278,9 +276,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     func onCloseWebview() {
         if PayME.isRecreateNavigationController {
-            self.dismiss(animated: true, completion: nil)
+            dismiss(animated: true, completion: nil)
         } else {
-            self.navigationController?.popViewController(animated: true)
+            navigationController?.popViewController(animated: true)
         }
     }
 
@@ -298,6 +296,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     public func setOnErrorCallback(onError: @escaping ([String: AnyObject]) -> ()) {
         self.onError = onError
+    }
+
+    public func setURLRequest(_ url: String) {
+        urlRequest = url
     }
 }
 

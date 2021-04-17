@@ -68,7 +68,7 @@ public class PayME {
         public static let NETWORK = -1
         public static let SYSTEM = -2
         public static let LIMIT = -3
-        public static let ACCOUNT_NOT_ACTIVETES = -4
+        public static let ACCOUNT_NOT_ACTIVATED = -4
         public static let ACCOUNT_NOT_KYC = -5
         public static let PAYMENT_ERROR = -6
         public static let ERROR_KEY_ENCODE = -7
@@ -351,9 +351,7 @@ public class PayME {
                 }
                 """
 
-        let url = urlWebview(env: PayME.env)
-        webViewController.urlRequest = url + "\(encryptAES(data: data))"
-        print("hihihihih")
+        webViewController.setURLRequest(urlWebview(env: PayME.env) + "\(encryptAES(data: data))")
         webViewController.setOnSuccessCallback(onSuccess: onSuccess)
         webViewController.setOnErrorCallback(onError: onError)
     }

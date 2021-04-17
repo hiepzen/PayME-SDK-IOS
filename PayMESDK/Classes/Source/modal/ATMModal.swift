@@ -178,34 +178,22 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                         webViewController.form = html!
                                         webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                                             webViewController.dismiss(animated: true)
-                                            let successWebview: [String: AnyObject] = ["OpenEWallet": [
-                                                "Payment": [
-                                                    "Pay": [
-                                                        "success": true as AnyObject,
-                                                        "message": message as AnyObject,
-                                                        "history": payInfo["history"] as AnyObject
-                                                    ]
-                                                ]
-                                            ] as AnyObject
-                                            ]
-                                            self.onSuccess!(successWebview)
+                                            let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                                            let responseSuccess = [
+                                                "payment": ["transaction": paymentInfo["transaction"] as? String]
+                                            ] as [String : AnyObject]
+                                            self.onSuccess!(responseSuccess)
                                             self.setupSuccess()
                                         })
                                         webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                                             webViewController.dismiss(animated: true)
                                             self.removeSpinner()
                                             self.failView.failLabel.text = responseFromWebView
-                                            let failWebview: [String: AnyObject] = ["OpenEWallet": [
-                                                "Payment": [
-                                                    "Pay": [
-                                                        "success": true as AnyObject,
-                                                        "message": responseFromWebView as AnyObject,
-                                                        "history": payInfo["history"] as AnyObject
-                                                    ]
-                                                ]
-                                            ] as AnyObject
-                                            ]
-                                            self.onError!(failWebview)
+                                            let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                                            let responseSuccess = [
+                                                "payment": ["transaction": paymentInfo["transaction"] as? String]
+                                            ] as [String : AnyObject]
+                                            self.onError!(responseSuccess)
                                             self.setupFail()
                                         })
                                         self.presentPanModal(webViewController)
