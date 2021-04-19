@@ -104,7 +104,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-        showSpinner(onView: PayME.rootVC!.view)
+        showSpinner(onView: PayME.currentVC!.view)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -182,7 +182,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if (form != "") {
-            print("URL:", navigationAction.request.url)
             if (navigationAction.request.url != nil) {
                 let host = navigationAction.request.url!.host ?? ""
                 print(host)
@@ -233,11 +232,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                             PayME.handShake = (dataInit["handShake"] as? String) ?? ""
                         }
                     }
-                    self.onSuccess!(dictionary)
+                    onSuccess!(dictionary)
                 }
                 if (actions == "onNetWorkError") {
                     if let data = dictionary["data"] as? [String: AnyObject] {
-                        self.onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": data["message"] as AnyObject])
+                        onError!(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": data["message"] as AnyObject])
                     }
                 }
                 if (actions == "onKYC") {

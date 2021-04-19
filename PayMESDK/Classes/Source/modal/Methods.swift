@@ -238,6 +238,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         methodTitle.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 10).isActive = true
 
         txtLabel.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 19).isActive = true
+        txtLabel.bottomAnchor.constraint(equalTo: detailView.topAnchor, constant: -10).isActive = true
         txtLabel.centerXAnchor.constraint(equalTo: methodsView.centerXAnchor).isActive = true
 
         tableView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor, constant: 10).isActive = true
@@ -251,7 +252,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
 
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 10).isActive = true
         getListMethodsAndExecution { methods in
             self.showMethods(methods)
         }
@@ -364,7 +364,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                             self.methodsView.removeFromSuperview()
                             self.setupOTP()
                         } else if (state == "REQUIRED_VERIFY") {
-                            let message = payment["message"] as? String
                             let html = payment["html"] as? String
                             if (html != nil) {
                                 self.removeSpinner()
@@ -401,7 +400,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         } else {
                             self.removeSpinner()
                             self.methodsView.removeFromSuperview()
-                            print("-=-=-=-=-=-=-=-=-=-=vao loi=-=-=-=-=-=-=-=-=-=-")
                             let message = payment["message"] as? String
                             self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
                             self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
@@ -476,13 +474,23 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     func showMethods(_ methods: [MethodInfo]) {
         data = methods
         tableView.reloadData()
-        tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height + 4).isActive = true
+        tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height).isActive = true
         tableView.alwaysBounceVertical = false
         tableView.isScrollEnabled = false
         updateViewConstraints()
         view.layoutIfNeeded()
+        if bottomLayoutGuide.length == 0 {
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 10).isActive = true
+        } else {
+            let viewHeight = tableView.bounds.size.height
+                    + detailView.bounds.size.height
+                    + txtLabel.bounds.size.height
+                    + methodTitle.bounds.size.height
+                    + bottomLayoutGuide.length
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor, constant: viewHeight).isActive = true
+        }
         panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
+        panModalTransition(to: .longForm)
     }
 
     func setupOTP() {
@@ -575,17 +583,11 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
 
     override func viewDidLayoutSubviews() {
-        let topPoint = CGPoint(x: detailView.frame.minX, y: detailView.bounds.midY + 15)
-        let bottomPoint = CGPoint(x: detailView.frame.maxX, y: detailView.bounds.midY + 15)
-        detailView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203, 203, 203), strokeLength: 3, gapLength: 4, width: 0.5)
-        successView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203, 203, 203), strokeLength: 3, gapLength: 4, width: 0.5)
-        failView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203, 203, 203), strokeLength: 3, gapLength: 4, width: 0.5)
         button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
         detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
         successView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
         failView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
 
-        atmView.detailView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203, 203, 203), strokeLength: 3, gapLength: 4, width: 0.5)
         atmView.detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
         atmView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
     }
@@ -596,8 +598,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         }
     }
 
-    @objc
-    func closeAction(button: UIButton) {
+    @objc func closeAction(button: UIButton) {
         dismiss(animated: true, completion: nil)
     }
 
