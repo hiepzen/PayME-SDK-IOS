@@ -91,12 +91,12 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 let securitySucceeded = securityResponse["succeeded"] as! Bool
                 if (securitySucceeded == true) {
                     let securityCode = securityResponse["securityCode"] as! String
-                    let methodType = self.data[self.active!].type
+                    let methodType = self.getMethodSelected().type
                     if methodType == "WALLET" {
                         self.paymentPayMEMethod(securityCode)
                     }
                     if methodType == "LINKED" {
-                        self.paymentPayMEMethod(securityCode)
+                        self.paymentLinkedMethod()
                     }
                 } else {
                     self.removeSpinner()
@@ -184,6 +184,15 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             }
             self.pay(method)
         }
+    }
+
+    func getMethodSelected() -> MethodInfo {
+        if Methods.paymentMethodID != nil {
+            if let method: MethodInfo = data.first(where: { $0.methodId == Methods.paymentMethodID }) {
+                return method
+            }
+        }
+        return data[active!]
     }
 
     func setupMethods() {
@@ -316,7 +325,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
 
     func paymentLinkedMethod() {
         showSpinner(onView: view)
-        API.checkFlowLinkedBank(storeId: Methods.storeId, orderId: Methods.orderId, linkedId: data[active!].dataLinked!.linkedId, extraData: Methods.extraData, note: Methods.note, amount: Methods.amount, onSuccess: { flow in
+        API.checkFlowLinkedBank(storeId: Methods.storeId, orderId: Methods.orderId, linkedId: getMethodSelected().dataLinked!.linkedId, extraData: Methods.extraData, note: Methods.note, amount: Methods.amount, onSuccess: { flow in
             let pay = flow["OpenEWallet"]!["Payment"] as! [String: AnyObject]
             if let payInfo = pay["Pay"] as? [String: AnyObject] {
                 if let history = payInfo["history"] as? [String: AnyObject] {
@@ -458,6 +467,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     methods.append(methodInformation)
                 }
                 self.removeSpinner()
+                self.data = methods
                 execution?(methods)
             }, onError: { error in
                 self.removeSpinner()
@@ -472,7 +482,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
 
     func showMethods(_ methods: [MethodInfo]) {
-        data = methods
         tableView.reloadData()
         tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height).isActive = true
         tableView.alwaysBounceVertical = false
