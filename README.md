@@ -141,17 +141,17 @@ public func login(
 )
 ```
 
-Khi login thành công sẽ được trả về 1 enum CompassPoint chứa thông tin như sau: 
+Khi login thành công sẽ được trả về 1 enum KYCState chứa thông tin như sau: 
 
 ```swift
-public enum CompassPoint {
-        case NotActivated
-        case NotKYC
-        case KYCOK
+public enum KYCState {
+        case NOT_ACTIVATED
+        case NOT_KYC
+        case KYC_APPROVED
 }
 ```
 
-Các tính năng như nạp tiền, rút tiền, pay chỉ thực hiện được khi đã kích hoạt ví và gửi định danh thành công. Tức là khi login sẽ được trả về enum CompassPoint với case là KYCOK.
+Các tính năng như nạp tiền, rút tiền, pay chỉ thực hiện được khi đã kích hoạt ví và gửi định danh thành công. Tức là khi login sẽ được trả về enum KYCState với case là KYCOK.
 
 ### logout()
 
@@ -170,8 +170,8 @@ public func openWallet(
    amount: Int?, 
    description: String?, 
    extraData: String?,
-   onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-   onError: @escaping ([String:AnyObject]) -> ()
+   onSuccess: (Dictionary<String, AnyObject>) -> (),
+   onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
@@ -205,27 +205,28 @@ Ví dụ :
 import PayMESDK
 
 class ViewController: UIViewController {
-    let payme : PayME;
+    let payME: PayME
+    
     @IBAction func click(_ sender: Any) {
-	payme.openLinkWallet(
+	payME.openWallet(
 		currentVC: self,
 		action: Action.OPEN, 
 		amount: nil, 
 		description : nil,
 		extraData: nil
-		);
+	)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        payme = PayME(  
+        payME = PayME(  
 		appID: appID, 
 		publicKey: self.PUBLIC_KEY, 
 		connectToken: self.connectToken, 
 		appPrivateKey: self.PRIVATE_KEY, 
 		env: currentEnv, 
 		configColor: ["#75255b", "#a81308"]
-		)
+	)
     }
 }
 ```
@@ -238,8 +239,9 @@ public func deposit(
     amount: Int?, 
     description: String?, 
     extraData: String?,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping ([String : AnyObject]) -> ()) 
+    onSuccess: (Dictionary<String, AnyObject>) -> (),
+    onError: (Dictionary<String, AnyObject>) -> ()
+) -> () 
 ```
 
 Hàm này có ý nghĩa giống như khi gọi openWallet với action **Action.Deposit.**
@@ -252,12 +254,12 @@ public func withdraw(
     amount: Int?, 
     description: String?, 
     extraData: String?,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping ([String : AnyObject]) -> ()
-) 
+    onSuccess: (Dictionary<String, AnyObject>) -> (),
+    onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
 ```
 
-Hàm này có ý nghĩa giống như gọi openWallet với action là **Action.Withdraw**.
+Hàm này có ý nghĩa giống như gọi openWallet với action là **Action.WITHDRAW**.
 
 ### pay() - Thanh toán
 
@@ -273,9 +275,9 @@ public func pay(
     paymentMethodID: Int?,
     extraData: String?,
     isShowResultUI: Bool,
-    onSuccess: @escaping ([String:AnyObject])->(), 
-    onError: @escaping ([String:AnyObject])->()
-)
+    onSuccess: (Dictionary<String, AnyObject>) -> (),
+    onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
 ```
 
 | Tham số                                                      | **Bắt buộc** | **Giải thích**                                               |
@@ -297,9 +299,9 @@ Trong trường hợp app tích hợp cần lấy số dư để tự hiển th�
 
 ```swift
 public func getWalletInfo(
-        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onError: @escaping ([Int:Any]) -> ()
-)
+        onSuccess: (Dictionary<String, AnyObject>) -> (),
+        onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
 ```
 
 - Trong trường hợp lỗi thì hàm sẽ trả về message mỗi tại hàm onError , khi đó app có thể hiển thị balance là 0.
@@ -330,14 +332,14 @@ App có thể dùng được tính này sau khi khởi tạo SDK để biết đ
 
 ```swift
 public func getAccountInfo(
-    onSuccess: @escaping ([String:AnyObject])->(), 
-    onError: @escaping ([String:AnyObject])->()
-)
+    onSuccess: (Dictionary<String, AnyObject>) -> (),
+    onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
 ```
 
 ### getSupportedServices()
 
-Dùng để xác định các dịch vụ có thể dùng SDK để thanh toán (Điện, nước, học phí...).
+Dùng để xác định các dịch vụ có thể dùng SDK để thanh toán (điện, nước, học phí...).
 
 ```swift
 public func getSupportedServices() -> Array<ServiceConfig>
@@ -354,8 +356,8 @@ public func openService(
         description: String?,
         extraData: String?,
         service: ServiceConfig,
-        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-        onError: @escaping ([String : AnyObject]) -> ())
-)
+        onSuccess: (Dictionary<String, AnyObject>) -> (),
+        onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
 ```
 
