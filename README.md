@@ -115,26 +115,26 @@ Trong đó ***AES*** là hàm mã hóa theo thuật toán AES. Tùy vào ngôn n
 
 | **Hằng số**   | **Mã lỗi** | **Giải thích**                                               |
 | :------------ | :----------- | :----------------------------------------------------------- |
-| **EXPIRED** | 401          | ***token*** hết hạn sử dụng |
-| ***NETWORK***  | -1          | Kết nối mạng bị sự cố |
-| ***SYSTEM***   | -2           | Lỗi hệ thống |
-| ***LIMIT***   | -3           | Lỗi số dư không đủ để thực hiện giao dịch |
-| ***ACCOUNT_NOT_ACTIVETES***   | -4           | Lỗi tài khoản chưa kích hoạt |
-| ***ACCOUNT_NOT_KYC***   | -5           | Lỗi tài khoản chưa định danh |
-| ***PAYMENT_ERROR***   | -6           | Thanh toán thất bại |
-| ***ERROR_KEY_ENCODE***   | -7           | Lỗi mã hóa/giải mã dữ liệu |
-| ***USER_CANCELLED***   | -8           | Người dùng thao tác hủy |
-| ***ACCOUNT_NOT_LOGIN***   | -9           | Lỗi chưa đăng nhập tài khoản |
+| <code>EXPIRED</code> | <code>401</code>          | ***token*** hết hạn sử dụng |
+| <code>NETWORK</code>  | <code>-1</code>          | Kết nối mạng bị sự cố |
+| <code>SYSTEM</code>   | <code>-2</code>           | Lỗi hệ thống |
+| <code>LIMIT</code>   | <code>-3</code>           | Lỗi số dư không đủ để thực hiện giao dịch |
+| <code>ACCOUNT_NOT_ACTIVATED</code>   | <code>-4</code>           | Lỗi tài khoản chưa kích hoạt |
+| <code>ACCOUNT_NOT_KYC</code>   | <code>-5</code>           | Lỗi tài khoản chưa định danh |
+| <code>PAYMENT_ERROR</code>   | <code>-6</code>          | Thanh toán thất bại |
+| <code>ERROR_KEY_ENCODE</code>   | <code>-7</code>           | Lỗi mã hóa/giải mã dữ liệu |
+| <code>USER_CANCELLED</code>   | <code>-8</code>          | Người dùng thao tác hủy |
+| <code>ACCOUNT_NOT_LOGIN</code>   | <code>-9</code>           | Lỗi chưa đăng nhập tài khoản |
 
 ## Các chức năng của PayME SDK
 
 ### login()
 
 Có 2 trường hợp
-- Dùng để login lần đầu tiên ngay sau khi khởi tạo PayME.
-- Dùng khi accessToken hết hạn, khi gọi hàm của SDK mà trả về mã lỗi ERROR_CODE.EXPIRED, lúc này app cần gọi login lại để lấy accessToken dùng cho các chức năng khác.
+- Dùng để login lần đầu tiên ngay sau khi khởi tạo <code>PayME</code>.
+- Dùng khi <code>accessToken</code> hết hạn, khi gọi hàm của SDK mà trả về mã lỗi <code>ResponseCode.EXPIRED</code>, lúc này app cần gọi <code>login</code> lại để lấy <code>accessToken</code> dùng cho các chức năng khác.
 
-Sau khi gọi login() thành công rồi thì mới gọi các chức năng khác của SDK ( openWallet, pay ... )
+Sau khi gọi <code>login()</code> thành công rồi thì mới gọi các chức năng khác của SDK ( <code>openWallet</code>, <code>pay</code> ... )
 
 ```swift
 public func login(
@@ -143,7 +143,7 @@ public func login(
 ) -> ()
 ```
 
-Khi login thành công sẽ được trả về 1 enum KYCState chứa thông tin như sau: 
+Khi login thành công sẽ được trả về 1 enum <code>KYCState</code> chứa thông tin như sau: 
 
 ```swift
 public enum KYCState {
@@ -187,19 +187,19 @@ public func openWallet(
   }
 ```
 
-Hàm này được gọi khi từ app tích hợp khi muốn gọi 1 chức năng PayME bằng cách truyền vào tham số Action như trên.
+Hàm này được gọi khi từ app tích hợp khi muốn gọi 1 chức năng PayME bằng cách truyền vào tham số <code>Action</code> như trên.
 
 #### Tham số
 
 | **Tham số**                                                  | **Bắt buộc** | **Giải thích**                                               |
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| [currentVC](https://www.notion.so/context-3dc20c6bc7d148f18d9004d0b7681866) | Yes          | ViewController để PayME SDK dựa vào đó tự mở giao diện của PayME lên. |
-| [action](https://www.notion.so/action-473fad14180341b58515f2c3373d3b1c) | Yes          | <ul><li>OPEN : Dùng để mở giao diện ví PayME WebView và không thực hiện hành động nào đặc biệt.</li><li>DEPOSIT: Dùng để mở giao diện ví PayME và thực hiện chức năng nạp tiền PayME sẽ xử lý và có thông báo thành công thất bại trên UI của PayME. Ngoài ra sẽ trả về cho app tích hợp kết quả nếu muốn tự hiển thị và xử lý trên app.</li><li>WITHDRAW: Dùng để mở giao diện ví PayME và thực hiện chức năng rút tiền PayME sẽ xử lý và có thông báo thành công thất bại trên UI của PayME. Ngoài ra sẽ trả về cho app tích hợp kết quả nếu muốn tự hiển thị và xử lý trên app.</li></ul> |
-| [amount](https://www.notion.so/amount-34eb8b97a9d04453867a7e4d87482980) | No           | Dùng trong trường hợp action là Deposit/Withdraw thì truyền vào số tiền |
-| [description](https://www.notion.so/description-59034b8b0afe4f90a9118da3a478e7c0) | No           | Truyền mô tả của giao dịch nếu có                            |
-| [extraData](https://www.notion.so/extraData-60ec44734315404685d82f9ab1d2886a) | No           | Khi thực hiện Deposit hoặc Withdraw thì app tích hợp cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IBN lại hệ thống backend app tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết đối với hệ thống app tích hợp. |
-| [onSuccess](https://www.notion.so/onSuccess-6e24a547a1ad46499c9d6413b5c02e81) | Yes          | Dùng để bắt callback khi thực hiện giao dịch thành công từ PayME SDK |
-| [onError](https://www.notion.so/onError-25f94cb5a141484b8a70b9f1a2d7f33f) | Yes          | Dùng để bắt callback khi có lỗi xảy ra trong quá trình gọi PayME SDK |
+| <code>currentVC</code> | Yes          | ViewController để PayME SDK dựa vào đó tự mở giao diện của PayME lên. |
+| <code>action</code> | Yes          | <ul><li>OPEN : Dùng để mở giao diện ví PayME WebView và không thực hiện hành động nào đặc biệt.</li><li>DEPOSIT: Dùng để mở giao diện ví PayME và thực hiện chức năng nạp tiền PayME sẽ xử lý và có thông báo thành công thất bại trên UI của PayME. Ngoài ra sẽ trả về cho app tích hợp kết quả nếu muốn tự hiển thị và xử lý trên app.</li><li>WITHDRAW: Dùng để mở giao diện ví PayME và thực hiện chức năng rút tiền PayME sẽ xử lý và có thông báo thành công thất bại trên UI của PayME. Ngoài ra sẽ trả về cho app tích hợp kết quả nếu muốn tự hiển thị và xử lý trên app.</li></ul> |
+| <code>amount</code> | No           | Dùng trong trường hợp action là Deposit/Withdraw thì truyền vào số tiền |
+| <code>description</code> | No           | Truyền mô tả của giao dịch nếu có                            |
+| <code>extraData</code> | No           | Khi thực hiện Deposit hoặc Withdraw thì app tích hợp cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IBN lại hệ thống backend app tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết đối với hệ thống app tích hợp. |
+| <code>onSuccess</code> | Yes          | Dùng để bắt callback khi thực hiện giao dịch thành công từ PayME SDK |
+| <code>onError</code> | Yes          | Dùng để bắt callback khi có lỗi xảy ra trong quá trình gọi PayME SDK |
 
 Ví dụ :
 
@@ -246,7 +246,7 @@ public func deposit(
 ) -> () 
 ```
 
-Hàm này có ý nghĩa giống như khi gọi openWallet với action **Action.Deposit.**
+Hàm này có ý nghĩa giống như khi gọi <code>openWallet</code> với action <code>Action.DEPOSIT</code>
 
 ### withdraw() - Rút tiền
 
@@ -261,7 +261,7 @@ public func withdraw(
 ) -> ()
 ```
 
-Hàm này có ý nghĩa giống như gọi openWallet với action là **Action.WITHDRAW**.
+Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action là <code>Action.WITHDRAW</code>
 
 ### pay() - Thanh toán
 
@@ -276,7 +276,7 @@ public func pay(
     note: String?,
     paymentMethodID: Int?,
     extraData: String?,
-    isShowResultUI: Bool,
+    isShowResultUI: Bool = true,
     onSuccess: (Dictionary<String, AnyObject>) -> (),
     onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
@@ -284,14 +284,14 @@ public func pay(
 
 | Tham số                                                      | **Bắt buộc** | **Giải thích**                                               |
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| [<code>currentVC</code>](https://www.notion.so/context-3dc20c6bc7d148f18d9004d0b7681866) | Yes          | ViewController để PayME SDK dựa vào đó tự mở giao diện của PayME lên. |
-| [<code>amount</code>](https://www.notion.so/amount-f0a6c8422a11417a96bc898ad4ccffae) | Yes          | Số tiền cần thanh toán bên app truyền qua cho SDK            |
-| [<code>description</code>](https://www.notion.so/description-f1f792f387f046bfb9432e4b94b76618) | No           | Mô tả nếu có                                                 |
-| [<code>extraData</code>](https://www.notion.so/extraData-1aaad5976cca478d80f47b3c2f8bb804) | Yes          | Khi thực hiện thanh toans thì app cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IBN lại hệ thống backend tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết. |
+| <code>currentVC</code> | Yes          | ViewController để PayME SDK dựa vào đó tự mở giao diện của PayME lên. |
+| <code>amount</code> | Yes          | Số tiền cần thanh toán bên app truyền qua cho SDK            |
+| <code>description</code> | No           | Mô tả nếu có                                                 |
+| <code>extraData</code> | Yes          | Khi thực hiện thanh toán thì app cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IPN lại hệ thống backend tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết. |
 | <code>storeId</code> | Yes | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
 | <code>orderId</code> | Yes | Mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch |
 | <code>note</code> | No | Mô tả giao dịch từ phía đối tác |
-| <code>isShowResultUI</code> | No | Đã có giá trị default là true, với ý nghĩa là khi có kết quả thanh toán thì sẽ hiển thị màn hình thành công, thất bại. Khi truyền giá trị là false thì sẽ không có màn hình thành công, thất bại. |
+| <code>isShowResultUI</code> | No | Đã có giá trị default là <code>true</code>, với ý nghĩa là khi có kết quả thanh toán thì sẽ hiển thị màn hình thành công, thất bại. Khi truyền giá trị là false thì sẽ không có màn hình thành công, thất bại. |
 | <code>onSuccess</code> | Yes | Callback trả kết quả khi thành công |
 | <code>onError</code> | Yes | Callback trả kết quả khi thất bại |
 
@@ -306,7 +306,7 @@ public func getWalletInfo(
 ) -> ()
 ```
 
-- Trong trường hợp lỗi thì hàm sẽ trả về message mỗi tại hàm onError , khi đó app có thể hiển thị balance là 0.
+- Trong trường hợp lỗi thì hàm sẽ trả về message lỗi tại hàm <code>onError</code> , khi đó app có thể hiển thị <code>balance</code> là 0.
 
 - Trong trường hợp thành công SDK trả về thông tin như sau:
 
