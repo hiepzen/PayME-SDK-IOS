@@ -23,6 +23,8 @@ PayMESDK đang được lưu trữ trên nền tảng CocoaPods. Để cài đ�
 pod 'PayMESDK'
 ```
 
+Sau đó chạy lệnh <code>pod install</code> để hoàn tất cài dặt
+
 ## Cách sử dụng SDK:
 
 Hệ thống PayME sẽ cung cấp cho app tích hợp các thông tin sau:
@@ -43,14 +45,14 @@ Chuẩn mã hóa: RSA-512bit. Có thể dùng tool sau để sinh ra [tại đâ
 Trước khi sử dụng PayME SDK cần gọi phương thức khởi tạo một lần duy nhất để khởi tạo SDK.
 
 ```swift
-let payme = PayME( appId : "AppToken", 
-                   publicKey: "PublicKey", 
-                   connectToken : "ConnectToken",
-                   appPrivateKey : "AppPrivateKey", 
-                   language: PayME.Language.VIETNAM,
-                   configColor : ["#07A922"],
-                   env: PayME.Env.SANDBOX
-                   )
+let payme = PayME(appId : "AppToken", 
+                  publicKey: "PublicKey", 
+                  connectToken : "ConnectToken",
+                  appPrivateKey : "AppPrivateKey", 
+                  language: PayME.Language.VIETNAM,
+                  configColor : ["#07A922"],
+                  env: PayME.Env.SANDBOX
+)
 ```
 
 Trong đó các thông số có dạng:
@@ -136,9 +138,9 @@ Sau khi gọi login() thành công rồi thì mới gọi các chức năng khá
 
 ```swift
 public func login(
-  onSuccess: @escaping ([String: AnyObject]) -> (),
-  onError: @escaping ([String: AnyObject]) -> ()
-)
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
 ```
 
 Khi login thành công sẽ được trả về 1 enum KYCState chứa thông tin như sau: 
@@ -289,7 +291,7 @@ public func pay(
 | <code>storeId</code> | Yes | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
 | <code>orderId</code> | Yes | Mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch |
 | <code>note</code> | No | Mô tả giao dịch từ phía đối tác |
-| isShowResultUI | No | Đã có giá trị default là true, với ý nghĩa là khi có kết quả thanh toán thì sẽ hiển thị màn hình thành công, thất bại. Khi truyền giá trị là false thì sẽ không có màn hình thành công, thất bại. |
+| <code>isShowResultUI</code> | No | Đã có giá trị default là true, với ý nghĩa là khi có kết quả thanh toán thì sẽ hiển thị màn hình thành công, thất bại. Khi truyền giá trị là false thì sẽ không có màn hình thành công, thất bại. |
 | <code>onSuccess</code> | Yes | Callback trả kết quả khi thành công |
 | <code>onError</code> | Yes | Callback trả kết quả khi thất bại |
 
