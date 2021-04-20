@@ -153,7 +153,7 @@ public enum KYCState {
 }
 ```
 
-Các tính năng như nạp tiền, rút tiền, pay chỉ thực hiện được khi đã kích hoạt ví và gửi định danh thành công. Tức là khi login sẽ được trả về enum KYCState với case là KYCOK.
+Các tính năng như nạp tiền, rút tiền, pay chỉ thực hiện được khi đã kích hoạt ví và gửi định danh thành công. Tức là khi login sẽ được trả về enum <code>KYCState</code> với case là <code>KYC_APPROVED</code>.
 
 ### logout()
 
@@ -284,10 +284,10 @@ public func pay(
 
 | Tham số                                                      | **Bắt buộc** | **Giải thích**                                               |
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| [currentVC](https://www.notion.so/context-3dc20c6bc7d148f18d9004d0b7681866) | Yes          | ViewController để PayME SDK dựa vào đó tự mở giao diện của PayME lên. |
-| [amount](https://www.notion.so/amount-f0a6c8422a11417a96bc898ad4ccffae) | Yes          | Số tiền cần thanh toán bên app truyền qua cho SDK            |
-| [description](https://www.notion.so/description-f1f792f387f046bfb9432e4b94b76618) | No           | Mô tả nếu có                                                 |
-| [extraData](https://www.notion.so/extraData-1aaad5976cca478d80f47b3c2f8bb804) | Yes          | Khi thực hiện thanh toans thì app cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IBN lại hệ thống backend tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết. |
+| [<code>currentVC</code>](https://www.notion.so/context-3dc20c6bc7d148f18d9004d0b7681866) | Yes          | ViewController để PayME SDK dựa vào đó tự mở giao diện của PayME lên. |
+| [<code>amount</code>](https://www.notion.so/amount-f0a6c8422a11417a96bc898ad4ccffae) | Yes          | Số tiền cần thanh toán bên app truyền qua cho SDK            |
+| [<code>description</code>](https://www.notion.so/description-f1f792f387f046bfb9432e4b94b76618) | No           | Mô tả nếu có                                                 |
+| [<code>extraData</code>](https://www.notion.so/extraData-1aaad5976cca478d80f47b3c2f8bb804) | Yes          | Khi thực hiện thanh toans thì app cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IBN lại hệ thống backend tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết. |
 | <code>storeId</code> | Yes | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
 | <code>orderId</code> | Yes | Mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch |
 | <code>note</code> | No | Mô tả giao dịch từ phía đối tác |
