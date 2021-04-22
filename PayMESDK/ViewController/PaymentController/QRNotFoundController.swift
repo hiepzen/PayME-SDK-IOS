@@ -25,7 +25,7 @@ class QRNotFound: UIViewController, PanModalPresentable {
         roleLabel.textAlignment = .center
         setupConstraints()
     }
-    
+
     var panScrollable: UIScrollView? {
         return nil
     }
@@ -41,7 +41,7 @@ class QRNotFound: UIViewController, PanModalPresentable {
     var shouldRoundTopCorners: Bool {
         return true
     }
-    
+
 
     func setupConstraints() {
         closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 19).isActive = true
@@ -64,14 +64,13 @@ class QRNotFound: UIViewController, PanModalPresentable {
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: button.bottomAnchor, constant: 10).isActive = true
 
     }
-    
+
     @objc
-    func buttonAction(button:UIButton)
-    {
+    func buttonAction(button: UIButton) {
         self.dismiss(animated: true, completion: nil)
     }
-    
-    let closeButton : UIButton = {
+
+    let closeButton: UIButton = {
         let button = UIButton()
         let bundle = Bundle(for: QRNotFound.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
@@ -81,7 +80,7 @@ class QRNotFound: UIViewController, PanModalPresentable {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
+
     let image: UIImageView = {
         let bundle = Bundle(for: QRNotFound.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
@@ -91,10 +90,10 @@ class QRNotFound: UIViewController, PanModalPresentable {
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
-    
+
     let nameLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(24,26,65)
+        label.textColor = UIColor(24, 26, 65)
         label.font = UIFont.systemFont(ofSize: 21, weight: .semibold)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -103,27 +102,29 @@ class QRNotFound: UIViewController, PanModalPresentable {
 
     let roleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(115,115,115)
+        label.textColor = UIColor(115, 115, 115)
         label.backgroundColor = .clear
         label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    let button : UIButton = {
+
+    let button: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(8,148,31)
+        button.backgroundColor = UIColor(8, 148, 31)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
         return button
     }()
+
     override func viewDidLayoutSubviews() {
         button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
     }
-    
+
     init() {
         super.init(nibName: nil, bundle: nil)
     }
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

@@ -149,10 +149,10 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                             }
                             let succeeded = payInfo["succeeded"] as! Bool
                             if (succeeded == true) {
-                                let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                                let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
                                 let responseSuccess = [
                                     "payment": ["transaction": paymentInfo["transaction"] as? String]
-                                ] as [String : AnyObject]
+                                ] as [String: AnyObject]
                                 DispatchQueue.main.async {
                                     self.onSuccess!(responseSuccess)
                                     self.removeSpinner()
@@ -178,10 +178,10 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                         webViewController.form = html!
                                         webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                                             webViewController.dismiss(animated: true)
-                                            let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                                            let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
                                             let responseSuccess = [
                                                 "payment": ["transaction": paymentInfo["transaction"] as? String]
-                                            ] as [String : AnyObject]
+                                            ] as [String: AnyObject]
                                             self.onSuccess!(responseSuccess)
                                             self.setupSuccess()
                                         })
@@ -189,10 +189,10 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                             webViewController.dismiss(animated: true)
                                             self.removeSpinner()
                                             self.failView.failLabel.text = responseFromWebView
-                                            let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                                            let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
                                             let responseSuccess = [
                                                 "payment": ["transaction": paymentInfo["transaction"] as? String]
-                                            ] as [String : AnyObject]
+                                            ] as [String: AnyObject]
                                             self.onError!(responseSuccess)
                                             self.setupFail()
                                         })

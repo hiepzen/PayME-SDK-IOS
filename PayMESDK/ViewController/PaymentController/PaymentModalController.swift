@@ -1,5 +1,5 @@
 //
-//  PaymentModal.swift
+//  PaymentModalController.swift
 //  PayMESDK
 //
 //  Created by HuyOpen on 10/28/20.
@@ -48,10 +48,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                         }
                     }
                     if (succeeded == true) {
-                        let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                        let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
                         let responseSuccess = [
                             "payment": ["transaction": paymentInfo["transaction"] as? String]
-                        ] as [String : AnyObject]
+                        ] as [String: AnyObject]
                         self.onSuccess!(responseSuccess)
                         self.otpView.removeFromSuperview()
                         self.setupSuccess()
@@ -294,10 +294,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             }
 
             if (succeeded == true) {
-                let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
                 let responseSuccess = [
                     "payment": ["transaction": paymentInfo["transaction"] as? String]
-                ] as [String : AnyObject]
+                ] as [String: AnyObject]
                 self.onSuccess!(responseSuccess)
                 self.securityCode.removeFromSuperview()
                 self.setupSuccess()
@@ -355,10 +355,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 }
                 let succeeded = payInfo["succeeded"] as! Bool
                 if (succeeded == true) {
-                    let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                    let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
                     let responseSuccess = [
                         "payment": ["transaction": paymentInfo["transaction"] as? String]
-                    ] as [String : AnyObject]
+                    ] as [String: AnyObject]
                     self.onSuccess!(responseSuccess)
                     self.removeSpinner()
                     self.methodsView.removeFromSuperview()
@@ -381,10 +381,10 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                                 webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                                     webViewController.dismiss(animated: true)
                                     self.methodsView.removeFromSuperview()
-                                    let paymentInfo = payInfo["history"]!["payment"] as! [String : AnyObject]
+                                    let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
                                     let responseSuccess = [
                                         "payment": ["transaction": paymentInfo["transaction"] as? String]
-                                    ] as [String : AnyObject]
+                                    ] as [String: AnyObject]
                                     self.onSuccess!(responseSuccess)
                                     self.setupSuccess()
                                 })
