@@ -1,5 +1,5 @@
 //
-//  Methods.swift
+//  PaymentModal.swift
 //  PayMESDK
 //
 //  Created by HuyOpen on 10/28/20.
