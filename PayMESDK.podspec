@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'PayMESDK'
-  s.version          = '0.0.59'
+  s.version          = '0.0.60'
   s.summary          = 'PayME SDK là bộ thư viện để các app có thể tương tác với PayME Platform. PayME SDK bao gồm các chức năng chính như sau.'
   s.swift_versions   = '4.2'
 
@@ -29,7 +29,7 @@ Pod::Spec.new do |s|
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'HuyOpen' => 'huytq@payme.vn' }
-  s.source           = { :git => 'https://github.com/PayME-Tech/PayMESDK-IOS.git', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/PayME-Tech/PayME-SDK-IOS.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '10.0'
