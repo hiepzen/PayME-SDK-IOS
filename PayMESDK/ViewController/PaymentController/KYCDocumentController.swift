@@ -8,9 +8,6 @@
 import UIKit
 
 class KYCDocumentController: UINavigationController, PanModalPresentable, UITableViewDelegate,  UITableViewDataSource {
-    
-    
-
     public var data : [KYCDocument] = []
     public var active = 0
     private var onSuccessChoiceKYC: ((Int) -> ())? = nil
@@ -30,7 +27,6 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
         tableView.dataSource = self
     }
 
-    
     var longFormHeight: PanModalHeight {
         return .intrinsicHeight
     }
@@ -48,7 +44,6 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
     }
     
     func setupConstraints() {
-  
         txtLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 19).isActive = true
         txtLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
 
@@ -63,9 +58,6 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
         closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
         closeButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
         closeButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
-        
-        
-        
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 10).isActive = true
     }
@@ -73,26 +65,19 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
     override func viewDidLayoutSubviews() {
         tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height).isActive = true
     }
-    
-    
-    @objc
-    func closeAction(button:UIButton)
-    {
+
+    @objc func closeAction(button:UIButton) {
         self.dismiss(animated: true, completion: nil)
     }
 
-    
-    
     let tableView : UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .red
         tableView.separatorStyle = .none
-        
         return tableView
     }()
-    
-    
+
     let closeButton : UIButton = {
         let button = UIButton()
         let bundle = Bundle(for: KYCDocumentController.self)
@@ -104,7 +89,6 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
         return button
     }()
 
-    
     let button : UIButton = {
         let button = UIButton()
         button.backgroundColor = UIColor(8,148,31)
@@ -155,22 +139,19 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
 }
 
 extension KYCDocumentController{
-    
     func numberOfSectionsInTableView(_tableView: UITableView) -> Int {
         return data.count
     }
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
 
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-
         return data.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? KYCMethod
             else { return UITableViewCell() }
         cell.configure(with: data[indexPath.row])
