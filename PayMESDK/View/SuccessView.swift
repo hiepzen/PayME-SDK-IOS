@@ -364,7 +364,6 @@ internal class SuccessView: UIView {
         let animation = Animation.named("Result_Thanh_Cong", bundle: resourceBundle!)
         animationView.animation = animation
         animationView.contentMode = .scaleAspectFit
-        animationView.play()
     }
 
     required init?(coder aDecoder: NSCoder) {

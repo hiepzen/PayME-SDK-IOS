@@ -559,6 +559,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             view.layoutIfNeeded()
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
+            failView.animationView.play()
         } else {
             dismiss(animated: true)
         }
@@ -586,6 +587,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             view.layoutIfNeeded()
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
+            successView.animationView.play()
         } else {
             dismiss(animated: true)
         }
