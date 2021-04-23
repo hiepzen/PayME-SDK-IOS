@@ -1,13 +1,6 @@
-//
-//  LinkedMethodInfo.swift
-//  PayMESDK
-//
-//  Created by HuyOpen on 1/11/21.
-//
-
 import Foundation
 
-public class LinkedMethodInfo : Codable {
+public class LinkedInformation: Codable {
     internal var swiftCode: String!
     internal var linkedId: Int!
     

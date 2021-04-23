@@ -13,10 +13,6 @@ class Upload: UIViewController {
     let screenSize: CGRect = UIScreen.main.bounds
 
     let imageView: UIImageView = {
-        let bundle = Bundle(for: KYCFrontController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "fails", in: resourceBundle, compatibleWith: nil)
         var bgImage = UIImageView(image: nil)
         bgImage.layer.cornerRadius = 15
         bgImage.layer.masksToBounds = true
@@ -48,11 +44,7 @@ class Upload: UIViewController {
 
     let backButton: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: KYCFrontController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "32Px", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: KYCFrontController.self, named: "32Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

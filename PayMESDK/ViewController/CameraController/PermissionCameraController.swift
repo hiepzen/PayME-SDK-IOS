@@ -13,11 +13,7 @@ class PermissionCamera: UIViewController {
 
     let backButton: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: KYCFrontController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "icSetArrowBack32Px", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: KYCFrontController.self, named: "icSetArrowBack32Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -63,11 +59,7 @@ class PermissionCamera: UIViewController {
     }()
 
     let iconNullCamera: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "iconArtNullNoCameraAccess", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "iconArtNullNoCameraAccess"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()

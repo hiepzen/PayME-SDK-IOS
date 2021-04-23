@@ -26,21 +26,13 @@ class KYCMethod: UITableViewCell {
     }()
 
     let checkedImage: UIImageView = {
-        let bundle = Bundle(for: Method.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "checked", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: Method.self, named: "checked"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
 
     let uncheckImage: UIImageView = {
-        let bundle = Bundle(for: Method.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "uncheck", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: Method.self, named: "uncheck"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
@@ -91,16 +83,10 @@ class KYCMethod: UITableViewCell {
     func configure(with presentable: KYCDocument) {
         self.presentable = presentable
         bankNameLabel.text = presentable.name
-
-        let bundle = Bundle(for: KYCMethod.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let checkStateImage = UIImage(named: "checked", in: resourceBundle, compatibleWith: nil)
-        let uncheckStateImage = UIImage(named: "uncheck", in: resourceBundle, compatibleWith: nil)
         if (presentable.active == false) {
-            checkedImage.image = uncheckStateImage
+            checkedImage.image = UIImage(for: KYCMethod.self, named: "uncheck")
         } else {
-            checkedImage.image = checkStateImage
+            checkedImage.image = UIImage(for: KYCMethod.self, named: "checked")
         }
     }
 }

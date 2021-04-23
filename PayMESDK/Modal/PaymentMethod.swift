@@ -8,19 +8,30 @@
 
 import Foundation
 
-public class MethodInfo {
-    internal var methodId : Int!
+public class PaymentMethod {
+    internal var methodId: Int!
     internal var type: String = ""
     internal var title: String = ""
     internal var label: String = ""
     internal var fee: Int!
     internal var minFee: Int!
     internal var amount: Int?
-    internal var dataWallet : WalletMethodInfo?
-    internal var dataLinked : LinkedMethodInfo?
+    internal var dataWallet: WalletInformation?
+    internal var dataLinked: LinkedInformation?
     internal var active: Bool!
-    
-    public init(methodId :Int?, type:String, title:String, label: String, amount: Int?, fee: Int, minFee: Int, dataWallet: WalletMethodInfo?, dataLinked: LinkedMethodInfo?, active: Bool){
+
+    public init(
+            methodId: Int?,
+            type: String,
+            title: String,
+            label: String,
+            amount: Int?,
+            fee: Int,
+            minFee: Int,
+            dataWallet: WalletInformation?,
+            dataLinked: LinkedInformation?,
+            active: Bool
+    ) {
         self.methodId = methodId
         self.type = type
         self.title = title

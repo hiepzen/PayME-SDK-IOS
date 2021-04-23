@@ -13,8 +13,6 @@ class Method: UITableViewCell {
         static let avatarSize = CGSize(width: 36.0, height: 36.0)
     }
 
-    var presentable = MethodInfo(methodId: nil, type: "", title: "", label: "", amount: 0, fee: 0, minFee: 0, dataWallet: nil, dataLinked: nil, active: false)
-
     let containerView: UIView = {
         let containerView = UIView()
         containerView.layer.cornerRadius = 15.0
@@ -58,26 +56,16 @@ class Method: UITableViewCell {
     }()
 
     let checkedImage: UIImageView = {
-        let bundle = Bundle(for: Method.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "nextIcoCopy3", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: Method.self, named: "nextIcoCopy3"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
 
     let uncheckImage: UIImageView = {
-        let bundle = Bundle(for: Method.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "uncheck", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: Method.self, named: "uncheck"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
-
-    // MARK: - Initializers
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -94,7 +82,6 @@ class Method: UITableViewCell {
         containerView.addSubview(checkedImage)
         containerView.addSubview(bankContentLabel)
         containerView.addSubview(imageContainer)
-        // contentView.addSubview(walletMethodImage)
         setupConstraints()
     }
 
@@ -102,11 +89,7 @@ class Method: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Layout
-
     func setupConstraints() {
-
-
         containerView.heightAnchor.constraint(equalToConstant: 40).isActive = true
         containerView.widthAnchor.constraint(equalTo: contentView.widthAnchor).isActive = true
         containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
@@ -131,7 +114,6 @@ class Method: UITableViewCell {
         bankNameLabel.trailingAnchor.constraint(equalTo: bankContentLabel.leadingAnchor, constant: -5).isActive = true
         bankNameLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
 
-
         bankContentLabel.leadingAnchor.constraint(equalTo: bankNameLabel.trailingAnchor, constant: 5).isActive = true
         bankContentLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
     }
@@ -144,8 +126,7 @@ class Method: UITableViewCell {
         super.setSelected(selected, animated: animated)
     }
 
-    func configure(with presentable: MethodInfo) {
-        self.presentable = presentable
+    func configure(with presentable: PaymentMethod) {
         if (presentable.type == "WALLET") {
             bankNameLabel.text = "Số dư ví"
             bankContentLabel.text = "(\(formatMoney(input: presentable.amount!))đ)"
@@ -154,36 +135,23 @@ class Method: UITableViewCell {
             bankContentLabel.text = presentable.label
         }
         if (presentable.type.isEqual("WALLET")) {
-            let bundle = Bundle(for: Method.self)
-            let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-            let resourceBundle = Bundle(url: bundleURL!)
-            let image = UIImage(named: "iconWallet", in: resourceBundle, compatibleWith: nil)
-            self.walletMethodImage.image = image
+            walletMethodImage.image = UIImage(for: Methods.self, named: "iconWallet")
         } else if (presentable.type.isEqual("LINKED")) {
             if (presentable.dataLinked != nil) {
                 let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode!).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
                 DispatchQueue.global().async {
                     if let sureURL = url as URL? {
-                        let data = try? Data(contentsOf: sureURL) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
+                        let data = try? Data(contentsOf: sureURL)
                         DispatchQueue.main.async {
                             self.walletMethodImage.image = UIImage(data: data!)
                         }
                     }
                 }
-
             }
         } else if (presentable.type.isEqual("BANK_CARD")) {
-            let bundle = Bundle(for: Method.self)
-            let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-            let resourceBundle = Bundle(url: bundleURL!)
-            let image = UIImage(named: "fill1", in: resourceBundle, compatibleWith: nil)
-            self.walletMethodImage.image = image
+            walletMethodImage.image = UIImage(for: Method.self, named: "fill1")
         } else {
-            let bundle = Bundle(for: Method.self)
-            let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-            let resourceBundle = Bundle(url: bundleURL!)
-            let image = UIImage(named: "iconWallet", in: resourceBundle, compatibleWith: nil)
-            self.walletMethodImage.image = image
+            walletMethodImage.image = UIImage(for: Method.self, named: "iconWallet")
         }
     }
 }

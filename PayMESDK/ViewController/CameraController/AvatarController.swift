@@ -76,22 +76,14 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
 
     let backButton: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: KYCCameraController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "previous", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 16)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: KYCCameraController.self, named: "previous")?.resizeWithWidth(width: 16), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     let pressCamera: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: KYCCameraController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "shootvidBtn", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: KYCCameraController.self, named: "shootvidBtn"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
