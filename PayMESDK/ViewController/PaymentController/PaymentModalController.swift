@@ -132,7 +132,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     }
 
     var bankName: String = ""
-    var data: [MethodInfo] = []
+    var data: [PaymentMethod] = []
     static var storeId: Int = 0
     static var paymentMethodID: Int? = nil
     static var orderId: String = ""
@@ -178,7 +178,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         placeholderView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
 
         getListMethodsAndExecution { methods in
-            guard let method: MethodInfo = methods.first(where: { $0.methodId == Methods.paymentMethodID }) else {
+            guard let method = methods.first(where: { $0.methodId == Methods.paymentMethodID }) else {
                 self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": ("Không tìm thấy phương thức") as AnyObject])
                 return
             }
@@ -186,9 +186,9 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         }
     }
 
-    func getMethodSelected() -> MethodInfo {
+    func getMethodSelected() -> PaymentMethod {
         if Methods.paymentMethodID != nil {
-            if let method: MethodInfo = data.first(where: { $0.methodId == Methods.paymentMethodID }) {
+            if let method = data.first(where: { $0.methodId == Methods.paymentMethodID }) {
                 return method
             }
         }
@@ -439,15 +439,15 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         })
     }
 
-    func getListMethodsAndExecution(execution: (([MethodInfo]) -> Void)? = nil) {
+    func getListMethodsAndExecution(execution: (([PaymentMethod]) -> Void)? = nil) {
         showSpinner(onView: view)
         API.getWalletInfo(onSuccess: { walletInformation in
             let balance = (walletInformation["Wallet"] as! [String: AnyObject])["balance"] as! Int
             API.getTransferMethods(onSuccess: { response in
                 let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
-                var methods: [MethodInfo] = []
+                var methods: [PaymentMethod] = []
                 for (index, item) in items.enumerated() {
-                    let methodInformation = MethodInfo(
+                    let methodInformation = PaymentMethod(
                             methodId: (item["methodId"] as! Int), type: item["type"] as! String,
                             title: item["title"] as! String, label: item["label"] as! String,
                             amount: (item["type"] as! String) == "WALLET" ? balance : nil,
@@ -456,9 +456,9 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     )
                     if !(item["data"] is NSNull) {
                         if let accountId = (item["data"] as! [String: AnyObject])["accountId"] as? Int {
-                            methodInformation.dataWallet = WalletMethodInfo(accountId: accountId)
+                            methodInformation.dataWallet = WalletInformation(accountId: accountId)
                         } else {
-                            methodInformation.dataLinked = LinkedMethodInfo(
+                            methodInformation.dataLinked = LinkedInformation(
                                     swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as! String,
                                     linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int
                             )
@@ -481,7 +481,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         })
     }
 
-    func showMethods(_ methods: [MethodInfo]) {
+    func showMethods(_ methods: [PaymentMethod]) {
         tableView.reloadData()
         tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height).isActive = true
         tableView.alwaysBounceVertical = false
@@ -559,6 +559,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             view.layoutIfNeeded()
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
+            failView.animationView.play()
         } else {
             dismiss(animated: true)
         }
@@ -586,6 +587,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             view.layoutIfNeeded()
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
+            successView.animationView.play()
         } else {
             dismiss(animated: true)
         }
@@ -617,7 +619,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         pay(data[indexPath.row])
     }
 
-    func pay(_ method: MethodInfo) {
+    func pay(_ method: PaymentMethod) {
         if (method.type == "WALLET") {
             if (method.amount! < Methods.amount) {
                 Methods.isShowCloseModal = false
@@ -767,11 +769,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
 
     let closeButton: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: QRNotFound.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "16Px", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: QRNotFound.self, named: "16Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

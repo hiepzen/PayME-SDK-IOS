@@ -80,11 +80,7 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
 
     let closeButton : UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: KYCDocumentController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "16Px", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: KYCDocumentController.self, named: "16Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

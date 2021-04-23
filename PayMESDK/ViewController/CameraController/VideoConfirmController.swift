@@ -47,11 +47,7 @@ class VideoConfirm: UIViewController {
 
     let backButton: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: KYCFrontController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "32Px", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: KYCFrontController.self, named: "32Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

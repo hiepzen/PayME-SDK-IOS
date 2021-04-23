@@ -27,21 +27,13 @@ internal class SuccessView: UIView {
 
     let closeButton: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: Failed.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "16Px", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: Failed.self, named: "16Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     let image: UIImageView = {
-        let bundle = Bundle(for: Failed.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "success", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: Failed.self, named: "success"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
@@ -372,7 +364,6 @@ internal class SuccessView: UIView {
         let animation = Animation.named("Result_Thanh_Cong", bundle: resourceBundle!)
         animationView.animation = animation
         animationView.contentMode = .scaleAspectFit
-        animationView.play()
     }
 
     required init?(coder aDecoder: NSCoder) {

@@ -226,31 +226,19 @@ private class PopupDocument: UIView {
     }()
 
     let iconChecked1: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "checkBullet", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
 
     let iconChecked2: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "checkBullet", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
 
     let iconChecked3: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "checkBullet", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
@@ -445,31 +433,19 @@ private class PopupFace: UIView {
     }()
 
     let imageView: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "scanCmnd", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "scanCmnd"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
 
     let iconChecked1: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "checkBullet", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
 
     let iconChecked2: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "checkBullet", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
@@ -479,25 +455,24 @@ private class PopupFace: UIView {
 
     init() {
         super.init(frame: CGRect.zero)
-        // Semi-transparent background
-        self.backgroundColor = .white
-        self.layer.cornerRadius = 15
+        backgroundColor = .white
+        layer.cornerRadius = 15
 
-        self.addSubview(rootView)
+        addSubview(rootView)
 
-        self.rootView.addSubview(continueButton)
-        self.rootView.addSubview(animationView)
-        self.rootView.addSubview(titleLabel)
-        self.rootView.addSubview(hint1)
-        self.rootView.addSubview(hint2)
+        rootView.addSubview(continueButton)
+        rootView.addSubview(animationView)
+        rootView.addSubview(titleLabel)
+        rootView.addSubview(hint1)
+        rootView.addSubview(hint2)
 
-        self.hint1.addSubview(hint1Label)
-        self.hint1.addSubview(iconChecked1)
+        hint1.addSubview(hint1Label)
+        hint1.addSubview(iconChecked1)
 
-        self.hint2.addSubview(hint2Label)
-        self.hint2.addSubview(iconChecked2)
+        hint2.addSubview(hint2Label)
+        hint2.addSubview(iconChecked2)
 
-        self.hint1.translatesAutoresizingMaskIntoConstraints = false
+        hint1.translatesAutoresizingMaskIntoConstraints = false
         self.hint1.axis = .horizontal
         self.hint1.alignment = .leading
         self.hint2.translatesAutoresizingMaskIntoConstraints = false
@@ -644,31 +619,19 @@ private class PopupVideo: UIView {
     }()
 
     let imageView: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "scanCmnd", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "scanCmnd"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
 
     let iconChecked1: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "checkBullet", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
 
     let iconChecked2: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "checkBullet", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()

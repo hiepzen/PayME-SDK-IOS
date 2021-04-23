@@ -34,17 +34,19 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '10.0'
 
-  s.source_files = 'PayMESDK/Classes/**/*'
+  s.source_files = 'PayMESDK/**/*'
   
   s.resource_bundles = {
-    'PayMESDK' => ['PayMESDK/Assets/*.png','PayMESDK/Assets/*.json'],
+    'PayMESDK' => ['PayMESDK/Resource/*.{png,json}'],
   }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   s.frameworks = 'UIKit', 'WebKit', 'Foundation', 'Security'
   s.dependency 'CryptoSwift', '1.0'
-  s.dependency 'SwiftyRSA', '1.5	'
+  s.dependency 'SwiftyRSA', '1.5'
   s.dependency 'Alamofire'
   s.dependency 'lottie-ios'
+  s.dependency 'RxSwift', '6.1.0'
+  s.dependency 'RxCocoa', '6.1.0'
 
 end

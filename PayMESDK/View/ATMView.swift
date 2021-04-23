@@ -64,11 +64,7 @@ internal class ATMView: UIView {
 
     let closeButton: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: QRNotFound.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "16Px", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: QRNotFound.self, named: "16Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -118,11 +114,7 @@ internal class ATMView: UIView {
     }()
 
     let walletMethodImage: UIImageView = {
-        let bundle = Bundle(for: Method.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "ptAtm", in: resourceBundle, compatibleWith: nil)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: Method.self, named: "ptAtm"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()

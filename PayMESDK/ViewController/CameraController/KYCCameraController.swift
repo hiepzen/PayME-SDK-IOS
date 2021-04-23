@@ -34,11 +34,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
 
     let getPhoto: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "photo", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: QRScannerController.self, named: "photo"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -184,22 +180,14 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
 
     let backButton: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: KYCCameraController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "previous", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 16)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: KYCCameraController.self, named: "previous")?.resizeWithWidth(width: 16), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     let pressCamera: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: KYCCameraController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "takepicBtn", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: KYCCameraController.self, named: "takepicBtn"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -236,15 +224,11 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
 
     let choiceDocumentType: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: KYCCameraController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "24Px", in: resourceBundle, compatibleWith: nil)
         button.setTitle("Chứng minh nhân dân", for: .normal)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: KYCCameraController.self, named: "24Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: -30, bottom: 0, right: 0) //adjust insets to have fit how you want
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 185, bottom: 0, right: 0) //adjust these to have fit right
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: -30, bottom: 0, right: 0)
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 185, bottom: 0, right: 0)
         return button
     }()
 

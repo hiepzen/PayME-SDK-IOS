@@ -18,28 +18,20 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
 
     let getPhoto: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
         button.layer.cornerRadius = 72 / 2
         button.clipsToBounds = true
         button.backgroundColor = UIColor(28, 28, 28)
-        let image = UIImage(named: "photo", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: QRScannerController.self, named: "photo"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     let flash: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
         button.layer.cornerRadius = 72 / 2
         button.clipsToBounds = true
         button.backgroundColor = UIColor(28, 28, 28)
-        let image = UIImage(named: "flash", in: resourceBundle, compatibleWith: nil)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: QRScannerController.self, named: "flash"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -80,21 +72,13 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
 
     let backButton: UIButton = {
         let button = UIButton()
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "previous", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 16)
-        button.setImage(image, for: .normal)
+        button.setImage(UIImage(for: QRScannerController.self, named: "previous")?.resizeWithWidth(width: 16), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     let logoPayME: UIImageView = {
-        let bundle = Bundle(for: QRScannerController.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let image = UIImage(named: "iconPayme", in: resourceBundle, compatibleWith: nil)?.resizeWithWidth(width: 32)
-        var bgImage = UIImageView(image: image)
+        var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "iconPayme")?.resizeWithWidth(width: 32))
         bgImage.isHidden = true
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
