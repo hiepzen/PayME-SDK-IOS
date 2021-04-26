@@ -83,7 +83,7 @@ public class PayME {
         if (jwt != nil) {
             let data = Data(jwt!.utf8)
             if let finalJSON = try? (JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) as? Dictionary<String, AnyObject>) {
-                PayME.appId = String((finalJSON!["appId"] as? Int) ?? 0)
+                PayME.appId = String((finalJSON["appId"] as? Int) ?? 0)
             } else {
                 PayME.appId = ""
             }

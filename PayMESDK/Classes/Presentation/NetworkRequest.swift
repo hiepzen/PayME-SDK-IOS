@@ -159,7 +159,7 @@ public class NetworkRequest {
                 return
             }
             let xAPIKeyResponse = headers.allHeaderFields["x-api-key"] as! String
-            let xAPIValidateResponse = headers.allHeaderFields["x-api-validate"] as! String
+//            let xAPIValidateResponse = headers.allHeaderFields["x-api-validate"] as! String
             let xAPIActionResponse = headers.allHeaderFields["x-api-action"] as! String
 
             guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
@@ -176,24 +176,27 @@ public class NetworkRequest {
             validateString += xAPIMessageResponse
             validateString += decryptKey
 
-            let validateMD5 = CryptoAES.MD5(validateString)!
+//            let validateMD5 = CryptoAES.MD5(validateString)!
             let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey)
             let dataJSON = stringJSON.data(using: .utf8)
             guard let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options: []) as? Dictionary<String, AnyObject> else {
                 return
             }
 
-            let code = finalJSON!["code"] as! Int
+            let code = finalJSON["code"] as! Int
             if code == 1000 {
-                if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
+                if let data = finalJSON["data"] as? Dictionary<String, AnyObject> {
                     DispatchQueue.main.async {
                         onSuccess(data)
                     }
                 }
             } else {
-                if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
+                if let data = finalJSON["data"] as? Dictionary<String, AnyObject> {
                     DispatchQueue.main.async {
                         onError([code: data])
+                    }
+                    DispatchQueue.main.async {
+                        
                     }
                 }
             }
@@ -258,7 +261,7 @@ public class NetworkRequestGraphQL {
                 return
             }
             if let finalJSON = try? (JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers) as? Dictionary<String, AnyObject>) {
-                if let errors = finalJSON!["errors"] as? [[String: AnyObject]] {
+                if let errors = finalJSON["errors"] as? [[String: AnyObject]] {
                     DispatchQueue.main.async {
                         var code = PayME.ResponseCode.SYSTEM
                         if let extensions = errors[0]["extensions"] as? [String: AnyObject] {
@@ -273,7 +276,7 @@ public class NetworkRequestGraphQL {
                     }
                     return
                 }
-                if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
+                if let data = finalJSON["data"] as? Dictionary<String, AnyObject> {
                     DispatchQueue.main.async {
                         onSuccess(data)
                     }
@@ -281,8 +284,8 @@ public class NetworkRequestGraphQL {
 
             } else {
                 if let finalJSON = try? JSONSerialization.jsonObject(with: data!, options: []) as? Dictionary<String, AnyObject> {
-                    let code = finalJSON!["code"] as! Int
-                    if let data = finalJSON!["data"] as? [String: AnyObject] {
+                    let code = finalJSON["code"] as! Int
+                    if let data = finalJSON["data"] as? [String: AnyObject] {
                         DispatchQueue.main.async {
                             onError(["code": code as AnyObject, "message": data["message"] as AnyObject])
                         }
@@ -415,7 +418,7 @@ public class NetworkRequestGraphQL {
             let formattedString = self.formatString(dataRaw: stringJSON)
             let dataJSON = formattedString.data(using: .utf8)
             if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options: []) as? Dictionary<String, AnyObject> {
-                if let errors = finalJSON!["errors"] as? [[String: AnyObject]] {
+                if let errors = finalJSON["errors"] as? [[String: AnyObject]] {
                     DispatchQueue.main.async {
                         var code = PayME.ResponseCode.SYSTEM
                         if let extensions = errors[0]["extensions"] as? [String: AnyObject] {
@@ -430,7 +433,7 @@ public class NetworkRequestGraphQL {
                     }
                     return
                 }
-                if let data = finalJSON!["data"] as? Dictionary<String, AnyObject> {
+                if let data = finalJSON["data"] as? Dictionary<String, AnyObject> {
                     DispatchQueue.main.async {
                         onSuccess(data)
                     }
@@ -438,8 +441,8 @@ public class NetworkRequestGraphQL {
             } else {
                 let dataJSONRest = stringJSON.data(using: .utf8)
                 if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSONRest!, options: []) as? Dictionary<String, AnyObject> {
-                    let code = finalJSON!["code"] as! Int
-                    if let data = finalJSON!["data"] as? [String: AnyObject] {
+                    let code = finalJSON["code"] as! Int
+                    if let data = finalJSON["data"] as? [String: AnyObject] {
                         DispatchQueue.main.async {
                             onError(["code": code as AnyObject, "message": data["message"] as AnyObject])
                         }
