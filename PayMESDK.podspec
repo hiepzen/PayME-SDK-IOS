@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'PayMESDK'
-  s.version          = '0.0.60'
+  s.version          = '0.0.64'
   s.summary          = 'PayME SDK là bộ thư viện để các app có thể tương tác với PayME Platform. PayME SDK bao gồm các chức năng chính như sau.'
   s.swift_versions   = '4.2'
 
@@ -34,19 +34,16 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '10.0'
 
-  s.source_files = 'PayMESDK/**/*'
-  
+  s.source_files = 'PayMESDK/Classes/**/*.{h,m,swift}'
+
   s.resource_bundles = {
-    'PayMESDK' => ['PayMESDK/Resource/*.{png,json}'],
+        'PayMESDK' => ['PayMESDK/Resource/*.png','PayMESDK/Resource/*.json']
   }
 
-  # s.public_header_files = 'Pod/Classes/**/*.h'
+  # s.public_header_files = 'Pod/**/*.h'
   s.frameworks = 'UIKit', 'WebKit', 'Foundation', 'Security'
   s.dependency 'CryptoSwift', '1.0'
   s.dependency 'SwiftyRSA', '1.5'
   s.dependency 'Alamofire'
   s.dependency 'lottie-ios'
-  s.dependency 'RxSwift', '6.1.0'
-  s.dependency 'RxCocoa', '6.1.0'
-
 end
