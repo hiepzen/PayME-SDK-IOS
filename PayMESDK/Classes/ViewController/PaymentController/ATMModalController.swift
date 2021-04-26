@@ -59,6 +59,11 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        if #available(iOS 13.0, *) {
+            NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIScene.willDeactivateNotification, object: nil)
+        } else {
+            NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
+        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -308,6 +313,10 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         scrollView.contentInset = contentInset
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
+    }
+
+    @objc func onAppEnterBackground(notification: NSNotification) {
+        view.endEditing(false)
     }
 
     func toastMessError(title: String, message: String) {

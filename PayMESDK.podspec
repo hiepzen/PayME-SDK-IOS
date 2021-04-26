@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'PayMESDK'
-  s.version          = '0.0.64'
+  s.version          = '0.0.65'
   s.summary          = 'PayME SDK là bộ thư viện để các app có thể tương tác với PayME Platform. PayME SDK bao gồm các chức năng chính như sau.'
   s.swift_versions   = '4.2'
 
@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '10.0'
 
-  s.source_files = 'PayMESDK/Classes/**/*.{h,m,swift}'
+  s.source_files = 'PayMESDK/Classes/**/*'
 
   s.resource_bundles = {
         'PayMESDK' => ['PayMESDK/Resource/*.png','PayMESDK/Resource/*.json']

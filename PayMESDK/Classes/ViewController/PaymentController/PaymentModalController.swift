@@ -170,6 +170,14 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         } else {
             setupMethods()
         }
+
+        if #available(iOS 13.0, *) {
+            NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIScene.willDeactivateNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIScene.willEnterForegroundNotification, object: nil)
+        } else {
+            NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        }
     }
 
     func setupTargetMethod() {
@@ -690,6 +698,14 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .shortForm)
+    }
+
+    @objc func onAppEnterBackground(notification: NSNotification) {
+        view.endEditing(false)
+    }
+
+    @objc func onAppEnterForeground(notification: NSNotification) {
+        securityCode.otpView.becomeFirstResponder()
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
