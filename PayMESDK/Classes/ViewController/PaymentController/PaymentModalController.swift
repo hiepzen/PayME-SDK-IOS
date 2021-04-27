@@ -172,10 +172,8 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         }
 
         if #available(iOS 13.0, *) {
-            NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIScene.willDeactivateNotification, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIScene.willEnterForegroundNotification, object: nil)
         } else {
-            NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
     }
@@ -700,10 +698,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         panModalTransition(to: .shortForm)
     }
 
-    @objc func onAppEnterBackground(notification: NSNotification) {
-        view.endEditing(false)
-    }
-
     @objc func onAppEnterForeground(notification: NSNotification) {
         securityCode.otpView.becomeFirstResponder()
     }
@@ -712,16 +706,21 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
             return
         }
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
-        view.layoutIfNeeded()
+        if securityCode.isDescendant(of: view) {
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
+            updateViewConstraints()
+            view.layoutIfNeeded()
+        }
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor).isActive = true
-        updateViewConstraints()
-        view.layoutIfNeeded()
+        if securityCode.isDescendant(of: view) {
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor).isActive = true
+            updateViewConstraints()
+            view.layoutIfNeeded()
+        }
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .shortForm)
     }

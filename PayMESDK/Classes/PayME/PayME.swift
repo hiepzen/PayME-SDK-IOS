@@ -312,10 +312,14 @@ public class PayME {
         let reason = PayME.dataInit!["kyc"]!["reason"] as? String
         let sentAt = PayME.dataInit!["kyc"]!["sentAt"] as? String
 
+//        guard let jsonData = try? JSONSerialization.data(withJSONObject: PayME.dataInit as Any, options: .prettyPrinted) else {
+//           return
+//        }
+//        guard let decoded = try? JSONSerialization.jsonObject(with: jsonData, options: []) else { return }
         let data =
                 """
                 {
-                  "connectToken":  "\(PayME.connectToken)",
+                  "connectToken": "\(PayME.connectToken)",
                   "publicKey": "\(PayME.publicKey.replacingOccurrences(of: "\n", with: ""))",
                   "privateKey": "\(PayME.appPrivateKey.replacingOccurrences(of: "\n", with: ""))",
                   "xApi": "\(PayME.appId)",
@@ -341,13 +345,13 @@ public class PayME {
                        "paddingTop":\(topSafeArea),
                        "paddingBottom":\(bottomSafeArea)
                   },
-                  "actions":{
-                    "type":"\(action)",
-                    "serviceCode":"\(serviceCode)",
-                    "amount":"\(checkIntNil(input: amount))"
+                  "actions": {
+                    "type": "\(action)",
+                    "serviceCode": "\(serviceCode)",
+                    "amount": "\(checkIntNil(input: amount))"
                   },
-                    "env": "\(PayME.env.rawValue)",
-                    "showLog" : "\(PayME.showLog)"
+                  "env": "\(PayME.env.rawValue)",
+                  "showLog": "\(PayME.showLog)"
                 }
                 """
 
