@@ -60,17 +60,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
     private var onError: (([String: AnyObject]) -> ())? = nil
 
-    override func viewWillDisappear(_ animated: Bool) {
-        let userController = webView.configuration.userContentController
-        userController.removeScriptMessageHandler(forName: onCommunicate)
-        userController.removeScriptMessageHandler(forName: onClose)
-        userController.removeScriptMessageHandler(forName: openCamera)
-        userController.removeScriptMessageHandler(forName: onErrorBack)
-        userController.removeScriptMessageHandler(forName: onPay)
-        userController.removeScriptMessageHandler(forName: onRegisterSuccess)
-        super.viewWillDisappear(animated)
-    }
-
     override func loadView() {
         PayME.currentVC?.navigationItem.hidesBackButton = true
         PayME.currentVC?.navigationController?.isNavigationBarHidden = true
@@ -285,11 +274,22 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
     func onCloseWebview() {
+        onRemoveMessageHandler()
         if PayME.isRecreateNavigationController {
             dismiss(animated: true, completion: nil)
         } else {
             navigationController?.popViewController(animated: true)
         }
+    }
+
+    private func onRemoveMessageHandler() {
+        let userController = webView.configuration.userContentController
+        userController.removeScriptMessageHandler(forName: onCommunicate)
+        userController.removeScriptMessageHandler(forName: onClose)
+        userController.removeScriptMessageHandler(forName: openCamera)
+        userController.removeScriptMessageHandler(forName: onErrorBack)
+        userController.removeScriptMessageHandler(forName: onPay)
+        userController.removeScriptMessageHandler(forName: onRegisterSuccess)
     }
 
     public func setOnSuccessCallback(onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()) {
