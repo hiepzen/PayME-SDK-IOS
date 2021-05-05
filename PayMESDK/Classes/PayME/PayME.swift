@@ -8,42 +8,40 @@
 
 import Foundation
 import UIKit
-import Alamofire
-import CryptoSwift
 import AVFoundation
 import RxSwift
 import RxCocoa
 
 public class PayME {
-    internal static var appPrivateKey: String = ""
-    internal static var appToken: String = ""
-    internal static var publicKey: String = ""
-    internal static var connectToken: String = ""
-    internal static var env: Env!
-    internal static var configColor: [String] = [""]
-    internal static var description: String = ""
-    internal static var amount: Int = 0
-    internal static let packageName = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
-    internal static let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    internal static let deviceID = UIDevice.current.identifierForVendor!.uuidString
-    internal static var clientID: String = ""
-    internal static var currentVC: UIViewController?
-    internal static var rootVC: UIViewController?
-    internal static var webviewController: WebViewController?
-    internal static var isRecreateNavigationController: Bool = false
-    internal static var accessToken: String = ""
-    internal static var handShake: String = ""
-    internal static var kycState: String = ""
-    internal static var appENV: String = ""
-    internal static var dataInit: [String: AnyObject]? = nil
-    internal static var appId: String = ""
-    internal static var showLog: Int = 0
-    internal static var loggedIn: Bool = false
-    internal static var configService = Array<ServiceConfig>()
-    internal static var language: Language = PayME.Language.VIETNAM
+    static var appPrivateKey: String = ""
+    static var appToken: String = ""
+    static var publicKey: String = ""
+    static var connectToken: String = ""
+    static var env: Env!
+    static var configColor: [String] = [""]
+    static var description: String = ""
+    static var amount: Int = 0
+    static let packageName = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
+    static let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    static let deviceID = UIDevice.current.identifierForVendor!.uuidString
+    static var clientID: String = ""
+    static var currentVC: UIViewController?
+    static var rootVC: UIViewController?
+    static var isRecreateNavigationController: Bool = false
+    static var accessToken: String = ""
+    static var handShake: String = ""
+    static var kycState: String = ""
+    static var appENV: String = ""
+    static var dataInit: [String: AnyObject]? = nil
+    static var appId: String = ""
+    static var showLog: Int = 0
+    static var loggedIn: Bool = false
+    static var language: Language = PayME.Language.VIETNAM
 
-    var resultViewModel = ResultViewModel()
-    internal let disposeBag = DisposeBag()
+    var configService = Array<ServiceConfig>()
+    let resultViewModel = ResultViewModel()
+    let payMEFunction = PayMEFunction()
+    let disposeBag = DisposeBag()
 
     public enum Action: String {
         case OPEN = "OPEN"
@@ -121,9 +119,11 @@ public class PayME {
             onError: @escaping ([String: AnyObject]) -> ()
     ) {
         if (PayME.loggedIn == true) {
-            PayME.initSDK(
+            API.getAccountInfo(
+                    accountPhone: PayME.dataInit?["phone"] as Any,
                     onSuccess: { success in onSuccess(success) },
                     onError: { error in onError(error) })
+
         } else {
             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
         }
@@ -140,10 +140,10 @@ public class PayME {
     }
 
     public func getSupportedServices() -> [ServiceConfig] {
-        PayME.configService
+        configService
     }
 
-    internal static func initSDK(
+    func initSDK(
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> ()
     ) {
@@ -154,12 +154,12 @@ public class PayME {
                 let result = response["Client"]!["Register"] as! [String: AnyObject]
                 let clientID = result["clientId"] as! String
                 PayME.clientID = clientID
-                initAccount(onSuccess, onError)
+                self.initAccount(onSuccess, onError)
             }, onError: { error in onError(error) })
         }
     }
 
-    private static func initAccount(
+    private func initAccount(
             _ onSuccess: @escaping ([String: AnyObject]) -> (),
             _ onError: @escaping ([String: AnyObject]) -> ()
     ) {
@@ -220,7 +220,7 @@ public class PayME {
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> ()
     ) {
-        PayME.initSDK(onSuccess: { success in
+        initSDK(onSuccess: { success in
             PayME.loggedIn = true
             if (PayME.accessToken == "") {
                 onSuccess(["code": PayME.KYCState.NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
@@ -240,7 +240,7 @@ public class PayME {
         })
     }
 
-    internal static func logoutAction() {
+    static func logoutAction() {
         PayME.loggedIn = false
         PayME.accessToken = ""
         PayME.handShake = ""
@@ -252,148 +252,51 @@ public class PayME {
         PayME.logoutAction()
     }
 
-    internal func encryptAES(data: String) -> String {
-        let aes = try? AES(key: Array("LkaWasflkjfqr2g3".utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
-        let dataEncrypted = try? aes!.encrypt(Array(data.utf8))
-        return dataEncrypted!.toBase64()!
+    public func getWalletInfo(
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void
+    ) {
+        payMEFunction.getWalletInfo(onSuccess, onError)
+    }
+
+    public func deposit(
+            currentVC: UIViewController, amount: Int?, description: String?, extraData: String?,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void
+    ) {
+        payMEFunction.openWallet(currentVC, PayME.Action.DEPOSIT, amount, nil, nil, "", self, onSuccess, onError)
+    }
+
+    public func withdraw(
+            currentVC: UIViewController, amount: Int?, description: String?, extraData: String?,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void
+    ) {
+        payMEFunction.openWallet(currentVC, PayME.Action.WITHDRAW, amount, nil, nil, "", self, onSuccess, onError)
+    }
+
+    public func openService(
+            currentVC: UIViewController, amount: Int?, description: String?, extraData: String?, service: ServiceConfig,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void
+    ) {
+        payMEFunction.openWallet(currentVC, PayME.Action.UTILITY, amount, nil, nil, service.code, self, onSuccess, onError)
     }
 
     public func openWallet(
             currentVC: UIViewController, action: Action, amount: Int?, description: String?, extraData: String?, serviceCode: String = "",
-            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-            onError: @escaping ([String: AnyObject]) -> ()
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        if (PayME.loggedIn == false || PayME.dataInit == nil) {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
-            return
-        }
-        if !(Reachability.isConnectedToNetwork()) {
-            onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
-            return
-        }
-
-        let webViewController = WebViewController(nibName: "WebView", bundle: nil)
-        currentVC.navigationItem.hidesBackButton = true
-        currentVC.navigationController?.isNavigationBarHidden = true
-        PayME.currentVC = currentVC
-        PayME.webviewController = webViewController
-        PayME.webviewController?.tabBarController?.tabBar.isHidden = true
-        PayME.webviewController?.hidesBottomBarWhenPushed = true
-
-        if currentVC.navigationController != nil {
-            PayME.currentVC = currentVC
-            PayME.rootVC = currentVC
-            currentVC.navigationController?.pushViewController(webViewController, animated: true)
-        } else {
-            let navigationController = UINavigationController(rootViewController: webViewController)
-            PayME.currentVC = webViewController
-            PayME.rootVC = currentVC
-            PayME.isRecreateNavigationController = true
-            if #available(iOS 13.0, *) {
-                PayME.currentVC?.isModalInPresentation = false
-            }
-            currentVC.present(navigationController, animated: true, completion: {
-            })
-        }
-
-        let topSafeArea: CGFloat
-        let bottomSafeArea: CGFloat
-        if #available(iOS 11.0, *) {
-            topSafeArea = PayME.isRecreateNavigationController ? 1 : currentVC.view.safeAreaInsets.top
-            bottomSafeArea = currentVC.view.safeAreaInsets.bottom
-        } else {
-            topSafeArea = PayME.isRecreateNavigationController ? 1 : currentVC.topLayoutGuide.length
-            bottomSafeArea = currentVC.bottomLayoutGuide.length
-        }
-
-        let message = PayME.dataInit!["message"] as? String
-        let accessToken = PayME.dataInit!["accessToken"] as? String
-        let succeeded = PayME.dataInit!["succeeded"] as? Bool
-        let phone = PayME.dataInit!["phone"] as? String
-        let kycID = PayME.dataInit!["kyc"]!["kycId"] as? Int
-        let handShake = PayME.dataInit!["handShake"] as? String
-        let kycState = PayME.dataInit!["kyc"]!["state"] as? String
-        let identifyNumber = PayME.dataInit!["kyc"]!["identifyNumber"] as? String
-        let reason = PayME.dataInit!["kyc"]!["reason"] as? String
-        let sentAt = PayME.dataInit!["kyc"]!["sentAt"] as? String
-
-//        guard let jsonData = try? JSONSerialization.data(withJSONObject: PayME.dataInit as Any, options: .prettyPrinted) else {
-//           return
-//        }
-//        guard let decoded = try? JSONSerialization.jsonObject(with: jsonData, options: []) else { return }
-        let data =
-                """
-                {
-                  "connectToken": "\(PayME.connectToken)",
-                  "publicKey": "\(PayME.publicKey.replacingOccurrences(of: "\n", with: ""))",
-                  "privateKey": "\(PayME.appPrivateKey.replacingOccurrences(of: "\n", with: ""))",
-                  "xApi": "\(PayME.appId)",
-                  "appToken": "\(PayME.appToken)",
-                  "clientId": "\(PayME.clientID)",
-                  "configColor":["\(handleColor(input: PayME.configColor))"],
-                  "dataInit" : {
-                        "message" : "\(checkStringNil(input: message))",
-                        "accessToken": "\(checkStringNil(input: accessToken))",
-                        "phone": "\(checkStringNil(input: phone))",
-                        "succeeded": \(succeeded!),
-                        "handShake": "\(checkStringNil(input: handShake))",
-                        "kyc" : {
-                            "kycId": "\(checkIntNil(input: kycID))",
-                            "state": "\(checkStringNil(input: kycState))",
-                            "identifyNumber": "\(checkStringNil(input: identifyNumber))",
-                            "reason" : "\(checkStringNil(input: reason))",
-                            "sentAt" : "\(checkStringNil(input: sentAt))"
-                        }
-                  },
-                  "partner" : {
-                       "type":"IOS",
-                       "paddingTop":\(topSafeArea),
-                       "paddingBottom":\(bottomSafeArea)
-                  },
-                  "actions": {
-                    "type": "\(action)",
-                    "serviceCode": "\(serviceCode)",
-                    "amount": "\(checkIntNil(input: amount))"
-                  },
-                  "env": "\(PayME.env.rawValue)",
-                  "showLog": "\(PayME.showLog)"
-                }
-                """
-
-        webViewController.setURLRequest(urlWebview(env: PayME.env) + "\(encryptAES(data: data))")
-        webViewController.setOnSuccessCallback(onSuccess: onSuccess)
-        webViewController.setOnErrorCallback(onError: onError)
+        payMEFunction.openWallet(currentVC, action, amount, description, extraData, serviceCode, self, onSuccess, onError)
     }
 
-    public func deposit(currentVC: UIViewController, amount: Int?, description: String?, extraData: String?,
-                        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                        onError: @escaping ([String: AnyObject]) -> ()) {
-        if (checkCondition(onError: onError) == true) {
-            openWallet(currentVC: currentVC, action: PayME.Action.DEPOSIT, amount: amount, description: nil, extraData: nil, onSuccess: onSuccess, onError: onError)
-        }
-    }
-
-    public func withdraw(currentVC: UIViewController, amount: Int?, description: String?, extraData: String?,
-                         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                         onError: @escaping ([String: AnyObject]) -> ()) {
-        if (checkCondition(onError: onError) == true) {
-            openWallet(currentVC: currentVC, action: PayME.Action.WITHDRAW, amount: amount, description: nil, extraData: nil, onSuccess: onSuccess, onError: onError)
-        }
-    }
-
-    public func openService(currentVC: UIViewController, amount: Int?, description: String?, extraData: String?, service: ServiceConfig,
-                            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                            onError: @escaping ([String: AnyObject]) -> ()) {
-        if (checkCondition(onError: onError) == true) {
-            openWallet(
-                    currentVC: currentVC, action: PayME.Action.UTILITY, amount: amount, description: nil,
-                    extraData: nil, serviceCode: service.code, onSuccess: onSuccess, onError: onError
-            )
-        }
-    }
-
-    internal func openQRCode(currentVC: UIViewController, onSuccess: @escaping ([String: AnyObject]) -> (), onError: @escaping ([String: AnyObject]) -> ()) {
-        if (checkCondition(onError: onError) == true) {
+    func openQRCode(
+            currentVC: UIViewController,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void
+    ) {
+        if (payMEFunction.checkCondition(onError)) {
             let qrScan = QRScannerController()
             qrScan.setScanSuccess(onScanSuccess: { response in
                 API.readQRContent(qrContent: response, onSuccess: { [self] response in
@@ -425,11 +328,11 @@ public class PayME {
             currentVC: UIViewController, storeId: Int, orderId: String, amount: Int,
             note: String?, paymentMethodID: Int?, extraData: String?, isShowResultUI: Bool = true,
             onSuccess: @escaping ([String: AnyObject]) -> (), onError: @escaping ([String: AnyObject]) -> ()) {
-        if (checkCondition(onError: onError) == true) {
+        if (payMEFunction.checkCondition(onError)) {
             payAction(
-                currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
-                paymentMethodID: paymentMethodID,extraData: extraData, isShowResultUI: isShowResultUI,
-                onSuccess: onSuccess, onError: onError
+                    currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
+                    paymentMethodID: paymentMethodID, extraData: extraData, isShowResultUI: isShowResultUI,
+                    onSuccess: onSuccess, onError: onError
             )
         }
     }
@@ -444,13 +347,17 @@ public class PayME {
         }, onError: { error in onError(error) })
     }
 
-    internal func payQR(currentVC: UIViewController, storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String: AnyObject]) -> (), onError: @escaping ([String: AnyObject]) -> ()) {
-        if (checkCondition(onError: onError) == true) {
+    func payQR(
+            currentVC: UIViewController, storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?,
+            onSuccess: @escaping ([String: AnyObject]) -> (),
+            onError: @escaping ([String: AnyObject]) -> ()
+    ) {
+        if (payMEFunction.checkCondition(onError)) {
             payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, onSuccess: onSuccess, onError: onError)
         }
     }
 
-    internal func payAction(
+    func payAction(
             currentVC: UIViewController,
             storeId: Int, orderId: String,
             amount: Int, note: String?,
@@ -460,7 +367,7 @@ public class PayME {
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> ()
     ) {
-        if (checkCondition(onError: onError) == true) {
+        if (payMEFunction.checkCondition(onError) == true) {
             PayME.currentVC = currentVC
             if (amount < Methods.min) {
                 onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: Methods.min))" as AnyObject])
@@ -492,17 +399,4 @@ public class PayME {
             }
         }
     }
-
-    public func getWalletInfo(
-            onSuccess: @escaping ([String: AnyObject]) -> (),
-            onError: @escaping ([String: AnyObject]) -> ()
-    ) {
-        if (checkCondition(onError: onError) == true) {
-            API.getWalletInfo(
-                    onSuccess: { walletInfo in onSuccess(walletInfo) },
-                    onError: { error in onError(error) }
-            )
-        }
-    }
 }
-

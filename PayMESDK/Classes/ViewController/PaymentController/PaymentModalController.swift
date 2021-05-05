@@ -407,7 +407,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                             let html = payment["html"] as? String
                             if (html != nil) {
                                 self.removeSpinner()
-                                let webViewController = WebViewController()
+                                let webViewController = WebViewController(payME: nil, nibName: "WebView", bundle: nil)
                                 webViewController.form = html!
                                 webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                                     webViewController.dismiss(animated: true)

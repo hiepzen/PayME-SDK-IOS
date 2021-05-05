@@ -54,11 +54,21 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var imageBack: UIImage?
     var active: Int?
     var individualTaskTimer: Timer!
+    var payME: PayME?
 
     private var onSuccessWebView: ((String) -> ())? = nil
     private var onFailWebView: ((String) -> ())? = nil
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
     private var onError: (([String: AnyObject]) -> ())? = nil
+
+    init(payME: PayME?, nibName: String?, bundle: Bundle?) {
+        self.payME = payME
+        super.init(nibName: nibName, bundle: bundle)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func loadView() {
         PayME.currentVC?.navigationItem.hidesBackButton = true
@@ -261,7 +271,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             onCloseWebview()
         }
         if message.name == onPay {
-//            PayME.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
+            payME?.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
         }
     }
 
