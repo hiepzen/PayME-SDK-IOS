@@ -261,7 +261,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             onCloseWebview()
         }
         if message.name == onPay {
-            PayME.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
+//            PayME.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
         }
     }
 

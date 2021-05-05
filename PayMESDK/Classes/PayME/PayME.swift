@@ -11,6 +11,8 @@ import UIKit
 import Alamofire
 import CryptoSwift
 import AVFoundation
+import RxSwift
+import RxCocoa
 
 public class PayME {
     internal static var appPrivateKey: String = ""
@@ -39,6 +41,9 @@ public class PayME {
     internal static var loggedIn: Bool = false
     internal static var configService = Array<ServiceConfig>()
     internal static var language: Language = PayME.Language.VIETNAM
+
+    var resultViewModel = ResultViewModel()
+    internal let disposeBag = DisposeBag()
 
     public enum Action: String {
         case OPEN = "OPEN"
@@ -387,17 +392,17 @@ public class PayME {
         }
     }
 
-    internal static func openQRCode(currentVC: UIViewController, onSuccess: @escaping ([String: AnyObject]) -> (), onError: @escaping ([String: AnyObject]) -> ()) {
+    internal func openQRCode(currentVC: UIViewController, onSuccess: @escaping ([String: AnyObject]) -> (), onError: @escaping ([String: AnyObject]) -> ()) {
         if (checkCondition(onError: onError) == true) {
             let qrScan = QRScannerController()
             qrScan.setScanSuccess(onScanSuccess: { response in
-                API.readQRContent(qrContent: response, onSuccess: { response in
+                API.readQRContent(qrContent: response, onSuccess: { [self] response in
                     let payment = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                     let detect = payment["Detect"] as! [String: AnyObject]
                     let succeeded = detect["succeeded"] as! Bool
                     if (succeeded == true) {
                         if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
-                            PayME.payQR(currentVC: currentVC, storeId: (detect["stordeId"] as? Int) ?? 0, orderId: (detect["orderId"] as? String) ?? "", amount: (detect["amount"] as? Int) ?? 0, note: (detect["note"] as? String) ?? "", extraData: nil, onSuccess: onSuccess, onError: onError)
+                            self.payQR(currentVC: currentVC, storeId: (detect["stordeId"] as? Int) ?? 0, orderId: (detect["orderId"] as? String) ?? "", amount: (detect["amount"] as? Int) ?? 0, note: (detect["note"] as? String) ?? "", extraData: nil, onSuccess: onSuccess, onError: onError)
                         }
                     } else {
                         currentVC.presentPanModal(QRNotFound())
@@ -421,10 +426,10 @@ public class PayME {
             note: String?, paymentMethodID: Int?, extraData: String?, isShowResultUI: Bool = true,
             onSuccess: @escaping ([String: AnyObject]) -> (), onError: @escaping ([String: AnyObject]) -> ()) {
         if (checkCondition(onError: onError) == true) {
-            PayME.payAction(
-                    currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
-                    paymentMethodID: paymentMethodID,extraData: extraData, isShowResultUI: isShowResultUI,
-                    onSuccess: onSuccess, onError: onError
+            payAction(
+                currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
+                paymentMethodID: paymentMethodID,extraData: extraData, isShowResultUI: isShowResultUI,
+                onSuccess: onSuccess, onError: onError
             )
         }
     }
@@ -439,13 +444,13 @@ public class PayME {
         }, onError: { error in onError(error) })
     }
 
-    internal static func payQR(currentVC: UIViewController, storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String: AnyObject]) -> (), onError: @escaping ([String: AnyObject]) -> ()) {
+    internal func payQR(currentVC: UIViewController, storeId: Int, orderId: String, amount: Int, note: String?, extraData: String?, onSuccess: @escaping ([String: AnyObject]) -> (), onError: @escaping ([String: AnyObject]) -> ()) {
         if (checkCondition(onError: onError) == true) {
-            PayME.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, onSuccess: onSuccess, onError: onError)
+            payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, extraData: extraData, onSuccess: onSuccess, onError: onError)
         }
     }
 
-    internal static func payAction(
+    internal func payAction(
             currentVC: UIViewController,
             storeId: Int, orderId: String,
             amount: Int, note: String?,
@@ -474,6 +479,13 @@ public class PayME {
                 Methods.paymentMethodID = paymentMethodID
                 Methods.isShowResultUI = isShowResultUI
                 let methods = Methods()
+
+                resultViewModel
+                        .resultSubject
+                        .observe(on: MainScheduler.instance)
+                        .bind(to: methods.resultSubject)
+                        .disposed(by: disposeBag)
+
                 methods.onSuccess = onSuccess
                 methods.onError = onError
                 currentVC.presentPanModal(methods)

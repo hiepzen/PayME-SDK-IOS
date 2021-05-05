@@ -21,7 +21,7 @@ public class Bank {
     internal var shortName: String = ""
     internal var swiftCode: String = ""
     
-    public init(id : Int, cardNumberLength: Int, cardPrefix: String, enName: String, viName: String, shortName: String, swiftCode: String){
+    public init(id : Int, cardNumberLength: Int, cardPrefix: String , enName: String, viName: String, shortName: String, swiftCode: String){
         self.id = id
         self.cardNumberLength = cardNumberLength
         self.cardPrefix = cardPrefix

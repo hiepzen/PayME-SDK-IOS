@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class PaymentMethod {
+class PaymentMethod {
     internal var methodId: Int!
     internal var type: String = ""
     internal var title: String = ""
@@ -20,17 +20,17 @@ public class PaymentMethod {
     internal var dataLinked: LinkedInformation?
     internal var active: Bool!
 
-    public init(
-            methodId: Int?,
-            type: String,
-            title: String,
-            label: String,
-            amount: Int?,
-            fee: Int,
-            minFee: Int,
-            dataWallet: WalletInformation?,
-            dataLinked: LinkedInformation?,
-            active: Bool
+    init(
+        methodId: Int?,
+        type: String,
+        title: String,
+        label: String,
+        amount: Int?,
+        fee: Int,
+        minFee: Int,
+        dataWallet: WalletInformation?,
+        dataLinked: LinkedInformation?,
+        active: Bool
     ) {
         self.methodId = methodId
         self.type = type

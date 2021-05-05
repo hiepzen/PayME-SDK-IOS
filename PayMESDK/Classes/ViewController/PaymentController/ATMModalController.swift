@@ -7,6 +7,8 @@
 
 import UIKit
 import Lottie
+import RxSwift
+
 
 class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     let screenSize: CGRect = UIScreen.main.bounds
@@ -16,10 +18,24 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     internal var bankDetect: Bank?
     var onError: (([String: AnyObject]) -> ())? = nil
     var onSuccess: (([String: AnyObject]) -> ())? = nil
+    var method: PaymentMethod? = nil
     var bankName: String = ""
     let successView = SuccessView()
     let failView = FailView()
+    let resultView = ResultView()
     var result = false
+
+    public let resultSubject : PublishSubject<Result> = PublishSubject()
+    private let disposeBag = DisposeBag()
+
+    init(listBank: [Bank] = [], onSuccess: (([String: AnyObject]) -> ())? = nil, onError: (([String: AnyObject]) -> ())? = nil, method: PaymentMethod) {
+        super.init(nibName: nil, bundle: nil)
+        self.listBank = listBank
+        self.onSuccess = onSuccess
+        self.onError = onError
+        self.method = method
+    }
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,6 +80,12 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         } else {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
         }
+
+        setupBinding()
+    }
+
+    private func setupBinding() {
+        resultSubject.observe(on: MainScheduler.instance).bind(to: resultView.resultSubject).disposed(by: disposeBag)
     }
 
     override func viewDidLayoutSubviews() {
@@ -127,28 +149,21 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                         print(success)
                         let payment = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                         if let payInfo = payment["Pay"] as? [String: AnyObject] {
+                            var formatDate = ""
+                            var transactionNumber = ""
+                            var cardNumber = ""
                             if let history = payInfo["history"] as? [String: AnyObject] {
                                 if let createdAt = history["createdAt"] as? String {
                                     if let date = toDate(dateString: createdAt) {
-                                        let formatDate = toDateString(date: date)
-                                        self.successView.timeTransactionDetail.text = formatDate
-                                        self.failView.timeTransactionDetail.text = formatDate
+                                        formatDate = toDateString(date: date)
                                     }
                                 }
                                 if let payment = history["payment"] as? [String: AnyObject] {
-                                    if let method = payment["method"] as? String {
-                                        self.successView.methodContent.text = getMethodText(method: method)
-                                        self.failView.methodContent.text = getMethodText(method: method)
-                                    }
                                     if let transaction = payment["transaction"] as? String {
-                                        self.successView.transactionNumber.text = transaction
-                                        self.failView.transactionNumber.text = transaction
+                                        transactionNumber = transaction
                                     }
                                     if let description = payment["description"] as? String {
-                                        self.successView.cardNumberContent.text = description
-                                        self.failView.cardNumberContent.text = description
-                                        self.successView.cardNumberLabel.text = "Số thẻ"
-                                        self.failView.cardNumberLabel.text = "Số thẻ"
+                                        cardNumber = description
                                     }
                                 }
                             }
@@ -161,7 +176,14 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                 DispatchQueue.main.async {
                                     self.onSuccess!(responseSuccess)
                                     self.removeSpinner()
-                                    self.setupSuccess()
+                                    let result = Result(
+                                            type: ResultType.SUCCESS,
+                                            amount: Methods.amount,
+                                            descriptionLabel: Methods.note,
+                                            paymentMethod: self.method!,
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    )
+                                    self.setupResult(result: result)
                                 }
                             } else {
                                 let statePay = payInfo["payment"] as? [String: AnyObject]
@@ -169,12 +191,19 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                     let message = payInfo["message"] as? String
                                     self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
                                     self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                                    self.setupFail()
+                                    let result = Result(
+                                            type: ResultType.FAIL,
+                                            amount: Methods.amount,
+                                            failReasonLabel: message ?? "Có lỗi xảy ra",
+                                            descriptionLabel: Methods.note,
+                                            paymentMethod: self.method!,
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    )
+                                    self.setupResult(result: result)
                                     self.removeSpinner()
                                     return
                                 }
                                 let state = statePay!["state"] as! String
-                                let message = statePay!["message"] as? String
                                 if (state == "REQUIRED_VERIFY") {
                                     let html = statePay!["html"] as? String
                                     if (html != nil) {
@@ -188,26 +217,47 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                                 "payment": ["transaction": paymentInfo["transaction"] as? String]
                                             ] as [String: AnyObject]
                                             self.onSuccess!(responseSuccess)
-                                            self.setupSuccess()
+                                            let result = Result(
+                                                    type: ResultType.SUCCESS,
+                                                    amount: Methods.amount,
+                                                    descriptionLabel: Methods.note,
+                                                    paymentMethod: self.method!,
+                                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                            )
+                                            self.setupResult(result: result)
                                         })
                                         webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                                             webViewController.dismiss(animated: true)
                                             self.removeSpinner()
-                                            self.failView.failLabel.text = responseFromWebView
                                             let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
                                             let responseSuccess = [
                                                 "payment": ["transaction": paymentInfo["transaction"] as? String]
                                             ] as [String: AnyObject]
                                             self.onError!(responseSuccess)
-                                            self.setupFail()
+                                            let result = Result(
+                                                    type: ResultType.FAIL,
+                                                    amount: Methods.amount,
+                                                    failReasonLabel: responseFromWebView,
+                                                    descriptionLabel: Methods.note,
+                                                    paymentMethod: self.method!,
+                                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                            )
+                                            self.setupResult(result: result)
                                         })
                                         self.presentPanModal(webViewController)
                                     }
                                 } else {
                                     let message = statePay!["message"] as? String
                                     self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                                    self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
-                                    self.setupFail()
+                                    let result = Result(
+                                            type: ResultType.FAIL,
+                                            amount: Methods.amount,
+                                            failReasonLabel: message ?? "Có lỗi xảy ra",
+                                            descriptionLabel: Methods.note,
+                                            paymentMethod: self.method!,
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    )
+                                    self.setupResult(result: result)
                                     self.removeSpinner()
                                 }
                             }
@@ -284,6 +334,29 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         } else {
             Methods.isShowCloseModal = false
             self.dismiss(animated: true, completion: nil)
+        }
+    }
+
+
+    func setupResult(result: Result) {
+        resultSubject.onNext(result)
+        Methods.isShowCloseModal = false
+        if (Methods.isShowResultUI == true) {
+            view.addSubview(resultView)
+            resultView.translatesAutoresizingMaskIntoConstraints = false
+            resultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+            resultView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+            resultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+            resultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+            resultView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: resultView.button.bottomAnchor, constant: 10).isActive = true
+            updateViewConstraints()
+            view.layoutIfNeeded()
+            panModalSetNeedsLayoutUpdate()
+            panModalTransition(to: .longForm)
+            resultView.animationView.play()
+        } else {
+            dismiss(animated: true)
         }
     }
 
@@ -510,10 +583,6 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         return true
     }
 
-
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

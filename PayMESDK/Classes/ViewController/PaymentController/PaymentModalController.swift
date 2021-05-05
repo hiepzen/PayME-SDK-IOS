@@ -7,6 +7,8 @@
 
 import UIKit
 import CommonCrypto
+import RxSwift
+
 
 enum SecurityState {
     case PASSWORD_RETRY_TIMES_OVER
@@ -154,11 +156,19 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
     let securityCode = SecurityCode()
     var successView = SuccessView()
     var failView = FailView()
+    let resultView = ResultView()
     var keyBoardHeight: CGFloat = 0
     let screenSize: CGRect = UIScreen.main.bounds
     static var isShowCloseModal: Bool = true
     let methodsView = UIView()
     let placeholderView = UIView()
+
+    public let resultSubject : PublishSubject<Result> = PublishSubject()
+    private let disposeBag = DisposeBag()
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -176,6 +186,12 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         } else {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
+
+        setupBinding()
+    }
+
+    private func setupBinding() {
+        resultSubject.observe(on: MainScheduler.instance).bind(to: resultView.resultSubject).disposed(by: disposeBag)
     }
 
     func setupTargetMethod() {
@@ -278,23 +294,17 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
             let payInfo = paymentInfo["Pay"] as! [String: AnyObject]
             let message = payInfo["message"] as! String
             let succeeded = payInfo["succeeded"] as! Bool
+            var formatDate = ""
+            var transactionNumber = ""
             if let history = payInfo["history"] as? [String: AnyObject] {
                 if let createdAt = history["createdAt"] as? String {
                     if let date = toDate(dateString: createdAt) {
-                        print(date)
-                        let formatDate = toDateString(date: date)
-                        self.successView.timeTransactionDetail.text = formatDate
-                        self.failView.timeTransactionDetail.text = formatDate
+                        formatDate = toDateString(date: date)
                     }
                 }
                 if let payment = history["payment"] as? [String: AnyObject] {
-                    if let method = payment["method"] as? String {
-                        self.successView.methodContent.text = getMethodText(method: method)
-                        self.failView.methodContent.text = getMethodText(method: method)
-                    }
                     if let transaction = payment["transaction"] as? String {
-                        self.successView.transactionNumber.text = transaction
-                        self.failView.transactionNumber.text = transaction
+                        transactionNumber = transaction
                     }
                 }
             }
@@ -306,12 +316,27 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                 ] as [String: AnyObject]
                 self.onSuccess!(responseSuccess)
                 self.securityCode.removeFromSuperview()
-                self.setupSuccess()
+                let result = Result(
+                        type: ResultType.SUCCESS,
+                        amount: Methods.amount,
+                        descriptionLabel: Methods.note,
+                        paymentMethod: self.getMethodSelected(),
+                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
+                )
+                self.setupResult(result: result)
             } else {
                 self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                 self.securityCode.removeFromSuperview()
                 self.failView.failLabel.text = message
-                self.setupFail()
+                let result = Result(
+                        type: ResultType.FAIL,
+                        amount: Methods.amount,
+                        failReasonLabel: message,
+                        descriptionLabel: Methods.note,
+                        paymentMethod: self.getMethodSelected(),
+                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
+                )
+                self.setupResult(result: result)
             }
             self.removeSpinner()
 
@@ -334,28 +359,21 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         API.checkFlowLinkedBank(storeId: Methods.storeId, orderId: Methods.orderId, linkedId: getMethodSelected().dataLinked!.linkedId, extraData: Methods.extraData, note: Methods.note, amount: Methods.amount, onSuccess: { flow in
             let pay = flow["OpenEWallet"]!["Payment"] as! [String: AnyObject]
             if let payInfo = pay["Pay"] as? [String: AnyObject] {
+                var formatDate = ""
+                var transactionNumber = ""
+                var cardNumber = ""
                 if let history = payInfo["history"] as? [String: AnyObject] {
                     if let createdAt = history["createdAt"] as? String {
                         if let date = toDate(dateString: createdAt) {
-                            let formatDate = toDateString(date: date)
-                            self.successView.timeTransactionDetail.text = formatDate
-                            self.failView.timeTransactionDetail.text = formatDate
+                            formatDate = toDateString(date: date)
                         }
                     }
                     if let payment = history["payment"] as? [String: AnyObject] {
-                        if let method = payment["method"] as? String {
-                            self.successView.methodContent.text = getMethodText(method: method)
-                            self.failView.methodContent.text = getMethodText(method: method)
-                        }
                         if let transaction = payment["transaction"] as? String {
-                            self.successView.transactionNumber.text = transaction
-                            self.failView.transactionNumber.text = transaction
+                            transactionNumber = transaction
                         }
                         if let description = payment["description"] as? String {
-                            self.successView.cardNumberContent.text = description
-                            self.failView.cardNumberContent.text = description
-                            self.successView.cardNumberLabel.text = "Số tài khoản"
-                            self.failView.cardNumberLabel.text = "Số tài khoản"
+                            cardNumber = description
                         }
                     }
                 }
@@ -368,7 +386,14 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     self.onSuccess!(responseSuccess)
                     self.removeSpinner()
                     self.methodsView.removeFromSuperview()
-                    self.setupSuccess()
+                    let result = Result(
+                            type: ResultType.SUCCESS,
+                            amount: Methods.amount,
+                            descriptionLabel: Methods.note,
+                            paymentMethod: self.getMethodSelected(),
+                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                    )
+                    self.setupResult(result: result)
                 } else {
                     if let payment = payInfo["payment"] as? [String: AnyObject] {
                         let state = (payment["state"] as? String) ?? ""
@@ -392,12 +417,18 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                                         "payment": ["transaction": paymentInfo["transaction"] as? String]
                                     ] as [String: AnyObject]
                                     self.onSuccess!(responseSuccess)
-                                    self.setupSuccess()
+                                    let result = Result(
+                                            type: ResultType.SUCCESS,
+                                            amount: Methods.amount,
+                                            descriptionLabel: Methods.note,
+                                            paymentMethod: self.getMethodSelected(),
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    )
+                                    self.setupResult(result: result)
                                 })
                                 webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                                     webViewController.dismiss(animated: true)
                                     self.methodsView.removeFromSuperview()
-                                    self.failView.failLabel.text = responseFromWebView
                                     let failWebview: [String: AnyObject] = ["OpenEWallet": [
                                         "Payment": [
                                             "Pay": [
@@ -408,7 +439,15 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                                         ]
                                     ] as AnyObject]
                                     self.onError!(failWebview)
-                                    self.setupFail()
+                                    let result = Result(
+                                            type: ResultType.FAIL,
+                                            amount: Methods.amount,
+                                            failReasonLabel: responseFromWebView as String,
+                                            descriptionLabel: Methods.note,
+                                            paymentMethod: self.getMethodSelected(),
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    )
+                                    self.setupResult(result: result)
                                 })
                                 self.presentPanModal(webViewController)
                             }
@@ -417,16 +456,30 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                             self.methodsView.removeFromSuperview()
                             let message = payment["message"] as? String
                             self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                            self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
-                            self.setupFail()
+                            let result = Result(
+                                    type: ResultType.FAIL,
+                                    amount: Methods.amount,
+                                    failReasonLabel: message ?? "Có lỗi xảy ra",
+                                    descriptionLabel: Methods.note,
+                                    paymentMethod: self.getMethodSelected(),
+                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                            )
+                            self.setupResult(result: result)
                         }
                     } else {
                         self.removeSpinner()
                         self.methodsView.removeFromSuperview()
                         let message = payInfo["message"] as? String
                         self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                        self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
-                        self.setupFail()
+                        let result = Result(
+                                type: ResultType.FAIL,
+                                amount: Methods.amount,
+                                failReasonLabel: message ?? "Có lỗi xảy ra",
+                                descriptionLabel: Methods.note,
+                                paymentMethod: self.getMethodSelected(),
+                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                        )
+                        self.setupResult(result: result)
                     }
                 }
             } else {
@@ -599,11 +652,34 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         }
     }
 
+    func setupResult(result: Result) {
+        resultSubject.onNext(result)
+        Methods.isShowCloseModal = false
+        if (Methods.isShowResultUI == true) {
+            view.addSubview(resultView)
+            resultView.translatesAutoresizingMaskIntoConstraints = false
+            resultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+            resultView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+            resultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+            resultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+            resultView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: resultView.button.bottomAnchor, constant: 10).isActive = true
+            updateViewConstraints()
+            view.layoutIfNeeded()
+            panModalSetNeedsLayoutUpdate()
+            panModalTransition(to: .longForm)
+            resultView.animationView.play()
+        } else {
+            dismiss(animated: true)
+        }
+    }
+
     override func viewDidLayoutSubviews() {
         button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
         detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
         successView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
         failView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+        resultView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
 
         atmView.detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
         atmView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
@@ -664,10 +740,7 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
                     let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int, cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String, shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String)
                     listBank.append(temp)
                 }
-                let atmModal = ATMModal()
-                atmModal.listBank = listBank
-                atmModal.onSuccess = self.onSuccess
-                atmModal.onError = self.onError
+                let atmModal = ATMModal(listBank: listBank, onSuccess: self.onSuccess, onError: self.onError, method: method)
                 Methods.isShowCloseModal = false
                 self.dismiss(animated: true) {
                     PayME.currentVC!.presentPanModal(atmModal)
@@ -828,9 +901,6 @@ class Methods: UINavigationController, PanModalPresentable, UITableViewDelegate,
         true
     }
 
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
