@@ -236,10 +236,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 if (actions == "onRegisterSuccess") {
                     if let data = dictionary["data"] as? [String: AnyObject] {
                         if let dataInit = data["Init"] as? [String: AnyObject] {
-                            PayME.dataInit = dataInit
-                            PayME.accessToken = (dataInit["accessToken"] as? String) ?? ""
-                            PayME.kycState = (dataInit["kyc"]!["state"] as? String) ?? ""
-                            PayME.handShake = (dataInit["handShake"] as? String) ?? ""
+                            payME?.dataInit = dataInit
+                            payME?.accessToken = (dataInit["accessToken"] as? String) ?? ""
+                            payME?.kycState = (dataInit["kyc"]!["state"] as? String) ?? ""
+                            payME?.handShake = (dataInit["handShake"] as? String) ?? ""
                         }
                     }
                     onSuccess!(dictionary)
@@ -261,7 +261,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 removeSpinner()
                 let code = dictionary["code"] as! Int
                 if (code == 401) {
-                    self.navigationController?.popViewController(animated: true)
+                    navigationController?.popViewController(animated: true)
                     PayME.logoutAction()
                 }
                 onError!(dictionary)
@@ -271,7 +271,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             onCloseWebview()
         }
         if message.name == onPay {
-            payME?.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
+            payME?.payMEFunction.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
         }
     }
 

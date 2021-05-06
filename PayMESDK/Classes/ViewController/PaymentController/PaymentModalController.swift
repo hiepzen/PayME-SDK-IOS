@@ -138,6 +138,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.dismiss(animated: true, completion: nil)
                     }
                 }
+                print("minh khoa123")
+                print(errorSecurity)
                 self.onError!(errorSecurity)
                 self.removeSpinner()
             })
@@ -349,6 +351,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             self.removeSpinner()
 
         }, onError: { error in
+            print("minh khoa145")
+            print(error)
             self.removeSpinner()
             if let code = error["code"] as? Int {
                 if (code == 401) {
@@ -358,7 +362,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 }
             }
             self.onError!(error)
-
         })
     }
 
