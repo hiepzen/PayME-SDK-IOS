@@ -264,7 +264,7 @@ public class PayME {
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        payMEFunction.openWallet(currentVC, PayME.Action.DEPOSIT, amount, nil, nil, "", self, onSuccess, onError)
+        payMEFunction.openWallet(true, currentVC, PayME.Action.DEPOSIT, amount, nil, nil, "", self, onSuccess, onError)
     }
 
     public func withdraw(
@@ -272,7 +272,7 @@ public class PayME {
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        payMEFunction.openWallet(currentVC, PayME.Action.WITHDRAW, amount, nil, nil, "", self, onSuccess, onError)
+        payMEFunction.openWallet(true, currentVC, PayME.Action.WITHDRAW, amount, nil, nil, "", self, onSuccess, onError)
     }
 
     public func openService(
@@ -280,7 +280,7 @@ public class PayME {
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        payMEFunction.openWallet(currentVC, PayME.Action.UTILITY, amount, nil, nil, service.code, self, onSuccess, onError)
+        payMEFunction.openWallet(true, currentVC, PayME.Action.UTILITY, amount, nil, nil, service.code, self, onSuccess, onError)
     }
 
     public func openWallet(
@@ -288,7 +288,7 @@ public class PayME {
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        payMEFunction.openWallet(currentVC, action, amount, description, extraData, serviceCode, self, onSuccess, onError)
+        payMEFunction.openWallet(false, currentVC, action, amount, description, extraData, serviceCode, self, onSuccess, onError)
     }
 
     func openQRCode(
