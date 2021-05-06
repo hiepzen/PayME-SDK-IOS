@@ -40,7 +40,7 @@ public class PayME {
 
     var configService = Array<ServiceConfig>()
     let resultViewModel = ResultViewModel()
-    let payMEFunction = PayMEFunction()
+    lazy var payMEFunction = PayMEFunction(self)
     let disposeBag = DisposeBag()
 
     public enum Action: String {
@@ -183,8 +183,8 @@ public class PayME {
                             return key == "limit.param.amount.payment"
                         }) {
 
-                            Methods.min = (configLimitPayment["value"]!["min"] as? Int) ?? 10000
-                            Methods.max = (configLimitPayment["value"]!["max"] as? Int) ?? 100000000
+                            PaymentModalController.min = (configLimitPayment["value"]!["min"] as? Int) ?? 10000
+                            PaymentModalController.max = (configLimitPayment["value"]!["max"] as? Int) ?? 100000000
                         } else {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config thanh toán, vui lòng thử lại sau" as AnyObject])
                         }
@@ -369,23 +369,23 @@ public class PayME {
     ) {
         if (payMEFunction.checkCondition(onError) == true) {
             PayME.currentVC = currentVC
-            if (amount < Methods.min) {
-                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: Methods.min))" as AnyObject])
+            if (amount < PaymentModalController.min) {
+                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.min))" as AnyObject])
                 return
             }
-            if (amount > Methods.max) {
-                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: Methods.max))" as AnyObject])
+            if (amount > PaymentModalController.max) {
+                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.max))" as AnyObject])
                 return
             }
             if (PayME.accessToken != "" && PayME.kycState == "APPROVED") {
-                Methods.amount = amount
-                Methods.storeId = storeId
-                Methods.orderId = orderId
-                Methods.note = note ?? ""
-                Methods.extraData = extraData ?? ""
-                Methods.paymentMethodID = paymentMethodID
-                Methods.isShowResultUI = isShowResultUI
-                let methods = Methods()
+                PaymentModalController.amount = amount
+                PaymentModalController.storeId = storeId
+                PaymentModalController.orderId = orderId
+                PaymentModalController.note = note ?? ""
+                PaymentModalController.extraData = extraData ?? ""
+                PaymentModalController.paymentMethodID = paymentMethodID
+                PaymentModalController.isShowResultUI = isShowResultUI
+                let methods = PaymentModalController()
 
                 resultViewModel
                         .resultSubject

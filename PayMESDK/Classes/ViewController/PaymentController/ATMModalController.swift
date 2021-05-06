@@ -39,14 +39,14 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        Methods.isShowCloseModal = true
+        PaymentModalController.isShowCloseModal = true
         self.view.backgroundColor = .white
-        atmView.price.text = "\(formatMoney(input: Methods.amount)) đ"
+        atmView.price.text = "\(formatMoney(input: PaymentModalController.amount)) đ"
         contentLabel.text = "Nội dung"
-        if (Methods.note == "") {
+        if (PaymentModalController.note == "") {
             atmView.memoLabel.text = "Không có nội dung"
         } else {
-            atmView.memoLabel.text = Methods.note
+            atmView.memoLabel.text = PaymentModalController.note
         }
 
         view.addSubview(scrollView)
@@ -99,7 +99,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
 
     func panModalDidDismiss() {
-        if (Methods.isShowCloseModal == true) {
+        if (PaymentModalController.isShowCloseModal == true) {
             self.onError!(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
         }
     }
@@ -144,7 +144,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             }
             let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
             self.showSpinner(onView: self.view)
-            API.transferATM(storeId: Methods.storeId, orderId: Methods.orderId, extraData: Methods.extraData, note: Methods.note, cardNumber: cardNumber!, cardHolder: cardHolder!, issuedAt: date, amount: Methods.amount,
+            API.transferATM(storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, extraData: PaymentModalController.extraData, note: PaymentModalController.note, cardNumber: cardNumber!, cardHolder: cardHolder!, issuedAt: date, amount: PaymentModalController.amount,
                     onSuccess: { success in
                         print(success)
                         let payment = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
@@ -178,8 +178,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                     self.removeSpinner()
                                     let result = Result(
                                             type: ResultType.SUCCESS,
-                                            amount: Methods.amount,
-                                            descriptionLabel: Methods.note,
+                                            amount: PaymentModalController.amount,
+                                            descriptionLabel: PaymentModalController.note,
                                             paymentMethod: self.method!,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
@@ -193,9 +193,9 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                     self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
-                                            amount: Methods.amount,
+                                            amount: PaymentModalController.amount,
                                             failReasonLabel: message ?? "Có lỗi xảy ra",
-                                            descriptionLabel: Methods.note,
+                                            descriptionLabel: PaymentModalController.note,
                                             paymentMethod: self.method!,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
@@ -219,8 +219,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                             self.onSuccess!(responseSuccess)
                                             let result = Result(
                                                     type: ResultType.SUCCESS,
-                                                    amount: Methods.amount,
-                                                    descriptionLabel: Methods.note,
+                                                    amount: PaymentModalController.amount,
+                                                    descriptionLabel: PaymentModalController.note,
                                                     paymentMethod: self.method!,
                                                     transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                             )
@@ -236,9 +236,9 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                             self.onError!(responseSuccess)
                                             let result = Result(
                                                     type: ResultType.FAIL,
-                                                    amount: Methods.amount,
+                                                    amount: PaymentModalController.amount,
                                                     failReasonLabel: responseFromWebView,
-                                                    descriptionLabel: Methods.note,
+                                                    descriptionLabel: PaymentModalController.note,
                                                     paymentMethod: self.method!,
                                                     transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                             )
@@ -251,9 +251,9 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                     self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
-                                            amount: Methods.amount,
+                                            amount: PaymentModalController.amount,
                                             failReasonLabel: message ?? "Có lỗi xảy ra",
-                                            descriptionLabel: Methods.note,
+                                            descriptionLabel: PaymentModalController.note,
                                             paymentMethod: self.method!,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
@@ -270,7 +270,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                 if let code = error["code"] as? Int {
                     if (code == 401) {
                         PayME.logoutAction()
-                        Methods.isShowCloseModal = false
+                        PaymentModalController.isShowCloseModal = false
                         self.dismiss(animated: true, completion: nil)
                     }
                 }
@@ -279,8 +279,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
 
     func setupSuccess() {
-        Methods.isShowCloseModal = false
-        if (Methods.isShowResultUI == true) {
+        PaymentModalController.isShowCloseModal = false
+        if (PaymentModalController.isShowResultUI == true) {
             self.result = true
             scrollView.removeFromSuperview()
             view.addSubview(successView)
@@ -290,11 +290,11 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             successView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
             successView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
             successView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            successView.roleLabel.text = formatMoney(input: Methods.amount)
-            if (Methods.note == "") {
+            successView.roleLabel.text = formatMoney(input: PaymentModalController.amount)
+            if (PaymentModalController.note == "") {
                 successView.memoLabel.text = "Không có nội dung"
             } else {
-                successView.memoLabel.text = Methods.note
+                successView.memoLabel.text = PaymentModalController.note
             }
             bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: successView.button.bottomAnchor, constant: 10).isActive = true
             self.updateViewConstraints()
@@ -308,8 +308,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
 
     func setupFail() {
-        Methods.isShowCloseModal = false
-        if (Methods.isShowResultUI == true) {
+        PaymentModalController.isShowCloseModal = false
+        if (PaymentModalController.isShowResultUI == true) {
             self.result = true
             scrollView.removeFromSuperview()
             view.addSubview(failView)
@@ -318,11 +318,11 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             failView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
             failView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
 
-            failView.roleLabel.text = formatMoney(input: Methods.amount)
-            if (Methods.note == "") {
+            failView.roleLabel.text = formatMoney(input: PaymentModalController.amount)
+            if (PaymentModalController.note == "") {
                 failView.memoLabel.text = "Không có nội dung"
             } else {
-                failView.memoLabel.text = Methods.note
+                failView.memoLabel.text = PaymentModalController.note
             }
             failView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
             failView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
@@ -332,7 +332,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             self.panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .shortForm)
         } else {
-            Methods.isShowCloseModal = false
+            PaymentModalController.isShowCloseModal = false
             self.dismiss(animated: true, completion: nil)
         }
     }
@@ -340,8 +340,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
 
     func setupResult(result: Result) {
         resultSubject.onNext(result)
-        Methods.isShowCloseModal = false
-        if (Methods.isShowResultUI == true) {
+        PaymentModalController.isShowCloseModal = false
+        if (PaymentModalController.isShowResultUI == true) {
             view.addSubview(resultView)
             resultView.translatesAutoresizingMaskIntoConstraints = false
             resultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true

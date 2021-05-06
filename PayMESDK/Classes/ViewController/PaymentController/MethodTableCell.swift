@@ -135,7 +135,7 @@ class Method: UITableViewCell {
             bankContentLabel.text = presentable.label
         }
         if (presentable.type.isEqual("WALLET")) {
-            walletMethodImage.image = UIImage(for: Methods.self, named: "iconWallet")
+            walletMethodImage.image = UIImage(for: PaymentModalController.self, named: "iconWallet")
         } else if (presentable.type.isEqual("LINKED")) {
             if (presentable.dataLinked != nil) {
                 let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode!).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")

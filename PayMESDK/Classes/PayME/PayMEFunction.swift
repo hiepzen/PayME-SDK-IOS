@@ -9,6 +9,12 @@ import Foundation
 import CryptoSwift
 
 class PayMEFunction {
+    private var payME: PayME?
+
+    init(_ payME: PayME? = nil) {
+        self.payME = payME
+    }
+
     func checkCondition(_ onError: @escaping ([String: AnyObject]) -> ()) -> Bool {
         if (PayME.loggedIn == false || PayME.dataInit == nil) {
             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
