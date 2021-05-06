@@ -24,28 +24,21 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                 if let payInfo = paymentInfo["Pay"] as? [String: AnyObject] {
                     let succeeded = payInfo["succeeded"] as! Bool
+                    var formatDate = ""
+                    var transactionNumber = ""
+                    var cardNumber = ""
                     if let history = payInfo["history"] as? [String: AnyObject] {
                         if let createdAt = history["createdAt"] as? String {
                             if let date = toDate(dateString: createdAt) {
-                                let formatDate = toDateString(date: date)
-                                self.successView.timeTransactionDetail.text = formatDate
-                                self.failView.timeTransactionDetail.text = formatDate
+                                formatDate = toDateString(date: date)
                             }
                         }
                         if let payment = history["payment"] as? [String: AnyObject] {
-                            if let method = payment["method"] as? String {
-                                self.successView.methodContent.text = getMethodText(method: method)
-                                self.failView.methodContent.text = getMethodText(method: method)
-                            }
                             if let transaction = payment["transaction"] as? String {
-                                self.successView.transactionNumber.text = transaction
-                                self.failView.transactionNumber.text = transaction
+                                transactionNumber = transaction
                             }
                             if let description = payment["description"] as? String {
-                                self.successView.cardNumberContent.text = description
-                                self.failView.cardNumberContent.text = description
-                                self.successView.cardNumberLabel.text = "Số tài khoản"
-                                self.failView.cardNumberLabel.text = "Số tài khoản"
+                                cardNumber = description
                             }
                         }
                     }
@@ -56,13 +49,27 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         ] as [String: AnyObject]
                         self.onSuccess!(responseSuccess)
                         self.otpView.removeFromSuperview()
-                        self.setupSuccess()
+                        let result = Result(
+                                type: ResultType.SUCCESS,
+                                amount: PaymentModalController.amount,
+                                descriptionLabel: PaymentModalController.note,
+                                paymentMethod: self.getMethodSelected(),
+                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
+                        )
+                        self.setupResult(result: result)
                     } else {
                         self.otpView.removeFromSuperview()
                         let message = payInfo["message"] as? String
-                        self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
                         self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                        self.setupFail()
+                        let result = Result(
+                                type: ResultType.FAIL,
+                                amount: PaymentModalController.amount,
+                                failReasonLabel: message ?? "Có lỗi xảy ra",
+                                descriptionLabel: PaymentModalController.note,
+                                paymentMethod: self.getMethodSelected(),
+                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                        )
+                        self.setupResult(result: result)
                     }
                 } else {
                     self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
@@ -84,8 +91,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func pinField(_ field: KAPinField, didFinishWith code: String) {
         if (field == securityCode.otpView) {
             showSpinner(onView: view)
-            successView = SuccessView(type: 1)
-            failView = FailView(type: 1)
             securityCode.txtErrorMessage.isHidden = true
             API.createSecurityCode(password: sha256(string: code)!, onSuccess: { securityInfo in
                 let account = securityInfo["Account"]!["SecurityCode"] as! [String: AnyObject]
@@ -114,10 +119,16 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     } else {
                         self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                         self.securityCode.removeFromSuperview()
-                        self.failView.failLabel.text = message
-                        self.setupFail()
+                        let result = Result(
+                                type: ResultType.FAIL,
+                                amount: PaymentModalController.amount,
+                                failReasonLabel: message,
+                                descriptionLabel: PaymentModalController.note,
+                                paymentMethod: self.getMethodSelected(),
+                                transactionInfo: TransactionInformation()
+                        )
+                        self.setupResult(result: result)
                     }
-
                 }
             }, onError: { errorSecurity in
                 if let code = errorSecurity["code"] as? Int {
@@ -154,8 +165,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let atmView = ATMView()
     let otpView = OTPView()
     let securityCode = SecurityCode()
-    var successView = SuccessView()
-    var failView = FailView()
     let resultView = ResultView()
     var keyBoardHeight: CGFloat = 0
     let screenSize: CGRect = UIScreen.main.bounds
@@ -327,7 +336,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             } else {
                 self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                 self.securityCode.removeFromSuperview()
-                self.failView.failLabel.text = message
                 let result = Result(
                         type: ResultType.FAIL,
                         amount: PaymentModalController.amount,
@@ -599,59 +607,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         securityCode.otpView.becomeFirstResponder()
     }
 
-    func setupFail() {
-        PaymentModalController.isShowCloseModal = false
-        if (PaymentModalController.isShowResultUI == true) {
-            view.addSubview(failView)
-
-            failView.translatesAutoresizingMaskIntoConstraints = false
-            failView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-            failView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-            failView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-            failView.roleLabel.text = formatMoney(input: PaymentModalController.amount)
-
-            failView.memoLabel.text = PaymentModalController.note == "" ? "Không có nội dung" : PaymentModalController.note
-            failView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            failView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: failView.button.bottomAnchor, constant: 10).isActive = true
-            updateViewConstraints()
-            view.layoutIfNeeded()
-            panModalSetNeedsLayoutUpdate()
-            panModalTransition(to: .longForm)
-            failView.animationView.play()
-        } else {
-            dismiss(animated: true)
-        }
-    }
-
-    func setupSuccess() {
-        PaymentModalController.isShowCloseModal = false
-        if (PaymentModalController.isShowResultUI == true) {
-            view.addSubview(successView)
-            successView.translatesAutoresizingMaskIntoConstraints = false
-            successView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-            successView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-            successView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-            successView.roleLabel.text = formatMoney(input: PaymentModalController.amount)
-            successView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            successView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            successView.roleLabel.text = formatMoney(input: PaymentModalController.amount)
-            if (PaymentModalController.note == "") {
-                successView.memoLabel.text = "Không có nội dung"
-            } else {
-                successView.memoLabel.text = PaymentModalController.note
-            }
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: successView.button.bottomAnchor, constant: 10).isActive = true
-            updateViewConstraints()
-            view.layoutIfNeeded()
-            panModalSetNeedsLayoutUpdate()
-            panModalTransition(to: .longForm)
-            successView.animationView.play()
-        } else {
-            dismiss(animated: true)
-        }
-    }
-
     func setupResult(result: Result) {
         resultSubject.onNext(result)
         PaymentModalController.isShowCloseModal = false
@@ -677,8 +632,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     override func viewDidLayoutSubviews() {
         button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
         detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
-        successView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
-        failView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
         resultView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
 
         atmView.detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
