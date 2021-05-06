@@ -14,14 +14,12 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     let screenSize: CGRect = UIScreen.main.bounds
     var atmView = ATMView()
     var keyboardHeight: CGFloat = 0
-    internal var listBank: [Bank] = []
-    internal var bankDetect: Bank?
+    var listBank: [Bank] = []
+    var bankDetect: Bank?
     var onError: (([String: AnyObject]) -> ())? = nil
     var onSuccess: (([String: AnyObject]) -> ())? = nil
     var method: PaymentMethod? = nil
     var bankName: String = ""
-    let successView = SuccessView()
-    let failView = FailView()
     let resultView = ResultView()
     var result = false
 
@@ -94,8 +92,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         atmView.detailView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203, 203, 203), strokeLength: 3, gapLength: 4, width: 0.5)
         atmView.detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
         atmView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
-        successView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
-        failView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+        resultView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
     }
 
     func panModalDidDismiss() {
@@ -189,7 +186,6 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                 let statePay = payInfo["payment"] as? [String: AnyObject]
                                 if (statePay == nil) {
                                     let message = payInfo["message"] as? String
-                                    self.failView.failLabel.text = message ?? "Có lỗi xảy ra"
                                     self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
@@ -278,70 +274,12 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         }
     }
 
-    func setupSuccess() {
-        PaymentModalController.isShowCloseModal = false
-        if (PaymentModalController.isShowResultUI == true) {
-            self.result = true
-            scrollView.removeFromSuperview()
-            view.addSubview(successView)
-            successView.translatesAutoresizingMaskIntoConstraints = false
-            successView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-            successView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-            successView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-            successView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            successView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            successView.roleLabel.text = formatMoney(input: PaymentModalController.amount)
-            if (PaymentModalController.note == "") {
-                successView.memoLabel.text = "Không có nội dung"
-            } else {
-                successView.memoLabel.text = PaymentModalController.note
-            }
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: successView.button.bottomAnchor, constant: 10).isActive = true
-            self.updateViewConstraints()
-            self.view.layoutIfNeeded()
-            self.panModalSetNeedsLayoutUpdate()
-            panModalTransition(to: .shortForm)
-        } else {
-            self.dismiss(animated: true, completion: nil)
-        }
-
-    }
-
-    func setupFail() {
-        PaymentModalController.isShowCloseModal = false
-        if (PaymentModalController.isShowResultUI == true) {
-            self.result = true
-            scrollView.removeFromSuperview()
-            view.addSubview(failView)
-            failView.translatesAutoresizingMaskIntoConstraints = false
-            failView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-            failView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-            failView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-
-            failView.roleLabel.text = formatMoney(input: PaymentModalController.amount)
-            if (PaymentModalController.note == "") {
-                failView.memoLabel.text = "Không có nội dung"
-            } else {
-                failView.memoLabel.text = PaymentModalController.note
-            }
-            failView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            failView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: failView.button.bottomAnchor, constant: 10).isActive = true
-            self.updateViewConstraints()
-            self.view.layoutIfNeeded()
-            self.panModalSetNeedsLayoutUpdate()
-            panModalTransition(to: .shortForm)
-        } else {
-            PaymentModalController.isShowCloseModal = false
-            self.dismiss(animated: true, completion: nil)
-        }
-    }
-
-
     func setupResult(result: Result) {
         resultSubject.onNext(result)
         PaymentModalController.isShowCloseModal = false
         if (PaymentModalController.isShowResultUI == true) {
+            scrollView.removeFromSuperview()
+            self.result = true
             view.addSubview(resultView)
             resultView.translatesAutoresizingMaskIntoConstraints = false
             resultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
@@ -353,7 +291,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             updateViewConstraints()
             view.layoutIfNeeded()
             panModalSetNeedsLayoutUpdate()
-            panModalTransition(to: .longForm)
+            panModalTransition(to: .shortForm)
             resultView.animationView.play()
         } else {
             dismiss(animated: true)
