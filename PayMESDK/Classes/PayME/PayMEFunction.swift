@@ -84,11 +84,13 @@ class PayMEFunction {
     }
 
     func openWallet(
+            _ isChecked: Bool = false,
             _ currentVC: UIViewController, _ action: PayME.Action, _ amount: Int?, _ description: String?,
             _ extraData: String?, _ serviceCode: String = "",
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), _ onError: @escaping ([String: AnyObject]) -> ()
     ) {
-        if checkCondition(onError) {
+        let condition = isChecked ? checkCondition(onError) : true
+        if condition {
             currentVC.navigationItem.hidesBackButton = true
             currentVC.navigationController?.isNavigationBarHidden = true
             PayME.currentVC = currentVC
@@ -170,7 +172,7 @@ class PayMEFunction {
                       "showLog": "\(PayME.showLog)"
                     }
                     """
-
+	
             webViewController.setURLRequest(urlWebview(env: PayME.env) + "\(encryptAES(data))")
             webViewController.setOnSuccessCallback(onSuccess: onSuccess)
             webViewController.setOnErrorCallback(onError: onError)
