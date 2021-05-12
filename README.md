@@ -297,6 +297,17 @@ public func pay(
 
 Trong trường hợp app tích hợp cần lấy số dư để tự hiển thị lên UI trên app thì có thể dùng hàm, hàm này không hiển thị UI của PayME SDK
 
+### getListPaymentMethodID() - Lấy danh sách phương thức thanh toán
+
+Hàm này được gọi khi từ app tích hợp khi muốn lấy danh sách các phương thức thanh toán mà PayME cung cấp vs từng tài khoản sau khi tài khoản đã kích hoạt và định danh thành công,dùng để truyền vào hàm pay() để chọn trực tiếp phương thức thanh toán mà app đối tác muốn
+
+```swift
+public fun getListPaymentMethodID(
+        onSuccess: ([Dictionary<String, AnyObject>]) -> (),
+        onError: (Dictionary<String, AnyObject>) -> ()
+)
+```
+
 ### getWalletInfo() - **Lấy các thông tin của ví**
 
 ```swift
