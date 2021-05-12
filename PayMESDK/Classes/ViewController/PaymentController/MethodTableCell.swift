@@ -43,9 +43,8 @@ class Method: UITableViewCell {
     let imageContainer: UIView = {
         let imageContainer = UIView()
         imageContainer.translatesAutoresizingMaskIntoConstraints = false
-        imageContainer.layer.borderWidth = 1
-        imageContainer.layer.borderColor = UIColor(203, 203, 203).cgColor
-        imageContainer.layer.cornerRadius = 5
+        imageContainer.layer.cornerRadius = 14
+        imageContainer.backgroundColor = .white
         return imageContainer
     }()
 
@@ -70,18 +69,18 @@ class Method: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        backgroundColor = .white
+        backgroundColor = UIColor(239, 242, 247)
         isAccessibilityElement = true
 
         let backgroundView = UIView()
         backgroundView.backgroundColor = #colorLiteral(red: 0.8196078431, green: 0.8235294118, blue: 0.8274509804, alpha: 1).withAlphaComponent(0.11)
         selectedBackgroundView = backgroundView
         contentView.addSubview(containerView)
-        containerView.addSubview(walletMethodImage)
+        containerView.addSubview(imageContainer)
+        imageContainer.addSubview(walletMethodImage)
         containerView.addSubview(bankNameLabel)
         containerView.addSubview(checkedImage)
         containerView.addSubview(bankContentLabel)
-        containerView.addSubview(imageContainer)
         setupConstraints()
     }
 
