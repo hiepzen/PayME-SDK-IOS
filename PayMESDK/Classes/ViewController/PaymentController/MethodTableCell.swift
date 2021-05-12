@@ -16,8 +16,7 @@ class Method: UITableViewCell {
     let containerView: UIView = {
         let containerView = UIView()
         containerView.layer.cornerRadius = 15.0
-        containerView.layer.borderColor = UIColor(203, 203, 203).cgColor
-        containerView.layer.borderWidth = 0.5
+        containerView.backgroundColor = UIColor(239, 242, 247)
         containerView.translatesAutoresizingMaskIntoConstraints = false
         return containerView
     }()
@@ -41,7 +40,7 @@ class Method: UITableViewCell {
     }()
 
     let imageContainer: UIView = {
-        let imageContainer = UIView()
+        let imageContainer = UIView(frame: CGRect(x: 0, y: 0, width: 28, height: 28))
         imageContainer.translatesAutoresizingMaskIntoConstraints = false
         imageContainer.layer.cornerRadius = 14
         imageContainer.backgroundColor = .white
@@ -68,8 +67,6 @@ class Method: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
-        backgroundColor = UIColor(239, 242, 247)
         isAccessibilityElement = true
 
         let backgroundView = UIView()
