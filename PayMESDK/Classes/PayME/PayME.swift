@@ -11,24 +11,15 @@ import UIKit
 import AVFoundation
 
 public class PayME {
-    static var appPrivateKey: String = ""
-    static var appToken: String = ""
-    static var publicKey: String = ""
-    static var connectToken: String = ""
-    static var env: Env!
-    static var configColor: [String] = [""]
     static var description: String = ""
     static var amount: Int = 0
+    static var configColor: [String] = [""]
+
     static var currentVC: UIViewController?
     static var rootVC: UIViewController?
     static var isRecreateNavigationController: Bool = false
-    static var appENV: String = ""
-    static var appId: String = ""
-    static var showLog: Int = 0
-    static var loggedIn: Bool = false
-    static var language: Language = PayME.Language.VIETNAM
 
-    lazy var payMEFunction = PayMEFunction(self)
+    let payMEFunction: PayMEFunction
 
     public enum Action: String {
         case OPEN = "OPEN"
@@ -67,32 +58,12 @@ public class PayME {
     }
 
     public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, language: Language? = PayME.Language.VIETNAM, env: Env, configColor: [String], showLog: Int = 0) {
-        PayME.appToken = appToken;
-        let temp = PayME.appToken.components(separatedBy: ".")
-        let jwt = temp[1].fromBase64()
-        if (jwt != nil) {
-            let data = Data(jwt!.utf8)
-            if let finalJSON = try? (JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) as? Dictionary<String, AnyObject>) {
-                PayME.appId = String((finalJSON["appId"] as? Int) ?? 0)
-            }
-        }
-        if (env != PayME.env) {
-            PayME.env = env
-            payMEFunction.clientId = ""
-        }
         PayME.configColor = configColor
-        payMEFunction.accessToken = ""
-        payMEFunction.handShake = ""
-        payMEFunction.kycState = ""
-        payMEFunction.dataInit = nil
-        PayME.appENV = ""
-        PayME.loggedIn = false
-        PayME.showLog = showLog
-        if (language != nil) {
-            PayME.language = language!
-        }
+        payMEFunction = PayMEFunction(appToken, publicKey, connectToken, appPrivateKey, language, env, configColor, showLog, PayME.getAppId(appToken))
+    }
 
-        payMEFunction.initRequest(publicKey, appPrivateKey, env, appToken, connectToken, UIDevice.current.identifierForVendor!.uuidString, PayME.appId)
+    public func logout() {
+        payMEFunction.resetInitState()
     }
 
     public func getAccountInfo(
@@ -118,18 +89,6 @@ public class PayME {
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         payMEFunction.login(onSuccess, onError)
-    }
-
-    static func logoutAction() {
-        PayME.loggedIn = false
-//        PayME.accessToken = ""
-//        PayME.handShake = ""
-//        PayME.kycState = ""
-//        PayME.dataInit = nil
-    }
-
-    public func logout() {
-        PayME.logoutAction()
     }
 
     public func getWalletInfo(
@@ -179,10 +138,23 @@ public class PayME {
         payMEFunction.payAction(currentVC, storeId, orderId, amount, note, paymentMethodID, extraData, isShowResultUI, onSuccess, onError)
     }
 
-    public func getListPaymentMethodID(
+    public func getPaymentMethods(
             onSuccess: @escaping ([Dictionary<String, Any>]) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        payMEFunction.getListPaymentMethodID(onSuccess, onError)
+        payMEFunction.getPaymentMethods(onSuccess, onError)
+    }
+
+    static private func getAppId(_ appToken: String) -> String {
+        var appId: String = ""
+        let temp = appToken.components(separatedBy: ".")
+        let jwt = temp[1].fromBase64()
+        if (jwt != nil) {
+            let data = Data(jwt!.utf8)
+            if let finalJSON = try? (JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) as? Dictionary<String, AnyObject>) {
+                appId = String((finalJSON["appId"] as? Int) ?? 0)
+            }
+        }
+        return appId
     }
 }

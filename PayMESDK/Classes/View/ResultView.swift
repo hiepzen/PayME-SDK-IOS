@@ -31,13 +31,13 @@ class ResultView: UIView {
 
     let closeButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(for: Failed.self, named: "16Px"), for: .normal)
+        button.setImage(UIImage(for: ResultView.self, named: "16Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     let image: UIImageView = {
-        var bgImage = UIImageView(image: UIImage(for: Failed.self, named: "success"))
+        var bgImage = UIImageView(image: UIImage(for: ResultView.self, named: "success"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
@@ -323,7 +323,7 @@ class ResultView: UIView {
         button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17).isActive = true
 
 
-        let bundle = Bundle(for: Success.self)
+        let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("Result_Thanh_Cong", bundle: resourceBundle!)

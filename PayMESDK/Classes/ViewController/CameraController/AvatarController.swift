@@ -21,8 +21,8 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
     weak var shapeLayer_bottomRight: CAShapeLayer?
     public var txtFront = ""
     public var imageFront: UIImage?
-    internal var cameraCaptureInput: AVCaptureDeviceInput?
-    internal var cameraCaptureOutput: AVCapturePhotoOutput?
+    var cameraCaptureInput: AVCaptureDeviceInput?
+    var cameraCaptureOutput: AVCapturePhotoOutput?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,13 +60,12 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
         pressCamera.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
-        // Do any additional setup after loading the view, typically from a nib.
 
     }
 
     @objc func back() {
-        self.session.stopRunning()
-        self.navigationController?.popViewController(animated: true)
+        session.stopRunning()
+        navigationController?.popViewController(animated: true)
     }
 
     @objc func takePicture() {
@@ -106,9 +105,7 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
 
     func initializeCaptureSession() {
         AVCaptureDevice.requestAccess(for: .video) { success in
-            if success { // if request is granted (success is true)
-
-            } else { // if request is denied (success is false)
+            if !success {
                 DispatchQueue.main.async {
                     KYCController.kycDecide(currentVC: self)
                 }
@@ -147,22 +144,14 @@ extension AvatarController: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhoto photoSampleBuffer: CMSampleBuffer?, previewPhoto previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
         if let sampleBuffer = photoSampleBuffer, let dataImage = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: sampleBuffer, previewPhotoSampleBuffer: previewPhotoSampleBuffer) {
             let image: UIImage = UIImage(data: dataImage)!
-
             let originalSize: CGSize
-            let visibleLayerFrame = self.cameraPreviewLayer!.bounds // THE ACTUAL VISIBLE AREA IN THE LAYER FRAME
-
-            // Calculate the fractional size that is shown in the preview
-            let metaRect: CGRect = (self.cameraPreviewLayer?.metadataOutputRectConverted(fromLayerRect: visibleLayerFrame))!
+            let visibleLayerFrame = cameraPreviewLayer!.bounds
+            let metaRect: CGRect = (cameraPreviewLayer?.metadataOutputRectConverted(fromLayerRect: visibleLayerFrame))!
             if (image.imageOrientation == UIImage.Orientation.left || image.imageOrientation == UIImage.Orientation.right) {
-                // For these images (which are portrait), swap the size of the
-                // image, because here the output image is actually rotated
-                // relative to what you see on screen.
                 originalSize = CGSize(width: image.size.height, height: image.size.width)
             } else {
                 originalSize = image.size
             }
-
-            // metaRect is fractional, that's why we multiply here.
             let cropRect: CGRect = CGRect(x: metaRect.origin.x * originalSize.width,
                     y: metaRect.origin.y * originalSize.height,
                     width: metaRect.size.width * originalSize.width,
@@ -172,10 +161,10 @@ extension AvatarController: AVCapturePhotoCaptureDelegate {
                             scale: 1,
                             orientation: .leftMirrored)
             let resizeImage = finalImage.resizeImage(targetSize: CGSize(width: screenSize.width - 32, height: screenSize.width - 32))
-            self.session.stopRunning()
+            session.stopRunning()
             let vc = AvatarConfirm()
             vc.avatarImage = resizeImage
-            self.navigationController?.pushViewController(vc, animated: true)
+            navigationController?.pushViewController(vc, animated: true)
         }
     }
 }

@@ -20,10 +20,10 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     weak var shapeLayer_topRight: CAShapeLayer?
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
-    internal var txtFront = ""
-    internal var imageFront: UIImage?
-    internal var cameraCaptureInput: AVCaptureDeviceInput?
-    internal var cameraCaptureOutput: AVCapturePhotoOutput?
+    var txtFront = ""
+    var imageFront: UIImage?
+    var cameraCaptureInput: AVCaptureDeviceInput?
+    var cameraCaptureOutput: AVCapturePhotoOutput?
 
     public var data: [KYCDocument] = [
         KYCDocument(id: "0", name: "Chứng minh nhân dân", active: true),
@@ -108,11 +108,11 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         titleLabel.text = "Chụp ảnh giấy tờ"
         titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
 
-        if (self.imageFront != nil) {
-            self.txtFront = "Mặt sau"
+        if (imageFront != nil) {
+            txtFront = "Mặt sau"
             choiceDocumentType.isHidden = true
         } else {
-            self.txtFront = "Mặt trước"
+            txtFront = "Mặt trước"
         }
         frontSide.text = self.txtFront
         frontSide.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 44).isActive = true
@@ -121,7 +121,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         guideLabel.text = "Vui lòng cân chỉnh giấy tờ tùy thân vào giữa khung"
         guideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         guideLabel.topAnchor.constraint(equalTo: choiceDocumentType.bottomAnchor, constant: (self.cameraPreviewLayer?.bounds.height ?? (screenSize.width - 32) * 0.67) + 60).isActive = true
-        guideLabel.widthAnchor.constraint(equalToConstant: self.view.frame.width).isActive = true
+        guideLabel.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
 
         titleButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15).isActive = true
         titleButton.topAnchor.constraint(equalTo: getPhoto.bottomAnchor).isActive = true
@@ -132,8 +132,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         getPhoto.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         titleButton.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
-
-        // Do any additional setup after loading the view, typically from a nib.
     }
 
 
@@ -166,8 +164,8 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     }
 
     @objc func back() {
-        self.session.stopRunning()
-        self.navigationController?.popViewController(animated: true)
+        session.stopRunning()
+        navigationController?.popViewController(animated: true)
 
     }
 
@@ -238,9 +236,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
 
     func initializeCaptureSession() {
         AVCaptureDevice.requestAccess(for: .video) { success in
-            if success { // if request is granted (success is true)
-
-            } else { // if request is denied (success is false)
+            if !success {
                 DispatchQueue.main.async {
                     KYCController.kycDecide(currentVC: self)
                 }
@@ -282,7 +278,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             confirmKYCFront.kycImage = image
             confirmKYCFront.active = active
             confirmKYCFront.parentVC = self
-            self.navigationController?.pushViewController(confirmKYCFront, animated: true)
+            navigationController?.pushViewController(confirmKYCFront, animated: true)
 
 
         } else {
@@ -290,7 +286,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             confirmKYCBack.kycImage = imageFront
             confirmKYCBack.kycImageBack = image
             confirmKYCBack.active = active
-            self.navigationController?.pushViewController(confirmKYCBack, animated: true)
+            navigationController?.pushViewController(confirmKYCBack, animated: true)
 
         }
     }
@@ -300,7 +296,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             return
         }
         dismiss(animated: true, completion: nil)
-        self.session.stopRunning()
+        session.stopRunning()
         openConfirmImage(image: image)
     }
 }
@@ -310,22 +306,14 @@ extension KYCCameraController: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhoto photoSampleBuffer: CMSampleBuffer?, previewPhoto previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
         if let sampleBuffer = photoSampleBuffer, let dataImage = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: sampleBuffer, previewPhotoSampleBuffer: previewPhotoSampleBuffer) {
             let image: UIImage = UIImage(data: dataImage)!
-
             let originalSize: CGSize
-            let visibleLayerFrame = self.cameraPreviewLayer!.bounds // THE ACTUAL VISIBLE AREA IN THE LAYER FRAME
-
-            // Calculate the fractional size that is shown in the preview
-            let metaRect: CGRect = (self.cameraPreviewLayer?.metadataOutputRectConverted(fromLayerRect: visibleLayerFrame))!
+            let visibleLayerFrame = cameraPreviewLayer!.bounds
+            let metaRect: CGRect = (cameraPreviewLayer?.metadataOutputRectConverted(fromLayerRect: visibleLayerFrame))!
             if (image.imageOrientation == UIImage.Orientation.left || image.imageOrientation == UIImage.Orientation.right) {
-                // For these images (which are portrait), swap the size of the
-                // image, because here the output image is actually rotated
-                // relative to what you see on screen.
                 originalSize = CGSize(width: image.size.height, height: image.size.width)
             } else {
                 originalSize = image.size
             }
-
-            // metaRect is fractional, that's why we multiply here.
             let cropRect: CGRect = CGRect(x: metaRect.origin.x * originalSize.width,
                     y: metaRect.origin.y * originalSize.height,
                     width: metaRect.size.width * originalSize.width,
@@ -335,7 +323,7 @@ extension KYCCameraController: AVCapturePhotoCaptureDelegate {
                             scale: 1,
                             orientation: image.imageOrientation)
             let resizeImage = finalImage.resizeImage(targetSize: CGSize(width: 512, height: 512 * 0.67))
-            self.session.stopRunning()
+            session.stopRunning()
             openConfirmImage(image: resizeImage)
         }
     }

@@ -22,23 +22,26 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     var bankName: String = ""
     let resultView = ResultView()
     var result = false
+    let payMEFunction: PayMEFunction
 
     public let resultSubject : PublishSubject<Result> = PublishSubject()
     private let disposeBag = DisposeBag()
 
-    init(listBank: [Bank] = [], onSuccess: (([String: AnyObject]) -> ())? = nil, onError: (([String: AnyObject]) -> ())? = nil, method: PaymentMethod) {
-        super.init(nibName: nil, bundle: nil)
+    init(payMEFunction: PayMEFunction, listBank: [Bank] = [], method: PaymentMethod,
+         onSuccess: (([String: AnyObject]) -> ())? = nil, onError: (([String: AnyObject]) -> ())? = nil) {
+        self.payMEFunction = payMEFunction
         self.listBank = listBank
         self.onSuccess = onSuccess
         self.onError = onError
         self.method = method
-    }
 
+        super.init(nibName: nil, bundle: nil)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         PaymentModalController.isShowCloseModal = true
-        self.view.backgroundColor = .white
+        view.backgroundColor = .white
         atmView.price.text = "\(formatMoney(input: PaymentModalController.amount)) đ"
         contentLabel.text = "Nội dung"
         if (PaymentModalController.note == "") {
@@ -90,19 +93,22 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         let topPoint = CGPoint(x: atmView.detailView.bounds.minX - 10, y: atmView.detailView.bounds.midY + 15)
         let bottomPoint = CGPoint(x: atmView.detailView.bounds.maxX, y: atmView.detailView.bounds.midY + 15)
         atmView.detailView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203, 203, 203), strokeLength: 3, gapLength: 4, width: 0.5)
-        atmView.detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
-        atmView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
-        resultView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+
+        let primaryColor = payMEFunction.configColor[0]
+        let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
+        atmView.detailView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
+        atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
+        resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
     }
 
     func panModalDidDismiss() {
         if (PaymentModalController.isShowCloseModal == true) {
-            self.onError!(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
+            onError!(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
         }
     }
 
     @objc func closeAction() {
-        self.dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: nil)
 
     }
 
@@ -140,8 +146,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                 return
             }
             let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
-            self.showSpinner(onView: self.view)
-            API.transferATM(storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, extraData: PaymentModalController.extraData, note: PaymentModalController.note, cardNumber: cardNumber!, cardHolder: cardHolder!, issuedAt: date, amount: PaymentModalController.amount,
+            showSpinner(onView: view)
+            payMEFunction.request.transferATM(storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, extraData: PaymentModalController.extraData, note: PaymentModalController.note, cardNumber: cardNumber!, cardHolder: cardHolder!, issuedAt: date, amount: PaymentModalController.amount,
                     onSuccess: { success in
                         print(success)
                         let payment = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
@@ -204,7 +210,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                     let html = statePay!["html"] as? String
                                     if (html != nil) {
                                         self.removeSpinner()
-                                        let webViewController = WebViewController(payME: nil, nibName: "WebView", bundle: nil)
+                                        let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
                                         webViewController.form = html!
                                         webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                                             webViewController.dismiss(animated: true)
@@ -265,7 +271,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                 self.removeSpinner()
                 if let code = error["code"] as? Int {
                     if (code == 401) {
-                        PayME.logoutAction()
+                        self.payMEFunction.resetInitState()
                         PaymentModalController.isShowCloseModal = false
                         self.dismiss(animated: true, completion: nil)
                     }
@@ -304,22 +310,22 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             return
         }
         var keyboardFrame: CGRect = (userInfo[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-        keyboardFrame = self.view.convert(keyboardFrame, from: nil)
+        keyboardFrame = view.convert(keyboardFrame, from: nil)
 
-        let contentInset: UIEdgeInsets = self.scrollView.contentInset
+        let contentInset: UIEdgeInsets = scrollView.contentInset
 
         if (contentInset.bottom < 625 + keyboardFrame.size.height - screenSize.height) {
             scrollView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 625 + keyboardFrame.size.height - screenSize.height, right: 0.0)
             let bottomOffset = CGPoint(x: 0, y: scrollView.contentSize.height - scrollView.bounds.height + scrollView.contentInset.bottom)
             scrollView.setContentOffset(bottomOffset, animated: true)
         }
-        self.keyboardHeight = keyboardFrame.size.height
+        keyboardHeight = keyboardFrame.size.height
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
-        self.keyboardHeight = 0
+        keyboardHeight = 0
         let contentInset: UIEdgeInsets = UIEdgeInsets.zero
         scrollView.contentInset = contentInset
         panModalSetNeedsLayoutUpdate()
@@ -333,7 +339,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     func toastMessError(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-        self.present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
 
 
@@ -493,11 +499,11 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
 
 
     var allowsExtendedPanScrolling: Bool {
-        return true
+        true
     }
 
     var panScrollable: UIScrollView? {
-        return nil
+        nil
     }
 
     var longFormHeight: PanModalHeight {
@@ -510,15 +516,15 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         return .contentHeight(500)
     }
     var shortFormHeight: PanModalHeight {
-        return longFormHeight
+        longFormHeight
     }
 
     var anchorModalToLongForm: Bool {
-        return false
+        false
     }
 
     var shouldRoundTopCorners: Bool {
-        return true
+        true
     }
 
 
@@ -527,27 +533,18 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        //Format Date of Birth dd-MM-yyyy
-
-        //initially identify your textfield
-
         if textField == atmView.dateField {
             let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")//Here change this characters based on your requirement
             let characterSet = CharacterSet(charactersIn: string)
-
-            // check the chars length dd -->2 at the same time calculate the dd-MM --> 5
             if (atmView.dateField.text?.count == 2) {
-                //Handle backspace being pressed
                 if !(string == "") {
-                    // append the text
                     atmView.dateField.text = (atmView.dateField.text)! + "/"
                 }
             }
-            // check the condition not exceed 9 chars
             return allowedCharacters.isSuperset(of: characterSet) && !(textField.text!.count > 4 && (string.count) > range.length)
         }
         if textField == atmView.cardNumberField {
@@ -556,39 +553,35 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             if (atmView.cardNumberField.text!.count >= 5) {
                 if !(string == "") {
                     print(string)
-                    // append the text
                     let stringToCompare = (atmView.cardNumberField.text)! + string
                     for bank in listBank {
-                        self.bankDetect = nil
+                        bankDetect = nil
                         if (stringToCompare.contains(bank.cardPrefix)) {
-                            self.bankDetect = bank
-                            self.atmView.guideTxt.textColor = UIColor(11, 11, 11)
-
-                            //atmView.cardNumberField
-                            self.atmView.guideTxt.text = bank.shortName
+                            bankDetect = bank
+                            atmView.guideTxt.textColor = UIColor(11, 11, 11)
+                            atmView.guideTxt.text = bank.shortName
                             break
                         }
                     }
-                    if (self.bankDetect == nil) {
-                        self.atmView.guideTxt.text = "Thẻ không đúng định dạng"
-                        self.atmView.guideTxt.textColor = .red
+                    if (bankDetect == nil) {
+                        atmView.guideTxt.text = "Thẻ không đúng định dạng"
+                        atmView.guideTxt.textColor = .red
 
                     }
                 } else {
-                    self.atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
-                    self.atmView.guideTxt.textColor = UIColor(11, 11, 11)
-                    self.bankDetect = nil
+                    atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
+                    atmView.guideTxt.textColor = UIColor(11, 11, 11)
+                    bankDetect = nil
 
                 }
             } else {
-                self.atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
-                self.atmView.guideTxt.textColor = UIColor(11, 11, 11)
-                self.bankDetect = nil
+                atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
+                atmView.guideTxt.textColor = UIColor(11, 11, 11)
+                bankDetect = nil
             }
             if (bankDetect != nil) {
                 if (textField.text!.count + 1 == bankDetect!.cardNumberLength) {
-                    API.getBankName(swiftCode: bankDetect!.swiftCode, cardNumber: textField.text! + string, onSuccess: { response in
-                        print(PayME.accessToken)
+                    payMEFunction.request.getBankName(swiftCode: bankDetect!.swiftCode, cardNumber: textField.text! + string, onSuccess: { response in
                         let bankNameRes = response["Utility"]!["GetBankName"] as! [String: AnyObject]
                         let succeeded = bankNameRes["succeeded"] as! Bool
                         if (succeeded == true) {

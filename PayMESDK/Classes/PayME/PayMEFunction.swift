@@ -13,40 +13,47 @@ import RxCocoa
 class PayMEFunction {
     let resultViewModel = ResultViewModel()
 
-    private var payME: PayME?
     private let disposeBag = DisposeBag()
-    private var request: API? = nil
     private var configService = Array<ServiceConfig>()
-    private var connectToken: String = ""
-    private var appId: String = ""
-    private var publicKey: String = ""
-    private var privateKey: String = ""
-    private var appToken: String = ""
+    private var connectToken = ""
+    private var appId = ""
+    private var publicKey = ""
+    private var privateKey = ""
+    private var appToken = ""
+    private var loggedIn = false
+    private var isShowLog = 0
 
-    var clientId: String = ""
-    var accessToken: String = ""
-    var handShake: String = ""
-    var kycState: String = ""
+    var request: API
+    var appEnv = ""
+    var env: PayME.Env
+    var language = PayME.Language.VIETNAM
+    var configColor: [String]
+    var clientId = ""
+    var accessToken = ""
+    var handShake = ""
+    var kycState = ""
     var dataInit: Dictionary<String, AnyObject>? = nil
 
-    init(_ payME: PayME? = nil) {
-        self.payME = payME
-    }
-
-    init() {}
-
-    func initRequest(_ publicKey: String, _ privateKey: String, _ env: PayME.Env, _ appId: String,
-                     _ appToken: String, _ connectToken: String, _ deviceId: String) {
-        self.connectToken = connectToken
+    init(
+            _ appToken: String, _ publicKey: String, _ connectToken: String, _ privateKey: String,
+            _ language: PayME.Language? = PayME.Language.VIETNAM, _ env: PayME.Env, _ configColor: [String],
+            _ isShowLog: Int = 0, _ appId: String) {
         self.appToken = appToken
-        self.appId = appId
         self.publicKey = publicKey
+        self.connectToken = connectToken
         self.privateKey = privateKey
+        self.isShowLog = isShowLog
+        self.appId = appId
+        self.env = env
+        self.language = language ?? PayME.Language.VIETNAM
+        self.configColor = configColor
+
+        let deviceId = UIDevice.current.identifierForVendor!.uuidString
         request = API(publicKey, privateKey, env, appToken, connectToken, deviceId, appId)
     }
 
     func checkCondition(_ onError: @escaping (Dictionary<String, AnyObject>) -> Void) -> Bool {
-        if (PayME.loggedIn == false || dataInit == nil) {
+        if (loggedIn == false || dataInit == nil) {
             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
             return false
         }
@@ -76,7 +83,7 @@ class PayMEFunction {
             _ onError: @escaping ([String: AnyObject]) -> ()
     ) {
         if checkCondition(onError) {
-            request?.getWalletInfo(
+            request.getWalletInfo(
                     onSuccess: { walletInfo in onSuccess(walletInfo) },
                     onError: { error in onError(error) }
             )
@@ -94,7 +101,7 @@ class PayMEFunction {
             currentVC.navigationItem.hidesBackButton = true
             currentVC.navigationController?.isNavigationBarHidden = true
             PayME.currentVC = currentVC
-            let webViewController = WebViewController(payME: payME, nibName: "WebView", bundle: nil)
+            let webViewController = WebViewController(payMEFunction: self, nibName: "WebView", bundle: nil)
             webViewController.tabBarController?.tabBar.isHidden = true
             webViewController.hidesBottomBarWhenPushed = true
 
@@ -143,7 +150,7 @@ class PayMEFunction {
                       "xApi": "\(appId)",
                       "appToken": "\(appToken)",
                       "clientId": "\(clientId)",
-                      "configColor":["\(handleColor(input: PayME.configColor))"],
+                      "configColor":["\(handleColor(input: configColor))"],
                       "dataInit" : {
                             "message" : "\(checkStringNil(input: message))",
                             "accessToken": "\(checkStringNil(input: accessToken))",
@@ -168,15 +175,23 @@ class PayMEFunction {
                         "serviceCode": "\(serviceCode)",
                         "amount": "\(checkIntNil(input: amount))"
                       },
-                      "env": "\(PayME.env.rawValue)",
-                      "showLog": "\(PayME.showLog)"
+                      "env": "\(env.rawValue)",
+                      "showLog": "\(isShowLog)"
                     }
                     """
 	
-            webViewController.setURLRequest(urlWebview(env: PayME.env) + "\(encryptAES(data))")
+            webViewController.setURLRequest(urlWebview(env: env) + "\(encryptAES(data))")
             webViewController.setOnSuccessCallback(onSuccess: onSuccess)
             webViewController.setOnErrorCallback(onError: onError)
         }
+    }
+
+    func resetInitState() {
+        loggedIn = false
+        accessToken = ""
+        handShake = ""
+        kycState = ""
+        dataInit = nil
     }
 
     func payAction(
@@ -203,7 +218,7 @@ class PayMEFunction {
                 PaymentModalController.extraData = extraData ?? ""
                 PaymentModalController.paymentMethodID = paymentMethodID
                 PaymentModalController.isShowResultUI = isShowResultUI
-                let paymentModalController = PaymentModalController()
+                let paymentModalController = PaymentModalController(payMEFunction: self)
 
                 resultViewModel
                         .resultSubject
@@ -218,11 +233,11 @@ class PayMEFunction {
         }
     }
 
-    func getListPaymentMethodID(
+    func getPaymentMethods(
             _ onSuccess: @escaping ([Dictionary<String, Any>]) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        request?.getTransferMethods(onSuccess: { response in
+        request.getTransferMethods(onSuccess: { response in
             let items = (response["Utility"]!["GetPaymentMethod"] as! Dictionary<String, AnyObject>)["methods"] as! [Dictionary<String, AnyObject>]
             onSuccess(items)
         }, onError: { error in
@@ -238,7 +253,7 @@ class PayMEFunction {
         if checkCondition(onError) {
             let qrScan = QRScannerController()
             qrScan.setScanSuccess(onScanSuccess: { response in
-                self.request?.readQRContent(qrContent: response, onSuccess: { response in
+                self.request.readQRContent(qrContent: response, onSuccess: { response in
                     let payment = response["OpenEWallet"]!["Payment"] as! Dictionary<String, AnyObject>
                     let detect = payment["Detect"] as! Dictionary<String, AnyObject>
                     let succeeded = detect["succeeded"] as! Bool
@@ -271,22 +286,22 @@ class PayMEFunction {
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        request?.initAccount(
+        request.initAccount(
                 clientID: clientId,
                 onSuccess: { responseAccessToken in
                     let result = responseAccessToken["OpenEWallet"]!["Init"] as! Dictionary<String, AnyObject>
                     let accessToken = result["accessToken"] as? String
                     let kycState = result["kyc"]!["state"] as? String
-                    let appENV = result["appEnv"] as? String
+                    let appEnv = result["appEnv"] as? String
 
                     self.accessToken = accessToken ?? ""
-                    PayME.appENV = appENV ?? ""
+                    self.appEnv = appEnv ?? ""
                     self.kycState = kycState ?? ""
                     self.dataInit = result
 
-                    self.request?.setAccessData(accessToken ?? "", self.clientId)
+                    self.request.setAccessData(accessToken ?? "", self.clientId)
 
-                    self.request?.getSetting(onSuccess: { success in
+                    self.request.getSetting(onSuccess: { success in
                         let configs = success["Setting"]!["configs"] as! [Dictionary<String, AnyObject>]
                         if let configLimitPayment = configs.first(where: { config in
                             let key = (config["key"] as? String) ?? ""
@@ -333,7 +348,7 @@ class PayMEFunction {
         if (clientId != "") {
             initAccount(onSuccess, onError)
         } else {
-            request?.registerClient(onSuccess: { response in
+            request.registerClient(onSuccess: { response in
                 let result = response["Client"]!["Register"] as! Dictionary<String, AnyObject>
                 let clientId = result["clientId"] as! String
                 self.clientId = clientId
@@ -347,7 +362,7 @@ class PayMEFunction {
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         initSDK(onSuccess: { success in
-            PayME.loggedIn = true
+            self.loggedIn = true
             if (self.accessToken == "") {
                 onSuccess(["code": PayME.KYCState.NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
                 return
@@ -361,7 +376,7 @@ class PayMEFunction {
                 return
             }
         }, onError: { error in
-            PayME.loggedIn = false
+            self.loggedIn = false
             onError(error)
         })
     }
@@ -370,8 +385,8 @@ class PayMEFunction {
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        if (PayME.loggedIn == true) {
-            request?.getAccountInfo(
+        if (loggedIn == true) {
+            request.getAccountInfo(
                     accountPhone: dataInit?["phone"] as Any,
                     onSuccess: { success in onSuccess(success) },
                     onError: { error in onError(error) })
@@ -385,7 +400,7 @@ class PayMEFunction {
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        request?.getService(onSuccess: { success in onSuccess(success) }, onError: { error in onError(error) })
+        request.getService(onSuccess: { success in onSuccess(success) }, onError: { error in onError(error) })
     }
 
     func getSupportedServices() -> [ServiceConfig] {

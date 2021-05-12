@@ -212,8 +212,10 @@ public class NetworkRequestGraphQL {
     private var params: Data?
     private var publicKey: String
     private var privateKey: String
+    private var appId: String
 
-    init(url: String, path: String, token: String, params: Data?, publicKey: String, privateKey: String) {
+    init(appId: String, url: String, path: String, token: String, params: Data?, publicKey: String, privateKey: String) {
+        self.appId = appId
         self.url = url
         self.path = path
         self.token = token
@@ -337,7 +339,7 @@ public class NetworkRequestGraphQL {
         request.addValue(self.token, forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue(PayME.appId, forHTTPHeaderField: "x-api-client")
+        request.addValue(appId, forHTTPHeaderField: "x-api-client")
         request.addValue(xAPIKey, forHTTPHeaderField: "x-api-key")
         request.addValue(xAPIAction, forHTTPHeaderField: "x-api-action")
         request.addValue(xAPIValidate, forHTTPHeaderField: "x-api-validate")

@@ -8,10 +8,10 @@
 import UIKit
 
 class KYCFrontController: UIViewController {
-    internal var kycImage: UIImage?
-    internal var active: Int?
-    internal let screenSize: CGRect = UIScreen.main.bounds
-    internal var parentVC: KYCCameraController?
+    var kycImage: UIImage?
+    var active: Int?
+    let screenSize: CGRect = UIScreen.main.bounds
+    var parentVC: KYCCameraController?
 
     let imageView: UIImageView = {
         var bgImage = UIImageView(image: nil)
@@ -122,19 +122,18 @@ class KYCFrontController: UIViewController {
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
         captureAgain.addTarget(self, action: #selector(back), for: .touchUpInside)
         confirm.addTarget(self, action: #selector(capture), for: .touchUpInside)
-        // Do any additional setup after loading the view.
     }
 
     @objc func back() {
-        self.navigationController?.popViewController(animated: true)
+        navigationController?.popViewController(animated: true)
     }
 
     @objc func capture() {
-        if (self.active! != 2) {
+        if (active! != 2) {
             let kycCameraController = KYCCameraController()
             kycCameraController.imageFront = kycImage
-            kycCameraController.active = self.active!
-            self.navigationController?.pushViewController(kycCameraController, animated: true)
+            kycCameraController.active = active!
+            navigationController?.pushViewController(kycCameraController, animated: true)
 
         } else {
             KYCController.imageDocument = [self.kycImage!]
@@ -147,7 +146,6 @@ class KYCFrontController: UIViewController {
             } else if (KYCController.flowKYC!["kycVideo"] == true) {
                 popupKYC.active = 2
                 PayME.currentVC?.present(popupKYC, animated: true)
-
             } else {
                 KYCController.uploadKYC()
             }

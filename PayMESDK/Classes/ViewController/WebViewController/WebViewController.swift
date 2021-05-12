@@ -54,15 +54,15 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var imageBack: UIImage?
     var active: Int?
     var individualTaskTimer: Timer!
-    var payME: PayME?
+    var payMEFunction: PayMEFunction?
 
     private var onSuccessWebView: ((String) -> ())? = nil
     private var onFailWebView: ((String) -> ())? = nil
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
     private var onError: (([String: AnyObject]) -> ())? = nil
 
-    init(payME: PayME?, nibName: String?, bundle: Bundle?) {
-        self.payME = payME
+    init(payMEFunction: PayMEFunction?, nibName: String?, bundle: Bundle?) {
+        self.payMEFunction = payMEFunction
         super.init(nibName: nibName, bundle: bundle)
     }
 
@@ -195,16 +195,15 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             if (navigationAction.request.url != nil) {
                 let host = navigationAction.request.url!.host ?? ""
                 print(host)
-                //if (navigationAction.request.url!.host!) {
                 if (host == "payme.vn") {
                     let params = navigationAction.request.url!.queryParameters ?? ["": ""]
                     if (params["success"] == "true") {
-                        self.onSuccessWebView!("success")
+                        onSuccessWebView!("success")
                         decisionHandler(.cancel)
                         return
                     }
                     if (params["success"] == "false") {
-                        self.onFailWebView!(params["message"]!)
+                        onFailWebView!(params["message"]!)
                         decisionHandler(.cancel)
                         return
                     }
@@ -225,8 +224,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == openCamera {
             if let dictionary = message.body as? [String: AnyObject] {
-                print(dictionary)
-                KYCController.reset()
                 setupCamera(dictionary: dictionary)
             }
         }
@@ -236,10 +233,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 if (actions == "onRegisterSuccess") {
                     if let data = dictionary["data"] as? [String: AnyObject] {
                         if let dataInit = data["Init"] as? [String: AnyObject] {
-                            payME?.dataInit = dataInit
-                            payME?.accessToken = (dataInit["accessToken"] as? String) ?? ""
-                            payME?.kycState = (dataInit["kyc"]!["state"] as? String) ?? ""
-                            payME?.handShake = (dataInit["handShake"] as? String) ?? ""
+                            payMEFunction?.dataInit = dataInit
+                            payMEFunction?.accessToken = (dataInit["accessToken"] as? String) ?? ""
+                            payMEFunction?.kycState = (dataInit["kyc"]!["state"] as? String) ?? ""
+                            payMEFunction?.handShake = (dataInit["handShake"] as? String) ?? ""
                         }
                     }
                     onSuccess!(dictionary)
@@ -262,7 +259,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 let code = dictionary["code"] as! Int
                 if (code == 401) {
                     navigationController?.popViewController(animated: true)
-                    PayME.logoutAction()
+                    payMEFunction?.resetInitState()
                 }
                 onError!(dictionary)
             }
@@ -271,14 +268,15 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             onCloseWebview()
         }
         if message.name == onPay {
-            payME?.payMEFunction.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
+            payMEFunction?.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
         }
     }
 
 
     func setupCamera(dictionary: [String: AnyObject]) {
+        KYCController.reset()
         if let dictionary = dictionary as? [String: Bool] {
-            let kycController = KYCController(flowKYC: dictionary)
+            let kycController = KYCController(payMEFunction: payMEFunction!, flowKYC: dictionary)
             kycController.kyc()
         }
     }

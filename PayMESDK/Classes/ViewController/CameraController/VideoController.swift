@@ -23,13 +23,13 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     weak var shapeLayer_topRight: CAShapeLayer?
     weak var shapeLayer_bottomLeft: CAShapeLayer?
     weak var shapeLayer_bottomRight: CAShapeLayer?
-    public var txtFront = ""
-    public var imageFront: UIImage?
+    var txtFront = ""
+    var imageFront: UIImage?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.view.backgroundColor = .black
+        view.backgroundColor = .black
         view.addSubview(backButton)
         view.addSubview(guideLabel)
         view.addSubview(animationButton)
@@ -72,8 +72,8 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     }
 
     @objc func back() {
-        self.session.stopRunning()
-        self.navigationController?.popViewController(animated: true)
+        session.stopRunning()
+        navigationController?.popViewController(animated: true)
     }
 
     func currentVideoOrientation() -> AVCaptureVideoOrientation {
@@ -94,21 +94,16 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     @objc func takePicture() {
         if (cameraCaptureOutput != nil) {
             if cameraCaptureOutput!.isRecording == false {
-
                 let connection = cameraCaptureOutput!.connection(with: AVMediaType.video)
-
                 if (connection?.isVideoOrientationSupported)! {
                     connection?.videoOrientation = currentVideoOrientation()
                 }
-
                 if (connection?.isVideoStabilizationSupported)! {
                     connection?.preferredVideoStabilizationMode = AVCaptureVideoStabilizationMode.auto
                 }
                 connection?.isVideoMirrored = true
 
-
                 let device = activeInput!.device
-
                 if (device.isSmoothAutoFocusSupported) {
                     do {
                         try device.lockForConfiguration()
@@ -151,7 +146,7 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     }()
 
     func setupAnimation() {
-        let bundle = Bundle(for: Success.self)
+        let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("Dangquay_3", bundle: resourceBundle!)
@@ -181,9 +176,7 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
 
     func initializeCaptureSession() {
         AVCaptureDevice.requestAccess(for: .video) { success in
-            if success { // if request is granted (success is true)
-
-            } else { // if request is denied (success is false)
+            if !success {
                 DispatchQueue.main.async {
                     KYCController.kycDecide(currentVC: self)
                 }
@@ -221,9 +214,9 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
 extension VideoController: AVCaptureFileOutputRecordingDelegate {
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         if error == nil {
-            var cv = VideoConfirm()
-            cv.avatarVideo = outputFileURL
-            self.navigationController?.pushViewController(cv, animated: true)
+            let confirmView = VideoConfirm()
+            confirmView.avatarVideo = outputFileURL
+            navigationController?.pushViewController(confirmView, animated: true)
         }
     }
 }

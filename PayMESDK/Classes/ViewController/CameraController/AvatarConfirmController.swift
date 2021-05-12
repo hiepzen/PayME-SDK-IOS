@@ -8,9 +8,9 @@
 import UIKit
 
 class AvatarConfirm: UIViewController {
-    public var avatarImage: UIImage?
+    var avatarImage: UIImage?
     let screenSize: CGRect = UIScreen.main.bounds
-    internal var onSuccessCapture: ((UIImage) -> ())? = nil
+    var onSuccessCapture: ((UIImage) -> ())? = nil
 
     let imageView: UIImageView = {
         var bgImage = UIImageView(image: nil)
@@ -127,7 +127,7 @@ class AvatarConfirm: UIViewController {
     }
 
     @objc func back() {
-        self.navigationController?.popViewController(animated: true)
+        navigationController?.popViewController(animated: true)
     }
 
     @objc func capture() {

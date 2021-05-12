@@ -19,7 +19,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
             showSpinner(onView: view)
-            API.transferByLinkedBank(transaction: transaction, storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, linkedId: (data[active!].dataLinked?.linkedId)!, extraData: PaymentModalController.extraData, note: PaymentModalController.note, otp: code, amount: PaymentModalController.amount, onSuccess: { response in
+            payMEFunction.request.transferByLinkedBank(transaction: transaction, storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, linkedId: (data[active!].dataLinked?.linkedId)!, extraData: PaymentModalController.extraData, note: PaymentModalController.note, otp: code, amount: PaymentModalController.amount, onSuccess: { response in
                 self.removeSpinner()
                 let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                 if let payInfo = paymentInfo["Pay"] as? [String: AnyObject] {
@@ -78,7 +78,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 self.removeSpinner()
                 if let code = error["code"] as? Int {
                     if (code == 401) {
-                        PayME.logoutAction()
+                        self.payMEFunction.resetInitState()
                         PaymentModalController.isShowCloseModal = false
                         self.dismiss(animated: true, completion: nil)
                     }
@@ -92,7 +92,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if (field == securityCode.otpView) {
             showSpinner(onView: view)
             securityCode.txtErrorMessage.isHidden = true
-            API.createSecurityCode(password: sha256(string: code)!, onSuccess: { securityInfo in
+            payMEFunction.request.createSecurityCode(password: sha256(string: code)!, onSuccess: { securityInfo in
                 let account = securityInfo["Account"]!["SecurityCode"] as! [String: AnyObject]
                 let securityResponse = account["CreateCodeByPassword"] as! [String: AnyObject]
                 let securitySucceeded = securityResponse["succeeded"] as! Bool
@@ -133,7 +133,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             }, onError: { errorSecurity in
                 if let code = errorSecurity["code"] as? Int {
                     if (code == 401) {
-                        PayME.logoutAction()
+                        self.payMEFunction.resetInitState()
                         PaymentModalController.isShowCloseModal = false
                         self.dismiss(animated: true, completion: nil)
                     }
@@ -173,11 +173,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     static var isShowCloseModal: Bool = true
     let methodsView = UIView()
     let placeholderView = UIView()
+    let payMEFunction: PayMEFunction
 
-    public let resultSubject : PublishSubject<Result> = PublishSubject()
+    public let resultSubject: PublishSubject<Result> = PublishSubject()
     private let disposeBag = DisposeBag()
 
-    init() {
+    init(payMEFunction: PayMEFunction) {
+        self.payMEFunction = payMEFunction
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -300,7 +302,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func paymentPayMEMethod(_ securityCode: String) {
-        API.transferWallet(storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, securityCode: securityCode, extraData: PaymentModalController.extraData, note: PaymentModalController.note, amount: PaymentModalController.amount, onSuccess: { response in
+        payMEFunction.request.transferWallet(storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, securityCode: securityCode, extraData: PaymentModalController.extraData, note: PaymentModalController.note, amount: PaymentModalController.amount, onSuccess: { response in
             let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
             let payInfo = paymentInfo["Pay"] as! [String: AnyObject]
             let message = payInfo["message"] as! String
@@ -356,7 +358,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             self.removeSpinner()
             if let code = error["code"] as? Int {
                 if (code == 401) {
-                    PayME.logoutAction()
+                    self.payMEFunction.resetInitState()
                     PaymentModalController.isShowCloseModal = false
                     self.dismiss(animated: true, completion: nil)
                 }
@@ -367,7 +369,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func paymentLinkedMethod() {
         showSpinner(onView: view)
-        API.checkFlowLinkedBank(storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, linkedId: getMethodSelected().dataLinked!.linkedId, extraData: PaymentModalController.extraData, note: PaymentModalController.note, amount: PaymentModalController.amount, onSuccess: { flow in
+        payMEFunction.request.checkFlowLinkedBank(storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, linkedId: getMethodSelected().dataLinked!.linkedId, extraData: PaymentModalController.extraData, note: PaymentModalController.note, amount: PaymentModalController.amount, onSuccess: { flow in
             let pay = flow["OpenEWallet"]!["Payment"] as! [String: AnyObject]
             if let payInfo = pay["Pay"] as? [String: AnyObject] {
                 var formatDate = ""
@@ -418,7 +420,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             let html = payment["html"] as? String
                             if (html != nil) {
                                 self.removeSpinner()
-                                let webViewController = WebViewController(payME: nil, nibName: "WebView", bundle: nil)
+                                let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
                                 webViewController.form = html!
                                 webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                                     webViewController.dismiss(animated: true)
@@ -501,7 +503,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             self.removeSpinner()
             if let code = flowError["code"] as? Int {
                 if (code == 401) {
-                    PayME.logoutAction()
+                    self.payMEFunction.resetInitState()
                     PaymentModalController.isShowCloseModal = false
                     self.dismiss(animated: true, completion: nil)
                 }
@@ -511,9 +513,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func getListMethodsAndExecution(execution: (([PaymentMethod]) -> Void)? = nil) {
         showSpinner(onView: view)
-        API.getWalletInfo(onSuccess: { walletInformation in
+        payMEFunction.request.getWalletInfo(onSuccess: { walletInformation in
             let balance = (walletInformation["Wallet"] as! [String: AnyObject])["balance"] as! Int
-            API.getTransferMethods(onSuccess: { response in
+            self.payMEFunction.request.getTransferMethods(onSuccess: { response in
                 let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
                 var methods: [PaymentMethod] = []
                 for (index, item) in items.enumerated() {
@@ -633,12 +635,15 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     override func viewDidLayoutSubviews() {
-        button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
-        detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
-        resultView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+        let primaryColor = payMEFunction.configColor[0]
+        let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
 
-        atmView.detailView.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 0)
-        atmView.button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+        button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
+        detailView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
+        resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
+
+        atmView.detailView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
+        atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
     }
 
     func panModalDidDismiss() {
@@ -672,7 +677,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             setupSecurity()
         }
         if (method.type == "LINKED") {
-            if (PayME.appENV.isEqual("SANDBOX")) {
+            if (payMEFunction.appEnv.isEqual("SANDBOX")) {
                 PaymentModalController.isShowCloseModal = false
                 dismiss(animated: true) {
                     self.onError!(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
@@ -685,18 +690,18 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             setupSecurity()
         }
         if (method.type == "BANK_CARD") {
-            if (PayME.appENV.isEqual("SANDBOX")) {
+            if (payMEFunction.appEnv.isEqual("SANDBOX")) {
                 onError!(["message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
                 return
             }
-            API.getBankList(onSuccess: { bankListResponse in
+            payMEFunction.request.getBankList(onSuccess: { bankListResponse in
                 let banks = bankListResponse["Setting"]!["banks"] as! [[String: AnyObject]]
                 var listBank: [Bank] = []
                 for bank in banks {
                     let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int, cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String, shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String)
                     listBank.append(temp)
                 }
-                let atmModal = ATMModal(listBank: listBank, onSuccess: self.onSuccess, onError: self.onError, method: method)
+                let atmModal = ATMModal(payMEFunction: self.payMEFunction, listBank: listBank, method: method, onSuccess: self.onSuccess, onError: self.onError)
                 PaymentModalController.isShowCloseModal = false
                 self.dismiss(animated: true) {
                     PayME.currentVC!.presentPanModal(atmModal)

@@ -47,9 +47,9 @@ class API {
     }
     private let publicKey: String
     private let privateKey: String
-    private var accessToken: String
+    private var accessToken: String = ""
     private let env: PayME.Env
-    private var clientId: String
+    private var clientId: String = ""
     private let appId: String
     private let appToken: String
     private let connectToken: String
@@ -555,7 +555,7 @@ class API {
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        let request = NetworkRequestGraphQL(url: url, path: path, token: accessToken, params: params, publicKey: publicKey, privateKey: privateKey)
+        let request = NetworkRequestGraphQL(appId: appId, url: url, path: path, token: accessToken, params: params, publicKey: publicKey, privateKey: privateKey)
         if (env == PayME.Env.DEV) {
             request.setOnRequest(onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) })
         } else {

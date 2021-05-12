@@ -50,7 +50,7 @@ extension UITextField {
         let spinnerView = UIView.init(frame: currentWindow!.bounds)
         spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
 
-        let bundle = Bundle(for: Failed.self)
+        let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("Loading_final", bundle: resourceBundle!)
@@ -111,7 +111,7 @@ extension UIViewController {
         let spinnerView = UIView.init(frame: currentWindow!.bounds)
         spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
 
-        let bundle = Bundle(for: Failed.self)
+        let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("Loading_final", bundle: resourceBundle!)

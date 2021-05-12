@@ -8,18 +8,21 @@
 import Foundation
 import AVFoundation
 
-public class KYCController {
-    internal static var imageDocument: [UIImage]?
-    internal static var imageAvatar: UIImage?
-    internal static var videoKYC: URL?
-    internal static var active: Int?
-    internal static var flowKYC: [String: Bool]?
+class KYCController {
+    static var imageDocument: [UIImage]?
+    static var imageAvatar: UIImage?
+    static var videoKYC: URL?
+    static var active: Int?
+    static var flowKYC: [String: Bool]?
 
-    public init(flowKYC: [String: Bool]) {
+    static var payMEFunction: PayMEFunction?
+
+    init(payMEFunction: PayMEFunction, flowKYC: [String: Bool]) {
+        KYCController.payMEFunction = payMEFunction
         KYCController.flowKYC = flowKYC
     }
 
-    public func kyc() {
+    func kyc() {
         PayME.currentVC?.navigationItem.hidesBackButton = true
         PayME.currentVC?.navigationController?.isNavigationBarHidden = true
         let popupKYC = PopupKYC()
@@ -38,7 +41,7 @@ public class KYCController {
         }
     }
 
-    internal static func reset() {
+    static func reset() {
         KYCController.imageDocument = nil
         KYCController.imageAvatar = nil
         KYCController.videoKYC = nil
@@ -46,12 +49,17 @@ public class KYCController {
         KYCController.flowKYC = nil
     }
 
-    internal static func uploadKYC() {
-        let uploadKYC = UploadKYC(imageDocument: KYCController.imageDocument, imageAvatar: KYCController.imageAvatar, videoKYC: KYCController.videoKYC, active: KYCController.active)
+    static func uploadKYC() {
+        let uploadKYC = UploadKYC(
+                payMEFunction: KYCController.payMEFunction!,
+                imageDocument: KYCController.imageDocument,
+                imageAvatar: KYCController.imageAvatar,
+                videoKYC: KYCController.videoKYC,
+                active: KYCController.active)
         uploadKYC.upload()
     }
 
-    internal static func kycDecide(currentVC: UIViewController) {
+    static func kycDecide(currentVC: UIViewController) {
         let authStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
         if authStatus == AVAuthorizationStatus.denied {
             currentVC.navigationController?.pushViewController(PermissionCamera(), animated: true)

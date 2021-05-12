@@ -130,12 +130,11 @@ class VideoConfirm: UIViewController {
         avpController.view.frame.size.height = videoView.frame.size.height
         avpController.view.frame.size.width = videoView.frame.size.width
         avpController.videoGravity = AVLayerVideoGravity.resize
-        self.videoView.addSubview(avpController.view)
-        // Do any additional setup after loading the view.
+        videoView.addSubview(avpController.view)
     }
 
     @objc func back() {
-        self.navigationController?.popViewController(animated: true)
+        navigationController?.popViewController(animated: true)
     }
 
     @objc func capture() {

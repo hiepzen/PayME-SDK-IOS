@@ -11,7 +11,7 @@ import UIKit
 import Lottie
 
 class PopupKYC: UIViewController {
-    internal var active: Int!
+    var active: Int!
 
     private let popupFace: PopupFace = {
         let popUpWindowView = PopupFace()
@@ -35,7 +35,7 @@ class PopupKYC: UIViewController {
         super.init(nibName: nil, bundle: nil)
         modalTransitionStyle = .crossDissolve
         modalPresentationStyle = .overFullScreen
-        self.definesPresentationContext = true
+        definesPresentationContext = true
     }
 
     required init?(coder: NSCoder) {
@@ -45,7 +45,6 @@ class PopupKYC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(24, 26, 65).withAlphaComponent(0.6)
-        print(active)
         if (active! == 1) {
             view.addSubview(popupFace)
             setupViewFace()
@@ -117,7 +116,7 @@ class PopupKYC: UIViewController {
         super.touchesBegan(touches, with: event)
 
         let touch = touches.first
-        guard let location = touch?.location(in: self.view) else {
+        guard let location = touch?.location(in: view) else {
             return
         }
         if (active == 1) {
@@ -249,56 +248,55 @@ private class PopupDocument: UIView {
 
     init() {
         super.init(frame: CGRect.zero)
-        // Semi-transparent background
-        self.backgroundColor = .white
-        self.layer.cornerRadius = 15
+        backgroundColor = .white
+        layer.cornerRadius = 15
 
-        self.addSubview(rootView)
+        addSubview(rootView)
 
-        self.rootView.addSubview(continueButton)
-        self.rootView.addSubview(animationView)
-        self.rootView.addSubview(titleLabel)
-        self.rootView.addSubview(contentLabel)
-        self.rootView.addSubview(hint1)
-        self.rootView.addSubview(hint2)
-        self.rootView.addSubview(hint3)
+        rootView.addSubview(continueButton)
+        rootView.addSubview(animationView)
+        rootView.addSubview(titleLabel)
+        rootView.addSubview(contentLabel)
+        rootView.addSubview(hint1)
+        rootView.addSubview(hint2)
+        rootView.addSubview(hint3)
 
-        self.hint1.addSubview(hint1Label)
-        self.hint1.addSubview(iconChecked1)
+        hint1.addSubview(hint1Label)
+        hint1.addSubview(iconChecked1)
 
-        self.hint2.addSubview(hint2Label)
-        self.hint2.addSubview(iconChecked2)
+        hint2.addSubview(hint2Label)
+        hint2.addSubview(iconChecked2)
 
-        self.hint3.addSubview(hint3Label)
-        self.hint3.addSubview(iconChecked3)
+        hint3.addSubview(hint3Label)
+        hint3.addSubview(iconChecked3)
 
-        self.hint1.translatesAutoresizingMaskIntoConstraints = false
-        self.hint1.axis = .horizontal
-        self.hint1.alignment = .leading
+        hint1.translatesAutoresizingMaskIntoConstraints = false
+        hint1.axis = .horizontal
+        hint1.alignment = .leading
 
-        self.hint2.translatesAutoresizingMaskIntoConstraints = false
-        self.hint2.axis = .horizontal
-        self.hint2.alignment = .leading
+        hint2.translatesAutoresizingMaskIntoConstraints = false
+        hint2.axis = .horizontal
+        hint2.alignment = .leading
 
-        self.hint3.translatesAutoresizingMaskIntoConstraints = false
-        self.hint3.axis = .horizontal
-        self.hint3.alignment = .leading
+        hint3.translatesAutoresizingMaskIntoConstraints = false
+        hint3.axis = .horizontal
+        hint3.alignment = .leading
 
-        self.rootView.translatesAutoresizingMaskIntoConstraints = false
-        self.rootView.axis = .vertical
-        self.rootView.alignment = .center
+        rootView.translatesAutoresizingMaskIntoConstraints = false
+        rootView.axis = .vertical
+        rootView.alignment = .center
 
 
-        rootView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-        rootView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
-        rootView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
-        rootView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        rootView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        rootView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        rootView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        rootView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
 
         animationView.translatesAutoresizingMaskIntoConstraints = false
         animationView.widthAnchor.constraint(equalToConstant: 193).isActive = true
         animationView.heightAnchor.constraint(equalToConstant: 213).isActive = true
-        animationView.topAnchor.constraint(equalTo: self.rootView.topAnchor, constant: 22).isActive = true
-        animationView.centerXAnchor.constraint(equalTo: self.rootView.centerXAnchor).isActive = true
+        animationView.topAnchor.constraint(equalTo: rootView.topAnchor, constant: 22).isActive = true
+        animationView.centerXAnchor.constraint(equalTo: rootView.centerXAnchor).isActive = true
         animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
 
         titleLabel.centerXAnchor.constraint(equalTo: rootView.centerXAnchor).isActive = true
@@ -312,8 +310,8 @@ private class PopupDocument: UIView {
         contentLabel.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
 
         hint1.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 40).isActive = true
-        hint1.leadingAnchor.constraint(equalTo: self.rootView.leadingAnchor, constant: 20).isActive = true
-        hint1.trailingAnchor.constraint(equalTo: self.rootView.trailingAnchor, constant: -20).isActive = true
+        hint1.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 20).isActive = true
+        hint1.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
 
         iconChecked1.widthAnchor.constraint(equalToConstant: 15).isActive = true
         iconChecked1.heightAnchor.constraint(equalToConstant: 12).isActive = true
@@ -326,8 +324,8 @@ private class PopupDocument: UIView {
         hint1Label.bottomAnchor.constraint(equalTo: hint1.bottomAnchor).isActive = true
 
         hint2.topAnchor.constraint(equalTo: hint1.bottomAnchor, constant: 10).isActive = true
-        hint2.leadingAnchor.constraint(equalTo: self.rootView.leadingAnchor, constant: 20).isActive = true
-        hint2.trailingAnchor.constraint(equalTo: self.rootView.trailingAnchor, constant: -20).isActive = true
+        hint2.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 20).isActive = true
+        hint2.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
 
         iconChecked2.widthAnchor.constraint(equalToConstant: 15).isActive = true
         iconChecked2.heightAnchor.constraint(equalToConstant: 12).isActive = true
@@ -340,8 +338,8 @@ private class PopupDocument: UIView {
         hint2Label.bottomAnchor.constraint(equalTo: hint2.bottomAnchor).isActive = true
 
         hint3.topAnchor.constraint(equalTo: hint2.bottomAnchor, constant: 10).isActive = true
-        hint3.leadingAnchor.constraint(equalTo: self.rootView.leadingAnchor, constant: 20).isActive = true
-        hint3.trailingAnchor.constraint(equalTo: self.rootView.trailingAnchor, constant: -20).isActive = true
+        hint3.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 20).isActive = true
+        hint3.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
 
         iconChecked3.widthAnchor.constraint(equalToConstant: 15).isActive = true
         iconChecked3.heightAnchor.constraint(equalToConstant: 12).isActive = true
@@ -359,7 +357,7 @@ private class PopupDocument: UIView {
         continueButton.widthAnchor.constraint(equalTo: rootView.widthAnchor, constant: -34).isActive = true
         continueButton.bottomAnchor.constraint(equalTo: rootView.bottomAnchor, constant: -20).isActive = true
 
-        let bundle = Bundle(for: Success.self)
+        let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("Chup_CMNN", bundle: resourceBundle!)
@@ -473,27 +471,26 @@ private class PopupFace: UIView {
         hint2.addSubview(iconChecked2)
 
         hint1.translatesAutoresizingMaskIntoConstraints = false
-        self.hint1.axis = .horizontal
-        self.hint1.alignment = .leading
-        self.hint2.translatesAutoresizingMaskIntoConstraints = false
-        self.hint2.axis = .horizontal
-        self.hint2.alignment = .leading
+        hint1.axis = .horizontal
+        hint1.alignment = .leading
+        hint2.translatesAutoresizingMaskIntoConstraints = false
+        hint2.axis = .horizontal
+        hint2.alignment = .leading
 
-        self.rootView.translatesAutoresizingMaskIntoConstraints = false
-        self.rootView.axis = .vertical
-        self.rootView.alignment = .center
+        rootView.translatesAutoresizingMaskIntoConstraints = false
+        rootView.axis = .vertical
+        rootView.alignment = .center
 
-
-        rootView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-        rootView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
-        rootView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
-        rootView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        rootView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        rootView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        rootView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        rootView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
 
         animationView.translatesAutoresizingMaskIntoConstraints = false
         animationView.widthAnchor.constraint(equalToConstant: 193).isActive = true
         animationView.heightAnchor.constraint(equalToConstant: 213).isActive = true
-        animationView.topAnchor.constraint(equalTo: self.rootView.topAnchor, constant: 22).isActive = true
-        animationView.centerXAnchor.constraint(equalTo: self.rootView.centerXAnchor).isActive = true
+        animationView.topAnchor.constraint(equalTo: rootView.topAnchor, constant: 22).isActive = true
+        animationView.centerXAnchor.constraint(equalTo: rootView.centerXAnchor).isActive = true
         animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
 
         titleLabel.centerXAnchor.constraint(equalTo: rootView.centerXAnchor).isActive = true
@@ -502,8 +499,8 @@ private class PopupFace: UIView {
         titleLabel.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
 
         hint1.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40).isActive = true
-        hint1.leadingAnchor.constraint(equalTo: self.rootView.leadingAnchor, constant: 20).isActive = true
-        hint1.trailingAnchor.constraint(equalTo: self.rootView.trailingAnchor, constant: -20).isActive = true
+        hint1.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 20).isActive = true
+        hint1.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
 
         iconChecked1.widthAnchor.constraint(equalToConstant: 15).isActive = true
         iconChecked1.heightAnchor.constraint(equalToConstant: 12).isActive = true
@@ -516,8 +513,8 @@ private class PopupFace: UIView {
         hint1Label.bottomAnchor.constraint(equalTo: hint1.bottomAnchor).isActive = true
 
         hint2.topAnchor.constraint(equalTo: hint1.bottomAnchor, constant: 10).isActive = true
-        hint2.leadingAnchor.constraint(equalTo: self.rootView.leadingAnchor, constant: 20).isActive = true
-        hint2.trailingAnchor.constraint(equalTo: self.rootView.trailingAnchor, constant: -20).isActive = true
+        hint2.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 20).isActive = true
+        hint2.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
 
         iconChecked2.widthAnchor.constraint(equalToConstant: 15).isActive = true
         iconChecked2.heightAnchor.constraint(equalToConstant: 12).isActive = true
@@ -535,7 +532,7 @@ private class PopupFace: UIView {
         continueButton.widthAnchor.constraint(equalTo: rootView.widthAnchor, constant: -34).isActive = true
         continueButton.bottomAnchor.constraint(equalTo: rootView.bottomAnchor, constant: -20).isActive = true
 
-        let bundle = Bundle(for: Success.self)
+        let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("take_face", bundle: resourceBundle!)
@@ -546,14 +543,14 @@ private class PopupFace: UIView {
     }
 
     func setupAnimation() {
-        let bundle = Bundle(for: Success.self)
+        let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("take_face", bundle: resourceBundle!)
         animationView.animation = animation
         animationView.contentMode = .scaleAspectFit
         animationView.translatesAutoresizingMaskIntoConstraints = false
-        self.rootView.addSubview(animationView)
+        rootView.addSubview(animationView)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -641,47 +638,46 @@ private class PopupVideo: UIView {
 
     init() {
         super.init(frame: CGRect.zero)
-        // Semi-transparent background
-        self.backgroundColor = .white
-        self.layer.cornerRadius = 15
+        backgroundColor = .white
+        layer.cornerRadius = 15
 
 
-        self.addSubview(rootView)
+        addSubview(rootView)
 
-        self.rootView.addSubview(continueButton)
-        self.rootView.addSubview(titleLabel)
-        self.rootView.addSubview(hint1)
-        self.rootView.addSubview(hint2)
-        self.rootView.addSubview(animationView)
+        rootView.addSubview(continueButton)
+        rootView.addSubview(titleLabel)
+        rootView.addSubview(hint1)
+        rootView.addSubview(hint2)
+        rootView.addSubview(animationView)
 
-        self.hint1.addSubview(hint1Label)
-        self.hint1.addSubview(iconChecked1)
+        hint1.addSubview(hint1Label)
+        hint1.addSubview(iconChecked1)
 
-        self.hint2.addSubview(hint2Label)
-        self.hint2.addSubview(iconChecked2)
+        hint2.addSubview(hint2Label)
+        hint2.addSubview(iconChecked2)
 
-        self.hint1.translatesAutoresizingMaskIntoConstraints = false
-        self.hint1.axis = .horizontal
-        self.hint1.alignment = .leading
-        self.hint2.translatesAutoresizingMaskIntoConstraints = false
-        self.hint2.axis = .horizontal
-        self.hint2.alignment = .leading
+        hint1.translatesAutoresizingMaskIntoConstraints = false
+        hint1.axis = .horizontal
+        hint1.alignment = .leading
+        hint2.translatesAutoresizingMaskIntoConstraints = false
+        hint2.axis = .horizontal
+        hint2.alignment = .leading
 
-        self.rootView.translatesAutoresizingMaskIntoConstraints = false
-        self.rootView.axis = .vertical
-        self.rootView.alignment = .center
+        rootView.translatesAutoresizingMaskIntoConstraints = false
+        rootView.axis = .vertical
+        rootView.alignment = .center
 
 
-        rootView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-        rootView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
-        rootView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
-        rootView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        rootView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        rootView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        rootView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        rootView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
 
         animationView.translatesAutoresizingMaskIntoConstraints = false
         animationView.widthAnchor.constraint(equalToConstant: 193).isActive = true
         animationView.heightAnchor.constraint(equalToConstant: 213).isActive = true
-        animationView.topAnchor.constraint(equalTo: self.rootView.topAnchor, constant: 22).isActive = true
-        animationView.centerXAnchor.constraint(equalTo: self.rootView.centerXAnchor).isActive = true
+        animationView.topAnchor.constraint(equalTo: rootView.topAnchor, constant: 22).isActive = true
+        animationView.centerXAnchor.constraint(equalTo: rootView.centerXAnchor).isActive = true
         animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
 
         titleLabel.centerXAnchor.constraint(equalTo: rootView.centerXAnchor).isActive = true
@@ -690,8 +686,8 @@ private class PopupVideo: UIView {
         titleLabel.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
 
         hint1.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40).isActive = true
-        hint1.leadingAnchor.constraint(equalTo: self.rootView.leadingAnchor, constant: 20).isActive = true
-        hint1.trailingAnchor.constraint(equalTo: self.rootView.trailingAnchor, constant: -20).isActive = true
+        hint1.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 20).isActive = true
+        hint1.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
 
         iconChecked1.widthAnchor.constraint(equalToConstant: 15).isActive = true
         iconChecked1.heightAnchor.constraint(equalToConstant: 12).isActive = true
@@ -704,8 +700,8 @@ private class PopupVideo: UIView {
         hint1Label.bottomAnchor.constraint(equalTo: hint1.bottomAnchor).isActive = true
 
         hint2.topAnchor.constraint(equalTo: hint1.bottomAnchor, constant: 10).isActive = true
-        hint2.leadingAnchor.constraint(equalTo: self.rootView.leadingAnchor, constant: 20).isActive = true
-        hint2.trailingAnchor.constraint(equalTo: self.rootView.trailingAnchor, constant: -20).isActive = true
+        hint2.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 20).isActive = true
+        hint2.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -20).isActive = true
 
         iconChecked2.widthAnchor.constraint(equalToConstant: 15).isActive = true
         iconChecked2.heightAnchor.constraint(equalToConstant: 12).isActive = true
@@ -723,7 +719,7 @@ private class PopupVideo: UIView {
         continueButton.widthAnchor.constraint(equalTo: rootView.widthAnchor, constant: -34).isActive = true
         continueButton.bottomAnchor.constraint(equalTo: rootView.bottomAnchor, constant: -20).isActive = true
 
-        let bundle = Bundle(for: Success.self)
+        let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("take_video", bundle: resourceBundle!)

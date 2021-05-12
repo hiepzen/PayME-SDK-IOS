@@ -8,28 +8,26 @@
 import Foundation
 
 public class UploadKYC {
-    internal var imageDocument: [UIImage]?
-    internal var imageAvatar: UIImage?
-    internal var videoKYC: URL?
-    internal var active: Int?
-    internal var flowKYC: [String: Bool]?
+    var imageDocument: [UIImage]?
+    var imageAvatar: UIImage?
+    var videoKYC: URL?
+    var active: Int?
+    var flowKYC: [String: Bool]?
     private var pathFront: String?
     private var pathBack: String?
     private var pathAvatar: String?
     private var pathVideo: String?
+    private let payMEFunction: PayMEFunction
 
-    public init(imageDocument: [UIImage]?, imageAvatar: UIImage?, videoKYC: URL?, active: Int?) {
+    init(payMEFunction: PayMEFunction, imageDocument: [UIImage]?, imageAvatar: UIImage?, videoKYC: URL?, active: Int?) {
+        self.payMEFunction = payMEFunction
         self.imageDocument = imageDocument
         self.imageAvatar = imageAvatar
         self.videoKYC = videoKYC
         self.active = active
-        print(imageDocument)
-        print(imageAvatar)
-        print(videoKYC)
-        print(active)
     }
 
-    public func upload() {
+    func upload() {
         PayME.currentVC?.navigationItem.hidesBackButton = true
         PayME.currentVC?.navigationController?.isNavigationBarHidden = true
         PayME.currentVC?.showSpinner(onView: (PayME.currentVC?.view)!)
@@ -37,7 +35,7 @@ public class UploadKYC {
     }
 
     private func verifyKYC() {
-        API.verifyKYC(pathFront: self.pathFront, pathBack: self.pathBack, pathAvatar: self.pathAvatar, pathVideo: self.pathVideo,
+        payMEFunction.request.verifyKYC(pathFront: pathFront, pathBack: pathBack, pathAvatar: pathAvatar, pathVideo: pathVideo,
                 onSuccess: { response in
                     print(response)
                     if let result = response["Account"]!["KYC"] as? [String: AnyObject] {
@@ -92,7 +90,7 @@ public class UploadKYC {
                 let code = extensions["code"] as? Int
                 if (code != nil) {
                     if (code == 401) {
-                        PayME.logoutAction()
+                        self.payMEFunction.resetInitState()
                         guard let navigationController = PayME.currentVC?.navigationController else {
                             return
                         }
@@ -108,8 +106,8 @@ public class UploadKYC {
     }
 
     private func uploadVideo() {
-        if (self.videoKYC != nil) {
-            API.uploadVideoKYC(videoURL: self.videoKYC!, onSuccess: { response in
+        if (videoKYC != nil) {
+            payMEFunction.request.uploadVideoKYC(videoURL: videoKYC!, onSuccess: { response in
                 print(response)
                 let code = response["code"]! as! Int
                 if (code == 1000) {
@@ -130,8 +128,8 @@ public class UploadKYC {
     }
 
     private func uploadAvatar() {
-        if (self.imageAvatar != nil) {
-            API.uploadImageKYC(imageFront: self.imageAvatar!, imageBack: nil,
+        if (imageAvatar != nil) {
+            payMEFunction.request.uploadImageKYC(imageFront: imageAvatar!, imageBack: nil,
                     onSuccess: { response in
                         print(response)
                         let code = response["code"]! as! Int
@@ -153,9 +151,9 @@ public class UploadKYC {
     }
 
     private func uploadDocument() {
-        if (self.imageDocument != nil) {
-            if (self.active == 2) {
-                API.uploadImageKYC(imageFront: self.imageDocument![0], imageBack: nil,
+        if (imageDocument != nil) {
+            if (active == 2) {
+                payMEFunction.request.uploadImageKYC(imageFront: imageDocument![0], imageBack: nil,
                         onSuccess: { response in
                             print(response)
                             let code = response["code"]! as! Int
@@ -173,7 +171,7 @@ public class UploadKYC {
                     self.toastMess(title: "Lỗi", message: (error["message"] as? String) ?? "Something went wrong")
                 })
             } else {
-                API.uploadImageKYC(imageFront: self.imageDocument![0], imageBack: self.imageDocument![1], onSuccess: { response in
+                payMEFunction.request.uploadImageKYC(imageFront: imageDocument![0], imageBack: imageDocument![1], onSuccess: { response in
                     let code = response["code"]! as! Int
                     if (code == 1000) {
                         let data = response["data"] as! [[String: Any]]
