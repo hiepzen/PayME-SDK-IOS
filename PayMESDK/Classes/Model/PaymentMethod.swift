@@ -9,23 +9,21 @@
 import Foundation
 
 class PaymentMethod {
-    internal var methodId: Int!
-    internal var type: String = ""
-    internal var title: String = ""
-    internal var label: String = ""
-    internal var fee: Int!
-    internal var minFee: Int!
-    internal var amount: Int?
-    internal var dataWallet: WalletInformation?
-    internal var dataLinked: LinkedInformation?
-    internal var active: Bool!
+    var methodId: Int!
+    var type: String = ""
+    var title: String = ""
+    var label: String = ""
+    var fee: Int!
+    var minFee: Int!
+    var dataWallet: WalletInformation?
+    var dataLinked: LinkedInformation?
+    var active: Bool!
 
     init(
         methodId: Int?,
         type: String,
         title: String,
         label: String,
-        amount: Int?,
         fee: Int,
         minFee: Int,
         dataWallet: WalletInformation?,
@@ -36,7 +34,6 @@ class PaymentMethod {
         self.type = type
         self.title = title
         self.label = label
-        self.amount = amount
         self.fee = fee
         self.minFee = minFee
         self.dataWallet = dataWallet

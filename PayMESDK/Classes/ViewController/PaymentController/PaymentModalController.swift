@@ -522,13 +522,15 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     let methodInformation = PaymentMethod(
                             methodId: (item["methodId"] as! Int), type: item["type"] as! String,
                             title: item["title"] as! String, label: item["label"] as! String,
-                            amount: (item["type"] as! String) == "WALLET" ? balance : nil,
                             fee: item["fee"] as! Int, minFee: item["minFee"] as! Int,
                             dataWallet: nil, dataLinked: nil, active: index == 0 ? true : false
                     )
                     if !(item["data"] is NSNull) {
                         if let accountId = (item["data"] as! [String: AnyObject])["accountId"] as? Int {
-                            methodInformation.dataWallet = WalletInformation(accountId: accountId)
+                            methodInformation.dataWallet = WalletInformation(
+                                    accountId: accountId,
+                                    balance: (item["type"] as! String) == "WALLET" ? balance : nil
+                            )
                         } else {
                             methodInformation.dataLinked = LinkedInformation(
                                     swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as! String,

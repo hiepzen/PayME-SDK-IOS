@@ -1,9 +1,12 @@
 import Foundation
 
-public class WalletInformation {
-    internal var accountId : Int!
+class WalletInformation {
+    var accountId : Int!
+    var balance: Int?
+
     
-    public init(accountId: Int) {
+    init(accountId: Int, balance: Int?) {
         self.accountId = accountId
+        self.balance = balance
     }
 }
