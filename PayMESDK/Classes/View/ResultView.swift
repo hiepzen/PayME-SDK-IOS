@@ -345,20 +345,20 @@ class ResultView: UIView {
 
     func adaptView(result: Result) {
         nameLabel.text = result.titleLabel
-        roleLabel.text = formatMoney(input: result.amount)
+        roleLabel.text = formatMoney(input: result.orderTransaction.amount)
         if result.type == ResultType.SUCCESS {
             failLabel.isHidden = true
         } else {
             failLabel.text = result.failReasonLabel
         }
-        if (result.descriptionLabel != "") {
-            memoLabel.text = result.descriptionLabel
+        if (result.orderTransaction.note != "") {
+            memoLabel.text = result.orderTransaction.note
         }
         transactionNumber.text = result.transactionInfo.transaction
         timeTransactionDetail.text = result.transactionInfo.transactionTime
-        methodContent.text = getMethodText(method: result.paymentMethod.type)
+        methodContent.text = getMethodText(method: result.orderTransaction.paymentMethod!.type)
 
-        if (result.paymentMethod.type != "WALLET") {
+        if (result.orderTransaction.paymentMethod!.type != "WALLET") {
             methodView.addSubview(cardNumberLabel)
             methodView.addSubview(cardNumberContent)
             cardNumberLabel.topAnchor.constraint(equalTo: methodLabel.bottomAnchor, constant: 10).isActive = true
@@ -367,7 +367,7 @@ class ResultView: UIView {
             cardNumberContent.topAnchor.constraint(equalTo: methodContent.bottomAnchor, constant: 10).isActive = true
             cardNumberContent.trailingAnchor.constraint(equalTo: methodView.trailingAnchor, constant: -15).isActive = true
             cardNumberContent.bottomAnchor.constraint(equalTo: methodView.bottomAnchor, constant: -15).isActive = true
-            cardNumberLabel.text = result.paymentMethod.type == "BANK_CARD" ? "Số thẻ" : "Số tài khoản"
+            cardNumberLabel.text = result.orderTransaction.paymentMethod!.type == "BANK_CARD" ? "Số thẻ" : "Số tài khoản"
             cardNumberContent.text = result.transactionInfo.cardNumber
         } else {
             methodContent.bottomAnchor.constraint(equalTo: methodView.bottomAnchor, constant: -15).isActive = true

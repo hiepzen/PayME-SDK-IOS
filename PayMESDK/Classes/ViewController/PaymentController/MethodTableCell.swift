@@ -125,7 +125,7 @@ class Method: UITableViewCell {
     func configure(with presentable: PaymentMethod) {
         if (presentable.type == "WALLET") {
             bankNameLabel.text = "Số dư ví"
-            bankContentLabel.text = "(\(formatMoney(input: presentable.amount!))đ)"
+            bankContentLabel.text = "(\(formatMoney(input: presentable.dataWallet?.balance ?? 0))đ)"
         } else {
             bankNameLabel.text = presentable.title
             bankContentLabel.text = presentable.label

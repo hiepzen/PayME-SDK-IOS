@@ -19,7 +19,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
             showSpinner(onView: view)
-            payMEFunction.request.transferByLinkedBank(transaction: transaction, storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, linkedId: (data[active!].dataLinked?.linkedId)!, extraData: PaymentModalController.extraData, note: PaymentModalController.note, otp: code, amount: PaymentModalController.amount, onSuccess: { response in
+            payMEFunction.request.transferByLinkedBank(transaction: transaction, storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, linkedId: (data[active!].dataLinked?.linkedId)!, extraData: orderTransaction.extraData, note: orderTransaction.note, otp: code, amount: orderTransaction.amount, onSuccess: { response in
                 self.removeSpinner()
                 let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                 if let payInfo = paymentInfo["Pay"] as? [String: AnyObject] {
@@ -49,11 +49,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         ] as [String: AnyObject]
                         self.onSuccess!(responseSuccess)
                         self.otpView.removeFromSuperview()
+                        self.orderTransaction.paymentMethod = self.getMethodSelected()
                         let result = Result(
                                 type: ResultType.SUCCESS,
-                                amount: PaymentModalController.amount,
-                                descriptionLabel: PaymentModalController.note,
-                                paymentMethod: self.getMethodSelected(),
+                                orderTransaction: self.orderTransaction,
                                 transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
                         )
                         self.setupResult(result: result)
@@ -61,12 +60,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.otpView.removeFromSuperview()
                         let message = payInfo["message"] as? String
                         self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                        self.orderTransaction.paymentMethod = self.getMethodSelected()
                         let result = Result(
                                 type: ResultType.FAIL,
-                                amount: PaymentModalController.amount,
                                 failReasonLabel: message ?? "Có lỗi xảy ra",
-                                descriptionLabel: PaymentModalController.note,
-                                paymentMethod: self.getMethodSelected(),
+                                orderTransaction: self.orderTransaction,
                                 transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                         )
                         self.setupResult(result: result)
@@ -119,12 +117,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     } else {
                         self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                         self.securityCode.removeFromSuperview()
+                        self.orderTransaction.paymentMethod = self.getMethodSelected()
                         let result = Result(
                                 type: ResultType.FAIL,
-                                amount: PaymentModalController.amount,
                                 failReasonLabel: message,
-                                descriptionLabel: PaymentModalController.note,
-                                paymentMethod: self.getMethodSelected(),
+                                orderTransaction: self.orderTransaction,
                                 transactionInfo: TransactionInformation()
                         )
                         self.setupResult(result: result)
@@ -138,8 +135,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.dismiss(animated: true, completion: nil)
                     }
                 }
-                print("minh khoa123")
-                print(errorSecurity)
                 self.onError!(errorSecurity)
                 self.removeSpinner()
             })
@@ -148,13 +143,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     var bankName: String = ""
     var data: [PaymentMethod] = []
-    static var storeId: Int = 0
-    static var paymentMethodID: Int? = nil
-    static var orderId: String = ""
-    static var amount: Int = 10000
-    static var note: String = ""
-    static var extraData: String = ""
-    static var isShowResultUI: Bool = true
+    var paymentMethodID: Int? = nil
+    var isShowResultUI: Bool = true
     var transaction: String = ""
     private var active: Int?
     private var bankDetect: Bank?
@@ -173,13 +163,18 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     static var isShowCloseModal: Bool = true
     let methodsView = UIView()
     let placeholderView = UIView()
+
     let payMEFunction: PayMEFunction
+    let orderTransaction: OrderTransaction
 
     public let resultSubject: PublishSubject<Result> = PublishSubject()
     private let disposeBag = DisposeBag()
 
-    init(payMEFunction: PayMEFunction) {
+    init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, paymentMethodID: Int?, isShowResultUI: Bool) {
         self.payMEFunction = payMEFunction
+        self.orderTransaction = orderTransaction
+        self.paymentMethodID = paymentMethodID
+        self.isShowResultUI = isShowResultUI
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -188,7 +183,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.backgroundColor = .white
         PaymentModalController.isShowCloseModal = true
 
-        if PaymentModalController.paymentMethodID != nil {
+        if paymentMethodID != nil {
             setupTargetMethod()
         } else {
             setupMethods()
@@ -213,7 +208,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         placeholderView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
 
         getListMethodsAndExecution { methods in
-            guard let method = methods.first(where: { $0.methodId == PaymentModalController.paymentMethodID }) else {
+            guard let method = methods.first(where: { $0.methodId == self.paymentMethodID }) else {
                 self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": ("Không tìm thấy phương thức") as AnyObject])
                 return
             }
@@ -222,8 +217,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func getMethodSelected() -> PaymentMethod {
-        if PaymentModalController.paymentMethodID != nil {
-            if let method = data.first(where: { $0.methodId == PaymentModalController.paymentMethodID }) {
+        if paymentMethodID != nil {
+            if let method = data.first(where: { $0.methodId == paymentMethodID }) {
                 return method
             }
         }
@@ -250,9 +245,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         detailView.addSubview(contentLabel)
         detailView.addSubview(memoLabel)
         txtLabel.text = "Xác nhận thanh toán"
-        price.text = "\(formatMoney(input: PaymentModalController.amount)) đ"
+        price.text = "\(formatMoney(input: orderTransaction.amount)) đ"
         contentLabel.text = "Nội dung"
-        memoLabel.text = PaymentModalController.note == "" ? "Không có nội dung" : PaymentModalController.note
+        memoLabel.text = orderTransaction.note == "" ? "Không có nội dung" : orderTransaction.note
         methodTitle.text = "Chọn nguồn thanh toán"
         tableView.register(Method.self, forCellReuseIdentifier: "cell")
         tableView.delegate = self
@@ -302,7 +297,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func paymentPayMEMethod(_ securityCode: String) {
-        payMEFunction.request.transferWallet(storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, securityCode: securityCode, extraData: PaymentModalController.extraData, note: PaymentModalController.note, amount: PaymentModalController.amount, onSuccess: { response in
+        payMEFunction.request.transferWallet(storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, securityCode: securityCode, extraData: orderTransaction.extraData, note: orderTransaction.note, amount: orderTransaction.amount, onSuccess: { response in
             let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
             let payInfo = paymentInfo["Pay"] as! [String: AnyObject]
             let message = payInfo["message"] as! String
@@ -329,23 +324,21 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 ] as [String: AnyObject]
                 self.onSuccess!(responseSuccess)
                 self.securityCode.removeFromSuperview()
+                self.orderTransaction.paymentMethod = self.getMethodSelected()
                 let result = Result(
                         type: ResultType.SUCCESS,
-                        amount: PaymentModalController.amount,
-                        descriptionLabel: PaymentModalController.note,
-                        paymentMethod: self.getMethodSelected(),
+                        orderTransaction: self.orderTransaction,
                         transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
                 )
                 self.setupResult(result: result)
             } else {
                 self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                 self.securityCode.removeFromSuperview()
+                self.orderTransaction.paymentMethod = self.getMethodSelected()
                 let result = Result(
                         type: ResultType.FAIL,
-                        amount: PaymentModalController.amount,
                         failReasonLabel: message,
-                        descriptionLabel: PaymentModalController.note,
-                        paymentMethod: self.getMethodSelected(),
+                        orderTransaction: self.orderTransaction,
                         transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
                 )
                 self.setupResult(result: result)
@@ -369,7 +362,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func paymentLinkedMethod() {
         showSpinner(onView: view)
-        payMEFunction.request.checkFlowLinkedBank(storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, linkedId: getMethodSelected().dataLinked!.linkedId, extraData: PaymentModalController.extraData, note: PaymentModalController.note, amount: PaymentModalController.amount, onSuccess: { flow in
+        payMEFunction.request.checkFlowLinkedBank(storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, linkedId: getMethodSelected().dataLinked!.linkedId, extraData: orderTransaction.extraData, note: orderTransaction.note, amount: orderTransaction.amount, onSuccess: { flow in
             let pay = flow["OpenEWallet"]!["Payment"] as! [String: AnyObject]
             if let payInfo = pay["Pay"] as? [String: AnyObject] {
                 var formatDate = ""
@@ -399,11 +392,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     self.onSuccess!(responseSuccess)
                     self.removeSpinner()
                     self.methodsView.removeFromSuperview()
+                    self.orderTransaction.paymentMethod = self.getMethodSelected()
                     let result = Result(
                             type: ResultType.SUCCESS,
-                            amount: PaymentModalController.amount,
-                            descriptionLabel: PaymentModalController.note,
-                            paymentMethod: self.getMethodSelected(),
+                            orderTransaction: self.orderTransaction,
                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                     )
                     self.setupResult(result: result)
@@ -430,11 +422,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                                         "payment": ["transaction": paymentInfo["transaction"] as? String]
                                     ] as [String: AnyObject]
                                     self.onSuccess!(responseSuccess)
+                                    self.orderTransaction.paymentMethod = self.getMethodSelected()
                                     let result = Result(
                                             type: ResultType.SUCCESS,
-                                            amount: PaymentModalController.amount,
-                                            descriptionLabel: PaymentModalController.note,
-                                            paymentMethod: self.getMethodSelected(),
+                                            orderTransaction: self.orderTransaction,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
                                     self.setupResult(result: result)
@@ -452,12 +443,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                                         ]
                                     ] as AnyObject]
                                     self.onError!(failWebview)
+                                    self.orderTransaction.paymentMethod = self.getMethodSelected()
                                     let result = Result(
                                             type: ResultType.FAIL,
-                                            amount: PaymentModalController.amount,
                                             failReasonLabel: responseFromWebView as String,
-                                            descriptionLabel: PaymentModalController.note,
-                                            paymentMethod: self.getMethodSelected(),
+                                            orderTransaction: self.orderTransaction,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
                                     self.setupResult(result: result)
@@ -469,12 +459,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             self.methodsView.removeFromSuperview()
                             let message = payment["message"] as? String
                             self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                            self.orderTransaction.paymentMethod = self.getMethodSelected()
                             let result = Result(
                                     type: ResultType.FAIL,
-                                    amount: PaymentModalController.amount,
                                     failReasonLabel: message ?? "Có lỗi xảy ra",
-                                    descriptionLabel: PaymentModalController.note,
-                                    paymentMethod: self.getMethodSelected(),
+                                    orderTransaction: self.orderTransaction,
                                     transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                             )
                             self.setupResult(result: result)
@@ -484,12 +473,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.methodsView.removeFromSuperview()
                         let message = payInfo["message"] as? String
                         self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                        self.orderTransaction.paymentMethod = self.getMethodSelected()
                         let result = Result(
                                 type: ResultType.FAIL,
-                                amount: PaymentModalController.amount,
                                 failReasonLabel: message ?? "Có lỗi xảy ra",
-                                descriptionLabel: PaymentModalController.note,
-                                paymentMethod: self.getMethodSelected(),
+                                orderTransaction: self.orderTransaction,
                                 transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                         )
                         self.setupResult(result: result)
@@ -519,24 +507,23 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
                 var methods: [PaymentMethod] = []
                 for (index, item) in items.enumerated() {
+                    let methodType = item["type"] as! String
                     let methodInformation = PaymentMethod(
                             methodId: (item["methodId"] as! Int), type: item["type"] as! String,
                             title: item["title"] as! String, label: item["label"] as! String,
                             fee: item["fee"] as! Int, minFee: item["minFee"] as! Int,
-                            dataWallet: nil, dataLinked: nil, active: index == 0 ? true : false
+                            active: index == 0 ? true : false
                     )
-                    if !(item["data"] is NSNull) {
-                        if let accountId = (item["data"] as! [String: AnyObject])["accountId"] as? Int {
-                            methodInformation.dataWallet = WalletInformation(
-                                    accountId: accountId,
-                                    balance: (item["type"] as! String) == "WALLET" ? balance : nil
-                            )
-                        } else {
-                            methodInformation.dataLinked = LinkedInformation(
-                                    swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as! String,
-                                    linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int
-                            )
-                        }
+                    if methodType == "WALLET" {
+                        methodInformation.dataWallet = WalletInformation(
+                                balance: methodType == "WALLET" ? balance : nil
+                        )
+                    }
+                    if methodType == "LINKED" {
+                        methodInformation.dataLinked = LinkedInformation(
+                                swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as! String,
+                                linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int
+                        )
                     }
                     methods.append(methodInformation)
                 }
@@ -617,7 +604,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func setupResult(result: Result) {
         resultSubject.onNext(result)
         PaymentModalController.isShowCloseModal = false
-        if (PaymentModalController.isShowResultUI == true) {
+        if (isShowResultUI == true) {
             view.addSubview(resultView)
             resultView.translatesAutoresizingMaskIntoConstraints = false
             resultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
@@ -666,7 +653,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func pay(_ method: PaymentMethod) {
         if (method.type == "WALLET") {
-            if (method.amount! < PaymentModalController.amount) {
+            if ((method.dataWallet?.balance ?? 0) < orderTransaction.amount) {
                 PaymentModalController.isShowCloseModal = false
                 dismiss(animated: true, completion: {
                     self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
@@ -703,7 +690,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int, cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String, shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String)
                     listBank.append(temp)
                 }
-                let atmModal = ATMModal(payMEFunction: self.payMEFunction, listBank: listBank, method: method, onSuccess: self.onSuccess, onError: self.onError)
+                self.orderTransaction.paymentMethod = method
+                let atmModal = ATMModal(
+                        payMEFunction: self.payMEFunction, listBank: listBank,
+                        orderTransaction: self.orderTransaction, isShowResult: self.isShowResultUI,
+                        onSuccess: self.onSuccess, onError: self.onError
+                )
                 PaymentModalController.isShowCloseModal = false
                 self.dismiss(animated: true) {
                     PayME.currentVC!.presentPanModal(atmModal)

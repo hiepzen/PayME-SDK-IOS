@@ -26,8 +26,8 @@ class PaymentMethod {
         label: String,
         fee: Int,
         minFee: Int,
-        dataWallet: WalletInformation?,
-        dataLinked: LinkedInformation?,
+        dataWallet: WalletInformation? = nil,
+        dataLinked: LinkedInformation? = nil,
         active: Bool
     ) {
         self.methodId = methodId

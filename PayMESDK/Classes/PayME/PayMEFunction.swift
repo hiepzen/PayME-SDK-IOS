@@ -211,14 +211,11 @@ class PayMEFunction {
                 return
             }
             if (accessToken != "" && kycState == "APPROVED") {
-                PaymentModalController.amount = amount
-                PaymentModalController.storeId = storeId
-                PaymentModalController.orderId = orderId
-                PaymentModalController.note = note ?? ""
-                PaymentModalController.extraData = extraData ?? ""
-                PaymentModalController.paymentMethodID = paymentMethodID
-                PaymentModalController.isShowResultUI = isShowResultUI
-                let paymentModalController = PaymentModalController(payMEFunction: self)
+                let orderTransaction = OrderTransaction(storeId: storeId, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
+                let paymentModalController = PaymentModalController(
+                        payMEFunction: self, orderTransaction: orderTransaction,
+                        paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI
+                )
 
                 resultViewModel
                         .resultSubject

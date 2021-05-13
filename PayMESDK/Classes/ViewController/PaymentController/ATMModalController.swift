@@ -18,22 +18,24 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     var bankDetect: Bank?
     var onError: (([String: AnyObject]) -> ())? = nil
     var onSuccess: (([String: AnyObject]) -> ())? = nil
-    var method: PaymentMethod? = nil
     var bankName: String = ""
     let resultView = ResultView()
     var result = false
     let payMEFunction: PayMEFunction
+    let orderTransaction: OrderTransaction
+    let isShowResultUI: Bool
 
     public let resultSubject : PublishSubject<Result> = PublishSubject()
     private let disposeBag = DisposeBag()
 
-    init(payMEFunction: PayMEFunction, listBank: [Bank] = [], method: PaymentMethod,
+    init(payMEFunction: PayMEFunction, listBank: [Bank] = [], orderTransaction: OrderTransaction, isShowResult: Bool,
          onSuccess: (([String: AnyObject]) -> ())? = nil, onError: (([String: AnyObject]) -> ())? = nil) {
         self.payMEFunction = payMEFunction
         self.listBank = listBank
         self.onSuccess = onSuccess
         self.onError = onError
-        self.method = method
+        self.orderTransaction = orderTransaction
+        self.isShowResultUI = isShowResult
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -42,12 +44,12 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         super.viewDidLoad()
         PaymentModalController.isShowCloseModal = true
         view.backgroundColor = .white
-        atmView.price.text = "\(formatMoney(input: PaymentModalController.amount)) đ"
+        atmView.price.text = "\(formatMoney(input: orderTransaction.amount)) đ"
         contentLabel.text = "Nội dung"
-        if (PaymentModalController.note == "") {
+        if (orderTransaction.note == "") {
             atmView.memoLabel.text = "Không có nội dung"
         } else {
-            atmView.memoLabel.text = PaymentModalController.note
+            atmView.memoLabel.text = orderTransaction.note
         }
 
         view.addSubview(scrollView)
@@ -147,7 +149,9 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             }
             let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
             showSpinner(onView: view)
-            payMEFunction.request.transferATM(storeId: PaymentModalController.storeId, orderId: PaymentModalController.orderId, extraData: PaymentModalController.extraData, note: PaymentModalController.note, cardNumber: cardNumber!, cardHolder: cardHolder!, issuedAt: date, amount: PaymentModalController.amount,
+            payMEFunction.request.transferATM(
+                    storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData, note: orderTransaction.note,
+                    cardNumber: cardNumber!, cardHolder: cardHolder!, issuedAt: date, amount: orderTransaction.amount,
                     onSuccess: { success in
                         print(success)
                         let payment = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
@@ -181,9 +185,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                     self.removeSpinner()
                                     let result = Result(
                                             type: ResultType.SUCCESS,
-                                            amount: PaymentModalController.amount,
-                                            descriptionLabel: PaymentModalController.note,
-                                            paymentMethod: self.method!,
+                                            orderTransaction: self.orderTransaction,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
                                     self.setupResult(result: result)
@@ -195,10 +197,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                     self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
-                                            amount: PaymentModalController.amount,
                                             failReasonLabel: message ?? "Có lỗi xảy ra",
-                                            descriptionLabel: PaymentModalController.note,
-                                            paymentMethod: self.method!,
+                                            orderTransaction: self.orderTransaction,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
                                     self.setupResult(result: result)
@@ -221,9 +221,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                             self.onSuccess!(responseSuccess)
                                             let result = Result(
                                                     type: ResultType.SUCCESS,
-                                                    amount: PaymentModalController.amount,
-                                                    descriptionLabel: PaymentModalController.note,
-                                                    paymentMethod: self.method!,
+                                                    orderTransaction: self.orderTransaction,
                                                     transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                             )
                                             self.setupResult(result: result)
@@ -238,10 +236,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                             self.onError!(responseSuccess)
                                             let result = Result(
                                                     type: ResultType.FAIL,
-                                                    amount: PaymentModalController.amount,
                                                     failReasonLabel: responseFromWebView,
-                                                    descriptionLabel: PaymentModalController.note,
-                                                    paymentMethod: self.method!,
+                                                    orderTransaction: self.orderTransaction,
                                                     transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                             )
                                             self.setupResult(result: result)
@@ -253,10 +249,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                                     self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
-                                            amount: PaymentModalController.amount,
                                             failReasonLabel: message ?? "Có lỗi xảy ra",
-                                            descriptionLabel: PaymentModalController.note,
-                                            paymentMethod: self.method!,
+                                            orderTransaction: self.orderTransaction,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
                                     self.setupResult(result: result)
@@ -283,7 +277,7 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     func setupResult(result: Result) {
         resultSubject.onNext(result)
         PaymentModalController.isShowCloseModal = false
-        if (PaymentModalController.isShowResultUI == true) {
+        if (isShowResultUI == true) {
             scrollView.removeFromSuperview()
             self.result = true
             view.addSubview(resultView)

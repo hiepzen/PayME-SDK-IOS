@@ -12,24 +12,20 @@ public enum ResultType {
     case FAIL
 }
 
-public struct Result {
-    internal var type : ResultType! // loại kết quả: succees/fail
-    internal var image : String = "" // hình thành công/thất bại
-    internal var amount: Int = 0 // số tiền thanh toán
-    internal var titleLabel: String = "" // Tiêu đề
-    internal var failReasonLabel: String = "" // lí do thất bại
-    internal var descriptionLabel: String = "" // nội dung thanh toán
-    internal var paymentMethod: PaymentMethod // phương thức thanh toán
-    internal var transactionInfo: TransactionInformation // thông tin giao dịch
+struct Result {
+    var type : ResultType! // loại kết quả: succees/fail
+    var image : String = "" // hình thành công/thất bại
+    var titleLabel: String = "" // Tiêu đề
+    var failReasonLabel: String = "" // lí do thất bại
+    var orderTransaction: OrderTransaction // thông tin đơn hàng
+    var transactionInfo: TransactionInformation // thông tin giao dịch
 
     init(
             type: ResultType,
             image: String = "",
-            amount: Int = 0,
             titleLabel: String = "",
             failReasonLabel: String = "",
-            descriptionLabel: String = "",
-            paymentMethod: PaymentMethod,
+            orderTransaction: OrderTransaction,
             transactionInfo: TransactionInformation
         ) {
         self.type = type
@@ -43,10 +39,8 @@ public struct Result {
             self.image = image
             self.titleLabel = titleLabel
         }
-        self.amount = amount
         self.failReasonLabel = failReasonLabel
-        self.descriptionLabel = descriptionLabel
-        self.paymentMethod = paymentMethod
+        self.orderTransaction = orderTransaction
         self.transactionInfo = transactionInfo
     }
 }
