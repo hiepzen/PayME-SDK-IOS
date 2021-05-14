@@ -304,4 +304,39 @@ class PaymentPresentation {
             self.onError(error)
         })
     }
+
+    func getListMethods(
+            onSuccess: @escaping ([PaymentMethod]) -> Void,
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void
+    ) {
+        request.getWalletInfo(onSuccess: { walletInformation in
+            let balance = (walletInformation["Wallet"] as! [String: AnyObject])["balance"] as! Int
+            self.request.getTransferMethods(onSuccess: { response in
+                let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
+                var methods: [PaymentMethod] = []
+                for (index, item) in items.enumerated() {
+                    let methodType = item["type"] as! String
+                    let methodInformation = PaymentMethod(
+                            methodId: (item["methodId"] as! Int), type: item["type"] as! String,
+                            title: item["title"] as! String, label: item["label"] as! String,
+                            fee: item["fee"] as! Int, minFee: item["minFee"] as! Int,
+                            active: index == 0 ? true : false
+                    )
+                    if methodType == "WALLET" {
+                        methodInformation.dataWallet = WalletInformation(
+                                balance: methodType == "WALLET" ? balance : nil
+                        )
+                    }
+                    if methodType == "LINKED" {
+                        methodInformation.dataLinked = LinkedInformation(
+                                swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as! String,
+                                linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int
+                        )
+                    }
+                    methods.append(methodInformation)
+                }
+                onSuccess(methods)
+            }, onError: { error in onError(error)})
+        }, onError: { error in onError(error)})
+    }
 }

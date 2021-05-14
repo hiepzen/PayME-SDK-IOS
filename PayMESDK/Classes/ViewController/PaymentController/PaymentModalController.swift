@@ -274,40 +274,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func getListMethodsAndExecution(execution: (([PaymentMethod]) -> Void)? = nil) {
         showSpinner(onView: view)
-        payMEFunction.request.getWalletInfo(onSuccess: { walletInformation in
-            let balance = (walletInformation["Wallet"] as! [String: AnyObject])["balance"] as! Int
-            self.payMEFunction.request.getTransferMethods(onSuccess: { response in
-                let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
-                var methods: [PaymentMethod] = []
-                for (index, item) in items.enumerated() {
-                    let methodType = item["type"] as! String
-                    let methodInformation = PaymentMethod(
-                            methodId: (item["methodId"] as! Int), type: item["type"] as! String,
-                            title: item["title"] as! String, label: item["label"] as! String,
-                            fee: item["fee"] as! Int, minFee: item["minFee"] as! Int,
-                            active: index == 0 ? true : false
-                    )
-                    if methodType == "WALLET" {
-                        methodInformation.dataWallet = WalletInformation(
-                                balance: methodType == "WALLET" ? balance : nil
-                        )
-                    }
-                    if methodType == "LINKED" {
-                        methodInformation.dataLinked = LinkedInformation(
-                                swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as! String,
-                                linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int
-                        )
-                    }
-                    methods.append(methodInformation)
-                }
-                self.removeSpinner()
-                self.data = methods
-                execution?(methods)
-            }, onError: { error in
-                self.removeSpinner()
-                PaymentModalController.isShowCloseModal = false
-                self.dismiss(animated: true, completion: { self.onError(error) })
-            })
+        paymentPresentation.getListMethods(onSuccess: { paymentMethods in
+            self.removeSpinner()
+            self.data = paymentMethods
+            execution?(paymentMethods)
         }, onError: { error in
             self.removeSpinner()
             PaymentModalController.isShowCloseModal = false
