@@ -9,17 +9,10 @@ import UIKit
 import CommonCrypto
 import RxSwift
 
-
-enum SecurityState {
-    case PASSWORD_RETRY_TIMES_OVER
-    case PASSWORD_INVALID
-}
-
 class PaymentModalController: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate {
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
             showSpinner(onView: view)
-            orderTransaction.paymentMethod = getMethodSelected()
             paymentPresentation.transferByLinkedBank(transaction: transaction, orderTransaction: orderTransaction, linkedId: (data[active!].dataLinked?.linkedId)!, OTP: code)
         }
     }
@@ -28,54 +21,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if (field == securityCode.otpView) {
             showSpinner(onView: view)
             securityCode.txtErrorMessage.isHidden = true
-            payMEFunction.request.createSecurityCode(password: sha256(string: code)!, onSuccess: { securityInfo in
-                let account = securityInfo["Account"]!["SecurityCode"] as! [String: AnyObject]
-                let securityResponse = account["CreateCodeByPassword"] as! [String: AnyObject]
-                let securitySucceeded = securityResponse["succeeded"] as! Bool
-                if (securitySucceeded == true) {
-                    let securityCode = securityResponse["securityCode"] as! String
-                    let methodType = self.getMethodSelected().type
-                    if methodType == "WALLET" {
-                        self.paymentPayMEMethod(securityCode)
-                    }
-                    if methodType == "LINKED" {
-                        self.paymentLinkedMethod()
-                    }
-                } else {
-                    self.removeSpinner()
-                    let message = securityResponse["message"] as! String
-                    let code = securityResponse["code"] as! String
-                    if (code == "PASSWORD_INVALID" || code == "PASSWORD_RETRY_TIMES_OVER") {
-                        self.securityCode.otpView.text = ""
-                        self.securityCode.otpView.reloadAppearance()
-                        self.securityCode.txtErrorMessage.text = message
-                        self.securityCode.txtErrorMessage.isHidden = false
-                        self.panModalSetNeedsLayoutUpdate()
-                        self.panModalTransition(to: .longForm)
-                    } else {
-                        self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
-                        self.securityCode.removeFromSuperview()
-                        self.orderTransaction.paymentMethod = self.getMethodSelected()
-                        let result = Result(
-                                type: ResultType.FAIL,
-                                failReasonLabel: message,
-                                orderTransaction: self.orderTransaction,
-                                transactionInfo: TransactionInformation()
-                        )
-                        self.setupResult(result: result)
-                    }
-                }
-            }, onError: { errorSecurity in
-                if let code = errorSecurity["code"] as? Int {
-                    if (code == 401) {
-                        self.payMEFunction.resetInitState()
-                        PaymentModalController.isShowCloseModal = false
-                        self.dismiss(animated: true, completion: nil)
-                    }
-                }
-                self.onError(errorSecurity)
-                self.removeSpinner()
-            })
+            paymentPresentation.createSecurityCode(password: sha256(string: code)!, orderTransaction: orderTransaction)
         }
     }
 
@@ -156,22 +102,75 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         payMEFunction.resultViewModel.resultSubject
                 .observe(on: MainScheduler.instance)
                 .subscribe(onNext: { result in
-                    let methodType = result.orderTransaction.paymentMethod?.type
-                    if methodType == "WALLET" {
-                        self.securityCode.removeFromSuperview()
-                        self.setupResult(result: result)
-                        self.removeSpinner()
+                    self.removeSpinner()
+                    self.view.subviews.forEach {
+                        $0.removeFromSuperview()
                     }
-                    if methodType == "LINKED" {
-                        self.otpView.removeFromSuperview()
-                        self.setupResult(result: result)
-                        self.removeSpinner()
-                    }
+                    self.setupResult(result: result)
                 }, onError: { error in
-                    self.payMEFunction.resetInitState()
-                    PaymentModalController.isShowCloseModal = false
-                    self.dismiss(animated: true, completion: nil)
+                    self.removeSpinner()
+                    let responseError = error as! ResponseError
+                    if responseError.code == ResponseErrorCode.EXPIRED {
+                        self.payMEFunction.resetInitState()
+                        PaymentModalController.isShowCloseModal = false
+                        self.dismiss(animated: true, completion: nil)
+                    }
+                    if responseError.code == ResponseErrorCode.PASSWORD_INVALID {
+                        self.securityCode.otpView.text = ""
+                        self.securityCode.otpView.reloadAppearance()
+                        self.securityCode.txtErrorMessage.text = responseError.message
+                        self.securityCode.txtErrorMessage.isHidden = false
+                        self.panModalSetNeedsLayoutUpdate()
+                        self.panModalTransition(to: .longForm)
+                    }
+                    if responseError.code == ResponseErrorCode.REQUIRED_OTP {
+                        self.methodsView.removeFromSuperview()
+                        self.setupOTP()
+                    }
+                    if responseError.code == ResponseErrorCode.REQUIRED_VERIFY {
+                        self.setupWebview(responseError)
+                    }
                 }).disposed(by: disposeBag)
+    }
+
+    private func setupWebview(_ responseError: ResponseError) {
+        let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
+        webViewController.form = responseError.html
+        webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
+            webViewController.dismiss(animated: true)
+            let paymentInfo = responseError.paymentInformation!["history"]!["payment"] as! [String: AnyObject]
+            let responseSuccess = [
+                "payment": ["transaction": paymentInfo["transaction"] as? String]
+            ] as [String: AnyObject]
+            self.onSuccess(responseSuccess)
+            let result = Result(
+                    type: ResultType.SUCCESS,
+                    orderTransaction: self.orderTransaction,
+                    transactionInfo: responseError.transactionInformation!
+            )
+            self.payMEFunction.resultViewModel.resultSubject.onNext(result)
+        })
+        webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
+            webViewController.dismiss(animated: true)
+            let failWebview: [String: AnyObject] = ["OpenEWallet": [
+                "Payment": [
+                    "Pay": [
+                        "success": true as AnyObject,
+                        "message": responseFromWebView as AnyObject,
+                        "history": responseError.paymentInformation!["history"] as AnyObject
+                    ]
+                ]
+            ] as AnyObject]
+            self.onError(failWebview)
+            let result = Result(
+                    type: ResultType.FAIL,
+                    failReasonLabel: responseFromWebView as String,
+                    orderTransaction: self.orderTransaction,
+                    transactionInfo: responseError.transactionInformation!
+            )
+            self.payMEFunction.resultViewModel.resultSubject.onNext(result)
+        })
+        presentPanModal(webViewController)
     }
 
     func setupTargetMethod() {
@@ -268,148 +267,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
     }
 
-    func paymentPayMEMethod(_ securityCode: String) {
-        orderTransaction.paymentMethod = getMethodSelected()
-        paymentPresentation.paymentPayMEMethod(securityCode: securityCode, orderTransaction: orderTransaction)
-    }
-
     func paymentLinkedMethod() {
         showSpinner(onView: view)
-        payMEFunction.request.checkFlowLinkedBank(storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, linkedId: getMethodSelected().dataLinked!.linkedId, extraData: orderTransaction.extraData, note: orderTransaction.note, amount: orderTransaction.amount, onSuccess: { flow in
-            let pay = flow["OpenEWallet"]!["Payment"] as! [String: AnyObject]
-            if let payInfo = pay["Pay"] as? [String: AnyObject] {
-                var formatDate = ""
-                var transactionNumber = ""
-                var cardNumber = ""
-                if let history = payInfo["history"] as? [String: AnyObject] {
-                    if let createdAt = history["createdAt"] as? String {
-                        if let date = toDate(dateString: createdAt) {
-                            formatDate = toDateString(date: date)
-                        }
-                    }
-                    if let payment = history["payment"] as? [String: AnyObject] {
-                        if let transaction = payment["transaction"] as? String {
-                            transactionNumber = transaction
-                        }
-                        if let description = payment["description"] as? String {
-                            cardNumber = description
-                        }
-                    }
-                }
-                let succeeded = payInfo["succeeded"] as! Bool
-                if (succeeded == true) {
-                    let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
-                    let responseSuccess = [
-                        "payment": ["transaction": paymentInfo["transaction"] as? String]
-                    ] as [String: AnyObject]
-                    self.onSuccess(responseSuccess)
-                    self.removeSpinner()
-                    self.methodsView.removeFromSuperview()
-                    self.orderTransaction.paymentMethod = self.getMethodSelected()
-                    let result = Result(
-                            type: ResultType.SUCCESS,
-                            orderTransaction: self.orderTransaction,
-                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                    )
-                    self.setupResult(result: result)
-                } else {
-                    if let payment = payInfo["payment"] as? [String: AnyObject] {
-                        let state = (payment["state"] as? String) ?? ""
 
-                        if (state == "REQUIRED_OTP") {
-                            self.transaction = payment["transaction"] as! String
-                            self.removeSpinner()
-                            self.methodsView.removeFromSuperview()
-                            self.setupOTP()
-                        } else if (state == "REQUIRED_VERIFY") {
-                            let html = payment["html"] as? String
-                            if (html != nil) {
-                                self.removeSpinner()
-                                let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
-                                webViewController.form = html!
-                                webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
-                                    webViewController.dismiss(animated: true)
-                                    self.methodsView.removeFromSuperview()
-                                    let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
-                                    let responseSuccess = [
-                                        "payment": ["transaction": paymentInfo["transaction"] as? String]
-                                    ] as [String: AnyObject]
-                                    self.onSuccess(responseSuccess)
-                                    self.orderTransaction.paymentMethod = self.getMethodSelected()
-                                    let result = Result(
-                                            type: ResultType.SUCCESS,
-                                            orderTransaction: self.orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                                    )
-                                    self.setupResult(result: result)
-                                })
-                                webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
-                                    webViewController.dismiss(animated: true)
-                                    self.methodsView.removeFromSuperview()
-                                    let failWebview: [String: AnyObject] = ["OpenEWallet": [
-                                        "Payment": [
-                                            "Pay": [
-                                                "success": true as AnyObject,
-                                                "message": responseFromWebView as AnyObject,
-                                                "history": payInfo["history"] as AnyObject
-                                            ]
-                                        ]
-                                    ] as AnyObject]
-                                    self.onError(failWebview)
-                                    self.orderTransaction.paymentMethod = self.getMethodSelected()
-                                    let result = Result(
-                                            type: ResultType.FAIL,
-                                            failReasonLabel: responseFromWebView as String,
-                                            orderTransaction: self.orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                                    )
-                                    self.setupResult(result: result)
-                                })
-                                self.presentPanModal(webViewController)
-                            }
-                        } else {
-                            self.removeSpinner()
-                            self.methodsView.removeFromSuperview()
-                            let message = payment["message"] as? String
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                            self.orderTransaction.paymentMethod = self.getMethodSelected()
-                            let result = Result(
-                                    type: ResultType.FAIL,
-                                    failReasonLabel: message ?? "Có lỗi xảy ra",
-                                    orderTransaction: self.orderTransaction,
-                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                            )
-                            self.setupResult(result: result)
-                        }
-                    } else {
-                        self.removeSpinner()
-                        self.methodsView.removeFromSuperview()
-                        let message = payInfo["message"] as? String
-                        self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                        self.orderTransaction.paymentMethod = self.getMethodSelected()
-                        let result = Result(
-                                type: ResultType.FAIL,
-                                failReasonLabel: message ?? "Có lỗi xảy ra",
-                                orderTransaction: self.orderTransaction,
-                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                        )
-                        self.setupResult(result: result)
-                    }
-                }
-            } else {
-                self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
-            }
-        }, onError: { flowError in
-            self.onError(flowError)
-            self.removeSpinner()
-            if let code = flowError["code"] as? Int {
-                if (code == 401) {
-                    self.payMEFunction.resetInitState()
-                    PaymentModalController.isShowCloseModal = false
-                    self.dismiss(animated: true, completion: nil)
-                }
-            }
-        })
     }
 
     func getListMethodsAndExecution(execution: (([PaymentMethod]) -> Void)? = nil) {
@@ -561,6 +421,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         active = indexPath.row
+        orderTransaction.paymentMethod = getMethodSelected()
         pay(data[indexPath.row])
     }
 
