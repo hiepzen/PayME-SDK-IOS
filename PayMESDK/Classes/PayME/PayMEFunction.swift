@@ -179,7 +179,7 @@ class PayMEFunction {
                       "showLog": "\(isShowLog)"
                     }
                     """
-	
+
             webViewController.setURLRequest(urlWebview(env: env) + "\(encryptAES(data))")
             webViewController.setOnSuccessCallback(onSuccess: onSuccess)
             webViewController.setOnErrorCallback(onError: onError)
@@ -214,7 +214,8 @@ class PayMEFunction {
                 let orderTransaction = OrderTransaction(storeId: storeId, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
                 let paymentModalController = PaymentModalController(
                         payMEFunction: self, orderTransaction: orderTransaction,
-                        paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI
+                        paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
+                        onSuccess: onSuccess, onError: onError
                 )
 
                 resultViewModel
@@ -222,9 +223,6 @@ class PayMEFunction {
                         .observe(on: MainScheduler.instance)
                         .bind(to: paymentModalController.resultSubject)
                         .disposed(by: disposeBag)
-
-                paymentModalController.onSuccess = onSuccess
-                paymentModalController.onError = onError
                 currentVC.presentPanModal(paymentModalController)
             }
         }
@@ -350,7 +348,7 @@ class PayMEFunction {
                 let clientId = result["clientId"] as! String
                 self.clientId = clientId
                 self.initAccount(onSuccess, onError)
-            }, onError: { error in onError(error)})
+            }, onError: { error in onError(error) })
         }
     }
 

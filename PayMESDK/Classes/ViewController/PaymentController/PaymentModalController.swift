@@ -19,70 +19,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
             showSpinner(onView: view)
-            payMEFunction.request.transferByLinkedBank(transaction: transaction, storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, linkedId: (data[active!].dataLinked?.linkedId)!, extraData: orderTransaction.extraData, note: orderTransaction.note, otp: code, amount: orderTransaction.amount, onSuccess: { response in
-                self.removeSpinner()
-                let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
-                if let payInfo = paymentInfo["Pay"] as? [String: AnyObject] {
-                    let succeeded = payInfo["succeeded"] as! Bool
-                    var formatDate = ""
-                    var transactionNumber = ""
-                    var cardNumber = ""
-                    if let history = payInfo["history"] as? [String: AnyObject] {
-                        if let createdAt = history["createdAt"] as? String {
-                            if let date = toDate(dateString: createdAt) {
-                                formatDate = toDateString(date: date)
-                            }
-                        }
-                        if let payment = history["payment"] as? [String: AnyObject] {
-                            if let transaction = payment["transaction"] as? String {
-                                transactionNumber = transaction
-                            }
-                            if let description = payment["description"] as? String {
-                                cardNumber = description
-                            }
-                        }
-                    }
-                    if (succeeded == true) {
-                        let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
-                        let responseSuccess = [
-                            "payment": ["transaction": paymentInfo["transaction"] as? String]
-                        ] as [String: AnyObject]
-                        self.onSuccess!(responseSuccess)
-                        self.otpView.removeFromSuperview()
-                        self.orderTransaction.paymentMethod = self.getMethodSelected()
-                        let result = Result(
-                                type: ResultType.SUCCESS,
-                                orderTransaction: self.orderTransaction,
-                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
-                        )
-                        self.setupResult(result: result)
-                    } else {
-                        self.otpView.removeFromSuperview()
-                        let message = payInfo["message"] as? String
-                        self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                        self.orderTransaction.paymentMethod = self.getMethodSelected()
-                        let result = Result(
-                                type: ResultType.FAIL,
-                                failReasonLabel: message ?? "Có lỗi xảy ra",
-                                orderTransaction: self.orderTransaction,
-                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                        )
-                        self.setupResult(result: result)
-                    }
-                } else {
-                    self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
-                }
-            }, onError: { error in
-                self.removeSpinner()
-                if let code = error["code"] as? Int {
-                    if (code == 401) {
-                        self.payMEFunction.resetInitState()
-                        PaymentModalController.isShowCloseModal = false
-                        self.dismiss(animated: true, completion: nil)
-                    }
-                }
-                self.onError!(error)
-            })
+            orderTransaction.paymentMethod = getMethodSelected()
+            paymentPresentation.transferByLinkedBank(transaction: transaction, orderTransaction: orderTransaction, linkedId: (data[active!].dataLinked?.linkedId)!, OTP: code)
         }
     }
 
@@ -115,7 +53,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.panModalSetNeedsLayoutUpdate()
                         self.panModalTransition(to: .longForm)
                     } else {
-                        self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                         self.securityCode.removeFromSuperview()
                         self.orderTransaction.paymentMethod = self.getMethodSelected()
                         let result = Result(
@@ -135,7 +73,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.dismiss(animated: true, completion: nil)
                     }
                 }
-                self.onError!(errorSecurity)
+                self.onError(errorSecurity)
                 self.removeSpinner()
             })
         }
@@ -148,8 +86,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     var transaction: String = ""
     private var active: Int?
     private var bankDetect: Bank?
-    var onError: (([String: AnyObject]) -> ())? = nil
-    var onSuccess: (([String: AnyObject]) -> ())? = nil
+    private let onError: ([String: AnyObject]) -> ()
+    private let onSuccess: ([String: AnyObject]) -> ()
     static var min: Int = 10000
     static var max: Int = 100000000
 
@@ -166,15 +104,26 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     let payMEFunction: PayMEFunction
     let orderTransaction: OrderTransaction
+    let paymentPresentation: PaymentPresentation
 
     public let resultSubject: PublishSubject<Result> = PublishSubject()
     private let disposeBag = DisposeBag()
 
-    init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, paymentMethodID: Int?, isShowResultUI: Bool) {
+    init(
+            payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, paymentMethodID: Int?, isShowResultUI: Bool,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    ) {
         self.payMEFunction = payMEFunction
         self.orderTransaction = orderTransaction
         self.paymentMethodID = paymentMethodID
         self.isShowResultUI = isShowResultUI
+        self.onSuccess = onSuccess
+        self.onError = onError
+        paymentPresentation = PaymentPresentation(
+                request: payMEFunction.request, resultViewModel: payMEFunction.resultViewModel,
+                onSuccess: onSuccess, onError: onError
+        )
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -196,10 +145,33 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
 
         setupBinding()
+        setupSubcription()
     }
 
     private func setupBinding() {
         resultSubject.observe(on: MainScheduler.instance).bind(to: resultView.resultSubject).disposed(by: disposeBag)
+    }
+
+    private func setupSubcription() {
+        payMEFunction.resultViewModel.resultSubject
+                .observe(on: MainScheduler.instance)
+                .subscribe(onNext: { result in
+                    let methodType = result.orderTransaction.paymentMethod?.type
+                    if methodType == "WALLET" {
+                        self.securityCode.removeFromSuperview()
+                        self.setupResult(result: result)
+                        self.removeSpinner()
+                    }
+                    if methodType == "LINKED" {
+                        self.otpView.removeFromSuperview()
+                        self.setupResult(result: result)
+                        self.removeSpinner()
+                    }
+                }, onError: { error in
+                    self.payMEFunction.resetInitState()
+                    PaymentModalController.isShowCloseModal = false
+                    self.dismiss(animated: true, completion: nil)
+                }).disposed(by: disposeBag)
     }
 
     func setupTargetMethod() {
@@ -209,7 +181,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
         getListMethodsAndExecution { methods in
             guard let method = methods.first(where: { $0.methodId == self.paymentMethodID }) else {
-                self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": ("Không tìm thấy phương thức") as AnyObject])
+                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": ("Không tìm thấy phương thức") as AnyObject])
                 return
             }
             self.pay(method)
@@ -297,67 +269,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func paymentPayMEMethod(_ securityCode: String) {
-        payMEFunction.request.transferWallet(storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, securityCode: securityCode, extraData: orderTransaction.extraData, note: orderTransaction.note, amount: orderTransaction.amount, onSuccess: { response in
-            let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
-            let payInfo = paymentInfo["Pay"] as! [String: AnyObject]
-            let message = payInfo["message"] as! String
-            let succeeded = payInfo["succeeded"] as! Bool
-            var formatDate = ""
-            var transactionNumber = ""
-            if let history = payInfo["history"] as? [String: AnyObject] {
-                if let createdAt = history["createdAt"] as? String {
-                    if let date = toDate(dateString: createdAt) {
-                        formatDate = toDateString(date: date)
-                    }
-                }
-                if let payment = history["payment"] as? [String: AnyObject] {
-                    if let transaction = payment["transaction"] as? String {
-                        transactionNumber = transaction
-                    }
-                }
-            }
-
-            if (succeeded == true) {
-                let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
-                let responseSuccess = [
-                    "payment": ["transaction": paymentInfo["transaction"] as? String]
-                ] as [String: AnyObject]
-                self.onSuccess!(responseSuccess)
-                self.securityCode.removeFromSuperview()
-                self.orderTransaction.paymentMethod = self.getMethodSelected()
-                let result = Result(
-                        type: ResultType.SUCCESS,
-                        orderTransaction: self.orderTransaction,
-                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
-                )
-                self.setupResult(result: result)
-            } else {
-                self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
-                self.securityCode.removeFromSuperview()
-                self.orderTransaction.paymentMethod = self.getMethodSelected()
-                let result = Result(
-                        type: ResultType.FAIL,
-                        failReasonLabel: message,
-                        orderTransaction: self.orderTransaction,
-                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
-                )
-                self.setupResult(result: result)
-            }
-            self.removeSpinner()
-
-        }, onError: { error in
-            print("minh khoa145")
-            print(error)
-            self.removeSpinner()
-            if let code = error["code"] as? Int {
-                if (code == 401) {
-                    self.payMEFunction.resetInitState()
-                    PaymentModalController.isShowCloseModal = false
-                    self.dismiss(animated: true, completion: nil)
-                }
-            }
-            self.onError!(error)
-        })
+        orderTransaction.paymentMethod = getMethodSelected()
+        paymentPresentation.paymentPayMEMethod(securityCode: securityCode, orderTransaction: orderTransaction)
     }
 
     func paymentLinkedMethod() {
@@ -389,7 +302,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     let responseSuccess = [
                         "payment": ["transaction": paymentInfo["transaction"] as? String]
                     ] as [String: AnyObject]
-                    self.onSuccess!(responseSuccess)
+                    self.onSuccess(responseSuccess)
                     self.removeSpinner()
                     self.methodsView.removeFromSuperview()
                     self.orderTransaction.paymentMethod = self.getMethodSelected()
@@ -421,7 +334,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                                     let responseSuccess = [
                                         "payment": ["transaction": paymentInfo["transaction"] as? String]
                                     ] as [String: AnyObject]
-                                    self.onSuccess!(responseSuccess)
+                                    self.onSuccess(responseSuccess)
                                     self.orderTransaction.paymentMethod = self.getMethodSelected()
                                     let result = Result(
                                             type: ResultType.SUCCESS,
@@ -442,7 +355,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                                             ]
                                         ]
                                     ] as AnyObject]
-                                    self.onError!(failWebview)
+                                    self.onError(failWebview)
                                     self.orderTransaction.paymentMethod = self.getMethodSelected()
                                     let result = Result(
                                             type: ResultType.FAIL,
@@ -458,7 +371,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             self.removeSpinner()
                             self.methodsView.removeFromSuperview()
                             let message = payment["message"] as? String
-                            self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
                             self.orderTransaction.paymentMethod = self.getMethodSelected()
                             let result = Result(
                                     type: ResultType.FAIL,
@@ -472,7 +385,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.removeSpinner()
                         self.methodsView.removeFromSuperview()
                         let message = payInfo["message"] as? String
-                        self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
                         self.orderTransaction.paymentMethod = self.getMethodSelected()
                         let result = Result(
                                 type: ResultType.FAIL,
@@ -484,10 +397,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     }
                 }
             } else {
-                self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
             }
         }, onError: { flowError in
-            self.onError!(flowError)
+            self.onError(flowError)
             self.removeSpinner()
             if let code = flowError["code"] as? Int {
                 if (code == 401) {
@@ -533,12 +446,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             }, onError: { error in
                 self.removeSpinner()
                 PaymentModalController.isShowCloseModal = false
-                self.dismiss(animated: true, completion: { self.onError!(error) })
+                self.dismiss(animated: true, completion: { self.onError(error) })
             })
         }, onError: { error in
             self.removeSpinner()
             PaymentModalController.isShowCloseModal = false
-            self.dismiss(animated: true, completion: { self.onError!(error) })
+            self.dismiss(animated: true, completion: { self.onError(error) })
         })
     }
 
@@ -637,7 +550,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func panModalDidDismiss() {
         if (PaymentModalController.isShowCloseModal == true) {
-            onError!(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
+            onError(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
         }
     }
 
@@ -656,7 +569,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             if ((method.dataWallet?.balance ?? 0) < orderTransaction.amount) {
                 PaymentModalController.isShowCloseModal = false
                 dismiss(animated: true, completion: {
-                    self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
+                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
                 })
                 return
             }
@@ -669,7 +582,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             if (payMEFunction.appEnv.isEqual("SANDBOX")) {
                 PaymentModalController.isShowCloseModal = false
                 dismiss(animated: true) {
-                    self.onError!(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+                    self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
                 }
                 return
             }
@@ -680,7 +593,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
         if (method.type == "BANK_CARD") {
             if (payMEFunction.appEnv.isEqual("SANDBOX")) {
-                onError!(["message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+                onError(["message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
                 return
             }
             payMEFunction.request.getBankList(onSuccess: { bankListResponse in
@@ -701,7 +614,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     PayME.currentVC!.presentPanModal(atmModal)
                 }
             }, onError: { bankListError in
-                self.onError!(bankListError)
+                self.onError(bankListError)
                 self.toastMessError(title: "Lỗi", message: "Lấy danh sách bank thất bại")
             })
 

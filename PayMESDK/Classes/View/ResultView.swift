@@ -201,6 +201,7 @@ class ResultView: UIView {
         resultSubject
                 .observe(on: MainScheduler.instance)
                 .subscribe(onNext: { [self] (result) in
+                    print("minh khoa 2345")
                     adaptView(result: result)
                 })
                 .disposed(by: disposeBag)
@@ -377,5 +378,4 @@ class ResultView: UIView {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
 }
