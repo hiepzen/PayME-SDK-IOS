@@ -85,20 +85,20 @@ class InformationView: UIView{
     }
     
     func setUpUI() {
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.layer.cornerRadius = 15
-        self.backgroundColor = .white
-        self.addSubview(stackView)
-        stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
-        stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 16).isActive = true
-        stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -16).isActive = true
+        translatesAutoresizingMaskIntoConstraints = false
+        layer.cornerRadius = 15
+        backgroundColor = .white
+        addSubview(stackView)
+        stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        stackView.topAnchor.constraint(equalTo: topAnchor, constant: 16).isActive = true
+        stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16).isActive = true
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         if stackView.isDescendant(of: self) && stackView.subviews.count == 0 {
-            for (idx, info) in self.data.enumerated() {
+            for (idx, info) in data.enumerated() {
                 guard let key = info["key"] as? String else {
                     continue
                 }
@@ -107,12 +107,11 @@ class InformationView: UIView{
                 }
                 let row = InformationRow(key: key, value: value, color: info["color"] as? UIColor, font: info["font"] as? UIFont)
                 stackView.addArrangedSubview(row)
-                if (idx < self.data.endIndex - 1) {
+                if (idx < data.endIndex - 1) {
                     let seperator = UIView()
                     stackView.addArrangedSubview(seperator)
                     seperator.leadingAnchor.constraint(equalTo: stackView.leadingAnchor).isActive = true
                     seperator.trailingAnchor.constraint(equalTo: stackView.trailingAnchor).isActive = true
-                    print("HKJDHKJDHJK \(seperator.frame.size.width)")
                     seperator.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: stackView.frame.size.width, y: 0), color: UIColor(203, 203, 203), strokeLength: 4, gapLength: 4, width: 1)
                 }
             }

@@ -7,7 +7,6 @@
 
 import Foundation
 class ConfirmationModal: UIView {
-//    var title: String?
     var serviceInfoData: [Dictionary<String, Any>]?
     var paymentInfoData: [Dictionary<String, Any>]?
     
@@ -20,34 +19,74 @@ class ConfirmationModal: UIView {
         stack.backgroundColor = UIColor(239,242, 247)
         return stack
     }()
-    
-    init(serviceInfo: [Dictionary<String, Any>]?, paymentInfo: [Dictionary<String, Any>]? ){
-        self.serviceInfoData = serviceInfo ?? nil
-        self.paymentInfoData = paymentInfo ?? nil
+
+    let button: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = UIColor(8, 148, 31)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 16
+        button.setTitle("Xác nhận", for: .normal)
+        return button
+    }()
+
+    func setServiceInfo(serviceInfo: [Dictionary<String, Any>]?) {
+        serviceInfoData = serviceInfo
+        if let serviceInfoData = serviceInfoData {
+            let serviceInfoView = InformationView(data: serviceInfoData)
+            stackView.addArrangedSubview(serviceInfoView)
+            serviceInfoView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor).isActive = true
+            serviceInfoView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor).isActive = true
+        }
+    }
+
+    func setPaymentInfo(paymentInfo: [Dictionary<String, Any>]?) {
+        paymentInfoData = paymentInfo
+        if let paymentInfoData = paymentInfoData {
+            let paymentInfoView = InformationView(data: paymentInfoData)
+            stackView.addArrangedSubview(paymentInfoView)
+            paymentInfoView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor).isActive = true
+            paymentInfoView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor).isActive = true
+        }
+    }
+
+    init(serviceInfo: [Dictionary<String, Any>]? = nil, paymentInfo: [Dictionary<String, Any>]? = nil){
+        serviceInfoData = serviceInfo ?? nil
+        paymentInfoData = paymentInfo ?? nil
         super.init(frame: CGRect.zero)
-        setUpUI()
+        setupUI()
     }
     
-    func setUpUI(){
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(stackView)
-        stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
-        stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 16).isActive = true
-        
-        if let serviceInfoData = self.serviceInfoData {
+    func setupUI(){
+        translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stackView)
+        addSubview(button)
+
+        stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        stackView.topAnchor.constraint(equalTo: topAnchor, constant: 16).isActive = true
+
+        if let serviceInfoData = serviceInfoData {
             let serviceInfoView = InformationView(data: serviceInfoData)
             stackView.addArrangedSubview(serviceInfoView)
             serviceInfoView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor).isActive = true
             serviceInfoView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor).isActive = true
 
         }
-        if let paymentInfoData = self.paymentInfoData {
+
+        if let paymentInfoData = paymentInfoData {
             let paymentInfoView = InformationView(data: paymentInfoData)
             stackView.addArrangedSubview(paymentInfoView)
             paymentInfoView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor).isActive = true
             paymentInfoView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor).isActive = true
         }
+
+        button.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        button.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 20).isActive = true
+        button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+
+        bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 10).isActive = true
     }
     
     required init?(coder: NSCoder) {

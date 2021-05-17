@@ -41,6 +41,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let otpView = OTPView()
     let securityCode = SecurityCode()
     let atmController: ATMModal
+    let confirmationView = ConfirmationModal()
     let resultView = ResultView()
     var keyBoardHeight: CGFloat = 0
     let screenSize: CGRect = UIScreen.main.bounds
@@ -107,6 +108,29 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             $0.removeFromSuperview()
                         }
                         self.setupResult(result: paymentState.result!)
+                    }
+                    if paymentState.state == State.CONFIRMATION {
+                        self.tableView.removeFromSuperview()
+                        self.atmController.view?.removeFromSuperview()
+                        self.detailView.removeFromSuperview()
+                        self.methodTitle.removeFromSuperview()
+                        self.methodTitleStamp.removeFromSuperview()
+                        self.txtLabel.text = "Xác nhận thanh toán"
+                        self.confirmationView.setServiceInfo(serviceInfo: [["key": "123", "value": "hihi"], ["key": "123", "value": "hihi", "color": UIColor(12,170,38)]])
+                        self.confirmationView.setPaymentInfo(paymentInfo: [["key": "456", "value": "haha"], ["key": "456", "value": "haha", "color": UIColor(255,0,0)]])
+                        self.methodsView.addSubview(self.confirmationView)
+                        self.methodsView.backgroundColor = UIColor(239, 242, 247)
+                        self.confirmationView.translatesAutoresizingMaskIntoConstraints = false
+                        self.confirmationView.topAnchor.constraint(equalTo: self.txtLabel.bottomAnchor).isActive = true
+                        self.confirmationView.trailingAnchor.constraint(equalTo: self.methodsView.trailingAnchor).isActive = true
+                        self.confirmationView.leadingAnchor.constraint(equalTo: self.methodsView.leadingAnchor).isActive = true
+                        self.updateViewConstraints()
+                        self.view.layoutIfNeeded()
+                        let viewHeight = self.txtLabel.bounds.size.height
+                                + self.confirmationView.bounds.size.height
+                        self.view.heightAnchor.constraint(equalToConstant: viewHeight).isActive = true
+                        self.panModalSetNeedsLayoutUpdate()
+                        self.panModalTransition(to: .longForm)
                     }
                     if paymentState.state == State.METHODS {
 
@@ -387,6 +411,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         detailView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
         resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
         atmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
+        confirmationView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
     }
 
     func panModalDidDismiss() {
@@ -401,17 +426,18 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func pay(_ method: PaymentMethod) {
         if (method.type == "WALLET") {
-            if ((method.dataWallet?.balance ?? 0) < orderTransaction.amount) {
-                PaymentModalController.isShowCloseModal = false
-                dismiss(animated: true, completion: {
-                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
-                })
-                return
-            }
-            view.subviews.forEach {
-                $0.removeFromSuperview()
-            }
-            setupSecurity()
+            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
+//            if ((method.dataWallet?.balance ?? 0) < orderTransaction.amount) {
+//                PaymentModalController.isShowCloseModal = false
+//                dismiss(animated: true, completion: {
+//                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
+//                })
+//                return
+//            }
+//            view.subviews.forEach {
+//                $0.removeFromSuperview()
+//            }
+//            setupSecurity()
         }
         if (method.type == "LINKED") {
             if (payMEFunction.appEnv.isEqual("SANDBOX")) {
