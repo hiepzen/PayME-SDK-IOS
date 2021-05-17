@@ -38,9 +38,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     static var max: Int = 100000000
 
     var listBank: [Bank] = []
-    let atmView = ATMView()
     let otpView = OTPView()
     let securityCode = SecurityCode()
+    let atmController: ATMModal
     let resultView = ResultView()
     var keyBoardHeight: CGFloat = 0
     let screenSize: CGRect = UIScreen.main.bounds
@@ -69,6 +69,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         paymentPresentation = PaymentPresentation(
                 request: payMEFunction.request, paymentViewModel: payMEFunction.paymentViewModel,
                 onSuccess: onSuccess, onError: onError
+        )
+        atmController = ATMModal(
+                payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction,
+                isShowResult: self.isShowResultUI, onSuccess: self.onSuccess, onError: self.onError
         )
         super.init(nibName: nil, bundle: nil)
     }
@@ -106,6 +110,16 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     }
                     if paymentState.state == State.METHODS {
 
+                    }
+                    if paymentState.state == State.ATM {
+                        self.atmController.setListBank(listBank: paymentState.banks!)
+                        let atmView = self.atmController.view!
+                        self.tableView.removeFromSuperview()
+                        self.view.addSubview(atmView)
+                        atmView.translatesAutoresizingMaskIntoConstraints = false
+                        atmView.topAnchor.constraint(equalTo: self.methodTitle.bottomAnchor).isActive = true
+                        atmView.leadingAnchor.constraint(equalTo: self.methodsView.leadingAnchor).isActive = true
+                        atmView.trailingAnchor.constraint(equalTo: self.methodsView.trailingAnchor).isActive = true
                     }
                 }, onError: { error in
                     self.removeSpinner()
@@ -271,11 +285,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
     }
 
-    func paymentLinkedMethod() {
-        showSpinner(onView: view)
-
-    }
-
     func getListMethodsAndExecution(execution: (([PaymentMethod]) -> Void)? = nil) {
         showSpinner(onView: view)
         paymentPresentation.getListMethods(onSuccess: { paymentMethods in
@@ -377,7 +386,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
         detailView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
         resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
-        atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
+        atmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
     }
 
     func panModalDidDismiss() {
@@ -422,28 +431,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 onError(["message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
                 return
             }
-            payMEFunction.request.getBankList(onSuccess: { bankListResponse in
-                let banks = bankListResponse["Setting"]!["banks"] as! [[String: AnyObject]]
-                var listBank: [Bank] = []
-                for bank in banks {
-                    let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int, cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String, shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String)
-                    listBank.append(temp)
-                }
-                self.orderTransaction.paymentMethod = method
-                let atmModal = ATMModal(
-                        payMEFunction: self.payMEFunction, listBank: listBank,
-                        orderTransaction: self.orderTransaction, isShowResult: self.isShowResultUI,
-                        onSuccess: self.onSuccess, onError: self.onError
-                )
-                PaymentModalController.isShowCloseModal = false
-                self.dismiss(animated: true) {
-                    PayME.currentVC!.presentPanModal(atmModal)
-                }
-            }, onError: { bankListError in
-                self.onError(bankListError)
-                self.toastMessError(title: "Lỗi", message: "Lấy danh sách bank thất bại")
-            })
-
+            paymentPresentation.getLinkBank()
         }
     }
 
@@ -623,8 +611,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         orderTransaction.paymentMethod = getMethodSelected()
         pay(data[indexPath.row])
     }
-
-
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

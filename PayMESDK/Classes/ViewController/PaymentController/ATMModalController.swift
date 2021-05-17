@@ -10,7 +10,7 @@ import Lottie
 import RxSwift
 
 
-class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
+class ATMModal: UIViewController, UITextFieldDelegate {
     let screenSize: CGRect = UIScreen.main.bounds
     var atmView = ATMView()
     var keyboardHeight: CGFloat = 0
@@ -28,16 +28,19 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     public let resultSubject : PublishSubject<Result> = PublishSubject()
     private let disposeBag = DisposeBag()
 
-    init(payMEFunction: PayMEFunction, listBank: [Bank] = [], orderTransaction: OrderTransaction, isShowResult: Bool,
+    init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool,
          onSuccess: (([String: AnyObject]) -> ())? = nil, onError: (([String: AnyObject]) -> ())? = nil) {
         self.payMEFunction = payMEFunction
-        self.listBank = listBank
         self.onSuccess = onSuccess
         self.onError = onError
         self.orderTransaction = orderTransaction
-        self.isShowResultUI = isShowResult
+        isShowResultUI = isShowResult
 
         super.init(nibName: nil, bundle: nil)
+    }
+
+    func setListBank(listBank: [Bank] = []) {
+        self.listBank = listBank
     }
 
     override func viewDidLoad() {
@@ -45,22 +48,14 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         PaymentModalController.isShowCloseModal = true
         view.backgroundColor = .white
 
-        view.addSubview(scrollView)
-        scrollView.backgroundColor = .white
+        view.addSubview(atmView)
         atmView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(atmView)
 
-        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        scrollView.heightAnchor.constraint(equalToConstant: 500).isActive = true
-
-        atmView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
-        atmView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
-        atmView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        atmView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        // this is important for scrolling
-        atmView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
+        atmView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        atmView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        atmView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        atmView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        atmView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
 
         atmView.cardNumberField.delegate = self
         atmView.dateField.delegate = self
@@ -276,8 +271,6 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: resultView.button.bottomAnchor, constant: 10).isActive = true
             updateViewConstraints()
             view.layoutIfNeeded()
-            panModalSetNeedsLayoutUpdate()
-            panModalTransition(to: .shortForm)
             resultView.animationView.play()
         } else {
             dismiss(animated: true)
@@ -300,16 +293,12 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
             scrollView.setContentOffset(bottomOffset, animated: true)
         }
         keyboardHeight = keyboardFrame.size.height
-        panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .longForm)
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
         keyboardHeight = 0
         let contentInset: UIEdgeInsets = UIEdgeInsets.zero
         scrollView.contentInset = contentInset
-        panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .longForm)
     }
 
     @objc func onAppEnterBackground(notification: NSNotification) {
@@ -334,7 +323,6 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         detailView.translatesAutoresizingMaskIntoConstraints = false
         return detailView
     }()
-
 
     let price: UILabel = {
         let price = UILabel()
@@ -377,14 +365,6 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         let button = UIButton()
         button.setImage(UIImage(for: QRNotFound.self, named: "16Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-
-
-    let button: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = 10
         return button
     }()
 
@@ -465,38 +445,6 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         return textField
     }()
 
-
-
-    var allowsExtendedPanScrolling: Bool {
-        true
-    }
-
-    var panScrollable: UIScrollView? {
-        nil
-    }
-
-    var longFormHeight: PanModalHeight {
-        if (keyboardHeight != 0) {
-            return .maxHeightWithTopInset(40)
-        }
-        if (result == true) {
-            return .intrinsicHeight
-        }
-        return .contentHeight(500)
-    }
-    var shortFormHeight: PanModalHeight {
-        longFormHeight
-    }
-
-    var anchorModalToLongForm: Bool {
-        false
-    }
-
-    var shouldRoundTopCorners: Bool {
-        true
-    }
-
-
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -527,25 +475,16 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                         bankDetect = nil
                         if (stringToCompare.contains(bank.cardPrefix)) {
                             bankDetect = bank
-//                            atmView.guideTxt.textColor = UIColor(11, 11, 11)
-//                            atmView.guideTxt.text = bank.shortName
                             break
                         }
                     }
                     if (bankDetect == nil) {
-//                        atmView.guideTxt.text = "Thẻ không đúng định dạng"
-//                        atmView.guideTxt.textColor = .red
 
                     }
                 } else {
-//                    atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
-//                    atmView.guideTxt.textColor = UIColor(11, 11, 11)
                     bankDetect = nil
-
                 }
             } else {
-//                atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
-//                atmView.guideTxt.textColor = UIColor(11, 11, 11)
                 bankDetect = nil
             }
             if (bankDetect != nil) {

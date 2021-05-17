@@ -7,7 +7,7 @@
 
 import Foundation
 
-internal class ATMView: UIView {
+class ATMView: UIView {
     var activeTextField: UITextField? = nil
 
     let vStack: UIStackView = {
@@ -73,7 +73,7 @@ internal class ATMView: UIView {
     let cardNumberField: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "sdffgasfsdafsaf"
+        textField.placeholder = "Sớ thẻ"
         textField.keyboardType = .numberPad
         textField.font = .systemFont(ofSize: 16, weight: .medium)
         textField.textColor = UIColor(11, 11, 11)

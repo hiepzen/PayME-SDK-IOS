@@ -339,4 +339,20 @@ class PaymentPresentation {
             }, onError: { error in onError(error)})
         }, onError: { error in onError(error)})
     }
+
+    func getLinkBank() {
+        request.getBankList(onSuccess: { bankListResponse in
+            let banks = bankListResponse["Setting"]!["banks"] as! [[String: AnyObject]]
+            var listBank: [Bank] = []
+            for bank in banks {
+                let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int, cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String, shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String)
+                listBank.append(temp)
+            }
+            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: listBank))
+        }, onError: { bankListError in
+            self.onError(bankListError)
+        })
+    }
+
+
 }
