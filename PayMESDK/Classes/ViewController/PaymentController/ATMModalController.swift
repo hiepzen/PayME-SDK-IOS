@@ -44,13 +44,6 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         super.viewDidLoad()
         PaymentModalController.isShowCloseModal = true
         view.backgroundColor = .white
-        atmView.price.text = "\(formatMoney(input: orderTransaction.amount)) đ"
-        contentLabel.text = "Nội dung"
-        if (orderTransaction.note == "") {
-            atmView.memoLabel.text = "Không có nội dung"
-        } else {
-            atmView.memoLabel.text = orderTransaction.note
-        }
 
         view.addSubview(scrollView)
         scrollView.backgroundColor = .white
@@ -73,8 +66,6 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         atmView.dateField.delegate = self
 
         atmView.button.addTarget(self, action: #selector(payATM), for: .touchUpInside)
-        atmView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -92,13 +83,8 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
     }
 
     override func viewDidLayoutSubviews() {
-        let topPoint = CGPoint(x: atmView.detailView.bounds.minX - 10, y: atmView.detailView.bounds.midY + 15)
-        let bottomPoint = CGPoint(x: atmView.detailView.bounds.maxX, y: atmView.detailView.bounds.midY + 15)
-        atmView.detailView.createDashedLine(from: topPoint, to: bottomPoint, color: UIColor(203, 203, 203), strokeLength: 3, gapLength: 4, width: 0.5)
-
         let primaryColor = payMEFunction.configColor[0]
         let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
-        atmView.detailView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
         atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
         resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
     }
@@ -479,17 +465,6 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
         return textField
     }()
 
-    let guideTxt: UILabel = {
-        let confirmTitle = UILabel()
-        confirmTitle.textColor = UIColor(11, 11, 11)
-        confirmTitle.font = UIFont.systemFont(ofSize: 12, weight: .regular)
-        confirmTitle.translatesAutoresizingMaskIntoConstraints = false
-        confirmTitle.textAlignment = .left
-        confirmTitle.lineBreakMode = .byWordWrapping
-        confirmTitle.numberOfLines = 0
-        confirmTitle.text = "Nhập số thẻ ở mặt trước thẻ"
-        return confirmTitle
-    }()
 
 
     var allowsExtendedPanScrolling: Bool {
@@ -552,25 +527,25 @@ class ATMModal: UIViewController, PanModalPresentable, UITextFieldDelegate {
                         bankDetect = nil
                         if (stringToCompare.contains(bank.cardPrefix)) {
                             bankDetect = bank
-                            atmView.guideTxt.textColor = UIColor(11, 11, 11)
-                            atmView.guideTxt.text = bank.shortName
+//                            atmView.guideTxt.textColor = UIColor(11, 11, 11)
+//                            atmView.guideTxt.text = bank.shortName
                             break
                         }
                     }
                     if (bankDetect == nil) {
-                        atmView.guideTxt.text = "Thẻ không đúng định dạng"
-                        atmView.guideTxt.textColor = .red
+//                        atmView.guideTxt.text = "Thẻ không đúng định dạng"
+//                        atmView.guideTxt.textColor = .red
 
                     }
                 } else {
-                    atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
-                    atmView.guideTxt.textColor = UIColor(11, 11, 11)
+//                    atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
+//                    atmView.guideTxt.textColor = UIColor(11, 11, 11)
                     bankDetect = nil
 
                 }
             } else {
-                atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
-                atmView.guideTxt.textColor = UIColor(11, 11, 11)
+//                atmView.guideTxt.text = "Nhập số thẻ ở mặt trước thẻ"
+//                atmView.guideTxt.textColor = UIColor(11, 11, 11)
                 bankDetect = nil
             }
             if (bankDetect != nil) {

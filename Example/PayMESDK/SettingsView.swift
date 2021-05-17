@@ -167,9 +167,7 @@ class SettingsView: UIViewController, UIScrollViewDelegate{
         
         let isShow = UserDefaults.standard.bool(forKey: "isShowLog")
         setShowLog(showLog: isShow)
-        
-        
-        
+
         saveButton.bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor).isActive = true
         saveButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
         saveButton.heightAnchor.constraint(equalToConstant: 50).isActive = true

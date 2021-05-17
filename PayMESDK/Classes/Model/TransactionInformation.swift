@@ -8,9 +8,9 @@
 import Foundation
 
 public class TransactionInformation {
-    internal var transaction: String = "" // mã giao dịch
-    internal var transactionTime: String = "" // thời gian giao dịch
-    internal var cardNumber: String = "" // số thẻ (khi phương thức thanh toán là thẻ liên kết hoặc thẻ ngân hàng)
+    var transaction: String = "" // mã giao dịch
+    var transactionTime: String = "" // thời gian giao dịch
+    var cardNumber: String = "" // số thẻ (khi phương thức thanh toán là thẻ liên kết hoặc thẻ ngân hàng)
 
     init (transaction: String = "", transactionTime: String = "", cardNumber: String = "") {
         self.transaction = transaction

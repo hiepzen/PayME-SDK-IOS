@@ -10,63 +10,50 @@ import Foundation
 internal class ATMView: UIView {
     var activeTextField: UITextField? = nil
 
-    let detailView: UIView = {
-        let detailView = UIView()
-        detailView.translatesAutoresizingMaskIntoConstraints = false
-        return detailView
+    let vStack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.distribution = .equalSpacing
+        stack.alignment = .fill
+        return stack
     }()
 
-    let tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = .red
-        tableView.separatorStyle = .none
-
-        return tableView
+    let cardInputContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(239, 242, 247)
+        view.layer.cornerRadius = 13
+        return view
     }()
 
-    let price: UILabel = {
-        let price = UILabel()
-        price.textColor = .white
-        price.backgroundColor = .clear
-        price.font = UIFont(name: "Arial", size: 32)
-        price.translatesAutoresizingMaskIntoConstraints = false
-        return price
+    let cardInputTitle: UILabel = {
+       let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = UIColor(165, 174, 184)
+        label.text = "NHẬP SỐ THẺ"
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        return label
     }()
 
-    let memoLabel: UILabel = {
-        let memoLabel = UILabel()
-        memoLabel.textColor = .white
-        memoLabel.backgroundColor = .clear
-        memoLabel.font = UIFont(name: "Arial", size: 16)
-        memoLabel.translatesAutoresizingMaskIntoConstraints = false
-        memoLabel.textAlignment = .right
-        return memoLabel
+    let dateInputContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(239, 242, 247)
+        view.layer.cornerRadius = 13
+        return view
     }()
 
-    let methodTitle: UILabel = {
-        let methodTitle = UILabel()
-        methodTitle.textColor = UIColor(114, 129, 144)
-        methodTitle.backgroundColor = .clear
-        methodTitle.font = UIFont(name: "Arial", size: 16)
-        methodTitle.translatesAutoresizingMaskIntoConstraints = false
-        return methodTitle
-    }()
-
-    let contentLabel: UILabel = {
-        let contentLabel = UILabel()
-        contentLabel.textColor = .white
-        contentLabel.backgroundColor = .clear
-        contentLabel.font = UIFont(name: "Arial", size: 16)
-        contentLabel.translatesAutoresizingMaskIntoConstraints = false
-        return contentLabel
-    }()
-
-    let closeButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(for: QRNotFound.self, named: "16Px"), for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
+    let dateInputTitle: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = UIColor(165, 174, 184)
+        label.text = "NGÀY PHÁT HÀNH"
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        return label
     }()
 
     let button: UIButton = {
@@ -77,42 +64,6 @@ internal class ATMView: UIView {
         return button
     }()
 
-    let txtLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = UIColor(26, 26, 26)
-        label.backgroundColor = .clear
-        label.font = UIFont(name: "Lato-SemiBold", size: 20)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    let containerView: UIView = {
-        let containerView = UIView()
-        containerView.layer.cornerRadius = 15.0
-        containerView.layer.borderColor = UIColor(203, 203, 203).cgColor
-        containerView.layer.borderWidth = 0.5
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        return containerView
-    }()
-
-    let bankNameLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = UIColor(9, 9, 9)
-        label.font = label.font.withSize(16)
-        label.backgroundColor = .clear
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    let bankContentLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = UIColor(98, 98, 98)
-        label.backgroundColor = .clear
-        label.font = label.font.withSize(12)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
     let walletMethodImage: UIImageView = {
         var bgImage = UIImageView(image: UIImage(for: Method.self, named: "ptAtm"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
@@ -121,25 +72,21 @@ internal class ATMView: UIView {
 
     let cardNumberField: UITextField = {
         let textField = UITextField()
-        textField.layer.borderColor = UIColor.init(hexString: "#cbcbcb").cgColor
-        textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Nhập số thẻ"
-        textField.setLeftPaddingPoints(20)
+        textField.placeholder = "sdffgasfsdafsaf"
         textField.keyboardType = .numberPad
-        textField.layer.cornerRadius = 15
+        textField.font = .systemFont(ofSize: 16, weight: .medium)
+        textField.textColor = UIColor(11, 11, 11)
         return textField
     }()
 
     let dateField: UITextField = {
         let textField = UITextField()
-        textField.layer.borderColor = UIColor.init(hexString: "#cbcbcb").cgColor
-        textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Ngày phát hành (MM/YY)"
-        textField.setLeftPaddingPoints(20)
+        textField.placeholder = "MM/YY"
         textField.keyboardType = .numberPad
-        textField.layer.cornerRadius = 15
+        textField.font = .systemFont(ofSize: 16, weight: .medium)
+        textField.textColor = UIColor(11, 11, 11)
         return textField
     }()
 
@@ -154,131 +101,58 @@ internal class ATMView: UIView {
         return textField
     }()
 
-    let guideTxt: UILabel = {
-        let confirmTitle = UILabel()
-        confirmTitle.textColor = UIColor(11, 11, 11)
-        confirmTitle.font = UIFont.systemFont(ofSize: 12, weight: .regular)
-        confirmTitle.translatesAutoresizingMaskIntoConstraints = false
-        confirmTitle.textAlignment = .left
-        confirmTitle.lineBreakMode = .byWordWrapping
-        confirmTitle.numberOfLines = 0
-        confirmTitle.text = "Nhập số thẻ ở mặt trước thẻ"
-        return confirmTitle
-    }()
+    let methodView: MethodView = MethodView(type: .BANK_CARD, title: "Thẻ ATM nội địa", buttonTitle: "Thay đổi")
 
 
     init() {
         super.init(frame: CGRect.zero)
         backgroundColor = .white
 
-        self.addSubview(closeButton)
-        self.addSubview(txtLabel)
-        self.addSubview(detailView)
-        self.addSubview(methodTitle)
-        self.addSubview(containerView)
+        self.addSubview(methodView)
         self.addSubview(button)
-        self.addSubview(cardNumberField)
-        self.addSubview(dateField)
-        self.addSubview(nameField)
-        self.addSubview(guideTxt)
+        self.addSubview(vStack)
 
-        button.setTitle("THANH TOÁN", for: .normal)
-        bankNameLabel.text = "Thẻ ATM nội địa"
+        vStack.addArrangedSubview(cardInputContainer)
+        vStack.addArrangedSubview(dateInputContainer)
+//        self.addSubview(nameField)
 
-        containerView.addSubview(walletMethodImage)
-        containerView.addSubview(bankNameLabel)
-        containerView.addSubview(bankContentLabel)
-        // contentView.addSubview(walletMethodImage)
+        button.setTitle("Thanh toán", for: .normal)
 
-        detailView.addSubview(price)
-        detailView.backgroundColor = UIColor(8, 148, 31)
-        detailView.addSubview(contentLabel)
-        detailView.addSubview(memoLabel)
-        txtLabel.text = "Xác nhận thanh toán"
-        price.text = "\(formatMoney(input: PayME.amount)) đ"
-        contentLabel.text = "Nội dung"
-        if (PayME.description == "") {
-            memoLabel.text = "Không có nội dung"
-        } else {
-            memoLabel.text = PayME.description
-        }
-        methodTitle.text = "Nguồn thanh toán"
+        methodView.image.image = UIImage(for: Method.self, named: "fill1")
+        methodView.topAnchor.constraint(equalTo: self.topAnchor, constant: 14).isActive = true
+//        methodView.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        methodView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
+        methodView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
 
-        txtLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 19).isActive = true
-        txtLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        vStack.topAnchor.constraint(equalTo: methodView.bottomAnchor, constant: 14).isActive = true
+        vStack.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
+        vStack.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
 
+        cardInputContainer.heightAnchor.constraint(equalToConstant: 56).isActive = true
+        cardInputContainer.addSubview(cardInputTitle)
+        cardInputContainer.addSubview(cardNumberField)
+        cardInputTitle.leadingAnchor.constraint(equalTo: cardInputContainer.leadingAnchor, constant: 16).isActive = true
+        cardInputTitle.topAnchor.constraint(equalTo: cardInputContainer.topAnchor, constant: 8).isActive = true
+        cardNumberField.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        cardNumberField.leadingAnchor.constraint(equalTo: cardInputContainer.leadingAnchor, constant: 16).isActive = true
+        cardNumberField.topAnchor.constraint(equalTo: cardInputTitle.bottomAnchor).isActive = true
+        cardNumberField.trailingAnchor.constraint(equalTo: cardInputContainer.trailingAnchor, constant: -16).isActive = true
 
-        detailView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
-        detailView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
-        detailView.heightAnchor.constraint(equalToConstant: 118.0).isActive = true
-        detailView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        detailView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 16.0).isActive = true
-
-        price.topAnchor.constraint(equalTo: detailView.topAnchor, constant: 15).isActive = true
-        price.centerXAnchor.constraint(equalTo: detailView.centerXAnchor).isActive = true
-
-
-        closeButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 19).isActive = true
-        closeButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
-        closeButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
-
-        contentLabel.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -15).isActive = true
-        contentLabel.leadingAnchor.constraint(equalTo: detailView.leadingAnchor, constant: 30).isActive = true
-        contentLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
-        contentLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-
-        memoLabel.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -15).isActive = true
-        memoLabel.leadingAnchor.constraint(equalTo: contentLabel.trailingAnchor, constant: 30).isActive = true
-        memoLabel.trailingAnchor.constraint(equalTo: detailView.trailingAnchor, constant: -30).isActive = true
-        memoLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 250), for: .horizontal)
-        memoLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        methodTitle.topAnchor.constraint(equalTo: detailView.bottomAnchor, constant: 10).isActive = true
-        methodTitle.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
-
-
-        containerView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor, constant: 10).isActive = true
-        containerView.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        containerView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
-        containerView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
-
-        walletMethodImage.heightAnchor.constraint(equalToConstant: 26).isActive = true
-        walletMethodImage.widthAnchor.constraint(equalToConstant: 26).isActive = true
-        walletMethodImage.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16).isActive = true
-        walletMethodImage.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-
-        bankNameLabel.leadingAnchor.constraint(equalTo: walletMethodImage.trailingAnchor, constant: 10).isActive = true
-        bankNameLabel.trailingAnchor.constraint(equalTo: bankContentLabel.leadingAnchor, constant: -5).isActive = true
-        bankNameLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-
-        bankContentLabel.leadingAnchor.constraint(equalTo: bankNameLabel.trailingAnchor, constant: 5).isActive = true
-        bankContentLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-
-        cardNumberField.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 10).isActive = true
-        cardNumberField.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        cardNumberField.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
-        cardNumberField.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
-
-        guideTxt.topAnchor.constraint(equalTo: self.cardNumberField.bottomAnchor, constant: 10).isActive = true
-        guideTxt.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
-        guideTxt.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 50).isActive = true
-
-        nameField.topAnchor.constraint(equalTo: self.guideTxt.bottomAnchor, constant: 10).isActive = true
-        nameField.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        nameField.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
-        nameField.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
-
-        dateField.topAnchor.constraint(equalTo: nameField.bottomAnchor, constant: 10).isActive = true
-        dateField.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        dateField.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
-        dateField.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
+        dateInputContainer.heightAnchor.constraint(equalToConstant: 56).isActive = true
+        dateInputContainer.addSubview(dateInputTitle)
+        dateInputContainer.addSubview(dateField)
+        dateInputTitle.leadingAnchor.constraint(equalTo: dateInputContainer.leadingAnchor, constant: 16).isActive = true
+        dateInputTitle.topAnchor.constraint(equalTo: dateInputContainer.topAnchor, constant: 8).isActive = true
+        dateField.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        dateField.leadingAnchor.constraint(equalTo: dateInputContainer.leadingAnchor, constant: 16).isActive = true
+        dateField.topAnchor.constraint(equalTo: dateInputTitle.bottomAnchor).isActive = true
+        dateField.trailingAnchor.constraint(equalTo: dateInputContainer.trailingAnchor, constant: -16).isActive = true
 
         button.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
         button.heightAnchor.constraint(equalToConstant: 45).isActive = true
-        button.topAnchor.constraint(equalTo: dateField.bottomAnchor, constant: 20).isActive = true
-        button.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
-        button.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
+        button.topAnchor.constraint(equalTo: vStack.bottomAnchor, constant: 16).isActive = true
+        button.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
+        button.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
         button.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
     }
 

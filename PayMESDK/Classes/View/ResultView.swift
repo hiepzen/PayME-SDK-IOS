@@ -45,7 +45,7 @@ class ResultView: UIView {
     let nameLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor(24, 26, 65)
-        label.font = UIFont.systemFont(ofSize: 21, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -53,9 +53,9 @@ class ResultView: UIView {
 
     let roleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(25, 25, 25)
+        label.textColor = UIColor(45, 187, 84)
         label.backgroundColor = .clear
-        label.font = UIFont.systemFont(ofSize: 38, weight: .medium)
+        label.font = UIFont.systemFont(ofSize: 36, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -81,70 +81,11 @@ class ResultView: UIView {
         return button
     }()
 
-    let contentLabel: UILabel = {
-        let contentLabel = UILabel()
-        contentLabel.textColor = .black
-        contentLabel.backgroundColor = .clear
-        contentLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        contentLabel.translatesAutoresizingMaskIntoConstraints = false
-        return contentLabel
-    }()
-
-    let memoLabel: UILabel = {
-        let memoLabel = UILabel()
-        memoLabel.textColor = .black
-        memoLabel.backgroundColor = .clear
-        memoLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        memoLabel.translatesAutoresizingMaskIntoConstraints = false
-        memoLabel.textAlignment = .right
-        return memoLabel
-    }()
-
     let detailView: UIView = {
         let detailView = UIView()
         detailView.translatesAutoresizingMaskIntoConstraints = false
         detailView.layer.cornerRadius = 15
         return detailView
-    }()
-
-    let transaction: UILabel = {
-        let transaction = UILabel()
-        transaction.textColor = UIColor(111, 132, 150)
-        transaction.backgroundColor = .clear
-        transaction.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        transaction.translatesAutoresizingMaskIntoConstraints = false
-        transaction.textAlignment = .left
-        return transaction
-    }()
-
-    let timeTransaction: UILabel = {
-        let timeTransaction = UILabel()
-        timeTransaction.textColor = UIColor(111, 132, 150)
-        timeTransaction.backgroundColor = .clear
-        timeTransaction.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        timeTransaction.translatesAutoresizingMaskIntoConstraints = false
-        timeTransaction.textAlignment = .right
-        return timeTransaction
-    }()
-
-    let transactionNumber: UILabel = {
-        let transactionNumber = UILabel()
-        transactionNumber.textColor = UIColor(11, 11, 11)
-        transactionNumber.backgroundColor = .clear
-        transactionNumber.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        transactionNumber.translatesAutoresizingMaskIntoConstraints = false
-        transactionNumber.textAlignment = .left
-        return transactionNumber
-    }()
-
-    let timeTransactionDetail: UILabel = {
-        let timeTransactionDetail = UILabel()
-        timeTransactionDetail.textColor = UIColor(11, 11, 11)
-        timeTransactionDetail.backgroundColor = .clear
-        timeTransactionDetail.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        timeTransactionDetail.translatesAutoresizingMaskIntoConstraints = false
-        timeTransactionDetail.textAlignment = .right
-        return timeTransactionDetail
     }()
 
     let methodView: UIView = {
@@ -206,7 +147,9 @@ class ResultView: UIView {
         detailView.backgroundColor = .white
         methodView.backgroundColor = .white
 
+
         containerView.bounces = false
+
 
         addSubview(containerView)
         addSubview(button)
@@ -220,13 +163,6 @@ class ResultView: UIView {
         topView.addSubview(nameLabel)
         topView.addSubview(roleLabel)
         topView.addSubview(failLabel)
-        topView.addSubview(contentLabel)
-        topView.addSubview(memoLabel)
-
-        detailView.addSubview(transaction)
-        detailView.addSubview(transactionNumber)
-        detailView.addSubview(timeTransaction)
-        detailView.addSubview(timeTransactionDetail)
 
         methodView.addSubview(methodLabel)
         methodView.addSubview(methodContent)
@@ -252,12 +188,13 @@ class ResultView: UIView {
         animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
 
         nameLabel.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
-        nameLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 20.0).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 16).isActive = true
 
         roleLabel.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
         roleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4.0).isActive = true
         roleLabel.trailingAnchor.constraint(equalTo: topView.trailingAnchor, constant: -30).isActive = true
         roleLabel.leadingAnchor.constraint(equalTo: topView.leadingAnchor, constant: 30).isActive = true
+        roleLabel.bottomAnchor.constraint(equalTo: topView.bottomAnchor, constant: -24).isActive = true
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
@@ -267,36 +204,10 @@ class ResultView: UIView {
         failLabel.leadingAnchor.constraint(equalTo: topView.leadingAnchor, constant: 30).isActive = true
         failLabel.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
 
-        contentLabel.topAnchor.constraint(equalTo: failLabel.bottomAnchor, constant: 30).isActive = true
-        contentLabel.leadingAnchor.constraint(equalTo: topView.leadingAnchor, constant: 30).isActive = true
-        contentLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
-        contentLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-
-        memoLabel.topAnchor.constraint(equalTo: failLabel.bottomAnchor, constant: 30).isActive = true
-        memoLabel.trailingAnchor.constraint(equalTo: topView.trailingAnchor, constant: -30).isActive = true
-        memoLabel.leadingAnchor.constraint(equalTo: contentLabel.trailingAnchor, constant: 30).isActive = true
-        memoLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 250), for: .horizontal)
-        memoLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        memoLabel.bottomAnchor.constraint(equalTo: topView.bottomAnchor, constant: -10).isActive = true
-
         //detailView - bottomView
-        detailView.topAnchor.constraint(equalTo: topView.bottomAnchor, constant: 10).isActive = true
-        detailView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17).isActive = true
-        detailView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -17).isActive = true
-
-        transaction.topAnchor.constraint(equalTo: detailView.topAnchor, constant: 14).isActive = true
-        transaction.leadingAnchor.constraint(equalTo: detailView.leadingAnchor, constant: 15).isActive = true
-
-        transactionNumber.topAnchor.constraint(equalTo: transaction.bottomAnchor, constant: 4).isActive = true
-        transactionNumber.leadingAnchor.constraint(equalTo: detailView.leadingAnchor, constant: 15).isActive = true
-        transactionNumber.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -10).isActive = true
-
-        timeTransaction.topAnchor.constraint(equalTo: detailView.topAnchor, constant: 14).isActive = true
-        timeTransaction.trailingAnchor.constraint(equalTo: detailView.trailingAnchor, constant: -15).isActive = true
-
-        timeTransactionDetail.topAnchor.constraint(equalTo: timeTransaction.bottomAnchor, constant: 4).isActive = true
-        timeTransactionDetail.trailingAnchor.constraint(equalTo: detailView.trailingAnchor, constant: -15).isActive = true
-        timeTransactionDetail.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -10).isActive = true
+        detailView.topAnchor.constraint(equalTo: topView.bottomAnchor, constant: 20).isActive = true
+        detailView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        detailView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
 
         //methodView
         methodView.topAnchor.constraint(equalTo: detailView.bottomAnchor, constant: 10).isActive = true
@@ -324,14 +235,8 @@ class ResultView: UIView {
 
         animationView.animation = animation
         animationView.contentMode = .scaleAspectFit
-        contentLabel.text = "Nội dung"
-        transaction.text = "Mã giao dịch"
-        timeTransaction.text = "Thời gian giao dịch"
-        memoLabel.text = "Không có nội dung"
         methodLabel.text = "Phương thức"
         button.setTitle("HOÀN TẤT", for: .normal)
-        transactionNumber.text = "N/A"
-        timeTransactionDetail.text = "N/A"
         cardNumberLabel.text = "Số tài khoản"
         methodContent.text = "N/A"
         cardNumberContent.text = "N/A"
@@ -339,17 +244,22 @@ class ResultView: UIView {
 
     func adaptView(result: Result) {
         nameLabel.text = result.titleLabel
-        roleLabel.text = formatMoney(input: result.orderTransaction.amount)
+        roleLabel.text = "\(formatMoney(input: result.orderTransaction.amount)) đ"
         if result.type == ResultType.SUCCESS {
             failLabel.isHidden = true
         } else {
             failLabel.text = result.failReasonLabel
         }
-        if (result.orderTransaction.note != "") {
-            memoLabel.text = result.orderTransaction.note
-        }
-        transactionNumber.text = result.transactionInfo.transaction
-        timeTransactionDetail.text = result.transactionInfo.transactionTime
+//        if (result.orderTransaction.note != "") {
+//            memoLabel.text = result.orderTransaction.note
+//        }
+        let transactionView = TransactionInformationView(id: result.transactionInfo.transaction, time: result.transactionInfo.transactionTime)
+        detailView.addSubview(transactionView)
+        transactionView.topAnchor.constraint(equalTo: detailView.topAnchor).isActive = true
+        transactionView.leadingAnchor.constraint(equalTo: detailView.leadingAnchor).isActive = true
+        transactionView.trailingAnchor.constraint(equalTo: detailView.trailingAnchor).isActive = true
+        transactionView.bottomAnchor.constraint(equalTo: detailView.bottomAnchor).isActive = true
+
         methodContent.text = getMethodText(method: result.orderTransaction.paymentMethod!.type)
 
         if (result.orderTransaction.paymentMethod!.type != "WALLET") {

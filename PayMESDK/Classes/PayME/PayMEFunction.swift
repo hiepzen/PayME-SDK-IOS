@@ -211,7 +211,7 @@ class PayMEFunction {
                 return
             }
             if (accessToken != "" && kycState == "APPROVED") {
-                let orderTransaction = OrderTransaction(storeId: storeId, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
+                let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
                 let paymentModalController = PaymentModalController(
                         payMEFunction: self, orderTransaction: orderTransaction,
                         paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
