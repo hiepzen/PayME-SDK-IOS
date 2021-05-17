@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 
 class PayMEFunction {
-    let resultViewModel = ResultViewModel()
+    let paymentViewModel = PaymentViewModel()
 
     private let disposeBag = DisposeBag()
     private var configService = Array<ServiceConfig>()
@@ -218,10 +218,10 @@ class PayMEFunction {
                         onSuccess: onSuccess, onError: onError
                 )
 
-                resultViewModel
-                        .resultSubject
+                paymentViewModel
+                        .paymentSubject
                         .observe(on: MainScheduler.instance)
-                        .bind(to: paymentModalController.resultSubject)
+                        .bind(to: paymentModalController.paymentSubject)
                         .disposed(by: disposeBag)
                 currentVC.presentPanModal(paymentModalController)
             }

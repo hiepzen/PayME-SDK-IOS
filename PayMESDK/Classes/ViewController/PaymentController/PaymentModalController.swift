@@ -52,7 +52,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let orderTransaction: OrderTransaction
     let paymentPresentation: PaymentPresentation
 
-    public let resultSubject: PublishSubject<Result> = PublishSubject()
+    let paymentSubject: PublishSubject<PaymentState> = PublishSubject()
     private let disposeBag = DisposeBag()
 
     init(
@@ -67,7 +67,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         self.onSuccess = onSuccess
         self.onError = onError
         paymentPresentation = PaymentPresentation(
-                request: payMEFunction.request, resultViewModel: payMEFunction.resultViewModel,
+                request: payMEFunction.request, paymentViewModel: payMEFunction.paymentViewModel,
                 onSuccess: onSuccess, onError: onError
         )
         super.init(nibName: nil, bundle: nil)
@@ -90,23 +90,23 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
 
-        setupBinding()
         setupSubcription()
     }
 
-    private func setupBinding() {
-        resultSubject.observe(on: MainScheduler.instance).bind(to: resultView.resultSubject).disposed(by: disposeBag)
-    }
-
     private func setupSubcription() {
-        payMEFunction.resultViewModel.resultSubject
+        payMEFunction.paymentViewModel.paymentSubject
                 .observe(on: MainScheduler.instance)
-                .subscribe(onNext: { result in
-                    self.removeSpinner()
-                    self.view.subviews.forEach {
-                        $0.removeFromSuperview()
+                .subscribe(onNext: { paymentState in
+                    if paymentState.state == State.RESULT {
+                        self.removeSpinner()
+                        self.view.subviews.forEach {
+                            $0.removeFromSuperview()
+                        }
+                        self.setupResult(result: paymentState.result!)
                     }
-                    self.setupResult(result: result)
+                    if paymentState.state == State.METHODS {
+
+                    }
                 }, onError: { error in
                     self.removeSpinner()
                     let responseError = error as! ResponseError
@@ -148,7 +148,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     orderTransaction: self.orderTransaction,
                     transactionInfo: responseError.transactionInformation!
             )
-            self.payMEFunction.resultViewModel.resultSubject.onNext(result)
+            self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
         })
         webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
             webViewController.dismiss(animated: true)
@@ -168,7 +168,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     orderTransaction: self.orderTransaction,
                     transactionInfo: responseError.transactionInformation!
             )
-            self.payMEFunction.resultViewModel.resultSubject.onNext(result)
+            self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
         })
         presentPanModal(webViewController)
     }
@@ -345,7 +345,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupResult(result: Result) {
-        resultSubject.onNext(result)
         PaymentModalController.isShowCloseModal = false
         if (isShowResultUI == true) {
             view.addSubview(resultView)
@@ -361,6 +360,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
             resultView.animationView.play()
+            resultView.adaptView(result: result)
         } else {
             dismiss(animated: true)
         }

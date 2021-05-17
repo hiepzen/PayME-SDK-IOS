@@ -38,18 +38,18 @@ struct ResponseError: Error {
 }
 
 class PaymentPresentation {
-    private let resultViewModel: ResultViewModel
+    private let paymentViewModel: PaymentViewModel
     private let request: API
     private let onSuccess: (Dictionary<String, AnyObject>) -> ()
     private let onError: (Dictionary<String, AnyObject>) -> ()
 
     init(
-            request: API, resultViewModel: ResultViewModel,
+            request: API, paymentViewModel: PaymentViewModel,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         self.request = request
-        self.resultViewModel = resultViewModel
+        self.paymentViewModel = paymentViewModel
         self.onSuccess = onSuccess
         self.onError = onError
     }
@@ -96,12 +96,12 @@ class PaymentPresentation {
                             orderTransaction: orderTransaction,
                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
                     )
-                    self.resultViewModel.resultSubject.onNext(result)
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                 },
                 onError: { error in
                     if let code = error["code"] as? Int {
                         if (code == 401) {
-                            self.resultViewModel.resultSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
+                            self.paymentViewModel.paymentSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
                         }
                     }
                     self.onError(error)
@@ -152,7 +152,7 @@ class PaymentPresentation {
                                 orderTransaction: orderTransaction,
                                 transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                         )
-                        self.resultViewModel.resultSubject.onNext(result)
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                     } else {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
                     }
@@ -160,7 +160,7 @@ class PaymentPresentation {
                 onError: { error in
                     if let code = error["code"] as? Int {
                         if (code == 401) {
-                            self.resultViewModel.resultSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
+                            self.paymentViewModel.paymentSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
                         }
                     }
                     self.onError(error)
@@ -204,18 +204,18 @@ class PaymentPresentation {
                                     orderTransaction: orderTransaction,
                                     transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                             )
-                            self.resultViewModel.resultSubject.onNext(result)
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                         } else {
                             if let payment = payInfo["payment"] as? [String: AnyObject] {
                                 let state = (payment["state"] as? String) ?? ""
                                 if (state == "REQUIRED_OTP") {
                                     let transaction = payment["transaction"] as! String
-                                    self.resultViewModel.resultSubject.onError(
+                                    self.paymentViewModel.paymentSubject.onError(
                                             ResponseError(code: ResponseErrorCode.REQUIRED_OTP, transaction: transaction)
                                     )
                                 } else if (state == "REQUIRED_VERIFY") {
                                     if let html = payment["html"] as? String {
-                                        self.resultViewModel.resultSubject.onError(
+                                        self.paymentViewModel.paymentSubject.onError(
                                                 ResponseError(
                                                         code: ResponseErrorCode.REQUIRED_VERIFY,
                                                         html: html,
@@ -235,7 +235,7 @@ class PaymentPresentation {
                                             orderTransaction: orderTransaction,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
-                                    self.resultViewModel.resultSubject.onNext(result)
+                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                 }
                             } else {
                                 let message = payInfo["message"] as? String
@@ -246,7 +246,7 @@ class PaymentPresentation {
                                         orderTransaction: orderTransaction,
                                         transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                 )
-                                self.resultViewModel.resultSubject.onNext(result)
+                                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                             }
                         }
                     } else {
@@ -257,7 +257,7 @@ class PaymentPresentation {
                     self.onError(flowError)
                     if let code = flowError["code"] as? Int {
                         if (code == 401) {
-                            self.resultViewModel.resultSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
+                            self.paymentViewModel.paymentSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
                         }
                     }
                 })
@@ -281,7 +281,7 @@ class PaymentPresentation {
                 let message = securityResponse["message"] as! String
                 let code = securityResponse["code"] as! String
                 if (code == "PASSWORD_INVALID" || code == "PASSWORD_RETRY_TIMES_OVER") {
-                    self.resultViewModel.resultSubject.onError(ResponseError(
+                    self.paymentViewModel.paymentSubject.onError(ResponseError(
                             code: ResponseErrorCode.PASSWORD_INVALID, message: message
                     ))
                 } else {
@@ -292,13 +292,13 @@ class PaymentPresentation {
                             orderTransaction: orderTransaction,
                             transactionInfo: TransactionInformation()
                     )
-                    self.resultViewModel.resultSubject.onNext(result)
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                 }
             }
         }, onError: { error in
             if let code = error["code"] as? Int {
                 if (code == 401) {
-                    self.resultViewModel.resultSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
+                    self.paymentViewModel.paymentSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
                 }
             }
             self.onError(error)

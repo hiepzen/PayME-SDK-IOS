@@ -198,13 +198,6 @@ class ResultView: UIView {
     init(type: Int = 0) {
         super.init(frame: CGRect.zero)
         setupUI()
-        resultSubject
-                .observe(on: MainScheduler.instance)
-                .subscribe(onNext: { [self] (result) in
-                    print("minh khoa 2345")
-                    adaptView(result: result)
-                })
-                .disposed(by: disposeBag)
     }
 
     func setupUI() {
