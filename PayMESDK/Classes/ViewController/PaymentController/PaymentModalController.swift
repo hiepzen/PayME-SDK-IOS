@@ -208,6 +208,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.addSubview(closeButton)
         methodsView.addSubview(txtLabel)
         methodsView.addSubview(detailView)
+        methodsView.addSubview(methodTitleStamp)
         methodsView.addSubview(methodTitle)
         methodsView.addSubview(tableView)
 
@@ -215,11 +216,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         detailView.addSubview(price)
         detailView.addSubview(contentLabel)
         detailView.addSubview(memoLabel)
-        txtLabel.text = "Xác nhận thanh toán"
+        txtLabel.text = "Thanh toán"
         price.text = "\(formatMoney(input: orderTransaction.amount)) đ"
         contentLabel.text = "Nội dung"
         memoLabel.text = orderTransaction.note == "" ? "Không có nội dung" : orderTransaction.note
-        methodTitle.text = "Chọn nguồn thanh toán"
+        methodTitle.text = "Nguồn thanh toán"
         tableView.register(Method.self, forCellReuseIdentifier: "cell")
         tableView.delegate = self
         tableView.dataSource = self
@@ -230,11 +231,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         detailView.centerXAnchor.constraint(equalTo: methodsView.centerXAnchor).isActive = true
         detailView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 16.0).isActive = true
 
-        price.topAnchor.constraint(equalTo: detailView.topAnchor, constant: 15).isActive = true
+        price.topAnchor.constraint(equalTo: detailView.topAnchor, constant: 16).isActive = true
         price.centerXAnchor.constraint(equalTo: detailView.centerXAnchor).isActive = true
 
         contentLabel.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -15).isActive = true
-        contentLabel.leadingAnchor.constraint(equalTo: detailView.leadingAnchor, constant: 30).isActive = true
+        contentLabel.leadingAnchor.constraint(equalTo: detailView.leadingAnchor, constant: 16).isActive = true
         contentLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
         contentLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 
@@ -244,16 +245,19 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         memoLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 250), for: .horizontal)
         memoLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
-        methodTitle.topAnchor.constraint(equalTo: detailView.bottomAnchor, constant: 10).isActive = true
-        methodTitle.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 10).isActive = true
+        methodTitleStamp.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
+        methodTitleStamp.topAnchor.constraint(equalTo: detailView.bottomAnchor, constant: 16).isActive = true
+        methodTitleStamp.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        methodTitleStamp.widthAnchor.constraint(equalToConstant: 3).isActive = true
+        methodTitle.topAnchor.constraint(equalTo: detailView.bottomAnchor, constant: 16).isActive = true
+        methodTitle.leadingAnchor.constraint(equalTo: methodTitleStamp.trailingAnchor, constant: 8).isActive = true
 
-        txtLabel.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 19).isActive = true
-        txtLabel.bottomAnchor.constraint(equalTo: detailView.topAnchor, constant: -10).isActive = true
+        txtLabel.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 18).isActive = true
         txtLabel.centerXAnchor.constraint(equalTo: methodsView.centerXAnchor).isActive = true
 
-        tableView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor, constant: 10).isActive = true
-        tableView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 10).isActive = true
-        tableView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -10).isActive = true
+        tableView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
+        tableView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
+        tableView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
         tableView.alwaysBounceVertical = false
 
         closeButton.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 19).isActive = true
@@ -289,7 +293,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.reloadData()
         tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height).isActive = true
         tableView.alwaysBounceVertical = false
-        tableView.isScrollEnabled = false
+        tableView.isScrollEnabled = true
         updateViewConstraints()
         view.layoutIfNeeded()
         if bottomLayoutGuide.length == 0 {
@@ -373,8 +377,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
         detailView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
         resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
-
-        atmView.detailView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
         atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
     }
 
@@ -386,13 +388,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     @objc func closeAction(button: UIButton) {
         dismiss(animated: true, completion: nil)
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        active = indexPath.row
-        orderTransaction.paymentMethod = getMethodSelected()
-        pay(data[indexPath.row])
     }
 
     func pay(_ method: PaymentMethod) {
@@ -521,7 +516,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let price = UILabel()
         price.textColor = .white
         price.backgroundColor = .clear
-        price.font = UIFont(name: "Arial", size: 32)
+        price.font = UIFont.systemFont(ofSize: 32, weight: .semibold)
         price.translatesAutoresizingMaskIntoConstraints = false
         return price
     }()
@@ -530,17 +525,23 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let memoLabel = UILabel()
         memoLabel.textColor = .white
         memoLabel.backgroundColor = .clear
-        memoLabel.font = UIFont(name: "Arial", size: 16)
+        memoLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         memoLabel.translatesAutoresizingMaskIntoConstraints = false
         memoLabel.textAlignment = .right
         return memoLabel
     }()
 
+    let methodTitleStamp: UIView = {
+        let stamp = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: 16))
+        stamp.translatesAutoresizingMaskIntoConstraints = false
+        stamp.backgroundColor = UIColor(45, 187, 84)
+        return stamp
+    }()
     let methodTitle: UILabel = {
         let methodTitle = UILabel()
-        methodTitle.textColor = UIColor(114, 129, 144)
+        methodTitle.textColor = UIColor(11, 11, 11)
         methodTitle.backgroundColor = .clear
-        methodTitle.font = UIFont(name: "Arial", size: 16)
+        methodTitle.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         methodTitle.translatesAutoresizingMaskIntoConstraints = false
         return methodTitle
     }()
@@ -549,7 +550,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let contentLabel = UILabel()
         contentLabel.textColor = .white
         contentLabel.backgroundColor = .clear
-        contentLabel.font = UIFont(name: "Arial", size: 16)
+        contentLabel.font = UIFont.systemFont(ofSize: 15, weight: .light)
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
         return contentLabel
     }()
@@ -570,9 +571,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     let txtLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(26, 26, 26)
+        label.textColor = UIColor(11, 11, 11)
         label.backgroundColor = .clear
-        label.font = UIFont(name: "Lato-SemiBold", size: 20)
+        label.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -600,6 +601,30 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         true
     }
 
+    func numberOfSectionsInTableView(_tableView: UITableView) -> Int {
+        data.count
+    }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        data.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? Method else {
+            return UITableViewCell()
+        }
+        cell.configure(with: data[indexPath.row], payMEFunction: payMEFunction, orderTransaction: orderTransaction)
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        active = indexPath.row
+        orderTransaction.paymentMethod = getMethodSelected()
+        pay(data[indexPath.row])
+    }
+
+
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -620,24 +645,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             String(format: "%02hhx", $0)
         }.joined()
         return result
-    }
-}
-
-extension PaymentModalController {
-    func numberOfSectionsInTableView(_tableView: UITableView) -> Int {
-        data.count
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        data.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? Method else {
-            return UITableViewCell()
-        }
-        cell.configure(with: data[indexPath.row])
-        return cell
     }
 }
 
