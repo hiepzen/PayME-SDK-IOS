@@ -323,8 +323,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.removeFromSuperview()
         atmController.view?.removeFromSuperview()
         detailView.removeFromSuperview()
-        methodTitle.removeFromSuperview()
-        methodTitleStamp.removeFromSuperview()
+        methodTitle.isHidden = true
+        methodTitleStamp.isHidden = true
+
         txtLabel.text = "Xác nhận thanh toán"
         methodsView.addSubview(confirmationView)
         methodsView.backgroundColor = UIColor(239, 242, 247)
