@@ -354,5 +354,17 @@ class PaymentPresentation {
         })
     }
 
+    func getFee(orderTransaction: OrderTransaction) {
+        request.getFee(amount: orderTransaction.amount, onSuccess: { response in
+            if let fee = ((response["Utility"]!["GetFee"] as! [String: AnyObject])["fee"] as! [String: AnyObject])["fee"] as? Int {
+                orderTransaction.paymentMethod?.fee = fee
+                orderTransaction.total = orderTransaction.amount + fee
+                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
+            }
+        }, onError: { error in
+            print(error)
+        })
+    }
+
 
 }

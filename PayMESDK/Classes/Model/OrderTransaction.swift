@@ -14,6 +14,7 @@ class OrderTransaction {
     var extraData: String
     var note: String
     var paymentMethod: PaymentMethod?
+    var total: Int?
 
     init(
             amount: Int = 10000,
@@ -21,7 +22,8 @@ class OrderTransaction {
             orderId: String,
             note: String,
             extraData: String,
-            paymentMethod: PaymentMethod? = nil
+            paymentMethod: PaymentMethod? = nil,
+            total: Int? = 0
     ) {
         self.amount = amount
         self.storeId = storeId
@@ -29,5 +31,6 @@ class OrderTransaction {
         self.note = note
         self.extraData = extraData
         self.paymentMethod = paymentMethod
+        self.total = total
     }
 }

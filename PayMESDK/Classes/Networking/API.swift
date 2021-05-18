@@ -550,6 +550,26 @@ class API {
         onRequest(url, path, params, onSuccess, onError)
     }
 
+    func getFee(
+            amount: Int,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    ) {
+        let url = urlGraphQL(env: env)
+        let path = "/graphql"
+        let variables: [String: Any] = ["getFeeInput": [
+            "clientId": clientId,
+            "serviceType": "OPEN_EWALLET_PAYMENT",
+            "amount": amount
+        ]]
+        let json: [String: Any] = [
+            "query": GraphQuery.getFeeGraphQLQuery,
+            "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        onRequest(url, path, params, onSuccess, onError)
+    }
+
     private func onRequest(
             _ url: String, _ path: String, _ params: Data?,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),

@@ -325,4 +325,20 @@ class GraphQuery {
                                          }
                                        }
                                        """
+    static let getFeeGraphQLQuery: String = """
+                                            mutation GetFeeMutation($getFeeInput: GetFeeInput) {
+                                              Utility {
+                                                GetFee(input: $getFeeInput) {
+                                                  succeeded
+                                                  state
+                                                  message
+                                                  fee {
+                                                    ... on GeneralFee {
+                                                      fee
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                            """
 }

@@ -82,11 +82,11 @@ class ConfirmationModal: UIView {
 
         button.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         button.heightAnchor.constraint(equalToConstant: 45).isActive = true
-        button.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 20).isActive = true
+        button.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 16).isActive = true
         button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
 
-        bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 10).isActive = true
+        bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 16).isActive = true
     }
     
     required init?(coder: NSCoder) {

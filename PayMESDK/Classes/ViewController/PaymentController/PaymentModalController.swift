@@ -95,10 +95,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
 
-        setupSubcription()
+        setupSubscription()
     }
 
-    private func setupSubcription() {
+    private func setupSubscription() {
         payMEFunction.paymentViewModel.paymentSubject
                 .observe(on: MainScheduler.instance)
                 .subscribe(onNext: { paymentState in
@@ -110,27 +110,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.setupResult(result: paymentState.result!)
                     }
                     if paymentState.state == State.CONFIRMATION {
-                        self.tableView.removeFromSuperview()
-                        self.atmController.view?.removeFromSuperview()
-                        self.detailView.removeFromSuperview()
-                        self.methodTitle.removeFromSuperview()
-                        self.methodTitleStamp.removeFromSuperview()
-                        self.txtLabel.text = "Xác nhận thanh toán"
-                        self.confirmationView.setServiceInfo(serviceInfo: [["key": "123", "value": "hihi"], ["key": "123", "value": "hihi", "color": UIColor(12,170,38)]])
-                        self.confirmationView.setPaymentInfo(paymentInfo: [["key": "456", "value": "haha"], ["key": "456", "value": "haha", "color": UIColor(255,0,0)]])
-                        self.methodsView.addSubview(self.confirmationView)
-                        self.methodsView.backgroundColor = UIColor(239, 242, 247)
-                        self.confirmationView.translatesAutoresizingMaskIntoConstraints = false
-                        self.confirmationView.topAnchor.constraint(equalTo: self.txtLabel.bottomAnchor).isActive = true
-                        self.confirmationView.trailingAnchor.constraint(equalTo: self.methodsView.trailingAnchor).isActive = true
-                        self.confirmationView.leadingAnchor.constraint(equalTo: self.methodsView.leadingAnchor).isActive = true
-                        self.updateViewConstraints()
-                        self.view.layoutIfNeeded()
-                        let viewHeight = self.txtLabel.bounds.size.height
-                                + self.confirmationView.bounds.size.height
-                        self.view.heightAnchor.constraint(equalToConstant: viewHeight).isActive = true
-                        self.panModalSetNeedsLayoutUpdate()
-                        self.panModalTransition(to: .longForm)
+                        self.setupUIConfirmation()
+                        self.updateConfirmationInfo(order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.METHODS {
 
@@ -221,7 +202,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": ("Không tìm thấy phương thức") as AnyObject])
                 return
             }
-            self.pay(method)
+            self.onPressMethod(method)
         }
     }
 
@@ -343,6 +324,57 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         panModalTransition(to: .longForm)
     }
 
+    func setupUIConfirmation() {
+        tableView.removeFromSuperview()
+        atmController.view?.removeFromSuperview()
+        detailView.removeFromSuperview()
+        methodTitle.removeFromSuperview()
+        methodTitleStamp.removeFromSuperview()
+        txtLabel.text = "Xác nhận thanh toán"
+        methodsView.addSubview(confirmationView)
+        methodsView.backgroundColor = UIColor(239, 242, 247)
+        confirmationView.translatesAutoresizingMaskIntoConstraints = false
+        confirmationView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor).isActive = true
+        confirmationView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
+        confirmationView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+    }
+
+    func updateConfirmationInfo(order: OrderTransaction?) {
+        if let orderTransaction = order {
+            confirmationView.setPaymentInfo(paymentInfo: [
+                ["key": "Dịch vụ", "value": "\(orderTransaction.storeId)"],
+                ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: orderTransaction.amount)) đ", "color": UIColor(12, 170, 38)],
+                ["key": "Nội dung", "value": orderTransaction.note]
+            ])
+            switch (orderTransaction.paymentMethod?.type) {
+            case MethodType.WALLET.rawValue:
+                confirmationView.setServiceInfo(serviceInfo: [
+                    ["key": "Phương thức", "value": "Số dư ví"],
+                    ["key": "Phí", "value": "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ"],
+                    ["key": "Tổng thanh toán", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
+                ])
+                break
+            case MethodType.LINKED.rawValue:
+                confirmationView.setServiceInfo(serviceInfo: [
+                    ["key": "Phương thức", "value": "Tài khoản liên kết"],
+                    ["key": "Số tài khoản", "value": "\(String(describing: orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: orderTransaction.paymentMethod!.label.suffix(4)))"],
+                    ["key": "Phí", "value": "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ"],
+                    ["key": "Số tiền trừ ví", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
+                ])
+                break
+            default: break
+            }
+            updateViewConstraints()
+            view.layoutIfNeeded()
+            let viewHeight = txtLabel.bounds.size.height
+                    + confirmationView.bounds.size.height
+                    + (bottomLayoutGuide.length > 0 ? bottomLayoutGuide.length : 16)
+            view.heightAnchor.constraint(equalToConstant: viewHeight).isActive = true
+            panModalSetNeedsLayoutUpdate()
+            panModalTransition(to: .longForm)
+        }
+    }
+
     func setupOTP() {
         view.addSubview(otpView)
 
@@ -424,9 +456,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         dismiss(animated: true, completion: nil)
     }
 
-    func pay(_ method: PaymentMethod) {
+    func onPressMethod(_ method: PaymentMethod) {
         if (method.type == "WALLET") {
-            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
+            paymentPresentation.getFee(orderTransaction: orderTransaction)
+//            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
+//
 //            if ((method.dataWallet?.balance ?? 0) < orderTransaction.amount) {
 //                PaymentModalController.isShowCloseModal = false
 //                dismiss(animated: true, completion: {
@@ -440,17 +474,18 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 //            setupSecurity()
         }
         if (method.type == "LINKED") {
-            if (payMEFunction.appEnv.isEqual("SANDBOX")) {
-                PaymentModalController.isShowCloseModal = false
-                dismiss(animated: true) {
-                    self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
-                }
-                return
-            }
-            view.subviews.forEach {
-                $0.removeFromSuperview()
-            }
-            setupSecurity()
+            paymentPresentation.getFee(orderTransaction: orderTransaction)
+//            if (payMEFunction.appEnv.isEqual("SANDBOX")) {
+//                PaymentModalController.isShowCloseModal = false
+//                dismiss(animated: true) {
+//                    self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+//                }
+//                return
+//            }
+//            view.subviews.forEach {
+//                $0.removeFromSuperview()
+//            }
+//            setupSecurity()
         }
         if (method.type == "BANK_CARD") {
             if (payMEFunction.appEnv.isEqual("SANDBOX")) {
@@ -635,7 +670,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.deselectRow(at: indexPath, animated: true)
         active = indexPath.row
         orderTransaction.paymentMethod = getMethodSelected()
-        pay(data[indexPath.row])
+        onPressMethod(data[indexPath.row])
     }
 
     required init?(coder aDecoder: NSCoder) {
