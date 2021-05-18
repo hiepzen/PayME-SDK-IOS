@@ -261,6 +261,17 @@ class ATMModal: UIViewController, UITextFieldDelegate {
         .lightContent
     }
 
+    func formatCardNumber(_ cardNumber: String, _ maxLength: Int = 16) -> String {
+        let tempCard = cardNumber.filter("0123456789".contains)
+        if (maxLength == 16) {
+            return String(tempCard.enumerated().map { $0 > 0 && $0 % 4 == 0 ? ["-", $1] : [$1] }.joined())
+        }
+        if (maxLength == 19) {
+            return String(tempCard.enumerated().map { $0 > 0 && $0 % 8 == 0 ? ["-", $1] : [$1] }.joined())
+        }
+        return cardNumber
+    }
+
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField == atmView.dateField {
             let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")//Here change this characters based on your requirement
@@ -277,7 +288,6 @@ class ATMModal: UIViewController, UITextFieldDelegate {
             let characterSet = CharacterSet(charactersIn: string)
             if (atmView.cardNumberField.text!.count >= 5) {
                 if !(string == "") {
-                    print(string)
                     let stringToCompare = (atmView.cardNumberField.text)! + string
                     for bank in listBank {
                         bankDetect = nil
@@ -311,7 +321,6 @@ class ATMModal: UIViewController, UITextFieldDelegate {
                     }, onError: { error in
                         print(error)
                     })
-                    print(textField.text! + string)
                 }
             }
 

@@ -96,7 +96,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 .observe(on: MainScheduler.instance)
                 .subscribe(onNext: { paymentState in
                     if paymentState.state == State.RESULT {
-
+                        self.setupResult(paymentState.result!)
                     }
                     if paymentState.state == State.CONFIRMATION {
                         self.setupUIConfirmation()
@@ -150,7 +150,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.subviews.forEach {
             $0.removeFromSuperview()
         }
-        self.setupResult(result: result)
+        self.setupResultView(result: result)
     }
 
     private func setupWebview(_ responseError: ResponseError) {
@@ -355,6 +355,19 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     ["key": "Phí", "value": "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ"],
                     ["key": "Tổng thanh toán", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
                 ])
+                confirmationView.onPressConfirm = {
+                    if (orderTransaction.paymentMethod?.dataWallet?.balance ?? 0) < orderTransaction.amount {
+                    PaymentModalController.isShowCloseModal = false
+                    self.dismiss(animated: true, completion: {
+                        self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
+                    })
+                    return
+                    }
+                    self.view.subviews.forEach {
+                        $0.removeFromSuperview()
+                    }
+                    self.setupSecurity()
+                }
                 break
             case MethodType.LINKED.rawValue:
                 confirmationView.setServiceInfo(serviceInfo: [
@@ -371,7 +384,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let viewHeight = txtLabel.bounds.size.height
                     + confirmationView.bounds.size.height
                     + (bottomLayoutGuide.length > 0 ? bottomLayoutGuide.length : 16)
-            view.heightAnchor.constraint(equalToConstant: viewHeight).isActive = true
+            methodsView.heightAnchor.constraint(equalToConstant: viewHeight).isActive = true
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
         }
@@ -411,7 +424,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         securityCode.otpView.becomeFirstResponder()
     }
 
-    func setupResult(result: Result) {
+    func setupResultView(result: Result) {
         PaymentModalController.isShowCloseModal = false
         if (isShowResultUI == true) {
             view.addSubview(resultView)
@@ -457,19 +470,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func onPressMethod(_ method: PaymentMethod) {
         if (method.type == "WALLET") {
             paymentPresentation.getFee(orderTransaction: orderTransaction)
-//            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
-//
-//            if ((method.dataWallet?.balance ?? 0) < orderTransaction.amount) {
-//                PaymentModalController.isShowCloseModal = false
-//                dismiss(animated: true, completion: {
-//                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
-//                })
-//                return
-//            }
-//            view.subviews.forEach {
-//                $0.removeFromSuperview()
-//            }
-//            setupSecurity()
         }
         if (method.type == "LINKED") {
             paymentPresentation.getFee(orderTransaction: orderTransaction)

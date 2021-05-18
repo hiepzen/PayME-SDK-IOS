@@ -9,6 +9,7 @@ import Foundation
 class ConfirmationModal: UIView {
     var serviceInfoData: [Dictionary<String, Any>]?
     var paymentInfoData: [Dictionary<String, Any>]?
+    var onPressConfirm: () -> ()
     
     let stackView: UIStackView = {
         let stack = UIStackView()
@@ -49,9 +50,10 @@ class ConfirmationModal: UIView {
         }
     }
 
-    init(serviceInfo: [Dictionary<String, Any>]? = nil, paymentInfo: [Dictionary<String, Any>]? = nil){
+    init(serviceInfo: [Dictionary<String, Any>]? = nil, paymentInfo: [Dictionary<String, Any>]? = nil, onPressConfirm: @escaping () -> () = {}){
         serviceInfoData = serviceInfo ?? nil
         paymentInfoData = paymentInfo ?? nil
+        self.onPressConfirm = onPressConfirm
         super.init(frame: CGRect.zero)
         setupUI()
     }
@@ -85,8 +87,13 @@ class ConfirmationModal: UIView {
         button.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 16).isActive = true
         button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        button.addTarget(self, action: #selector(onPressFunction), for: .touchUpInside)
 
         bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 16).isActive = true
+    }
+
+    @objc func onPressFunction() {
+        (onPressConfirm ?? {})()
     }
     
     required init?(coder: NSCoder) {
