@@ -217,12 +217,6 @@ class PayMEFunction {
                         paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
                         onSuccess: onSuccess, onError: onError
                 )
-
-                paymentViewModel
-                        .paymentSubject
-                        .observe(on: MainScheduler.instance)
-                        .bind(to: paymentModalController.paymentSubject)
-                        .disposed(by: disposeBag)
                 currentVC.presentPanModal(paymentModalController)
             }
         }

@@ -198,7 +198,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 if (host == "payme.vn") {
                     let params = navigationAction.request.url!.queryParameters ?? ["": ""]
                     if (params["success"] == "true") {
-                        onSuccessWebView!("success")
+                        DispatchQueue.main.async {
+                            self.onSuccessWebView!("success")
+                        }
                         decisionHandler(.cancel)
                         return
                     }

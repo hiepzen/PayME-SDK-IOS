@@ -19,21 +19,19 @@ class ATMModal: UIViewController, UITextFieldDelegate {
     var onError: (([String: AnyObject]) -> ())? = nil
     var onSuccess: (([String: AnyObject]) -> ())? = nil
     var bankName: String = ""
-    let resultView = ResultView()
     var result = false
     let payMEFunction: PayMEFunction
     let orderTransaction: OrderTransaction
     let isShowResultUI: Bool
+    let paymentPresentation: PaymentPresentation
 
-    public let resultSubject : PublishSubject<Result> = PublishSubject()
-    private let disposeBag = DisposeBag()
-
-    init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool,
+    init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool, paymentPresentation: PaymentPresentation,
          onSuccess: (([String: AnyObject]) -> ())? = nil, onError: (([String: AnyObject]) -> ())? = nil) {
         self.payMEFunction = payMEFunction
         self.onSuccess = onSuccess
         self.onError = onError
         self.orderTransaction = orderTransaction
+        self.paymentPresentation = paymentPresentation
         isShowResultUI = isShowResult
         super.init(nibName: nil, bundle: nil)
     }
@@ -66,30 +64,10 @@ class ATMModal: UIViewController, UITextFieldDelegate {
         } else {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
         }
-
-        setupBinding()
-    }
-
-    private func setupBinding() {
-        resultSubject.observe(on: MainScheduler.instance).bind(to: resultView.resultSubject).disposed(by: disposeBag)
-    }
-
-    override func viewDidLayoutSubviews() {
-        let primaryColor = payMEFunction.configColor[0]
-        let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
-        atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
-        resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
-    }
-
-    func panModalDidDismiss() {
-        if (PaymentModalController.isShowCloseModal == true) {
-            onError!(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
-        }
     }
 
     @objc func closeAction() {
         dismiss(animated: true, completion: nil)
-
     }
 
     @objc func payATM() {
@@ -127,150 +105,7 @@ class ATMModal: UIViewController, UITextFieldDelegate {
             }
             let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
             showSpinner(onView: view)
-            payMEFunction.request.transferATM(
-                    storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData, note: orderTransaction.note,
-                    cardNumber: cardNumber!, cardHolder: cardHolder!, issuedAt: date, amount: orderTransaction.amount,
-                    onSuccess: { success in
-                        print(success)
-                        let payment = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
-                        if let payInfo = payment["Pay"] as? [String: AnyObject] {
-                            var formatDate = ""
-                            var transactionNumber = ""
-                            var cardNumber = ""
-                            if let history = payInfo["history"] as? [String: AnyObject] {
-                                if let createdAt = history["createdAt"] as? String {
-                                    if let date = toDate(dateString: createdAt) {
-                                        formatDate = toDateString(date: date)
-                                    }
-                                }
-                                if let payment = history["payment"] as? [String: AnyObject] {
-                                    if let transaction = payment["transaction"] as? String {
-                                        transactionNumber = transaction
-                                    }
-                                    if let description = payment["description"] as? String {
-                                        cardNumber = description
-                                    }
-                                }
-                            }
-                            let succeeded = payInfo["succeeded"] as! Bool
-                            if (succeeded == true) {
-                                let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
-                                let responseSuccess = [
-                                    "payment": ["transaction": paymentInfo["transaction"] as? String]
-                                ] as [String: AnyObject]
-                                DispatchQueue.main.async {
-                                    self.onSuccess!(responseSuccess)
-                                    self.removeSpinner()
-                                    let result = Result(
-                                            type: ResultType.SUCCESS,
-                                            orderTransaction: self.orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                                    )
-                                    self.setupResult(result: result)
-                                }
-                            } else {
-                                let statePay = payInfo["payment"] as? [String: AnyObject]
-                                if (statePay == nil) {
-                                    let message = payInfo["message"] as? String
-                                    self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                                    let result = Result(
-                                            type: ResultType.FAIL,
-                                            failReasonLabel: message ?? "Có lỗi xảy ra",
-                                            orderTransaction: self.orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                                    )
-                                    self.setupResult(result: result)
-                                    self.removeSpinner()
-                                    return
-                                }
-                                let state = statePay!["state"] as! String
-                                if (state == "REQUIRED_VERIFY") {
-                                    let html = statePay!["html"] as? String
-                                    if (html != nil) {
-                                        self.removeSpinner()
-                                        let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
-                                        webViewController.form = html!
-                                        webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
-                                            webViewController.dismiss(animated: true)
-                                            let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
-                                            let responseSuccess = [
-                                                "payment": ["transaction": paymentInfo["transaction"] as? String]
-                                            ] as [String: AnyObject]
-                                            self.onSuccess!(responseSuccess)
-                                            let result = Result(
-                                                    type: ResultType.SUCCESS,
-                                                    orderTransaction: self.orderTransaction,
-                                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                                            )
-                                            self.setupResult(result: result)
-                                        })
-                                        webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
-                                            webViewController.dismiss(animated: true)
-                                            self.removeSpinner()
-                                            let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
-                                            let responseSuccess = [
-                                                "payment": ["transaction": paymentInfo["transaction"] as? String]
-                                            ] as [String: AnyObject]
-                                            self.onError!(responseSuccess)
-                                            let result = Result(
-                                                    type: ResultType.FAIL,
-                                                    failReasonLabel: responseFromWebView,
-                                                    orderTransaction: self.orderTransaction,
-                                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                                            )
-                                            self.setupResult(result: result)
-                                        })
-                                        self.presentPanModal(webViewController)
-                                    }
-                                } else {
-                                    let message = statePay!["message"] as? String
-                                    self.onError!(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                                    let result = Result(
-                                            type: ResultType.FAIL,
-                                            failReasonLabel: message ?? "Có lỗi xảy ra",
-                                            orderTransaction: self.orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                                    )
-                                    self.setupResult(result: result)
-                                    self.removeSpinner()
-                                }
-                            }
-                        } else {
-                            self.onError!(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
-                        }
-                    }, onError: { error in
-                self.onError!(error)
-                self.removeSpinner()
-                if let code = error["code"] as? Int {
-                    if (code == 401) {
-                        self.payMEFunction.resetInitState()
-                        PaymentModalController.isShowCloseModal = false
-                        self.dismiss(animated: true, completion: nil)
-                    }
-                }
-            })
-        }
-    }
-
-    func setupResult(result: Result) {
-        resultSubject.onNext(result)
-        PaymentModalController.isShowCloseModal = false
-        if (isShowResultUI == true) {
-            scrollView.removeFromSuperview()
-            self.result = true
-            view.addSubview(resultView)
-            resultView.translatesAutoresizingMaskIntoConstraints = false
-            resultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-            resultView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-            resultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-            resultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            resultView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: resultView.button.bottomAnchor, constant: 10).isActive = true
-            updateViewConstraints()
-            view.layoutIfNeeded()
-            resultView.animationView.play()
-        } else {
-            dismiss(animated: true)
+            paymentPresentation.payATM(cardNumber: cardNumber!, cardHolder: cardHolder!, issuedAt: date, orderTransaction: orderTransaction)
         }
     }
 

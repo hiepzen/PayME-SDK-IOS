@@ -45,8 +45,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let payMEFunction: PayMEFunction
     let orderTransaction: OrderTransaction
     let paymentPresentation: PaymentPresentation
-
-    let paymentSubject: PublishSubject<PaymentState> = PublishSubject()
     private let disposeBag = DisposeBag()
 
     init(
@@ -65,8 +63,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 onSuccess: onSuccess, onError: onError
         )
         atmController = ATMModal(
-                payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction,
-                isShowResult: self.isShowResultUI, onSuccess: self.onSuccess, onError: self.onError
+                payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction, isShowResult: self.isShowResultUI,
+                paymentPresentation: paymentPresentation, onSuccess: self.onSuccess, onError: self.onError
         )
         super.init(nibName: nil, bundle: nil)
     }
@@ -98,11 +96,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 .observe(on: MainScheduler.instance)
                 .subscribe(onNext: { paymentState in
                     if paymentState.state == State.RESULT {
-                        self.removeSpinner()
-                        self.view.subviews.forEach {
-                            $0.removeFromSuperview()
-                        }
-                        self.setupResult(result: paymentState.result!)
+
                     }
                     if paymentState.state == State.CONFIRMATION {
                         self.setupUIConfirmation()
@@ -144,7 +138,19 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     if responseError.code == ResponseErrorCode.REQUIRED_VERIFY {
                         self.setupWebview(responseError)
                     }
+                }, onCompleted: {
+                    print("onComplete")
+                }, onDisposed: {
+                    print("onDisposed")
                 }).disposed(by: disposeBag)
+    }
+
+    private func setupResult(_ result: Result) {
+        removeSpinner()
+        view.subviews.forEach {
+            $0.removeFromSuperview()
+        }
+        self.setupResult(result: result)
     }
 
     private func setupWebview(_ responseError: ResponseError) {
@@ -162,7 +168,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     orderTransaction: self.orderTransaction,
                     transactionInfo: responseError.transactionInformation!
             )
-            self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+            self.setupResult(result)
         })
         webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
             webViewController.dismiss(animated: true)
@@ -182,7 +188,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     orderTransaction: self.orderTransaction,
                     transactionInfo: responseError.transactionInformation!
             )
-            self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+            self.setupResult(result)
         })
         presentPanModal(webViewController)
     }
