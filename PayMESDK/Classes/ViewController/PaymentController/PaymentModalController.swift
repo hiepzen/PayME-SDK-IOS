@@ -317,7 +317,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     + txtLabel.bounds.size.height
                     + methodTitle.bounds.size.height
                     + bottomLayoutGuide.length
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor, constant: viewHeight).isActive = true
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: methodsView.topAnchor, constant: viewHeight).isActive = true
         }
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
@@ -374,6 +374,19 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     ["key": "Phí", "value": "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ"],
                     ["key": "Số tiền trừ ví", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
                 ])
+                confirmationView.onPressConfirm = {
+                    if (self.payMEFunction.appEnv.isEqual("SANDBOX")) {
+                        PaymentModalController.isShowCloseModal = false
+                        self.dismiss(animated: true) {
+                            self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+                        }
+                        return
+                    }
+                    self.view.subviews.forEach {
+                        $0.removeFromSuperview()
+                    }
+                    self.setupSecurity()
+                }
                 break
             default: break
             }
@@ -381,8 +394,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             view.layoutIfNeeded()
             let viewHeight = txtLabel.bounds.size.height
                     + confirmationView.bounds.size.height
-                    + (bottomLayoutGuide.length > 0 ? bottomLayoutGuide.length : 16)
-            methodsView.heightAnchor.constraint(equalToConstant: viewHeight).isActive = true
+            if bottomLayoutGuide.length == 0 {
+                methodsView.heightAnchor.constraint(equalToConstant: viewHeight + 16).isActive = true
+            } else {
+                bottomLayoutGuide.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: viewHeight).isActive = true
+            }
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
         }
@@ -432,7 +448,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             resultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
             resultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
             resultView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: resultView.button.bottomAnchor, constant: 10).isActive = true
+            bottomLayoutGuide.topAnchor.constraint(
+                    greaterThanOrEqualTo: resultView.topAnchor,
+                    constant: screenSize.size.height
+            ).isActive = true
             updateViewConstraints()
             view.layoutIfNeeded()
             panModalSetNeedsLayoutUpdate()
@@ -471,17 +490,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
         if (method.type == "LINKED") {
             paymentPresentation.getFee(orderTransaction: orderTransaction)
-//            if (payMEFunction.appEnv.isEqual("SANDBOX")) {
-//                PaymentModalController.isShowCloseModal = false
-//                dismiss(animated: true) {
-//                    self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
-//                }
-//                return
-//            }
-//            view.subviews.forEach {
-//                $0.removeFromSuperview()
-//            }
-//            setupSecurity()
         }
         if (method.type == "BANK_CARD") {
             if (payMEFunction.appEnv.isEqual("SANDBOX")) {
@@ -521,6 +529,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
         if otpView.isDescendant(of: view) {
             bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor).isActive = true
+        }
+        if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmController.atmView.button.bottomAnchor).isActive = true
         }
         updateViewConstraints()
         view.layoutIfNeeded()

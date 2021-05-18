@@ -88,54 +88,6 @@ class ResultView: UIView {
         return detailView
     }()
 
-    let methodView: UIView = {
-        let methodView = UIView()
-        methodView.translatesAutoresizingMaskIntoConstraints = false
-        methodView.layer.cornerRadius = 15
-        return methodView
-    }()
-
-    let methodLabel: UILabel = {
-        let methodLabel = UILabel()
-        methodLabel.textColor = UIColor(4, 4, 4)
-        methodLabel.backgroundColor = .clear
-        methodLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        methodLabel.translatesAutoresizingMaskIntoConstraints = false
-        methodLabel.textAlignment = .left
-        return methodLabel
-    }()
-
-    let cardNumberLabel: UILabel = {
-        let cardNumberLabel = UILabel()
-        cardNumberLabel.textColor = UIColor(4, 4, 4)
-        cardNumberLabel.backgroundColor = .clear
-        cardNumberLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        cardNumberLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardNumberLabel.textAlignment = .left
-        return cardNumberLabel
-    }()
-
-    let methodContent: UILabel = {
-        let methodContent = UILabel()
-        methodContent.textColor = UIColor(4, 4, 4)
-        methodContent.backgroundColor = .clear
-        methodContent.font = UIFont.systemFont(ofSize: 15, weight: .medium)
-        methodContent.translatesAutoresizingMaskIntoConstraints = false
-        methodContent.textAlignment = .right
-        return methodContent
-    }()
-
-    let cardNumberContent: UILabel = {
-        let cardNumberContent = UILabel()
-        cardNumberContent.textColor = UIColor(4, 4, 4)
-        cardNumberContent.backgroundColor = .clear
-        cardNumberContent.font = UIFont.systemFont(ofSize: 15, weight: .medium)
-        cardNumberContent.translatesAutoresizingMaskIntoConstraints = false
-        cardNumberContent.textAlignment = .right
-        return cardNumberContent
-    }()
-
-
     init(type: Int = 0) {
         super.init(frame: CGRect.zero)
         setupUI()
@@ -145,38 +97,31 @@ class ResultView: UIView {
         backgroundColor = UIColor(242, 244, 243)
         topView.backgroundColor = .white
         detailView.backgroundColor = .white
-        methodView.backgroundColor = .white
-
 
         containerView.bounces = false
 
-
+        addSubview(topView)
         addSubview(containerView)
         addSubview(button)
         addSubview(closeButton)
 
-        containerView.addSubview(topView)
         containerView.addSubview(detailView)
-        containerView.addSubview(methodView)
 
         topView.addSubview(animationView)
         topView.addSubview(nameLabel)
         topView.addSubview(roleLabel)
         topView.addSubview(failLabel)
-
-        methodView.addSubview(methodLabel)
-        methodView.addSubview(methodContent)
-
         // Semi-transparent background
         closeButton.topAnchor.constraint(equalTo: topAnchor, constant: 19).isActive = true
         closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
 
-        containerView.heightAnchor.constraint(equalToConstant: 570).isActive = true
+//        containerView.heightAnchor.constraint(equalToConstant: 570).isActive = true
         containerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         containerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        containerView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        containerView.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
+        containerView.bottomAnchor.constraint(equalTo: button.topAnchor, constant: -8).isActive = true
 
-        topView.topAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
+        topView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         topView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         topView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
 
@@ -205,27 +150,17 @@ class ResultView: UIView {
         failLabel.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
 
         //detailView - bottomView
-        detailView.topAnchor.constraint(equalTo: topView.bottomAnchor, constant: 20).isActive = true
+        detailView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 20).isActive = true
         detailView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         detailView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
 
         //methodView
-        methodView.topAnchor.constraint(equalTo: detailView.bottomAnchor, constant: 10).isActive = true
-        methodView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17).isActive = true
-        methodView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -17).isActive = true
-        methodView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor).isActive = true
-
-        methodLabel.topAnchor.constraint(equalTo: methodView.topAnchor, constant: 14).isActive = true
-        methodLabel.leadingAnchor.constraint(equalTo: methodView.leadingAnchor, constant: 15).isActive = true
-
-        methodContent.topAnchor.constraint(equalTo: methodView.topAnchor, constant: 14).isActive = true
-        methodContent.trailingAnchor.constraint(equalTo: methodView.trailingAnchor, constant: -15).isActive = true
-
         button.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         button.heightAnchor.constraint(equalToConstant: 45).isActive = true
         button.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 20).isActive = true
-        button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -17).isActive = true
-        button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17).isActive = true
+        button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16).isActive = true
 
 
         let bundle = Bundle(for: ResultView.self)
@@ -235,11 +170,7 @@ class ResultView: UIView {
 
         animationView.animation = animation
         animationView.contentMode = .scaleAspectFit
-        methodLabel.text = "Phương thức"
         button.setTitle("HOÀN TẤT", for: .normal)
-        cardNumberLabel.text = "Số tài khoản"
-        methodContent.text = "N/A"
-        cardNumberContent.text = "N/A"
     }
 
     func adaptView(result: Result) {
@@ -250,9 +181,6 @@ class ResultView: UIView {
         } else {
             failLabel.text = result.failReasonLabel
         }
-//        if (result.orderTransaction.note != "") {
-//            memoLabel.text = result.orderTransaction.note
-//        }
         let transactionView = TransactionInformationView(id: result.transactionInfo.transaction, time: result.transactionInfo.transactionTime)
         detailView.addSubview(transactionView)
         transactionView.topAnchor.constraint(equalTo: detailView.topAnchor).isActive = true
@@ -260,22 +188,34 @@ class ResultView: UIView {
         transactionView.trailingAnchor.constraint(equalTo: detailView.trailingAnchor).isActive = true
         transactionView.bottomAnchor.constraint(equalTo: detailView.bottomAnchor).isActive = true
 
-        methodContent.text = getMethodText(method: result.orderTransaction.paymentMethod!.type)
+        let serviceView = InformationView(data: [
+            ["key": "Dịch vụ", "value": "\(result.orderTransaction.storeId)"],
+            ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(12, 170, 38)],
+            ["key": "Nội dung", "value": result.orderTransaction.note]
+        ])
+        containerView.addSubview(serviceView)
+        serviceView.topAnchor.constraint(equalTo: transactionView.bottomAnchor, constant: 12).isActive = true
+        serviceView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        serviceView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
 
-        if (result.orderTransaction.paymentMethod!.type != "WALLET") {
-            methodView.addSubview(cardNumberLabel)
-            methodView.addSubview(cardNumberContent)
-            cardNumberLabel.topAnchor.constraint(equalTo: methodLabel.bottomAnchor, constant: 10).isActive = true
-            cardNumberLabel.leadingAnchor.constraint(equalTo: methodView.leadingAnchor, constant: 15).isActive = true
-            cardNumberLabel.bottomAnchor.constraint(equalTo: methodView.bottomAnchor, constant: -15).isActive = true
-            cardNumberContent.topAnchor.constraint(equalTo: methodContent.bottomAnchor, constant: 10).isActive = true
-            cardNumberContent.trailingAnchor.constraint(equalTo: methodView.trailingAnchor, constant: -15).isActive = true
-            cardNumberContent.bottomAnchor.constraint(equalTo: methodView.bottomAnchor, constant: -15).isActive = true
-            cardNumberLabel.text = result.orderTransaction.paymentMethod!.type == "BANK_CARD" ? "Số thẻ" : "Số tài khoản"
-            cardNumberContent.text = result.transactionInfo.cardNumber
-        } else {
-            methodContent.bottomAnchor.constraint(equalTo: methodView.bottomAnchor, constant: -15).isActive = true
+        let paymentView = InformationView(data: [
+            ["key": "Dịch vụ", "value": "\(result.orderTransaction.storeId)"],
+            ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(12, 170, 38)],
+            ["key": "Nội dung", "value": result.orderTransaction.note]
+        ])
+        containerView.addSubview(paymentView)
+        paymentView.topAnchor.constraint(equalTo: serviceView.bottomAnchor, constant: 12).isActive = true
+        paymentView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        paymentView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+
+        var contentRect: CGRect = containerView.subviews.reduce(into: .zero) { rect, view in
+            rect = rect.union(view.frame)
         }
+        contentRect = contentRect.union(CGRect(x: 0, y: contentRect.size.height - 16, width: contentRect.size.width, height: 0))
+        containerView.contentSize = contentRect.size
+        containerView.showsHorizontalScrollIndicator = false
+        updateConstraints()
+        layoutIfNeeded()
     }
 
     required init?(coder aDecoder: NSCoder) {
