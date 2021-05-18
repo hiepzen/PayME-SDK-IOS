@@ -1,10 +1,3 @@
-//
-//  PaymentModalController.swift
-//  PayMESDK
-//
-//  Created by HuyOpen on 10/28/20.
-//
-
 import UIKit
 import CommonCrypto
 import RxSwift
@@ -89,6 +82,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             setupMethods()
         }
 
+        NotificationCenter.default.addObserver(self, selector: #selector(PaymentModalController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(PaymentModalController.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         if #available(iOS 13.0, *) {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIScene.willEnterForegroundNotification, object: nil)
         } else {
@@ -139,7 +134,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.atmController.setListBank(listBank: paymentState.banks!)
                         let atmView = self.atmController.view!
                         self.tableView.removeFromSuperview()
-                        self.view.addSubview(atmView)
+                        self.methodsView.addSubview(atmView)
                         atmView.translatesAutoresizingMaskIntoConstraints = false
                         atmView.topAnchor.constraint(equalTo: self.methodTitle.bottomAnchor).isActive = true
                         atmView.leadingAnchor.constraint(equalTo: self.methodsView.leadingAnchor).isActive = true
@@ -356,8 +351,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.layoutIfNeeded()
         panModalTransition(to: .shortForm)
         panModalSetNeedsLayoutUpdate()
-        NotificationCenter.default.addObserver(self, selector: #selector(PaymentModalController.keyboardWillShowOtp), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(PaymentModalController.keyboardWillHideOtp), name: UIResponder.keyboardWillHideNotification, object: nil)
         otpView.otpView.properties.delegate = self
         otpView.otpView.becomeFirstResponder()
     }
@@ -375,8 +368,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .shortForm)
-        NotificationCenter.default.addObserver(self, selector: #selector(PaymentModalController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(PaymentModalController.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         securityCode.otpView.properties.delegate = self
         securityCode.otpView.becomeFirstResponder()
     }
@@ -461,24 +452,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
     }
 
-    @objc func keyboardWillShowOtp(notification: NSNotification) {
-        guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
-            return
-        }
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
-        view.layoutIfNeeded()
-        panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .longForm)
-    }
-
-    @objc func keyboardWillHideOtp(notification: NSNotification) {
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor).isActive = true
-        updateViewConstraints()
-        view.layoutIfNeeded()
-        panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
-    }
-
     @objc func onAppEnterForeground(notification: NSNotification) {
         securityCode.otpView.becomeFirstResponder()
     }
@@ -487,11 +460,17 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
             return
         }
+        if otpView.isDescendant(of: view) {
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
+        }
         if securityCode.isDescendant(of: view) {
             bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
-            updateViewConstraints()
-            view.layoutIfNeeded()
         }
+        if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmController.atmView.button.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
+        }
+        updateViewConstraints()
+        view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
     }
@@ -499,9 +478,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     @objc func keyboardWillHide(notification: NSNotification) {
         if securityCode.isDescendant(of: view) {
             bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor).isActive = true
-            updateViewConstraints()
-            view.layoutIfNeeded()
         }
+        if otpView.isDescendant(of: view) {
+            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor).isActive = true
+        }
+        updateViewConstraints()
+        view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .shortForm)
     }

@@ -73,7 +73,7 @@ class ATMView: UIView {
     let cardNumberField: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Sớ thẻ"
+        textField.placeholder = "Số thẻ"
         textField.keyboardType = .numberPad
         textField.font = .systemFont(ofSize: 16, weight: .medium)
         textField.textColor = UIColor(11, 11, 11)
