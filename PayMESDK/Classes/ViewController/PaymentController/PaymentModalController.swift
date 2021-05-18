@@ -109,7 +109,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.atmController.setListBank(listBank: paymentState.banks!)
                         let atmView = self.atmController.view!
                         self.tableView.removeFromSuperview()
-                        self.methodsView.addSubview(atmView)
+                        UIView.transition(with: self.methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
+                            self.methodsView.addSubview(atmView)
+                        })
                         atmView.translatesAutoresizingMaskIntoConstraints = false
                         atmView.topAnchor.constraint(equalTo: self.methodTitle.bottomAnchor).isActive = true
                         atmView.leadingAnchor.constraint(equalTo: self.methodsView.leadingAnchor).isActive = true
@@ -138,10 +140,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     if responseError.code == ResponseErrorCode.REQUIRED_VERIFY {
                         self.setupWebview(responseError)
                     }
-                }, onCompleted: {
-                    print("onComplete")
-                }, onDisposed: {
-                    print("onDisposed")
                 }).disposed(by: disposeBag)
     }
 
