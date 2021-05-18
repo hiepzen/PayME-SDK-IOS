@@ -35,7 +35,6 @@ class ATMModal: UIViewController, UITextFieldDelegate {
         self.onError = onError
         self.orderTransaction = orderTransaction
         isShowResultUI = isShowResult
-
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -62,8 +61,6 @@ class ATMModal: UIViewController, UITextFieldDelegate {
 
         atmView.button.addTarget(self, action: #selector(payATM), for: .touchUpInside)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         if #available(iOS 13.0, *) {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIScene.willDeactivateNotification, object: nil)
         } else {
@@ -275,30 +272,6 @@ class ATMModal: UIViewController, UITextFieldDelegate {
         } else {
             dismiss(animated: true)
         }
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-
-        guard let userInfo = notification.userInfo else {
-            return
-        }
-        var keyboardFrame: CGRect = (userInfo[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-        keyboardFrame = view.convert(keyboardFrame, from: nil)
-
-        let contentInset: UIEdgeInsets = scrollView.contentInset
-
-        if (contentInset.bottom < 625 + keyboardFrame.size.height - screenSize.height) {
-            scrollView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 625 + keyboardFrame.size.height - screenSize.height, right: 0.0)
-            let bottomOffset = CGPoint(x: 0, y: scrollView.contentSize.height - scrollView.bounds.height + scrollView.contentInset.bottom)
-            scrollView.setContentOffset(bottomOffset, animated: true)
-        }
-        keyboardHeight = keyboardFrame.size.height
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        keyboardHeight = 0
-        let contentInset: UIEdgeInsets = UIEdgeInsets.zero
-        scrollView.contentInset = contentInset
     }
 
     @objc func onAppEnterBackground(notification: NSNotification) {
