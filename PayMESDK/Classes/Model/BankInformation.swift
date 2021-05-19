@@ -8,13 +8,15 @@
 import Foundation
 
 class BankInformation {
-    internal var cardNumber: String = ""
-    internal var cardHolder: String = ""
-    internal var issueDate: String = ""
+    var cardNumber: String = ""
+    var cardHolder: String = ""
+    var issueDate: String = ""
+    var bank: Bank?
 
-    init(cardNumber: String = "", cardHolder: String = "", issueDate: String = "") {
+    init(cardNumber: String = "", cardHolder: String = "", issueDate: String = "", bank: Bank? = nil) {
         self.cardNumber = cardNumber
         self.cardHolder = cardHolder
         self.issueDate = issueDate
+        self.bank = bank
     }
 }
