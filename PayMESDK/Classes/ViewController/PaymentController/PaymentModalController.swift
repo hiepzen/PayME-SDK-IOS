@@ -27,8 +27,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     private var bankDetect: Bank?
     private let onError: ([String: AnyObject]) -> ()
     private let onSuccess: ([String: AnyObject]) -> ()
-    static var min: Int = 10000
-    static var max: Int = 100000000
+    static var minAmount: Int = 10000
+    static var maxAmount: Int = 100000000
 
     var listBank: [Bank] = []
     let otpView = OTPView()
@@ -380,9 +380,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
         methodsView.backgroundColor = .white
         txtLabel.text = "Thanh toán"
-
+        tableView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude).isActive = true
         tableView.reloadData()
-        tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height).isActive = true
+        tableView.layoutIfNeeded()
+        let tableViewHeight = min(tableView.contentSize.height, 240)
+        tableView.heightAnchor.constraint(equalToConstant: tableViewHeight).isActive = true
         tableView.alwaysBounceVertical = false
         tableView.isScrollEnabled = true
         updateViewConstraints()
@@ -392,7 +394,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 + txtLabel.bounds.size.height
                 + methodTitle.bounds.size.height + 50
                 + (bottomLayoutGuide.length == 0 ? 16 : 0)
-        bottomLayoutGuide.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: viewHeight).isActive = true
+//        bottomLayoutGuide.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: viewHeight).isActive = true
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)

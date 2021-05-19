@@ -202,12 +202,12 @@ class PayMEFunction {
     ) {
         if checkCondition(onError) {
             PayME.currentVC = currentVC
-            if (amount < PaymentModalController.min) {
-                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.min))" as AnyObject])
+            if (amount < PaymentModalController.minAmount) {
+                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.minAmount))" as AnyObject])
                 return
             }
-            if (amount > PaymentModalController.max) {
-                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.max))" as AnyObject])
+            if (amount > PaymentModalController.maxAmount) {
+                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.maxAmount))" as AnyObject])
                 return
             }
             if (accessToken != "" && kycState == "APPROVED") {
@@ -297,8 +297,8 @@ class PayMEFunction {
                             return key == "limit.param.amount.payment"
                         }) {
 
-                            PaymentModalController.min = (configLimitPayment["value"]!["min"] as? Int) ?? 10000
-                            PaymentModalController.max = (configLimitPayment["value"]!["max"] as? Int) ?? 100000000
+                            PaymentModalController.minAmount = (configLimitPayment["value"]!["min"] as? Int) ?? 10000
+                            PaymentModalController.maxAmount = (configLimitPayment["value"]!["max"] as? Int) ?? 100000000
                         } else {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config thanh toán, vui lòng thử lại sau" as AnyObject])
                         }
