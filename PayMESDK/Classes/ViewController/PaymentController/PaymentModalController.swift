@@ -45,7 +45,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let payMEFunction: PayMEFunction
     let orderTransaction: OrderTransaction
     let paymentPresentation: PaymentPresentation
-    private let disposeBag = DisposeBag()
+    private let disposeBag: DisposeBag
 
     init(
             payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, paymentMethodID: Int?, isShowResultUI: Bool,
@@ -66,6 +66,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction, isShowResult: self.isShowResultUI,
                 paymentPresentation: paymentPresentation, onSuccess: self.onSuccess, onError: self.onError
         )
+        disposeBag = DisposeBag()
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -90,13 +91,19 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
 
+        print("##### viewDidLoad #####")
         setupSubscription()
+    }
+
+    deinit {
+        print("##### deinit #####")
     }
 
     private func setupSubscription() {
         payMEFunction.paymentViewModel.paymentSubject
-                .observe(on: MainScheduler.instance)
+                .observe(on: MainScheduler.asyncInstance)
                 .subscribe(onNext: { paymentState in
+                    print("#### onNext ####")
                     if paymentState.state == State.RESULT {
                         self.setupResult(paymentState.result!)
                     }
@@ -121,29 +128,35 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         atmView.leadingAnchor.constraint(equalTo: self.methodsView.leadingAnchor).isActive = true
                         atmView.trailingAnchor.constraint(equalTo: self.methodsView.trailingAnchor).isActive = true
                     }
-                }, onError: { error in
-                    self.removeSpinner()
-                    let responseError = error as! ResponseError
-                    if responseError.code == ResponseErrorCode.EXPIRED {
-                        self.payMEFunction.resetInitState()
-                        PaymentModalController.isShowCloseModal = false
-                        self.dismiss(animated: true, completion: nil)
+
+                    if paymentState.state == State.ERROR {
+                        self.removeSpinner()
+                        let responseError = paymentState.error!
+                        if responseError.code == ResponseErrorCode.EXPIRED {
+                            self.payMEFunction.resetInitState()
+                            PaymentModalController.isShowCloseModal = false
+                            self.dismiss(animated: true, completion: nil)
+                        }
+                        if responseError.code == ResponseErrorCode.PASSWORD_INVALID {
+                            self.securityCode.otpView.text = ""
+                            self.securityCode.otpView.reloadAppearance()
+                            self.securityCode.txtErrorMessage.text = responseError.message
+                            self.securityCode.txtErrorMessage.isHidden = false
+                            self.panModalSetNeedsLayoutUpdate()
+                            self.panModalTransition(to: .longForm)
+                        }
+                        if responseError.code == ResponseErrorCode.REQUIRED_OTP {
+                            self.methodsView.removeFromSuperview()
+                            self.setupOTP()
+                        }
+                        if responseError.code == ResponseErrorCode.REQUIRED_VERIFY {
+                            self.setupWebview(responseError)
+                        }
                     }
-                    if responseError.code == ResponseErrorCode.PASSWORD_INVALID {
-                        self.securityCode.otpView.text = ""
-                        self.securityCode.otpView.reloadAppearance()
-                        self.securityCode.txtErrorMessage.text = responseError.message
-                        self.securityCode.txtErrorMessage.isHidden = false
-                        self.panModalSetNeedsLayoutUpdate()
-                        self.panModalTransition(to: .longForm)
-                    }
-                    if responseError.code == ResponseErrorCode.REQUIRED_OTP {
-                        self.methodsView.removeFromSuperview()
-                        self.setupOTP()
-                    }
-                    if responseError.code == ResponseErrorCode.REQUIRED_VERIFY {
-                        self.setupWebview(responseError)
-                    }
+                }, onCompleted: {
+                    print("##### onCompleted #####")
+                }, onDisposed: {
+                    print("##### onDisposed #####")
                 }).disposed(by: disposeBag)
     }
 
@@ -671,6 +684,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? Method else {
             return UITableViewCell()
         }
+        cell.contentView.isUserInteractionEnabled = false
         cell.configure(with: data[indexPath.row], payMEFunction: payMEFunction, orderTransaction: orderTransaction)
         return cell
     }

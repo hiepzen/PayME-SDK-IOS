@@ -14,6 +14,7 @@ enum State {
     case CONFIRMATION
     case VALIDATION
     case RESULT
+    case ERROR
 }
 
 struct PaymentState {
@@ -22,17 +23,20 @@ struct PaymentState {
     let banks: [Bank]?
     let orderTransaction: OrderTransaction?
     let result: Result?
+    let error: ResponseError?
 
     init(state: State,
          methods: [PaymentMethod]? = nil,
          banks: [Bank]? = nil,
          orderTransaction: OrderTransaction? = nil,
-         result: Result? = nil) {
+         result: Result? = nil,
+         error: ResponseError? = nil) {
         self.state = state
         self.methods = methods
         self.banks = banks
         self.orderTransaction = orderTransaction
         self.result = result
+        self.error = error
     }
 }
 

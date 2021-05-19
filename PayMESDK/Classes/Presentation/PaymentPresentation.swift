@@ -15,7 +15,7 @@ enum ResponseErrorCode {
     case REQUIRED_VERIFY
 }
 
-struct ResponseError: Error {
+struct ResponseError {
     var code: ResponseErrorCode
     var message: String
     var transaction: String
@@ -101,7 +101,7 @@ class PaymentPresentation {
                 onError: { error in
                     if let code = error["code"] as? Int {
                         if (code == 401) {
-                            self.paymentViewModel.paymentSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
                         }
                     }
                     self.onError(error)
@@ -160,7 +160,7 @@ class PaymentPresentation {
                 onError: { error in
                     if let code = error["code"] as? Int {
                         if (code == 401) {
-                            self.paymentViewModel.paymentSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
                         }
                     }
                     self.onError(error)
@@ -210,21 +210,19 @@ class PaymentPresentation {
                                 let state = (payment["state"] as? String) ?? ""
                                 if (state == "REQUIRED_OTP") {
                                     let transaction = payment["transaction"] as! String
-                                    self.paymentViewModel.paymentSubject.onError(
-                                            ResponseError(code: ResponseErrorCode.REQUIRED_OTP, transaction: transaction)
+                                    self.paymentViewModel.paymentSubject.onNext(
+                                            PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.REQUIRED_OTP, transaction: transaction))
                                     )
                                 } else if (state == "REQUIRED_VERIFY") {
                                     if let html = payment["html"] as? String {
-                                        self.paymentViewModel.paymentSubject.onError(
-                                                ResponseError(
-                                                        code: ResponseErrorCode.REQUIRED_VERIFY,
-                                                        html: html,
-                                                        transactionInformation: TransactionInformation(
-                                                                transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber
-                                                        ),
-                                                        paymentInformation: payInfo
-                                                )
-                                        )
+                                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
+                                                code: ResponseErrorCode.REQUIRED_VERIFY,
+                                                html: html,
+                                                transactionInformation: TransactionInformation(
+                                                        transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber
+                                                ),
+                                                paymentInformation: payInfo
+                                        )))
                                     }
                                 } else {
                                     let message = payment["message"] as? String
@@ -257,7 +255,7 @@ class PaymentPresentation {
                     self.onError(flowError)
                     if let code = flowError["code"] as? Int {
                         if (code == 401) {
-                            self.paymentViewModel.paymentSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
                         }
                     }
                 })
@@ -281,9 +279,9 @@ class PaymentPresentation {
                 let message = securityResponse["message"] as! String
                 let code = securityResponse["code"] as! String
                 if (code == "PASSWORD_INVALID" || code == "PASSWORD_RETRY_TIMES_OVER") {
-                    self.paymentViewModel.paymentSubject.onError(ResponseError(
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
                             code: ResponseErrorCode.PASSWORD_INVALID, message: message
-                    ))
+                    )))
                 } else {
                     self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                     let result = Result(
@@ -298,7 +296,7 @@ class PaymentPresentation {
         }, onError: { error in
             if let code = error["code"] as? Int {
                 if (code == 401) {
-                    self.paymentViewModel.paymentSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
                 }
             }
             self.onError(error)
@@ -360,16 +358,14 @@ class PaymentPresentation {
                             let state = statePay!["state"] as! String
                             if (state == "REQUIRED_VERIFY") {
                                 if let html = statePay!["html"] as? String {
-                                    self.paymentViewModel.paymentSubject.onError(
-                                            ResponseError(
-                                                    code: ResponseErrorCode.REQUIRED_VERIFY,
-                                                    html: html,
-                                                    transactionInformation: TransactionInformation(
-                                                            transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber
-                                                    ),
-                                                    paymentInformation: payInfo
-                                            )
-                                    )
+                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
+                                            code: ResponseErrorCode.REQUIRED_VERIFY,
+                                            html: html,
+                                            transactionInformation: TransactionInformation(
+                                                    transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber
+                                            ),
+                                            paymentInformation: payInfo
+                                    )))
                                 }
                             } else {
                                 let message = statePay!["message"] as? String
@@ -391,7 +387,7 @@ class PaymentPresentation {
                     self.onError(error)
                     if let code = error["code"] as? Int {
                         if (code == 401) {
-                            self.paymentViewModel.paymentSubject.onError(ResponseError(code: ResponseErrorCode.EXPIRED))
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
                         }
                     }
                 })
