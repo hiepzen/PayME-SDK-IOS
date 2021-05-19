@@ -184,15 +184,41 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupTargetMethod() {
-        view.addSubview(placeholderView)
-        placeholderView.translatesAutoresizingMaskIntoConstraints = false
-        placeholderView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+//        view.addSubview(placeholderView)
+//        placeholderView.translatesAutoresizingMaskIntoConstraints = false
+//        placeholderView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+        view.addSubview(methodsView)
+
+        methodsView.backgroundColor = .white
+        methodsView.translatesAutoresizingMaskIntoConstraints = false
+        methodsView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        methodsView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+        methodsView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+
+        methodsView.addSubview(closeButton)
+        methodsView.addSubview(txtLabel)
+        methodsView.addSubview(confirmationView)
+
+        confirmationView.translatesAutoresizingMaskIntoConstraints = false
+        confirmationView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor).isActive = true
+        confirmationView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
+        confirmationView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+
+        txtLabel.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 18).isActive = true
+        txtLabel.centerXAnchor.constraint(equalTo: methodsView.centerXAnchor).isActive = true
+
+        closeButton.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 19).isActive = true
+        closeButton.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -30).isActive = true
+        closeButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
 
         getListMethodsAndExecution { methods in
             guard let method = methods.first(where: { $0.methodId == self.paymentMethodID }) else {
                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": ("Không tìm thấy phương thức") as AnyObject])
                 return
             }
+            self.orderTransaction.paymentMethod = method
             self.onPressMethod(method)
         }
     }
@@ -542,6 +568,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func onPressMethod(_ method: PaymentMethod) {
+        print("\(method.type)")
         if (method.type == "WALLET") {
             paymentPresentation.getFee(orderTransaction: orderTransaction)
         }
