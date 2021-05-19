@@ -58,6 +58,9 @@ class ATMModal: UIViewController, UITextFieldDelegate {
         atmView.dateField.delegate = self
 
         atmView.button.addTarget(self, action: #selector(payATM), for: .touchUpInside)
+        atmView.methodView.onPress = {
+            self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS))
+        }
 
         if #available(iOS 13.0, *) {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIScene.willDeactivateNotification, object: nil)

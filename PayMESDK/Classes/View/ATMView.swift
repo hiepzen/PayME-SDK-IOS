@@ -108,9 +108,9 @@ class ATMView: UIView {
         super.init(frame: CGRect.zero)
         backgroundColor = .white
 
-        self.addSubview(methodView)
-        self.addSubview(button)
-        self.addSubview(vStack)
+        addSubview(methodView)
+        addSubview(button)
+        addSubview(vStack)
 
         vStack.addArrangedSubview(cardInputContainer)
         vStack.addArrangedSubview(dateInputContainer)
@@ -121,12 +121,12 @@ class ATMView: UIView {
         methodView.image.image = UIImage(for: Method.self, named: "fill1")
         methodView.topAnchor.constraint(equalTo: self.topAnchor, constant: 14).isActive = true
 //        methodView.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        methodView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
-        methodView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
+        methodView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        methodView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
 
         vStack.topAnchor.constraint(equalTo: methodView.bottomAnchor, constant: 14).isActive = true
-        vStack.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
-        vStack.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
+        vStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        vStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
 
         cardInputContainer.heightAnchor.constraint(equalToConstant: 56).isActive = true
         cardInputContainer.addSubview(cardInputTitle)

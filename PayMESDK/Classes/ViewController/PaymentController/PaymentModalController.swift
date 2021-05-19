@@ -77,7 +77,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if paymentMethodID != nil {
             setupTargetMethod()
         } else {
-            setupMethods()
+            getListMethodsAndExecution { methods in
+                self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS, methods: methods))
+            }
         }
 
         NotificationCenter.default.addObserver(self, selector: #selector(PaymentModalController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -103,14 +105,16 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.updateConfirmationInfo(order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.METHODS {
-
+                        self.setupMethods()
+                        self.showMethods(paymentState.methods ?? self.data)
                     }
                     if paymentState.state == State.ATM {
                         self.atmController.setListBank(listBank: paymentState.banks!)
                         let atmView = self.atmController.view!
-                        self.tableView.removeFromSuperview()
+                        self.methodsView.addSubview(atmView)
+                        self.tableView.isHidden = true
                         UIView.transition(with: self.methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
-                            self.methodsView.addSubview(atmView)
+                            atmView.isHidden = false
                         })
                         atmView.translatesAutoresizingMaskIntoConstraints = false
                         atmView.topAnchor.constraint(equalTo: self.methodTitle.bottomAnchor).isActive = true
@@ -148,7 +152,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.subviews.forEach {
             $0.removeFromSuperview()
         }
-        self.setupResultView(result: result)
+        setupResultView(result: result)
     }
 
     private func setupWebview(_ responseError: ResponseError) {
@@ -230,6 +234,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.addSubview(methodTitle)
         methodsView.addSubview(tableView)
 
+        if !(atmController.view.isHidden) {
+            atmController.view.isHidden = true
+        }
+        UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
+            self.tableView.isHidden = false
+        })
+
         detailView.backgroundColor = UIColor(8, 148, 31)
         detailView.addSubview(price)
         detailView.addSubview(contentLabel)
@@ -283,10 +294,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         closeButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
         closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-
-        getListMethodsAndExecution { methods in
-            self.showMethods(methods)
-        }
     }
 
     func getListMethodsAndExecution(execution: (([PaymentMethod]) -> Void)? = nil) {
@@ -646,6 +653,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     var shouldRoundTopCorners: Bool {
         true
+    }
+
+    var cornerRadius: CGFloat {
+        26
     }
 
     func numberOfSectionsInTableView(_tableView: UITableView) -> Int {
