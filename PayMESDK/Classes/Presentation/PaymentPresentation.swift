@@ -305,10 +305,12 @@ class PaymentPresentation {
         })
     }
 
-    func payATM(cardNumber: String, cardHolder: String, issuedAt: String, orderTransaction: OrderTransaction) {
+    func payATM(orderTransaction: OrderTransaction) {
         request.transferATM(
                 storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
-                note: orderTransaction.note, cardNumber: cardNumber, cardHolder: cardHolder, issuedAt: issuedAt, amount: orderTransaction.amount,
+                note: orderTransaction.note, cardNumber: orderTransaction.paymentMethod!.dataBank!.cardNumber,
+                cardHolder: orderTransaction.paymentMethod!.dataBank!.cardHolder,
+                issuedAt: orderTransaction.paymentMethod!.dataBank!.issueDate, amount: orderTransaction.amount,
                 onSuccess: { success in
                     let payment = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                     if let payInfo = payment["Pay"] as? [String: AnyObject] {
@@ -457,6 +459,4 @@ class PaymentPresentation {
             print(error)
         })
     }
-
-
 }

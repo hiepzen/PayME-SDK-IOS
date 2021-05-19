@@ -17,6 +17,7 @@ class PaymentMethod {
     var minFee: Int!
     var dataWallet: WalletInformation?
     var dataLinked: LinkedInformation?
+    var dataBank: BankInformation?
     var active: Bool!
 
     init(
@@ -28,6 +29,7 @@ class PaymentMethod {
         minFee: Int,
         dataWallet: WalletInformation? = nil,
         dataLinked: LinkedInformation? = nil,
+        dataBank: BankInformation? = nil,
         active: Bool
     ) {
         self.methodId = methodId
@@ -38,6 +40,7 @@ class PaymentMethod {
         self.minFee = minFee
         self.dataWallet = dataWallet
         self.dataLinked = dataLinked
+        self.dataBank = dataBank
         self.active = active
     }
 }

@@ -395,6 +395,19 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     self.setupSecurity()
                 }
                 break
+            case MethodType.BANK_CARD.rawValue:
+                confirmationView.setServiceInfo(serviceInfo: [
+                    ["key": "Phương thức", "value": "Thẻ ATM nội địa"],
+                    ["key": "Ngân hàng", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? "N/A")],
+                    ["key": "Số thẻ ATM", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.cardNumber ?? "N/A")],
+                    ["key": "Họ tên chủ thẻ", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.cardHolder ?? "N/A")],
+                    ["key": "Phí", "value": "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ"],
+                    ["key": "Số tiền trừ ví", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
+                ])
+                confirmationView.onPressConfirm = {
+                    self.showSpinner(onView: self.view)
+                     self.paymentPresentation.payATM(orderTransaction: orderTransaction)
+                }
             default: break
             }
             updateViewConstraints()

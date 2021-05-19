@@ -90,15 +90,39 @@ class ATMView: UIView {
         return textField
     }()
 
+    let nameInputContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(239, 242, 247)
+        view.layer.cornerRadius = 13
+        return view
+    }()
+    let nameInputTitle: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = UIColor(165, 174, 184)
+        label.text = "NHẬP HỌ TÊN CHỦ THẺ"
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        return label
+    }()
     let nameField: UITextField = {
         let textField = UITextField()
-        textField.layer.borderColor = UIColor.init(hexString: "#cbcbcb").cgColor
-        textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Họ tên chủ thẻ"
-        textField.setLeftPaddingPoints(20)
-        textField.layer.cornerRadius = 15
+        textField.keyboardType = .numberPad
+        textField.font = .systemFont(ofSize: 16, weight: .medium)
+        textField.textColor = UIColor(11, 11, 11)
         return textField
+    }()
+
+    let nameLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = UIColor(11, 11, 11)
+        label.textAlignment = .right
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        return label
     }()
 
     let methodView: MethodView = MethodView(type: .BANK_CARD, title: "Thẻ ATM nội địa", buttonTitle: "Thay đổi")
@@ -113,6 +137,7 @@ class ATMView: UIView {
         addSubview(vStack)
 
         vStack.addArrangedSubview(cardInputContainer)
+        vStack.addArrangedSubview(nameInputContainer)
         vStack.addArrangedSubview(dateInputContainer)
 //        self.addSubview(nameField)
 
@@ -131,12 +156,26 @@ class ATMView: UIView {
         cardInputContainer.heightAnchor.constraint(equalToConstant: 56).isActive = true
         cardInputContainer.addSubview(cardInputTitle)
         cardInputContainer.addSubview(cardNumberField)
+        cardInputContainer.addSubview(nameLabel)
         cardInputTitle.leadingAnchor.constraint(equalTo: cardInputContainer.leadingAnchor, constant: 16).isActive = true
         cardInputTitle.topAnchor.constraint(equalTo: cardInputContainer.topAnchor, constant: 8).isActive = true
         cardNumberField.heightAnchor.constraint(equalToConstant: 30).isActive = true
         cardNumberField.leadingAnchor.constraint(equalTo: cardInputContainer.leadingAnchor, constant: 16).isActive = true
         cardNumberField.topAnchor.constraint(equalTo: cardInputTitle.bottomAnchor).isActive = true
         cardNumberField.trailingAnchor.constraint(equalTo: cardInputContainer.trailingAnchor, constant: -16).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: cardInputContainer.topAnchor, constant: 8).isActive = true
+        nameLabel.leadingAnchor.constraint(equalTo: cardInputTitle.trailingAnchor, constant: 4).isActive = true
+        nameLabel.trailingAnchor.constraint(equalTo: cardInputContainer.trailingAnchor, constant: -16).isActive = true
+
+        nameInputContainer.heightAnchor.constraint(equalToConstant: 56).isActive = true
+        nameInputContainer.addSubview(nameInputTitle)
+        nameInputContainer.addSubview(nameField)
+        nameInputTitle.leadingAnchor.constraint(equalTo: nameInputContainer.leadingAnchor, constant: 16).isActive = true
+        nameInputTitle.topAnchor.constraint(equalTo: nameInputContainer.topAnchor, constant: 8).isActive = true
+        nameField.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        nameField.leadingAnchor.constraint(equalTo: nameInputContainer.leadingAnchor, constant: 16).isActive = true
+        nameField.topAnchor.constraint(equalTo: nameInputTitle.bottomAnchor).isActive = true
+        nameField.trailingAnchor.constraint(equalTo: nameInputContainer.trailingAnchor, constant: -16).isActive = true
 
         dateInputContainer.heightAnchor.constraint(equalToConstant: 56).isActive = true
         dateInputContainer.addSubview(dateInputTitle)
@@ -154,6 +193,8 @@ class ATMView: UIView {
         button.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
         button.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
+
+        nameInputContainer.isHidden = true
     }
 
     required init?(coder aDecoder: NSCoder) {

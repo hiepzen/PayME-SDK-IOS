@@ -25,7 +25,7 @@ class ConfirmationModal: UIView {
         let button = UIButton()
         button.backgroundColor = UIColor(8, 148, 31)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = 16
+        button.layer.cornerRadius = 20
         button.setTitle("Xác nhận", for: .normal)
         return button
     }()
