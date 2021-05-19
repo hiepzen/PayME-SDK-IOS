@@ -51,7 +51,6 @@ class ATMModal: UIViewController, UITextFieldDelegate {
         atmView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         atmView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         atmView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        atmView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
 
         atmView.cardNumberField.delegate = self
         atmView.dateField.delegate = self

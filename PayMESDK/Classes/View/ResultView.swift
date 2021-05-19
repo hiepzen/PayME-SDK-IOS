@@ -53,18 +53,20 @@ class ResultView: UIView {
 
     let roleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(45, 187, 84)
         label.backgroundColor = .clear
         label.font = UIFont.systemFont(ofSize: 36, weight: .semibold)
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     let failLabel: UILabel = {
         let failLabel = UILabel()
-        failLabel.textColor = UIColor(241, 49, 45)
+        failLabel.textColor = UIColor(202, 15, 20)
         failLabel.backgroundColor = .clear
-        failLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        failLabel.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         failLabel.lineBreakMode = .byWordWrapping
         failLabel.numberOfLines = 0
         failLabel.textAlignment = .center
@@ -115,7 +117,6 @@ class ResultView: UIView {
         closeButton.topAnchor.constraint(equalTo: topAnchor, constant: 19).isActive = true
         closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
 
-//        containerView.heightAnchor.constraint(equalToConstant: 570).isActive = true
         containerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         containerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         containerView.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
@@ -126,7 +127,7 @@ class ResultView: UIView {
         topView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
 
         animationView.translatesAutoresizingMaskIntoConstraints = false
-        animationView.topAnchor.constraint(equalTo: topView.topAnchor, constant: 30).isActive = true
+        animationView.topAnchor.constraint(equalTo: topView.topAnchor, constant: 24).isActive = true
         animationView.heightAnchor.constraint(equalToConstant: 168).isActive = true
         animationView.widthAnchor.constraint(equalToConstant: 168).isActive = true
         animationView.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
@@ -136,18 +137,15 @@ class ResultView: UIView {
         nameLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 16).isActive = true
 
         roleLabel.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
-        roleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4.0).isActive = true
+        roleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4).isActive = true
         roleLabel.trailingAnchor.constraint(equalTo: topView.trailingAnchor, constant: -30).isActive = true
         roleLabel.leadingAnchor.constraint(equalTo: topView.leadingAnchor, constant: 30).isActive = true
-        roleLabel.bottomAnchor.constraint(equalTo: topView.bottomAnchor, constant: -24).isActive = true
-        roleLabel.lineBreakMode = .byWordWrapping
-        roleLabel.numberOfLines = 0
-        roleLabel.textAlignment = .center
 
         failLabel.topAnchor.constraint(equalTo: roleLabel.bottomAnchor, constant: 4.0).isActive = true
         failLabel.trailingAnchor.constraint(equalTo: topView.trailingAnchor, constant: -30).isActive = true
         failLabel.leadingAnchor.constraint(equalTo: topView.leadingAnchor, constant: 30).isActive = true
         failLabel.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
+        topView.bottomAnchor.constraint(equalTo: failLabel.bottomAnchor, constant: 18).isActive = true
 
         //detailView - bottomView
         detailView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 20).isActive = true
@@ -160,26 +158,33 @@ class ResultView: UIView {
         button.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 20).isActive = true
         button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
-        button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16).isActive = true
+        if #available(iOS 11.0, *) {
+            button.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
+        } else {
+            button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16).isActive = true
+        }
 
-
-        let bundle = Bundle(for: ResultView.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let animation = Animation.named("Result_Thanh_Cong", bundle: resourceBundle!)
-
-        animationView.animation = animation
-        animationView.contentMode = .scaleAspectFit
         button.setTitle("HOÀN TẤT", for: .normal)
     }
 
     func adaptView(result: Result) {
         nameLabel.text = result.titleLabel
         roleLabel.text = "\(formatMoney(input: result.orderTransaction.amount)) đ"
+        roleLabel.textColor = result.type == ResultType.FAIL ? UIColor(0, 0, 0) : UIColor(45, 187, 84)
+
+        let bundle = Bundle(for: ResultView.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
         if result.type == ResultType.SUCCESS {
             failLabel.isHidden = true
+            let animation = Animation.named("Result_Thanh_Cong", bundle: resourceBundle!)
+            animationView.animation = animation
+            animationView.contentMode = .scaleAspectFit
         } else {
             failLabel.text = result.failReasonLabel
+            let animation = Animation.named("Result_That_Bai", bundle: resourceBundle!)
+            animationView.animation = animation
+            animationView.contentMode = .scaleAspectFit
         }
         let transactionView = TransactionInformationView(id: result.transactionInfo.transaction, time: result.transactionInfo.transactionTime)
         detailView.addSubview(transactionView)
@@ -231,10 +236,13 @@ class ResultView: UIView {
             paymentView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         }
 
+        updateConstraints()
+        layoutIfNeeded()
         var contentRect: CGRect = containerView.subviews.reduce(into: .zero) { rect, view in
             rect = rect.union(view.frame)
         }
         contentRect = contentRect.union(CGRect(x: 0, y: contentRect.size.height - 16, width: contentRect.size.width, height: 0))
+
         containerView.contentSize = contentRect.size
         containerView.showsHorizontalScrollIndicator = false
         updateConstraints()

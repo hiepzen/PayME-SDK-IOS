@@ -46,6 +46,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let orderTransaction: OrderTransaction
     let paymentPresentation: PaymentPresentation
     private let disposeBag: DisposeBag
+    private var modalHeight: CGFloat? = nil
 
     init(
             payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, paymentMethodID: Int?, isShowResultUI: Bool,
@@ -78,9 +79,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if paymentMethodID != nil {
             setupTargetMethod()
         } else {
-            getListMethodsAndExecution { methods in
-                self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS, methods: methods))
-            }
+            setupMethods()
         }
 
         NotificationCenter.default.addObserver(self, selector: #selector(PaymentModalController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -91,19 +90,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
 
-        print("##### viewDidLoad #####")
         setupSubscription()
-    }
-
-    deinit {
-        print("##### deinit #####")
     }
 
     private func setupSubscription() {
         payMEFunction.paymentViewModel.paymentSubject
                 .observe(on: MainScheduler.asyncInstance)
                 .subscribe(onNext: { paymentState in
-                    print("#### onNext ####")
                     if paymentState.state == State.RESULT {
                         self.setupResult(paymentState.result!)
                     }
@@ -112,21 +105,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.updateConfirmationInfo(order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.METHODS {
-                        self.setupMethods()
                         self.showMethods(paymentState.methods ?? self.data)
                     }
                     if paymentState.state == State.ATM {
-                        self.atmController.setListBank(listBank: paymentState.banks!)
-                        let atmView = self.atmController.view!
-                        self.methodsView.addSubview(atmView)
-                        self.tableView.isHidden = true
-                        UIView.transition(with: self.methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
-                            atmView.isHidden = false
-                        })
-                        atmView.translatesAutoresizingMaskIntoConstraints = false
-                        atmView.topAnchor.constraint(equalTo: self.methodTitle.bottomAnchor).isActive = true
-                        atmView.leadingAnchor.constraint(equalTo: self.methodsView.leadingAnchor).isActive = true
-                        atmView.trailingAnchor.constraint(equalTo: self.methodsView.trailingAnchor).isActive = true
+                        self.setupUIATM(banks: paymentState.banks ?? self.listBank)
                     }
 
                     if paymentState.state == State.ERROR {
@@ -153,18 +135,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             self.setupWebview(responseError)
                         }
                     }
-                }, onCompleted: {
-                    print("##### onCompleted #####")
-                }, onDisposed: {
-                    print("##### onDisposed #####")
                 }).disposed(by: disposeBag)
     }
 
     private func setupResult(_ result: Result) {
         removeSpinner()
-        view.subviews.forEach {
-            $0.removeFromSuperview()
-        }
         setupResultView(result: result)
     }
 
@@ -241,6 +216,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
 
         methodsView.addSubview(closeButton)
+        methodsView.addSubview(buttonBack)
         methodsView.addSubview(txtLabel)
         methodsView.addSubview(detailView)
         methodsView.addSubview(methodTitleStamp)
@@ -307,6 +283,23 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         closeButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
         closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+
+        buttonBack.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 16).isActive = true
+        buttonBack.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
+        buttonBack.widthAnchor.constraint(equalToConstant: 24).isActive = true
+        buttonBack.heightAnchor.constraint(equalToConstant: 24).isActive = true
+        buttonBack.addTarget(self, action: #selector(goBack), for: .touchUpInside)
+        buttonBack.isHidden = true
+
+        methodsView.addSubview(confirmationView)
+        confirmationView.translatesAutoresizingMaskIntoConstraints = false
+        confirmationView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor).isActive = true
+        confirmationView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
+        confirmationView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+
+        getListMethodsAndExecution { methods in
+            self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS, methods: methods))
+        }
     }
 
     func getListMethodsAndExecution(execution: (([PaymentMethod]) -> Void)? = nil) {
@@ -322,44 +315,78 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         })
     }
 
+    func setupUIATM(banks: [Bank]) {
+        confirmationView.isHidden = true
+        buttonBack.isHidden = true
+        tableView.isHidden = false
+        atmController.view.isHidden = false
+        detailView.isHidden = false
+        methodTitle.isHidden = false
+        methodTitleStamp.isHidden = false
+        methodsView.backgroundColor = .white
+        txtLabel.text = "Thanh toán"
+
+        listBank = banks
+        atmController.setListBank(listBank: banks)
+        let atmView = atmController.view!
+        methodsView.addSubview(atmView)
+        tableView.isHidden = true
+        UIScrollView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
+            atmView.isHidden = false
+        })
+        atmView.translatesAutoresizingMaskIntoConstraints = false
+        atmView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
+        atmView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+        atmView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
+        atmView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor).isActive = true
+    }
+
     func showMethods(_ methods: [PaymentMethod]) {
+        view.endEditing(false)
+        confirmationView.isHidden = true
+        atmController.view.isHidden = true
+        buttonBack.isHidden = true
+        UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews]) {
+            self.tableView.isHidden = false
+            self.detailView.isHidden = false
+            self.methodTitle.isHidden = false
+            self.methodTitleStamp.isHidden = false
+        }
+        methodsView.backgroundColor = .white
+        txtLabel.text = "Thanh toán"
+
         tableView.reloadData()
         tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height).isActive = true
         tableView.alwaysBounceVertical = false
         tableView.isScrollEnabled = true
         updateViewConstraints()
         view.layoutIfNeeded()
-        if bottomLayoutGuide.length == 0 {
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 10).isActive = true
-        } else {
-            let viewHeight = tableView.bounds.size.height
-                    + detailView.bounds.size.height
-                    + txtLabel.bounds.size.height
-                    + methodTitle.bounds.size.height
-                    + bottomLayoutGuide.length
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: methodsView.topAnchor, constant: viewHeight).isActive = true
-        }
+        let viewHeight = tableView.bounds.size.height
+                + detailView.bounds.size.height
+                + txtLabel.bounds.size.height
+                + methodTitle.bounds.size.height + 50
+                + (bottomLayoutGuide.length == 0 ? 16 : 0)
+        bottomLayoutGuide.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: viewHeight).isActive = true
+        modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
     }
 
     func setupUIConfirmation() {
-        tableView.removeFromSuperview()
-        atmController.view?.removeFromSuperview()
-        detailView.removeFromSuperview()
+        view.endEditing(false)
+        confirmationView.isHidden = false
+        tableView.isHidden = true
+        atmController.view.isHidden = true
+        detailView.isHidden = true
         methodTitle.isHidden = true
         methodTitleStamp.isHidden = true
-
-        txtLabel.text = "Xác nhận thanh toán"
-        methodsView.addSubview(confirmationView)
         methodsView.backgroundColor = UIColor(239, 242, 247)
-        confirmationView.translatesAutoresizingMaskIntoConstraints = false
-        confirmationView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor).isActive = true
-        confirmationView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
-        confirmationView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+        txtLabel.text = "Xác nhận thanh toán"
+        buttonBack.isHidden = false
     }
 
     func updateConfirmationInfo(order: OrderTransaction?) {
+        confirmationView.reset()
         if let orderTransaction = order {
             confirmationView.setPaymentInfo(paymentInfo: [
                 ["key": "Dịch vụ", "value": "\(orderTransaction.storeId)"],
@@ -381,9 +408,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     })
                     return
                     }
-                    self.view.subviews.forEach {
-                        $0.removeFromSuperview()
-                    }
                     self.setupSecurity()
                 }
                 break
@@ -401,9 +425,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
                         }
                         return
-                    }
-                    self.view.subviews.forEach {
-                        $0.removeFromSuperview()
                     }
                     self.setupSecurity()
                 }
@@ -427,11 +448,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             view.layoutIfNeeded()
             let viewHeight = txtLabel.bounds.size.height
                     + confirmationView.bounds.size.height
-            if bottomLayoutGuide.length == 0 {
-                methodsView.heightAnchor.constraint(equalToConstant: viewHeight + 16).isActive = true
-            } else {
-                bottomLayoutGuide.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: viewHeight).isActive = true
-            }
+                    + (bottomLayoutGuide.length == 0 ? 16 : 0)
+            modalHeight = viewHeight
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
         }
@@ -459,10 +477,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
         securityCode.translatesAutoresizingMaskIntoConstraints = false
         securityCode.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-        securityCode.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-        securityCode.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        securityCode.heightAnchor.constraint(equalTo: methodsView.heightAnchor).isActive = true
+        securityCode.topAnchor.constraint(equalTo: methodsView.topAnchor).isActive = true
         securityCode.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor, constant: 10).isActive = true
+//        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor, constant: 10).isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
@@ -472,6 +490,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupResultView(result: Result) {
+        view.endEditing(false)
         PaymentModalController.isShowCloseModal = false
         if (isShowResultUI == true) {
             view.addSubview(resultView)
@@ -481,16 +500,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             resultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
             resultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
             resultView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            bottomLayoutGuide.topAnchor.constraint(
-                    greaterThanOrEqualTo: resultView.topAnchor,
-                    constant: screenSize.size.height
-            ).isActive = true
+            resultView.adaptView(result: result)
+            modalHeight = resultView.frame.size.height
             updateViewConstraints()
             view.layoutIfNeeded()
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
             resultView.animationView.play()
-            resultView.adaptView(result: result)
         } else {
             dismiss(animated: true)
         }
@@ -515,6 +531,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     @objc func closeAction(button: UIButton) {
         dismiss(animated: true, completion: nil)
+    }
+
+    @objc func goBack(){
+        if (orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue) {
+            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM))
+        } else {
+            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS))
+        }
     }
 
     func onPressMethod(_ method: PaymentMethod) {
@@ -542,13 +566,29 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             return
         }
         if otpView.isDescendant(of: view) {
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
+            let contentRect: CGRect = otpView.subviews.reduce(into: .zero) { rect, view in
+                rect = rect.union(view.frame)
+            }
+            modalHeight = keyboardSize.height + 10 + contentRect.height
         }
         if securityCode.isDescendant(of: view) {
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
+            let contentRect: CGRect = securityCode.subviews.reduce(into: .zero) { rect, view in
+                rect = rect.union(view.frame)
+            }
+            modalHeight = keyboardSize.height + 10 + contentRect.height
         }
         if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmController.atmView.button.bottomAnchor, constant: keyboardSize.height + 10).isActive = true
+            let contentRect: CGRect = methodsView.subviews.reduce(into: .zero) { rect, view in
+                rect = rect.union(view.frame)
+            }
+            modalHeight = keyboardSize.height + 10 + contentRect.height
+            if bottomLayoutGuide.length == 0 {
+                atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -100).isActive = true
+            } else {
+                atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor).isActive = true
+            }
+
+//            atmController.view.heightAnchor.constraint(equalToConstant: 200).isActive = true
         }
         updateViewConstraints()
         view.layoutIfNeeded()
@@ -558,13 +598,23 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     @objc func keyboardWillHide(notification: NSNotification) {
         if securityCode.isDescendant(of: view) {
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor).isActive = true
+            let contentRect: CGRect = securityCode.subviews.reduce(into: .zero) { rect, view in
+                rect = rect.union(view.frame)
+            }
+            modalHeight = contentRect.height
         }
         if otpView.isDescendant(of: view) {
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor).isActive = true
+            let contentRect: CGRect = otpView.subviews.reduce(into: .zero) { rect, view in
+                rect = rect.union(view.frame)
+            }
+            modalHeight = contentRect.height
         }
         if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
-            bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: atmController.atmView.button.bottomAnchor).isActive = true
+            let contentRect: CGRect = methodsView.subviews.reduce(into: .zero) { rect, view in
+                rect = rect.union(view.frame)
+            }
+            modalHeight = contentRect.height
+            atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor).isActive = true
         }
         updateViewConstraints()
         view.layoutIfNeeded()
@@ -649,6 +699,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         return button
     }()
 
+    let buttonBack: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(for: PaymentModalController.self ,named: "32Px"), for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
     let txtLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor(11, 11, 11)
@@ -666,7 +723,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     var longFormHeight: PanModalHeight {
-        .intrinsicHeight
+        if modalHeight == nil {
+            return PanModalHeight.intrinsicHeight
+        }
+        return .contentHeight(modalHeight!)
     }
 
     var shortFormHeight: PanModalHeight {

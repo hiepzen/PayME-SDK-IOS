@@ -92,6 +92,11 @@ class ConfirmationModal: UIView {
         bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 16).isActive = true
     }
 
+    func reset() {
+        stackView.subviews.forEach{ $0.removeFromSuperview() }
+        stackView.updateConstraints()
+    }
+
     @objc func onPressFunction() {
         (onPressConfirm ?? {})()
     }

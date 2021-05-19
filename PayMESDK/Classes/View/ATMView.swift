@@ -7,7 +7,7 @@
 
 import Foundation
 
-class ATMView: UIView {
+class ATMView: UIScrollView {
     var activeTextField: UITextField? = nil
 
     let vStack: UIStackView = {
@@ -131,6 +131,12 @@ class ATMView: UIView {
     init() {
         super.init(frame: CGRect.zero)
         backgroundColor = .white
+        translatesAutoresizingMaskIntoConstraints = false
+        isScrollEnabled = true
+        isPagingEnabled = false
+        showsVerticalScrollIndicator = true
+        showsHorizontalScrollIndicator = false
+        bounces = false
 
         addSubview(methodView)
         addSubview(button)
