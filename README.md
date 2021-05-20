@@ -248,6 +248,10 @@ public func deposit(
 
 Hàm này có ý nghĩa giống như khi gọi <code>openWallet</code> với action <code>Action.DEPOSIT</code>
 
+| **Tham số**                                                  | **Mặc định** | **Giải thích**                                               |
+| :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
+| <code>closeWhenDone</code> | <code>false</code>          | <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
+
 ### withdraw() - Rút tiền
 
 ```swift
@@ -256,12 +260,17 @@ public func withdraw(
     amount: Int?, 
     description: String?, 
     extraData: String?,
+    closeWhenDone: Bool = false,
     onSuccess: (Dictionary<String, AnyObject>) -> (),
     onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
 Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action là <code>Action.WITHDRAW</code>
+
+| **Tham số**                                                  | **Mặc định** | **Giải thích**                                               |
+| :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
+| <code>closeWhenDone</code> | <code>false</code>          | <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
 
 ### pay() - Thanh toán
 
