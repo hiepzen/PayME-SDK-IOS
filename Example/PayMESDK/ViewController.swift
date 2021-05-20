@@ -286,14 +286,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             )
             self.showSpinner(onView: self.view)
             self.payME?.login(onSuccess: { success in
-                print(success)
                 self.sdkContainer.isHidden = false
                 self.getBalance(self.refreshButton)
                 self.loginButton.backgroundColor = UIColor.gray
                 self.logoutButton.backgroundColor = UIColor.white
                 self.removeSpinner()
             }, onError: { error in
-                print(error)
                 self.sdkContainer.isHidden = true
                 self.removeSpinner()
                 self.toastMess(title: "Lỗi", value: (error["message"] as? String) ?? "Something went wrong")
