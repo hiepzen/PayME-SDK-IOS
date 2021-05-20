@@ -241,6 +241,7 @@ public func deposit(
     amount: Int?, 
     description: String?, 
     extraData: String?,
+    closeWhenDone: Bool = false,
     onSuccess: (Dictionary<String, AnyObject>) -> (),
     onError: (Dictionary<String, AnyObject>) -> ()
 ) -> () 
