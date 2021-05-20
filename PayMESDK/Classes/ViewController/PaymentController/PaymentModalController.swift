@@ -324,6 +324,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         confirmationView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
         confirmationView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
 
+        methodsView.addSubview(atmController.view)
+        atmController.view.translatesAutoresizingMaskIntoConstraints = false
+        atmController.view.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
+        atmController.view.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+        atmController.view.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
+
         getListMethodsAndExecution { methods in
             self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS, methods: methods))
         }
@@ -355,17 +361,30 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
         listBank = banks
         atmController.setListBank(listBank: banks)
-        let atmView = atmController.view!
-        methodsView.addSubview(atmView)
+//        let atmView = atmController.view!
         tableView.isHidden = true
         UIScrollView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
-            atmView.isHidden = false
+            self.atmController.view.isHidden = false
         })
-        atmView.translatesAutoresizingMaskIntoConstraints = false
-        atmView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
-        atmView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
-        atmView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
-        atmView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -10).isActive = true
+//        atmView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -10).isActive = true
+//        atmController.view.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude).isActive = true
+//        updateViewConstraints()
+//        view.layoutIfNeeded()
+        let realATMViewHeight = min(screenSize.size.height - ( topLayoutGuide.length + detailView.bounds.size.height
+                + txtLabel.bounds.size.height
+                + methodTitle.bounds.size.height + 50
+                + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
+        let viewHeight = realATMViewHeight
+                + detailView.bounds.size.height
+                + txtLabel.bounds.size.height
+                + methodTitle.bounds.size.height + 50
+                + (bottomLayoutGuide.length == 0 ? 16 : 0)
+        modalHeight = viewHeight
+        atmController.view.heightAnchor.constraint(equalToConstant: realATMViewHeight).isActive = true
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .longForm)
     }
 
     func showMethods(_ methods: [PaymentMethod]) {
@@ -384,7 +403,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude).isActive = true
         tableView.reloadData()
         tableView.layoutIfNeeded()
-        let tableViewHeight = min(tableView.contentSize.height, 240)
+        let tableViewHeight = min(tableView.contentSize.height, screenSize.height - (topLayoutGuide.length + detailView.bounds.size.height
+                + txtLabel.bounds.size.height
+                + methodTitle.bounds.size.height + 100))
         tableView.heightAnchor.constraint(equalToConstant: tableViewHeight).isActive = true
         tableView.alwaysBounceVertical = false
         tableView.isScrollEnabled = true
@@ -616,8 +637,18 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let contentRect: CGRect = methodsView.subviews.reduce(into: .zero) { rect, view in
                 rect = rect.union(view.frame)
             }
-            modalHeight = keyboardSize.height + 10 + contentRect.height
-            atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -(keyboardSize.height + 10)).isActive = true
+            modalHeight = min(keyboardSize.height + 10 + contentRect.height, screenSize.height)
+            let newATMHeight = min(modalHeight! - (detailView.bounds.size.height
+                    + txtLabel.bounds.size.height
+                    + methodTitle.bounds.size.height + 70
+                    + keyboardSize.height + 10
+                    + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
+            print("""
+                  NEW vkfjdohafkjhjdskljfhjasdlk
+                  \(newATMHeight)
+                  """)
+            atmController.view.heightAnchor.constraint(equalToConstant: newATMHeight).isActive = true
+//            atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -(keyboardSize.height + 10)).isActive = true
         }
         updateViewConstraints()
         view.layoutIfNeeded()
@@ -639,11 +670,16 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             modalHeight = contentRect.height
         }
         if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
-            let contentRect: CGRect = methodsView.subviews.reduce(into: .zero) { rect, view in
-                rect = rect.union(view.frame)
-            }
-            modalHeight = contentRect.height
-            atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -10).isActive = true
+//            atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -10).isActive = true
+//            updateViewConstraints()
+//            view.layoutIfNeeded()
+//            let realATMViewHeight = min(atmController.view.bounds.size.height, atmController.atmView.contentSize.height)
+//            let viewHeight = realATMViewHeight
+//                    + detailView.bounds.size.height
+//                    + txtLabel.bounds.size.height
+//                    + methodTitle.bounds.size.height + 50
+//                    + (bottomLayoutGuide.length == 0 ? 16 : 0)
+//            modalHeight = viewHeight
         }
         updateViewConstraints()
         view.layoutIfNeeded()

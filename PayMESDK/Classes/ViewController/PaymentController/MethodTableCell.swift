@@ -92,20 +92,28 @@ class Method: UITableViewCell {
             methodView.content = presentable.label
             methodView.buttonTitle = nil
             methodView.note = nil
-            if (presentable.type.isEqual(MethodType.LINKED.rawValue) && presentable.dataLinked != nil) {
-                let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode!).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
-                DispatchQueue.global().async {
-                    if let sureURL = url as URL? {
-                        let data = try? Data(contentsOf: sureURL)
-                        DispatchQueue.main.async {
-                            self.methodView.image.image = UIImage(data: data!)
+            switch presentable.type {
+            case MethodType.LINKED.rawValue:
+                if presentable.dataLinked != nil {
+                    let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode!).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
+                    DispatchQueue.global().async {
+                        if let sureURL = url as URL? {
+                            let data = try? Data(contentsOf: sureURL)
+                            DispatchQueue.main.async {
+                                self.methodView.image.image = UIImage(data: data!)
+                            }
                         }
                     }
                 }
-            } else if (presentable.type.isEqual(MethodType.BANK_CARD.rawValue)) {
-                methodView.image.image = UIImage(for: Method.self, named: "fill1")
-            } else {
+                break
+            case MethodType.BANK_CARD.rawValue:
+                methodView.image.image = UIImage(for: Method.self, named: "iconAtm")
+                break
+            case MethodType.BANK_QR_CODE.rawValue:
+                methodView.image.image = UIImage(for: Method.self, named: "iconQRBank")
+            default:
                 methodView.image.image = UIImage(for: Method.self, named: "iconWallet")
+                break
             }
         }
         methodView.updateUI()
