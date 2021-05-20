@@ -176,13 +176,12 @@ class PayMEFunction {
                         "type": "\(action)",
                         "serviceCode": "\(serviceCode)",
                         "amount": "\(checkIntNil(input: amount))",
-                        "closeWhenDone": "\(closeWhenDone)"
+                        "closeWhenDone": \(closeWhenDone)
                       },
                       "env": "\(env.rawValue)",
                       "showLog": "\(isShowLog)"
                     }
                     """
-
             webViewController.setURLRequest(urlWebview(env: env) + "\(encryptAES(data))")
             webViewController.setOnSuccessCallback(onSuccess: onSuccess)
             webViewController.setOnErrorCallback(onError: onError)
