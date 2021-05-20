@@ -61,14 +61,14 @@ class PayMEFunction {
             onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
             return false
         }
-        if (accessToken == "") {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
-            return false
-        }
-        if (kycState != "APPROVED") {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
-            return false
-        }
+//        if (accessToken == "") {
+//            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+//            return true
+//        }
+//        if (kycState != "APPROVED") {
+//            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
+//            return true
+//        }
         return true
     }
 
@@ -83,10 +83,12 @@ class PayMEFunction {
             _ onError: @escaping ([String: AnyObject]) -> ()
     ) {
         if checkCondition(onError) {
-            request.getWalletInfo(
-                    onSuccess: { walletInfo in onSuccess(walletInfo) },
-                    onError: { error in onError(error) }
-            )
+            if accessToken != "" && kycState == "APPROVED" {
+                request.getWalletInfo(
+                        onSuccess: { walletInfo in onSuccess(walletInfo) },
+                        onError: { error in onError(error) }
+                )
+            }
         }
     }
 
@@ -203,23 +205,21 @@ class PayMEFunction {
     ) {
         if checkCondition(onError) {
             PayME.currentVC = currentVC
-            if (amount < PaymentModalController.min) {
-                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.min))" as AnyObject])
+            if (amount < PaymentModalController.minAmount) {
+                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.minAmount))" as AnyObject])
                 return
             }
-            if (amount > PaymentModalController.max) {
-                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.max))" as AnyObject])
+            if (amount > PaymentModalController.maxAmount) {
+                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.maxAmount))" as AnyObject])
                 return
             }
-            if (accessToken != "" && kycState == "APPROVED") {
-                let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
-                let paymentModalController = PaymentModalController(
-                        payMEFunction: self, orderTransaction: orderTransaction,
-                        paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
-                        onSuccess: onSuccess, onError: onError
-                )
-                currentVC.presentPanModal(paymentModalController)
-            }
+            let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
+            let paymentModalController = PaymentModalController(
+                    payMEFunction: self, orderTransaction: orderTransaction,
+                    paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
+                    onSuccess: onSuccess, onError: onError
+            )
+            currentVC.presentPanModal(paymentModalController)
         }
     }
 
@@ -298,8 +298,8 @@ class PayMEFunction {
                             return key == "limit.param.amount.payment"
                         }) {
 
-                            PaymentModalController.min = (configLimitPayment["value"]!["min"] as? Int) ?? 10000
-                            PaymentModalController.max = (configLimitPayment["value"]!["max"] as? Int) ?? 100000000
+                            PaymentModalController.minAmount = (configLimitPayment["value"]!["min"] as? Int) ?? 10000
+                            PaymentModalController.maxAmount = (configLimitPayment["value"]!["max"] as? Int) ?? 100000000
                         } else {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config thanh toán, vui lòng thử lại sau" as AnyObject])
                         }

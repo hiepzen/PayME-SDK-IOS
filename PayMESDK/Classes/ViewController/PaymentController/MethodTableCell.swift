@@ -12,6 +12,7 @@ class Method: UITableViewCell {
         static let contentInsets = UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0)
         static let avatarSize = CGSize(width: 36.0, height: 36.0)
     }
+
     var methodView: MethodView = MethodView(type: .WALLET, title: "")
 
 //    let uncheckImage: UIImageView = {
@@ -59,57 +60,60 @@ class Method: UITableViewCell {
         if (presentable.type == MethodType.WALLET.rawValue) {
             methodView.title = "Số dư ví"
             methodView.image.image = UIImage(for: PaymentModalController.self, named: "iconWallet")
-            if payMEFunction.checkCondition({ error in
-                let code = error["code"] as! Int
-                switch code {
-                case PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED:
-                    self.methodView.buttonTitle = "Kích hoạt ngay"
-                    self.methodView.note = "(*) Vui lòng kích hoạt tài khoản ví trước khi sử dụng"
-                    self.methodView.onPress = { self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction) }
-                    break
-                case PayME.ResponseCode.ACCOUNT_NOT_KYC:
-                    self.methodView.buttonTitle = "Định danh ngay"
-                    self.methodView.note = "(*) Vui lòng định danh tài khoản ví trước khi sử dụng"
-                    self.methodView.onPress = { self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction) }
-                    break
-                default:
-                    break
+            if payMEFunction.accessToken == "" {
+                methodView.buttonTitle = "Kích hoạt ngay"
+                methodView.note = "(*) Vui lòng kích hoạt tài khoản ví trước khi sử dụng"
+                methodView.onPress = {
+                    self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
                 }
-            }) {
-                methodView.buttonTitle = nil
-                methodView.note = nil
-            }
-            if let balance = presentable.dataWallet?.balance {
+            } else if payMEFunction.kycState != "APPROVED" {
+                methodView.buttonTitle = "Định danh ngay"
+                methodView.note = "(*) Vui lòng định danh tài khoản ví trước khi sử dụng"
+                methodView.onPress = {
+                    self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
+                }
+            } else {
+                let balance = presentable.dataWallet?.balance ?? 0
                 methodView.content = "(\(formatMoney(input: balance))đ)"
                 if balance < orderTransaction.amount {
                     methodView.buttonTitle = "Nạp tiền"
                     methodView.note = "(*) Chọn phương thức khác hoặc nạp thêm để thanh toán"
-                    methodView.onPress = { self.openWallet(action: PayME.Action.DEPOSIT, amount: orderTransaction.amount - balance,
-                            payMEFunction: payMEFunction, orderTransaction: orderTransaction
-                    )}
+                    methodView.onPress = {
+                        self.openWallet(action: PayME.Action.DEPOSIT, amount: orderTransaction.amount - balance, payMEFunction: payMEFunction, orderTransaction: orderTransaction
+                        )
+                    }
+                } else {
+                    methodView.buttonTitle = nil
+                    methodView.note = nil
                 }
-            } else {
-                methodView.content = ""
             }
         } else {
             methodView.title = presentable.title
             methodView.content = presentable.label
             methodView.buttonTitle = nil
             methodView.note = nil
-            if (presentable.type.isEqual(MethodType.LINKED.rawValue) && presentable.dataLinked != nil) {
-                let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode!).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
-                DispatchQueue.global().async {
-                    if let sureURL = url as URL? {
-                        let data = try? Data(contentsOf: sureURL)
-                        DispatchQueue.main.async {
-                            self.methodView.image.image = UIImage(data: data!)
+            switch presentable.type {
+            case MethodType.LINKED.rawValue:
+                if presentable.dataLinked != nil {
+                    let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode!).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
+                    DispatchQueue.global().async {
+                        if let sureURL = url as URL? {
+                            let data = try? Data(contentsOf: sureURL)
+                            DispatchQueue.main.async {
+                                self.methodView.image.image = UIImage(data: data!)
+                            }
                         }
                     }
                 }
-            } else if (presentable.type.isEqual(MethodType.BANK_CARD.rawValue)) {
-                methodView.image.image = UIImage(for: Method.self, named: "fill1")
-            } else {
+                break
+            case MethodType.BANK_CARD.rawValue:
+                methodView.image.image = UIImage(for: Method.self, named: "iconAtm")
+                break
+            case MethodType.BANK_QR_CODE.rawValue:
+                methodView.image.image = UIImage(for: Method.self, named: "iconQRBank")
+            default:
                 methodView.image.image = UIImage(for: Method.self, named: "iconWallet")
+                break
             }
         }
         methodView.updateUI()

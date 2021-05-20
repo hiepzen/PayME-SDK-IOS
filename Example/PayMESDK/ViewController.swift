@@ -291,6 +291,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 self.getBalance(self.refreshButton)
                 self.loginButton.backgroundColor = UIColor.gray
                 self.logoutButton.backgroundColor = UIColor.white
+                self.removeSpinner()
             }, onError: { error in
                 print(error)
                 self.sdkContainer.isHidden = true

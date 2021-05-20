@@ -46,14 +46,6 @@ class MethodView: UIView {
         return container
     }()
 
-    let imageContainer: UIView = {
-        let imageContainer = UIView(frame: CGRect(x: 0, y: 0, width: 28, height: 28))
-        imageContainer.translatesAutoresizingMaskIntoConstraints = false
-        imageContainer.layer.cornerRadius = 14
-        imageContainer.backgroundColor = .white
-        return imageContainer
-    }()
-
     let image: UIImageView = {
         var bgImage = UIImageView()
         bgImage.translatesAutoresizingMaskIntoConstraints = false
@@ -141,22 +133,14 @@ class MethodView: UIView {
         containerInfo.topAnchor.constraint(equalTo: vStack.topAnchor).isActive = true
         containerInfo.leadingAnchor.constraint(equalTo: vStack.leadingAnchor).isActive = true
         containerInfo.trailingAnchor.constraint(equalTo: vStack.trailingAnchor).isActive = true
-        containerInfo.heightAnchor.constraint(equalToConstant: 28).isActive = true
+        containerInfo.heightAnchor.constraint(equalToConstant: 32).isActive = true
 
-        containerInfo.addSubview(imageContainer)
-        imageContainer.heightAnchor.constraint(equalToConstant: 28).isActive = true
-        imageContainer.widthAnchor.constraint(equalToConstant: 28).isActive = true
-        imageContainer.leadingAnchor.constraint(equalTo: containerInfo.leadingAnchor).isActive = true
-
-
-        imageContainer.addSubview(image)
-        image.heightAnchor.constraint(equalToConstant: 18).isActive = true
-        image.widthAnchor.constraint(equalToConstant: 18).isActive = true
-        image.centerXAnchor.constraint(equalTo: imageContainer.centerXAnchor).isActive = true
-        image.centerYAnchor.constraint(equalTo: imageContainer.centerYAnchor).isActive = true
+        containerInfo.addSubview(image)
+        image.heightAnchor.constraint(equalToConstant: 32).isActive = true
+        image.widthAnchor.constraint(equalToConstant: 32).isActive = true
 
         containerInfo.addSubview(titleLabel)
-        titleLabel.leadingAnchor.constraint(equalTo: imageContainer.trailingAnchor, constant: 8).isActive = true
+        titleLabel.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 8).isActive = true
         titleLabel.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
 
         containerInfo.addSubview(contentLabel)

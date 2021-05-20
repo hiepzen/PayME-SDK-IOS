@@ -149,8 +149,8 @@ class ATMView: UIScrollView {
 
         button.setTitle("Thanh toán", for: .normal)
 
-        methodView.image.image = UIImage(for: Method.self, named: "fill1")
-        methodView.topAnchor.constraint(equalTo: self.topAnchor, constant: 14).isActive = true
+        methodView.image.image = UIImage(for: Method.self, named: "iconAtm")
+        methodView.topAnchor.constraint(equalTo: topAnchor, constant: 14).isActive = true
 //        methodView.heightAnchor.constraint(equalToConstant: 40).isActive = true
         methodView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         methodView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
