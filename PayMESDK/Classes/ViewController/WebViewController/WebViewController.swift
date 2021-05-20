@@ -49,6 +49,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var onErrorBack: String = "onError"
     var onRegisterSuccess: String = "onRegisterSuccess"
     var onPay: String = "onPay"
+    var onDeposit: String = "onDeposit"
     var form = ""
     var imageFront: UIImage?
     var imageBack: UIImage?
@@ -81,6 +82,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onErrorBack)
         userController.add(self, name: onPay)
         userController.add(self, name: onRegisterSuccess)
+        userController.add(self, name: onDeposit)
         userController.addUserScript(getZoomDisableScript())
 
         let config = WKWebViewConfiguration()
@@ -224,6 +226,18 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == onDeposit {
+            onCloseWebview()
+            if let dictionary = message.body as? [String: AnyObject] {
+                let status = dictionary["data"]!["status"] as! String
+                if (status == "FAILED") {
+                    onError!(dictionary["data"] as! [String: AnyObject])
+                }
+                if status == "SUCCEEDED" {
+                    onSuccess!(dictionary["data"] as! [String: AnyObject])
+                }
+            }
+        }
         if message.name == openCamera {
             if let dictionary = message.body as? [String: AnyObject] {
                 setupCamera(dictionary: dictionary)

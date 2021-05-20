@@ -50,7 +50,7 @@ class Method: UITableViewCell {
         PayME.currentVC!.dismiss(animated: true)
         payMEFunction.openWallet(
                 false, PayME.currentVC!, action, amount, orderTransaction.note,
-                orderTransaction.extraData, "", { dictionary in },
+                orderTransaction.extraData, "", false, { dictionary in },
                 { dictionary in }
         )
     }

@@ -93,7 +93,7 @@ class PayMEFunction {
     func openWallet(
             _ isChecked: Bool = false,
             _ currentVC: UIViewController, _ action: PayME.Action, _ amount: Int?, _ description: String?,
-            _ extraData: String?, _ serviceCode: String = "",
+            _ extraData: String?, _ serviceCode: String = "", _ closeWhenDone: Bool = false,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), _ onError: @escaping ([String: AnyObject]) -> ()
     ) {
         let condition = isChecked ? checkCondition(onError) : true
@@ -173,7 +173,8 @@ class PayMEFunction {
                       "actions": {
                         "type": "\(action)",
                         "serviceCode": "\(serviceCode)",
-                        "amount": "\(checkIntNil(input: amount))"
+                        "amount": "\(checkIntNil(input: amount))",
+                        "closeWhenDone": "\(closeWhenDone)"
                       },
                       "env": "\(env.rawValue)",
                       "showLog": "\(isShowLog)"

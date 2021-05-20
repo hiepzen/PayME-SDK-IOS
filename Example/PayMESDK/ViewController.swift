@@ -354,7 +354,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let amount = Int(moneyDeposit.text!)
                 if (amount! >= 10000) {
                     let amountDeposit = amount!
-                    self.payME!.deposit(currentVC: self, amount: amountDeposit, description: "", extraData: nil, onSuccess: { success in
+                    self.payME!.deposit(currentVC: self, amount: amountDeposit, description: "", extraData: nil, closeWhenDone: true, onSuccess: { success in
                         Log.custom.push(title: "deposit", message: success)
                     }, onError: { error in
                         Log.custom.push(title: "deposit", message: error)
