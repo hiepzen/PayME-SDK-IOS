@@ -105,15 +105,15 @@ class InformationView: UIView{
                 guard let value = info["value"] as? String else {
                     continue
                 }
-                let row = InformationRow(key: key, value: value, color: info["color"] as? UIColor, font: info["font"] as? UIFont)
-                stackView.addArrangedSubview(row)
-                if (idx < data.endIndex - 1) {
+                if (idx > 0) {
                     let seperator = UIView()
                     stackView.addArrangedSubview(seperator)
                     seperator.leadingAnchor.constraint(equalTo: stackView.leadingAnchor).isActive = true
                     seperator.trailingAnchor.constraint(equalTo: stackView.trailingAnchor).isActive = true
                     seperator.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: stackView.frame.size.width, y: 0), color: UIColor(203, 203, 203), strokeLength: 4, gapLength: 4, width: 1)
                 }
+                let row = InformationRow(key: key, value: value, color: info["color"] as? UIColor, font: info["font"] as? UIFont)
+                stackView.addArrangedSubview(row)
             }
         }
     }

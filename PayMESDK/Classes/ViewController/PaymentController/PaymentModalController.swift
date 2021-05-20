@@ -419,7 +419,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             case MethodType.WALLET.rawValue:
                 confirmationView.setServiceInfo(serviceInfo: [
                     ["key": "Phương thức", "value": "Số dư ví"],
-                    ["key": "Phí", "value": "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ"],
+                    ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
                     ["key": "Tổng thanh toán", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
                 ])
                 confirmationView.onPressConfirm = {
@@ -495,18 +495,19 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupSecurity() {
+        methodsView.isHidden = true
         view.addSubview(securityCode)
 
         securityCode.translatesAutoresizingMaskIntoConstraints = false
         securityCode.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
         securityCode.heightAnchor.constraint(equalTo: methodsView.heightAnchor).isActive = true
-        securityCode.topAnchor.constraint(equalTo: methodsView.topAnchor).isActive = true
+        securityCode.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         securityCode.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
 //        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor, constant: 10).isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
-        panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .shortForm)
+//        panModalSetNeedsLayoutUpdate()
+//        panModalTransition(to: .shortForm)
         securityCode.otpView.properties.delegate = self
         securityCode.otpView.becomeFirstResponder()
     }
@@ -598,6 +599,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let contentRect: CGRect = otpView.subviews.reduce(into: .zero) { rect, view in
                 rect = rect.union(view.frame)
             }
+
             modalHeight = keyboardSize.height + 10 + contentRect.height
         }
         if securityCode.isDescendant(of: view) {

@@ -209,21 +209,21 @@ class ResultView: UIView {
             case MethodType.WALLET.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "Phương thức", "value": "Số dư ví"],
-                    ["key": "Phí", "value": "\(formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0)) đ"]
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil]
                 ])
                 break
             case MethodType.LINKED.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "Phương thức", "value": "Tài khoản liên kết"],
                     ["key": "Số tài khoản", "value": "\(String(describing: result.orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: result.orderTransaction.paymentMethod!.label.suffix(4)))"],
-                    ["key": "Phí", "value": "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ"],
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil]
                 ])
                 break
             case MethodType.BANK_CARD.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "Phương thức", "value": "Thẻ ATM nội địa"],
                     ["key": "Số thẻ", "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.cardNumber.suffix(4) ?? ""))"],
-                    ["key": "Phí", "value": "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ"]
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil]
                 ])
             default:
                 paymentView = InformationView(data: [])
