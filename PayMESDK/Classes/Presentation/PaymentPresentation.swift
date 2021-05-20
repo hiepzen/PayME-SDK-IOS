@@ -404,7 +404,6 @@ class PaymentPresentation {
             onSuccess: @escaping ([PaymentMethod]) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-
         request.getTransferMethods(onSuccess: { response in
             let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
             var methods: [PaymentMethod] = []
@@ -418,12 +417,6 @@ class PaymentPresentation {
                 )
                 if methodType == "WALLET" {
                     methodInformation.dataWallet = WalletInformation(balance: 0)
-                    if self.accessToken != "" && self.kycState == "APPROVED" {
-                        self.request.getWalletInfo(onSuccess: { response in
-                            let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as! Int
-                            methodInformation.dataWallet?.balance = balance
-                        }, onError: { error in onError(error) })
-                    }
                 }
                 if methodType == "LINKED" {
                     methodInformation.dataLinked = LinkedInformation(
@@ -433,7 +426,20 @@ class PaymentPresentation {
                 }
                 methods.append(methodInformation)
             }
-            onSuccess(methods)
+            guard let method = methods.first(where: { $0.type == "WALLET" }) else {
+                onSuccess(methods)
+                return
+            }
+            if self.accessToken != "" && self.kycState == "APPROVED" {
+                self.request.getWalletInfo(onSuccess: { response in
+                    let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as! Int
+                    method.dataWallet?.balance = balance
+                    onSuccess(methods)
+                }, onError: { error in onError(error) })
+            } else {
+                onSuccess(methods)
+            }
+
         }, onError: { error in onError(error) })
     }
 

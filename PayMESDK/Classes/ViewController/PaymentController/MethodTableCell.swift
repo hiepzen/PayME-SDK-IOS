@@ -67,7 +67,6 @@ class Method: UITableViewCell {
                     self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
                 }
             } else if payMEFunction.kycState != "APPROVED" {
-
                 methodView.buttonTitle = "Định danh ngay"
                 methodView.note = "(*) Vui lòng định danh tài khoản ví trước khi sử dụng"
                 methodView.onPress = {
