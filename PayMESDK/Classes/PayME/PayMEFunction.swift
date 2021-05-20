@@ -61,14 +61,14 @@ class PayMEFunction {
             onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
             return false
         }
-        if (accessToken == "") {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
-            return false
-        }
-        if (kycState != "APPROVED") {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
-            return false
-        }
+//        if (accessToken == "") {
+//            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+//            return true
+//        }
+//        if (kycState != "APPROVED") {
+//            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
+//            return true
+//        }
         return true
     }
 
@@ -210,15 +210,13 @@ class PayMEFunction {
                 onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.maxAmount))" as AnyObject])
                 return
             }
-            if (accessToken != "" && kycState == "APPROVED") {
-                let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
-                let paymentModalController = PaymentModalController(
-                        payMEFunction: self, orderTransaction: orderTransaction,
-                        paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
-                        onSuccess: onSuccess, onError: onError
-                )
-                currentVC.presentPanModal(paymentModalController)
-            }
+            let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
+            let paymentModalController = PaymentModalController(
+                    payMEFunction: self, orderTransaction: orderTransaction,
+                    paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
+                    onSuccess: onSuccess, onError: onError
+            )
+            currentVC.presentPanModal(paymentModalController)
         }
     }
 

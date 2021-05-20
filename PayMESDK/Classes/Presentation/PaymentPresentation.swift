@@ -42,14 +42,19 @@ class PaymentPresentation {
     private let request: API
     private let onSuccess: (Dictionary<String, AnyObject>) -> ()
     private let onError: (Dictionary<String, AnyObject>) -> ()
+    private let accessToken: String
+    private let kycState: String
 
     init(
             request: API, paymentViewModel: PaymentViewModel,
+            accessToken: String, kycState: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         self.request = request
         self.paymentViewModel = paymentViewModel
+        self.accessToken = accessToken
+        self.kycState = kycState
         self.onSuccess = onSuccess
         self.onError = onError
     }
@@ -399,34 +404,36 @@ class PaymentPresentation {
             onSuccess: @escaping ([PaymentMethod]) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        request.getWalletInfo(onSuccess: { walletInformation in
-            let balance = (walletInformation["Wallet"] as! [String: AnyObject])["balance"] as! Int
-            self.request.getTransferMethods(onSuccess: { response in
-                let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
-                var methods: [PaymentMethod] = []
-                for (index, item) in items.enumerated() {
-                    let methodType = item["type"] as! String
-                    let methodInformation = PaymentMethod(
-                            methodId: (item["methodId"] as! Int), type: item["type"] as! String,
-                            title: item["title"] as! String, label: item["label"] as! String,
-                            fee: item["fee"] as! Int, minFee: item["minFee"] as! Int,
-                            active: index == 0 ? true : false
-                    )
-                    if methodType == "WALLET" {
-                        methodInformation.dataWallet = WalletInformation(
-                                balance: methodType == "WALLET" ? balance : nil
-                        )
+
+        request.getTransferMethods(onSuccess: { response in
+            let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
+            var methods: [PaymentMethod] = []
+            for (index, item) in items.enumerated() {
+                let methodType = item["type"] as! String
+                let methodInformation = PaymentMethod(
+                        methodId: (item["methodId"] as! Int), type: item["type"] as! String,
+                        title: item["title"] as! String, label: item["label"] as! String,
+                        fee: item["fee"] as! Int, minFee: item["minFee"] as! Int,
+                        active: index == 0 ? true : false
+                )
+                if methodType == "WALLET" {
+                    methodInformation.dataWallet = WalletInformation(balance: 0)
+                    if self.accessToken != "" && self.kycState == "APPROVED" {
+                        self.request.getWalletInfo(onSuccess: { response in
+                            let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as! Int
+                            methodInformation.dataWallet?.balance = balance
+                        }, onError: { error in onError(error) })
                     }
-                    if methodType == "LINKED" {
-                        methodInformation.dataLinked = LinkedInformation(
-                                swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as! String,
-                                linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int
-                        )
-                    }
-                    methods.append(methodInformation)
                 }
-                onSuccess(methods)
-            }, onError: { error in onError(error) })
+                if methodType == "LINKED" {
+                    methodInformation.dataLinked = LinkedInformation(
+                            swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as! String,
+                            linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int
+                    )
+                }
+                methods.append(methodInformation)
+            }
+            onSuccess(methods)
         }, onError: { error in onError(error) })
     }
 

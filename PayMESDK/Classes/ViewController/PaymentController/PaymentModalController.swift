@@ -61,6 +61,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         self.onError = onError
         paymentPresentation = PaymentPresentation(
                 request: payMEFunction.request, paymentViewModel: payMEFunction.paymentViewModel,
+                accessToken: payMEFunction.accessToken, kycState: payMEFunction.kycState,
                 onSuccess: onSuccess, onError: onError
         )
         atmController = ATMModal(
@@ -364,7 +365,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         atmView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
         atmView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
         atmView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
-        atmView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor).isActive = true
+        atmView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -10).isActive = true
     }
 
     func showMethods(_ methods: [PaymentMethod]) {
@@ -394,7 +395,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 + txtLabel.bounds.size.height
                 + methodTitle.bounds.size.height + 50
                 + (bottomLayoutGuide.length == 0 ? 16 : 0)
-//        bottomLayoutGuide.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: viewHeight).isActive = true
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
@@ -587,7 +587,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     @objc func onAppEnterForeground(notification: NSNotification) {
-        securityCode.otpView.becomeFirstResponder()
+        if securityCode.isDescendant(of: view) && !resultView.isDescendant(of: view) {
+            securityCode.otpView.becomeFirstResponder()
+        }
+        if otpView.isDescendant(of: view) && !resultView.isDescendant(of: view) {
+            otpView.otpView.becomeFirstResponder()
+        }
+
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -611,13 +617,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 rect = rect.union(view.frame)
             }
             modalHeight = keyboardSize.height + 10 + contentRect.height
-            if bottomLayoutGuide.length == 0 {
-                atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -100).isActive = true
-            } else {
-                atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor).isActive = true
-            }
-
-//            atmController.view.heightAnchor.constraint(equalToConstant: 200).isActive = true
+            atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -(keyboardSize.height + 10)).isActive = true
         }
         updateViewConstraints()
         view.layoutIfNeeded()
@@ -643,7 +643,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 rect = rect.union(view.frame)
             }
             modalHeight = contentRect.height
-            atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor).isActive = true
+            atmController.view.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -10).isActive = true
         }
         updateViewConstraints()
         view.layoutIfNeeded()

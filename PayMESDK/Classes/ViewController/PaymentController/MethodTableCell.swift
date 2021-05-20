@@ -12,6 +12,7 @@ class Method: UITableViewCell {
         static let contentInsets = UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0)
         static let avatarSize = CGSize(width: 36.0, height: 36.0)
     }
+
     var methodView: MethodView = MethodView(type: .WALLET, title: "")
 
 //    let uncheckImage: UIImageView = {
@@ -59,37 +60,33 @@ class Method: UITableViewCell {
         if (presentable.type == MethodType.WALLET.rawValue) {
             methodView.title = "Số dư ví"
             methodView.image.image = UIImage(for: PaymentModalController.self, named: "iconWallet")
-            if payMEFunction.checkCondition({ error in
-                let code = error["code"] as! Int
-                switch code {
-                case PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED:
-                    self.methodView.buttonTitle = "Kích hoạt ngay"
-                    self.methodView.note = "(*) Vui lòng kích hoạt tài khoản ví trước khi sử dụng"
-                    self.methodView.onPress = { self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction) }
-                    break
-                case PayME.ResponseCode.ACCOUNT_NOT_KYC:
-                    self.methodView.buttonTitle = "Định danh ngay"
-                    self.methodView.note = "(*) Vui lòng định danh tài khoản ví trước khi sử dụng"
-                    self.methodView.onPress = { self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction) }
-                    break
-                default:
-                    break
+            if payMEFunction.accessToken == "" {
+                methodView.buttonTitle = "Kích hoạt ngay"
+                methodView.note = "(*) Vui lòng kích hoạt tài khoản ví trước khi sử dụng"
+                methodView.onPress = {
+                    self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
                 }
-            }) {
-                methodView.buttonTitle = nil
-                methodView.note = nil
-            }
-            if let balance = presentable.dataWallet?.balance {
+            } else if payMEFunction.kycState != "APPROVED" {
+
+                methodView.buttonTitle = "Định danh ngay"
+                methodView.note = "(*) Vui lòng định danh tài khoản ví trước khi sử dụng"
+                methodView.onPress = {
+                    self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
+                }
+            } else {
+                let balance = presentable.dataWallet?.balance ?? 0
                 methodView.content = "(\(formatMoney(input: balance))đ)"
                 if balance < orderTransaction.amount {
                     methodView.buttonTitle = "Nạp tiền"
                     methodView.note = "(*) Chọn phương thức khác hoặc nạp thêm để thanh toán"
-                    methodView.onPress = { self.openWallet(action: PayME.Action.DEPOSIT, amount: orderTransaction.amount - balance,
-                            payMEFunction: payMEFunction, orderTransaction: orderTransaction
-                    )}
+                    methodView.onPress = {
+                        self.openWallet(action: PayME.Action.DEPOSIT, amount: orderTransaction.amount - balance, payMEFunction: payMEFunction, orderTransaction: orderTransaction
+                        )
+                    }
+                } else {
+                    methodView.buttonTitle = nil
+                    methodView.note = nil
                 }
-            } else {
-                methodView.content = ""
             }
         } else {
             methodView.title = presentable.title
