@@ -83,10 +83,12 @@ class PayMEFunction {
             _ onError: @escaping ([String: AnyObject]) -> ()
     ) {
         if checkCondition(onError) {
-            request.getWalletInfo(
-                    onSuccess: { walletInfo in onSuccess(walletInfo) },
-                    onError: { error in onError(error) }
-            )
+            if accessToken != "" && kycState == "APPROVED" {
+                request.getWalletInfo(
+                        onSuccess: { walletInfo in onSuccess(walletInfo) },
+                        onError: { error in onError(error) }
+                )
+            }
         }
     }
 
