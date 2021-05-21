@@ -38,3 +38,4 @@ Carthage/Build
 /Example/Pods/*
 /Example/*.lock
 /Example/.idea
+*.idea
