@@ -503,11 +503,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         securityCode.heightAnchor.constraint(equalTo: methodsView.heightAnchor).isActive = true
         securityCode.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         securityCode.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-//        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: securityCode.txtErrorMessage.bottomAnchor, constant: 10).isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
-//        panModalSetNeedsLayoutUpdate()
-//        panModalTransition(to: .shortForm)
         securityCode.otpView.properties.delegate = self
         securityCode.otpView.becomeFirstResponder()
         securityCode.onPressForgot = {
@@ -518,6 +515,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     { dictionary in }
             )
         }
+        let contentRect: CGRect = securityCode.subviews.reduce(into: .zero) { rect, view in
+            rect = rect.union(view.frame)
+        }
+        modalHeight = screenSize.height/3 + contentRect.height
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .longForm)
     }
 
     func setupResultView(result: Result) {
