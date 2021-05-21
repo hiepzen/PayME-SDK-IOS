@@ -61,14 +61,26 @@ class PayMEFunction {
             onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
             return false
         }
-//        if (accessToken == "") {
-//            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
-//            return true
-//        }
-//        if (kycState != "APPROVED") {
-//            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
-//            return true
-//        }
+        if (accessToken == "") {
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+            return false
+        }
+        if (kycState != "APPROVED") {
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
+            return false
+        }
+        return true
+    }
+
+    func checkPayCondition(_ onError: @escaping (Dictionary<String, AnyObject>) -> Void) -> Bool {
+        if (loggedIn == false || dataInit == nil) {
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+            return false
+        }
+        if !(Reachability.isConnectedToNetwork()) {
+            onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
+            return false
+        }
         return true
     }
 
@@ -202,7 +214,7 @@ class PayMEFunction {
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        if checkCondition(onError) {
+        if checkPayCondition(onError) {
             PayME.currentVC = currentVC
             if (amount < PaymentModalController.minAmount) {
                 onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.minAmount))" as AnyObject])
@@ -239,7 +251,7 @@ class PayMEFunction {
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        if checkCondition(onError) {
+        if checkPayCondition(onError) {
             let qrScan = QRScannerController()
             qrScan.setScanSuccess(onScanSuccess: { response in
                 self.request.readQRContent(qrContent: response, onSuccess: { response in
