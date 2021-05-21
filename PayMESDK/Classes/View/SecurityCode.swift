@@ -71,6 +71,15 @@ internal class SecurityCode: UIView {
         return pinField
     }()
 
+    let forgotPassButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Quên mật khẩu", for: .normal)
+        button.setTitleColor(UIColor(0, 165, 0), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        return button
+    }()
+
     init() {
         super.init(frame: CGRect.zero)
 
@@ -81,6 +90,7 @@ internal class SecurityCode: UIView {
         addSubview(txtLabel)
         addSubview(otpView)
         addSubview(txtErrorMessage)
+        addSubview(forgotPassButton)
 
         txtLabel.text = "Xác thực giao dịch"
         roleLabel.text = "Nhập mật khẩu ví PayME  để xác thực"
@@ -99,7 +109,7 @@ internal class SecurityCode: UIView {
         closeButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 19).isActive = true
         closeButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
 
-        image.topAnchor.constraint(equalTo: txtLabel.topAnchor, constant: 30).isActive = true
+        image.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 22).isActive = true
         image.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
 
         roleLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
@@ -116,6 +126,9 @@ internal class SecurityCode: UIView {
         txtErrorMessage.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         txtErrorMessage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
         txtErrorMessage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30).isActive = true
+
+        forgotPassButton.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        forgotPassButton.topAnchor.constraint(equalTo: txtErrorMessage.bottomAnchor, constant: 15).isActive = true
     }
 
     required init?(coder aDecoder: NSCoder) {

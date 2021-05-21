@@ -437,7 +437,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 confirmationView.setServiceInfo(serviceInfo: [
                     ["key": "Phương thức", "value": "Tài khoản liên kết"],
                     ["key": "Số tài khoản", "value": "\(String(describing: orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: orderTransaction.paymentMethod!.label.suffix(4)))"],
-                    ["key": "Phí", "value": "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ"],
+                    ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
                     ["key": "Số tiền trừ ví", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
                 ])
                 confirmationView.onPressConfirm = {
@@ -457,7 +457,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     ["key": "Ngân hàng", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? "N/A")],
                     ["key": "Số thẻ ATM", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.cardNumber ?? "N/A")],
                     ["key": "Họ tên chủ thẻ", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.cardHolder ?? "N/A")],
-                    ["key": "Phí", "value": "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ"],
+                    ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
                     ["key": "Số tiền trừ ví", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
                 ])
                 confirmationView.onPressConfirm = {
@@ -522,7 +522,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             resultView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
             resultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
             resultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-            resultView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+//            resultView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
             resultView.adaptView(result: result)
             modalHeight = resultView.frame.size.height
             updateViewConstraints()

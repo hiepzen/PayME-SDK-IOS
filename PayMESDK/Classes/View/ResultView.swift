@@ -29,12 +29,12 @@ class ResultView: UIView {
         return view
     }()
 
-    let closeButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(for: ResultView.self, named: "16Px"), for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
+//    let closeButton: UIButton = {
+//        let button = UIButton()
+//        button.setImage(UIImage(for: ResultView.self, named: "16Px"), for: .normal)
+//        button.translatesAutoresizingMaskIntoConstraints = false
+//        return button
+//    }()
 
     let image: UIImageView = {
         var bgImage = UIImageView(image: UIImage(for: ResultView.self, named: "success"))
@@ -105,7 +105,7 @@ class ResultView: UIView {
         addSubview(topView)
         addSubview(containerView)
         addSubview(button)
-        addSubview(closeButton)
+//        addSubview(closeButton)
 
         containerView.addSubview(detailView)
 
@@ -114,8 +114,8 @@ class ResultView: UIView {
         topView.addSubview(roleLabel)
         topView.addSubview(failLabel)
         // Semi-transparent background
-        closeButton.topAnchor.constraint(equalTo: topAnchor, constant: 19).isActive = true
-        closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
+//        closeButton.topAnchor.constraint(equalTo: topAnchor, constant: 19).isActive = true
+//        closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
 
         containerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         containerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
@@ -128,8 +128,8 @@ class ResultView: UIView {
 
         animationView.translatesAutoresizingMaskIntoConstraints = false
         animationView.topAnchor.constraint(equalTo: topView.topAnchor, constant: 24).isActive = true
-        animationView.heightAnchor.constraint(equalToConstant: 168).isActive = true
-        animationView.widthAnchor.constraint(equalToConstant: 168).isActive = true
+        animationView.heightAnchor.constraint(equalToConstant: 118).isActive = true
+        animationView.widthAnchor.constraint(equalToConstant: 111).isActive = true
         animationView.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
         animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
 

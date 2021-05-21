@@ -507,8 +507,8 @@ public class KAPinField : UITextField, UITextFieldDelegate  {
             v.layer.borderWidth = self.appearance.backBorderWidth
             v.layer.cornerRadius = self.appearance.backCornerRadius
         }
-        self.layer.borderColor = UIColor.init(hexString: "#0caa26").cgColor
-        self.layer.borderWidth = 1
+//        self.layer.borderColor = UIColor.init(hexString: "#0caa26").cgColor
+//        self.layer.borderWidth = 1
         
         self.backgroundColor = self.appearance.backActiveColor
     }
