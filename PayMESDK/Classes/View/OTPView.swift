@@ -8,6 +8,8 @@
 import Foundation
 
 internal class OTPView: UIView {
+    var onPressSendOTP: () -> () = {}
+
     let closeButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(for: QRNotFound.self, named: "16Px"), for: .normal)
@@ -16,7 +18,7 @@ internal class OTPView: UIView {
     }()
 
     let image: UIImageView = {
-        var bgImage = UIImageView(image: UIImage(for: QRNotFound.self, named: "touchId"))
+        var bgImage = UIImageView(image: UIImage(for: QRNotFound.self, named: "iconNoticeVerifyPass"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
@@ -63,6 +65,13 @@ internal class OTPView: UIView {
         pinField.appearance.backRounded = false
         return pinField
     }()
+    let sendOtpButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Gửi lại OTP", for: .normal)
+        button.setTitleColor(UIColor(130, 130, 130), for: .normal)
+        return button
+    }()
 
     init() {
         super.init(frame: CGRect.zero)
@@ -73,6 +82,7 @@ internal class OTPView: UIView {
         self.addSubview(closeButton)
         self.addSubview(txtLabel)
         self.addSubview(otpView)
+        self.addSubview(sendOtpButton)
 
 
         txtLabel.text = "Xác thực OTP"
@@ -103,7 +113,37 @@ internal class OTPView: UIView {
         otpView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -15).isActive = true
         otpView.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
+        sendOtpButton.topAnchor.constraint(equalTo: otpView.bottomAnchor, constant: 30).isActive = true
+        sendOtpButton.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        sendOtpButton.addTarget(self, action: #selector(onPress), for: .touchUpInside)
     }
+
+    var countdownValue = 0
+
+    func startCountDown(from: Int = 0) {
+        if (countdownValue == 0) {
+            countdownValue = from
+            sendOtpButton.setTitle("Gửi lại OTP (\(String(format: "%02d", countdownValue / 60)):\(String(format: "%02d", countdownValue % 60)))", for: .disabled)
+            sendOtpButton.isEnabled = false
+            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                if (self.countdownValue > 0) {
+                    self.sendOtpButton.setTitle("Gửi lại OTP (\(String(format: "%02d", self.countdownValue / 60)):\(String(format: "%02d", self.countdownValue % 60)))", for: .disabled)
+                    self.sendOtpButton.setTitleColor(UIColor(130, 130, 130), for: .disabled)
+                    self.countdownValue -= 1
+                } else {
+                    self.sendOtpButton.setTitle("Gửi lại OTP", for: .normal)
+                    self.sendOtpButton.setTitleColor(UIColor(0, 165, 0), for: .normal)
+                    self.sendOtpButton.isEnabled = true
+                    timer.invalidate()
+                }
+            }
+        }
+    }
+
+    @objc func onPress() {
+        onPressSendOTP()
+    }
+
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
