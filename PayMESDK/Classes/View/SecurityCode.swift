@@ -8,6 +8,9 @@
 import Foundation
 
 internal class SecurityCode: UIView {
+    var onPressForgot: () -> () = {}
+
+
     let closeButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(for: QRNotFound.self, named: "16Px"), for: .normal)
@@ -74,9 +77,12 @@ internal class SecurityCode: UIView {
     let forgotPassButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Quên mật khẩu", for: .normal)
-        button.setTitleColor(UIColor(0, 165, 0), for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        button.setAttributedTitle(NSAttributedString(string: "Quên mật khẩu",
+        attributes: [
+            .font: UIFont.systemFont(ofSize: 16, weight: .semibold),
+            .foregroundColor: UIColor(0, 165, 0),
+            .underlineStyle: NSUnderlineStyle.single.rawValue
+        ]), for: .normal)
         return button
     }()
 
@@ -129,6 +135,11 @@ internal class SecurityCode: UIView {
 
         forgotPassButton.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         forgotPassButton.topAnchor.constraint(equalTo: txtErrorMessage.bottomAnchor, constant: 15).isActive = true
+        forgotPassButton.addTarget(self, action: #selector(onPressForgotPass), for: .touchUpInside)
+    }
+
+    @objc func onPressForgotPass() {
+        onPressForgot()
     }
 
     required init?(coder aDecoder: NSCoder) {

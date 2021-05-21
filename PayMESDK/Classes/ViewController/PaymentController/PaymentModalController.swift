@@ -510,6 +510,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 //        panModalTransition(to: .shortForm)
         securityCode.otpView.properties.delegate = self
         securityCode.otpView.becomeFirstResponder()
+        securityCode.onPressForgot = {
+            PayME.currentVC!.dismiss(animated: true)
+            self.payMEFunction.openWallet(
+                    false, PayME.currentVC!, PayME.Action.FORGOT_PASSWORD, nil, nil,
+                    nil, "", false, { dictionary in },
+                    { dictionary in }
+            )
+        }
     }
 
     func setupResultView(result: Result) {

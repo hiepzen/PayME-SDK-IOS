@@ -26,6 +26,7 @@ public class PayME {
         case DEPOSIT = "DEPOSIT"
         case WITHDRAW = "WITHDRAW"
         case UTILITY = "UTILITY"
+        case FORGOT_PASSWORD = "FORGOT_PASSWORD"
     }
 
     public enum Env: String {
