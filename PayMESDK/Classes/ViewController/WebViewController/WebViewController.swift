@@ -230,11 +230,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             onCloseWebview()
             if let dictionary = message.body as? [String: AnyObject] {
                 let status = dictionary["data"]!["status"] as! String
-                if (status == "FAILED") {
-                    onError!(dictionary["data"] as! [String: AnyObject])
-                }
                 if status == "SUCCEEDED" {
                     onSuccess!(dictionary["data"] as! [String: AnyObject])
+                } else {
+                    onError!(dictionary["data"] as! [String: AnyObject])
                 }
             }
         }
