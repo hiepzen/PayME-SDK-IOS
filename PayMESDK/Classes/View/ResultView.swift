@@ -127,14 +127,14 @@ class ResultView: UIView {
         topView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
 
         animationView.translatesAutoresizingMaskIntoConstraints = false
-        animationView.topAnchor.constraint(equalTo: topView.topAnchor, constant: 24).isActive = true
+        animationView.topAnchor.constraint(equalTo: topView.topAnchor, constant: 8).isActive = true
         animationView.heightAnchor.constraint(equalToConstant: 118).isActive = true
         animationView.widthAnchor.constraint(equalToConstant: 111).isActive = true
         animationView.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
         animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
 
         nameLabel.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
-        nameLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 16).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor).isActive = true
 
         roleLabel.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
         roleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4).isActive = true
