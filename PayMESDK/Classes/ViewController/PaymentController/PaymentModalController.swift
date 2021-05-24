@@ -421,7 +421,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func setupUIConfirmation() {
         view.endEditing(false)
-        confirmationView.isHidden = false
+
+        UIView.transition(with: confirmationView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
+            self.confirmationView.isHidden = false
+        })
         tableView.isHidden = true
         atmController.view.isHidden = true
         detailView.isHidden = true
