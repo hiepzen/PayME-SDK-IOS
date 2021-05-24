@@ -608,11 +608,31 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
     }
 
+    private func openWallet(action: PayME.Action, amount: Int? = nil, payMEFunction: PayMEFunction, orderTransaction: OrderTransaction) {
+        PayME.currentVC!.dismiss(animated: true)
+        payMEFunction.openWallet(
+                false, PayME.currentVC!, action, amount, orderTransaction.note,
+                orderTransaction.extraData, "", false, { dictionary in },
+                { dictionary in }
+        )
+    }
+
     func onPressMethod(_ method: PaymentMethod) {
         print("\(method.type)")
         switch method.type {
         case MethodType.WALLET.rawValue:
-            paymentPresentation.getFee(orderTransaction: orderTransaction)
+            if payMEFunction.accessToken == "" {
+                openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
+            } else if payMEFunction.kycState != "APPROVED" {
+                openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
+            } else {
+                let balance = method.dataWallet?.balance ?? 0
+                if balance < orderTransaction.amount {
+                    openWallet(action: PayME.Action.DEPOSIT, amount: orderTransaction.amount - balance, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
+                } else {
+                    paymentPresentation.getFee(orderTransaction: orderTransaction)
+                }
+            }
             break
         case MethodType.LINKED.rawValue:
             paymentPresentation.getFee(orderTransaction: orderTransaction)
@@ -636,7 +656,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if otpView.isDescendant(of: view) && !resultView.isDescendant(of: view) {
             otpView.otpView.becomeFirstResponder()
         }
-
+        if !atmController.view.isHidden {
+            atmController.atmView.cardNumberField.becomeFirstResponder()
+        }
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {

@@ -79,8 +79,7 @@ class Method: UITableViewCell {
                     methodView.buttonTitle = "Nạp tiền"
                     methodView.note = "(*) Chọn phương thức khác hoặc nạp thêm để thanh toán"
                     methodView.onPress = {
-                        self.openWallet(action: PayME.Action.DEPOSIT, amount: orderTransaction.amount - balance, payMEFunction: payMEFunction, orderTransaction: orderTransaction
-                        )
+                        self.openWallet(action: PayME.Action.DEPOSIT, amount: orderTransaction.amount - balance, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
                     }
                 } else {
                     methodView.buttonTitle = nil
