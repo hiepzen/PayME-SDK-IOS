@@ -6,7 +6,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
             showSpinner(onView: view)
-            paymentPresentation.transferByLinkedBank(transaction: transaction, orderTransaction: orderTransaction, linkedId: (data[active!].dataLinked?.linkedId)!, OTP: code)
+            paymentPresentation.transferByLinkedBank(transaction: transaction, orderTransaction: orderTransaction, linkedId: (getMethodSelected().dataLinked?.linkedId)!, OTP: code)
         }
     }
 
