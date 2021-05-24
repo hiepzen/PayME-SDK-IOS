@@ -189,7 +189,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         presentPanModal(webViewController)
     }
 
-    func setupUI(){
+    func setupUI() {
         view.addSubview(methodsView)
 
         methodsView.backgroundColor = .white
@@ -368,7 +368,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             self.atmController.view.isHidden = false
         })
 
-        let realATMViewHeight = min(screenSize.size.height - ( topLayoutGuide.length + detailView.bounds.size.height
+        let realATMViewHeight = min(screenSize.size.height - (topLayoutGuide.length + detailView.bounds.size.height
                 + txtLabel.bounds.size.height
                 + methodTitle.bounds.size.height + 50
                 + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
@@ -449,11 +449,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 ])
                 confirmationView.onPressConfirm = {
                     if (orderTransaction.paymentMethod?.dataWallet?.balance ?? 0) < orderTransaction.amount {
-                    PaymentModalController.isShowCloseModal = false
-                    self.dismiss(animated: true, completion: {
-                        self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
-                    })
-                    return
+                        PaymentModalController.isShowCloseModal = false
+                        self.dismiss(animated: true, completion: {
+                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
+                        })
+                        return
                     }
                     self.setupSecurity()
                 }
@@ -487,7 +487,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 ])
                 confirmationView.onPressConfirm = {
                     self.showSpinner(onView: self.view)
-                     self.paymentPresentation.payATM(orderTransaction: orderTransaction)
+                    self.paymentPresentation.payATM(orderTransaction: orderTransaction)
                 }
             default: break
             }
@@ -549,7 +549,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let contentRect: CGRect = securityCode.subviews.reduce(into: .zero) { rect, view in
             rect = rect.union(view.frame)
         }
-        modalHeight = screenSize.height/3 + contentRect.height
+        modalHeight = screenSize.height / 3 + contentRect.height
         updateViewConstraints()
         view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
@@ -600,7 +600,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         dismiss(animated: true, completion: nil)
     }
 
-    @objc func goBack(){
+    @objc func goBack() {
         if (orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue) {
             payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM))
         } else {
@@ -610,18 +610,22 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func onPressMethod(_ method: PaymentMethod) {
         print("\(method.type)")
-        if (method.type == "WALLET") {
+        switch method.type {
+        case MethodType.WALLET.rawValue:
             paymentPresentation.getFee(orderTransaction: orderTransaction)
-        }
-        if (method.type == "LINKED") {
+            break
+        case MethodType.LINKED.rawValue:
             paymentPresentation.getFee(orderTransaction: orderTransaction)
-        }
-        if (method.type == "BANK_CARD") {
+            break
+        case MethodType.BANK_CARD.rawValue:
             if (payMEFunction.appEnv.isEqual("SANDBOX")) {
                 onError(["message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
                 return
             }
             paymentPresentation.getLinkBank()
+            break
+        default:
+            toastMessError(title: "", message: "Tính năng đang được xây dựng.")
         }
     }
 
@@ -770,7 +774,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     let buttonBack: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(for: PaymentModalController.self ,named: "32Px"), for: .normal)
+        button.setImage(UIImage(for: PaymentModalController.self, named: "32Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
