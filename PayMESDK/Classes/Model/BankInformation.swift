@@ -19,4 +19,15 @@ class BankInformation {
         self.issueDate = issueDate
         self.bank = bank
     }
+
+    func cardNumberFormatted() -> String {
+        let tempCard = cardNumber.filter("0123456789".contains)
+        if (bank?.cardNumberLength == 16) {
+            return String(tempCard.enumerated().map { $0 > 0 && $0 % 4 == 0 ? ["-", $1] : [$1] }.joined())
+        }
+        if (bank?.cardNumberLength == 19) {
+            return String(tempCard.enumerated().map { $0 > 0 && $0 % 8 == 0 ? ["-", $1] : [$1] }.joined())
+        }
+        return cardNumber
+    }
 }

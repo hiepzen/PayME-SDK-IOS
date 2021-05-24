@@ -41,23 +41,21 @@ class InformationRow: UIStackView {
         setUpUI()
     }
     func setUpUI() {
-        self.backgroundColor = .clear
-        self.axis = .horizontal
-        self.translatesAutoresizingMaskIntoConstraints = false
-        valueLabel.textColor = self.color
-        valueLabel.font = self.font
-        valueLabel.text = self.value
-        keyLabel.text = self.key
-        
-        self.addArrangedSubview(keyLabel)
-        self.addArrangedSubview(valueLabel)
-        
-        keyLabel.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-        keyLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
-        
-        valueLabel.leadingAnchor.constraint(equalTo: keyLabel.trailingAnchor, constant: 8).isActive = true
-        valueLabel.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-        valueLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        backgroundColor = .clear
+        axis = .horizontal
+        spacing = 8
+        translatesAutoresizingMaskIntoConstraints = false
+        valueLabel.textColor = color
+        valueLabel.font = font
+        valueLabel.text = value
+        keyLabel.text = key
+
+        addArrangedSubview(keyLabel)
+        addArrangedSubview(valueLabel)
+
+        valueLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        keyLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        valueLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
     
     required init(coder: NSCoder) {
