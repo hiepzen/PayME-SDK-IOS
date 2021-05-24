@@ -387,6 +387,10 @@ class PayMEFunction {
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         if (loggedIn == true) {
+            if (self.accessToken == "") {
+                onError(["code": PayME.KYCState.NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+                return
+            }
             request.getAccountInfo(
                     accountPhone: dataInit?["phone"] as Any,
                     onSuccess: { success in onSuccess(success) },
