@@ -83,14 +83,17 @@ extension UITextField {
 }
 
 extension UIViewController {
-    func showSpinner(onView : UIView) {
+    func showSpinner(onView : UIView, alpha: CGFloat = 0.5, color: UIColor? = nil) {
         if vSpinner != nil {
             removeSpinner()
         }
         let currentWindow: UIWindow? = UIApplication.shared.keyWindow
         let spinnerView = UIView.init(frame: currentWindow!.bounds)
-        spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+        spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: alpha)
         let ai = UIActivityIndicatorView.init(style: .whiteLarge)
+        if color != nil {
+            ai.color = color
+        }
         ai.startAnimating()
         ai.center = spinnerView.center
         DispatchQueue.main.async {

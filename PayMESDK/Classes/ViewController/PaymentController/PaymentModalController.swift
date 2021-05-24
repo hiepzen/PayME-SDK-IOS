@@ -46,7 +46,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let orderTransaction: OrderTransaction
     let paymentPresentation: PaymentPresentation
     private let disposeBag: DisposeBag
-    private var modalHeight: CGFloat? = nil
+    private var modalHeight: CGFloat? = UIScreen.main.bounds.height
 
     private var atmHeightConstraint: NSLayoutConstraint?
 
@@ -232,7 +232,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         detailView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
         detailView.heightAnchor.constraint(equalToConstant: 118.0).isActive = true
         detailView.centerXAnchor.constraint(equalTo: methodsView.centerXAnchor).isActive = true
-        detailView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 16.0).isActive = true
+        detailView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 16).isActive = true
 
         price.topAnchor.constraint(equalTo: detailView.topAnchor, constant: 16).isActive = true
         price.centerXAnchor.constraint(equalTo: detailView.centerXAnchor).isActive = true
@@ -281,12 +281,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         confirmationView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor).isActive = true
         confirmationView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
         confirmationView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+        confirmationView.isHidden = true
 
         methodsView.addSubview(atmController.view)
         atmController.view.translatesAutoresizingMaskIntoConstraints = false
         atmController.view.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
         atmController.view.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
         atmController.view.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
+        atmController.view.isHidden = true
     }
 
     func setupTargetMethod() {
@@ -316,7 +318,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func getListMethodsAndExecution(execution: (([PaymentMethod]) -> Void)? = nil) {
-        showSpinner(onView: view)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            if self.data.count == 0 {
+                self.showSpinner(onView: self.view, alpha: 0, color: UIColor(hexString: PayME.configColor[0]))
+            }
+        }
         paymentPresentation.getListMethods(onSuccess: { paymentMethods in
             self.removeSpinner()
             self.data = paymentMethods
