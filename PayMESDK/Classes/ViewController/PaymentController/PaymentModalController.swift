@@ -41,6 +41,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     static var isShowCloseModal: Bool = true
     let methodsView = UIView()
     let placeholderView = UIView()
+    let activityIndicator = UIActivityIndicatorView(style: .white)
 
     let payMEFunction: PayMEFunction
     let orderTransaction: OrderTransaction
@@ -289,6 +290,24 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         atmController.view.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
         atmController.view.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
         atmController.view.isHidden = true
+
+        activityIndicator.color = UIColor(hexString: PayME.configColor[0])
+        activityIndicator.startAnimating()
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        methodsView.addSubview(activityIndicator)
+        activityIndicator.topAnchor.constraint(equalTo: methodTitle.bottomAnchor, constant: 10).isActive = true
+        activityIndicator.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
+        activityIndicator.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
+        activityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        let viewHeight = txtLabel.bounds.size.height
+                + detailView.bounds.size.height
+                + methodTitle.bounds.size.height
+                + (bottomLayoutGuide.length == 0 ? 16 : 0)
+                + 100
+        modalHeight = viewHeight
     }
 
     func setupTargetMethod() {
@@ -318,13 +337,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func getListMethodsAndExecution(execution: (([PaymentMethod]) -> Void)? = nil) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if self.data.count == 0 {
-                self.showSpinner(onView: self.view, alpha: 0, color: UIColor(hexString: PayME.configColor[0]))
-            }
-        }
         paymentPresentation.getListMethods(onSuccess: { paymentMethods in
-            self.removeSpinner()
+            self.activityIndicator.removeFromSuperview()
             self.data = paymentMethods
             execution?(paymentMethods)
         }, onError: { error in
