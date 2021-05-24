@@ -86,7 +86,7 @@ internal class OTPView: UIView {
 
 
         txtLabel.text = "Xác thực OTP"
-        roleLabel.text = "Nhập mã OTP PVComBank đã được gửi qua số điện thoại đăng ký thẻ"
+        roleLabel.text = "Nhập mã OTP đã được gửi qua số điện thoại đăng ký thẻ"
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
@@ -142,6 +142,11 @@ internal class OTPView: UIView {
 
     @objc func onPress() {
         onPressSendOTP()
+    }
+
+    func updateBankName(name: String) {
+
+        roleLabel.text = "Nhập mã OTP \(name ?? "") đã được gửi qua số điện thoại đăng ký thẻ"
     }
 
 

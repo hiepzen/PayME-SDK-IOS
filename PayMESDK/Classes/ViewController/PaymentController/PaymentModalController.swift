@@ -485,6 +485,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func setupOTP() {
         view.addSubview(otpView)
 
+        otpView.updateBankName(name: orderTransaction.paymentMethod?.title ?? "")
         otpView.translatesAutoresizingMaskIntoConstraints = false
         otpView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
         otpView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
