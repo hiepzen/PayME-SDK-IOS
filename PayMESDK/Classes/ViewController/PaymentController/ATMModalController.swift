@@ -139,11 +139,8 @@ class ATMModal: UIViewController, UITextFieldDelegate {
         } else {
             detectBank(cardNumberWithoutSpaces)
         }
-        if bankDetect != nil {
-            textField.text = insertCreditCardSpaces(cardNumberWithoutSpaces, preserveCursorPosition: &targetCursorPosition)
-        } else {
-            textField.text = cardNumberWithoutSpaces
-        }
+
+        textField.text = insertCreditCardSpaces(cardNumberWithoutSpaces, preserveCursorPosition: &targetCursorPosition)
 
         if let targetPosition = textField.position(from: textField.beginningOfDocument, offset: targetCursorPosition) {
             textField.selectedTextRange = textField.textRange(from: targetPosition, to: targetPosition)
@@ -165,8 +162,14 @@ class ATMModal: UIViewController, UITextFieldDelegate {
     }
 
     func insertCreditCardSpaces(_ string: String, preserveCursorPosition cursorPosition: inout Int) -> String {
-        let is883: Bool = bankDetect?.cardNumberLength == 19 ? true : false
-        let is4444: Bool = bankDetect?.cardNumberLength == 16 ? true : false
+        var is883, is4444: Bool
+        if bankDetect != nil {
+            is883 = bankDetect?.cardNumberLength == 19 ? true : false
+            is4444 = bankDetect?.cardNumberLength == 16 ? true : false
+        } else {
+            is4444 = true
+            is883 = false
+        }
 
         var stringWithAddedSpaces = ""
         let cursorPositionInSpacelessString = cursorPosition
