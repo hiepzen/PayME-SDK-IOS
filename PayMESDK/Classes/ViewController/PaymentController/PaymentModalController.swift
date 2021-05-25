@@ -660,7 +660,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             otpView.otpView.becomeFirstResponder()
         }
         if !atmController.view.isHidden {
-            atmController.atmView.cardNumberField.becomeFirstResponder()
+            atmController.atmView.cardInput.textInput.becomeFirstResponder()
         }
     }
 

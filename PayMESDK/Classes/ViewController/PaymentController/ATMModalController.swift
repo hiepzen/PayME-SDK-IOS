@@ -10,7 +10,7 @@ import Lottie
 import RxSwift
 
 
-class ATMModal: UIViewController, UITextFieldDelegate {
+class ATMModal: UIViewController {
     let screenSize: CGRect = UIScreen.main.bounds
     var atmView = ATMView()
     var keyboardHeight: CGFloat = 0
@@ -52,8 +52,9 @@ class ATMModal: UIViewController, UITextFieldDelegate {
         atmView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         atmView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
 
-        atmView.cardNumberField.delegate = self
-        atmView.dateField.delegate = self
+        atmView.cardInput.textInput.delegate = self
+        atmView.dateInput.textInput.delegate = self
+        atmView.nameInput.textInput.delegate = self
 
         atmView.button.addTarget(self, action: #selector(payATM), for: .touchUpInside)
         atmView.methodView.onPress = {
@@ -66,7 +67,7 @@ class ATMModal: UIViewController, UITextFieldDelegate {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
         }
 
-        atmView.cardNumberField.addTarget(self, action: #selector(reformatAsCardNumber), for: .editingChanged)
+        atmView.cardInput.textInput.addTarget(self, action: #selector(reformatAsCardNumber), for: .editingChanged)
     }
 
     @objc func closeAction() {
@@ -74,26 +75,30 @@ class ATMModal: UIViewController, UITextFieldDelegate {
     }
 
     @objc func payATM() {
-        let cardNumber = atmView.cardNumberField.text?.filter("0123456789".contains)
-        let cardHolder = atmView.nameField.text
-        let issuedAt = atmView.dateField.text
-        if bankDetect != nil && cardNumber!.count != bankDetect!.cardNumberLength {
-            toastMessError(title: "Lỗi", message: "Vui lòng nhập mã thẻ đúng định dạng")
+        let cardNumber = atmView.cardInput.textInput.text?.filter("0123456789".contains)
+        let cardHolder = atmView.nameInput.textInput.text
+        let issuedAt = atmView.dateInput.textInput.text
+        if bankDetect == nil || cardNumber!.count != bankDetect?.cardNumberLength {
+            atmView.cardInput.errorMessage = "Vui lòng nhập mã thẻ đúng định dạng"
+            atmView.cardInput.updateState(state: .error)
             return
         }
         if cardHolder == nil || cardHolder!.count == 0 {
-            toastMessError(title: "Lỗi", message: "Vui lòng nhập họ tên chủ thẻ")
+            atmView.nameInput.errorMessage = "Vui lòng nhập họ tên chủ thẻ"
+            atmView.nameInput.updateState(state: .error)
             return
         }
         if (issuedAt!.count != 5) {
-            toastMessError(title: "Lỗi", message: "Vui lòng nhập ngày phát hành thẻ")
+            atmView.dateInput.errorMessage = "Vui lòng nhập ngày phát hành thẻ"
+            atmView.dateInput.updateState(state: .error)
             return
         } else {
             let dateArr = issuedAt!.components(separatedBy: "/")
             let month = Int(dateArr[0]) ?? 0
             let year = Int(dateArr[1]) ?? 0
             if (month == 0 || year == 0 || month > 12 || year > 21 || month <= 0) {
-                toastMessError(title: "Lỗi", message: "Vui lòng nhập ngày phát hành thẻ hợp lệ")
+                atmView.dateInput.errorMessage = "Vui lòng nhập ngày phát hành thẻ hợp lệ"
+                atmView.dateInput.updateState(state: .error)
                 return
             }
             let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
@@ -189,24 +194,6 @@ class ATMModal: UIViewController, UITextFieldDelegate {
         return stringWithAddedSpaces
     }
 
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == atmView.dateField {
-            let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")//Here change this characters based on your requirement
-            let characterSet = CharacterSet(charactersIn: string)
-            if (atmView.dateField.text?.count == 2) {
-                if !(string == "") {
-                    atmView.dateField.text = (atmView.dateField.text)! + "/"
-                }
-            }
-            return allowedCharacters.isSuperset(of: characterSet) && !(textField.text!.count > 4 && (string.count) > range.length)
-        }
-        if textField == atmView.cardNumberField {
-            previousTextFieldContent = textField.text
-            previousSelection = textField.selectedTextRange
-        }
-        return true
-    }
-
     private func detectBank(_ string: String) {
         if string != "" && string.count > 5 {
             for bank in listBank {
@@ -217,31 +204,85 @@ class ATMModal: UIViewController, UITextFieldDelegate {
                 }
             }
             if (bankDetect == nil) {
-                atmView.nameLabel.text = ""
+                atmView.cardInput.errorMessage = "Số thẻ không đúng định dạng"
+                atmView.cardInput.updateState(state: .error)
+                atmView.cardInput.updateExtraInfo(data: "")
             }
         } else {
             bankDetect = nil
-            atmView.nameLabel.text = ""
+            atmView.cardInput.updateState(state: .focus)
+            atmView.cardInput.updateExtraInfo(data: "")
         }
-        if (bankDetect != nil) {
-            if (string.count == bankDetect!.cardNumberLength) {
-                payMEFunction.request.getBankName(swiftCode: bankDetect!.swiftCode, cardNumber: string, onSuccess: { response in
-                    let bankNameRes = response["Utility"]!["GetBankName"] as! [String: AnyObject]
-                    let succeeded = bankNameRes["succeeded"] as! Bool
-                    if (succeeded == true) {
-                        let name = bankNameRes["accountName"] as! String
-                        self.atmView.nameLabel.text = name
-                        self.atmView.nameInputContainer.isHidden = true
-                        self.atmView.nameField.text = name
-                    } else {
-                        self.atmView.nameLabel.text = ""
-                        self.atmView.nameInputContainer.isHidden = false
-                        self.atmView.nameField.text = ""
-                    }
-                }, onError: { error in
-                    print(error)
-                })
+        if (bankDetect != nil) && (string.count == bankDetect!.cardNumberLength) {
+            payMEFunction.request.getBankName(swiftCode: bankDetect!.swiftCode, cardNumber: string, onSuccess: { response in
+                let bankNameRes = response["Utility"]!["GetBankName"] as! [String: AnyObject]
+                let succeeded = bankNameRes["succeeded"] as! Bool
+                if (succeeded == true) {
+                    let name = bankNameRes["accountName"] as! String
+                    self.atmView.cardInput.updateExtraInfo(data: name)
+                    self.atmView.nameInput.isHidden = true
+                    self.atmView.nameInput.textInput.text = name
+                } else {
+                    self.atmView.nameInput.isHidden = false
+                    self.atmView.nameInput.textInput.text = ""
+                }
+            }, onError: { error in
+                print(error)
+            })
+        } else {
+            atmView.nameInput.isHidden = true
+            atmView.cardInput.updateExtraInfo(data: "")
+        }
+
+    }
+}
+
+extension ATMModal: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == atmView.dateInput.textInput {
+            let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")//Here change this characters based on your requirement
+            let characterSet = CharacterSet(charactersIn: string)
+            if (atmView.dateInput.textInput.text?.count == 2) {
+                if !(string == "") {
+                    atmView.dateInput.textInput.text = (atmView.dateInput.textInput.text)! + "/"
+                }
             }
+            return allowedCharacters.isSuperset(of: characterSet) && !(textField.text!.count > 4 && (string.count) > range.length)
+        }
+        if textField == atmView.cardInput.textInput {
+            previousTextFieldContent = textField.text
+            previousSelection = textField.selectedTextRange
+        }
+        return true
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        switch textField {
+        case atmView.cardInput.textInput:
+            atmView.cardInput.updateState(state: .focus)
+            break
+        case atmView.nameInput.textInput:
+            atmView.nameInput.updateState(state: .focus)
+            break
+        case atmView.dateInput.textInput:
+            atmView.dateInput.updateState(state: .focus)
+            break
+        default: break
+        }
+    }
+
+    public func textFieldDidEndEditing(_ textField: UITextField) {
+        switch textField {
+        case atmView.cardInput.textInput:
+            atmView.cardInput.updateState(state: .normal)
+            break
+        case atmView.nameInput.textInput:
+            atmView.nameInput.updateState(state: .normal)
+            break
+        case atmView.dateInput.textInput:
+            atmView.dateInput.updateState(state: .normal)
+            break
+        default: break
         }
     }
 }
