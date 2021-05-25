@@ -310,6 +310,7 @@ class GraphQuery {
                                         appEnv    
                                         phone
                                         isExistInMainWallet
+                                        updateToken
                                       }
                                     }
                                   }

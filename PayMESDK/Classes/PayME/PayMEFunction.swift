@@ -30,6 +30,7 @@ class PayMEFunction {
     var configColor: [String]
     var clientId = ""
     var accessToken = ""
+    var isAccountActivated = false
     var handShake = ""
     var kycState = ""
     var dataInit: Dictionary<String, AnyObject>? = nil
@@ -53,19 +54,19 @@ class PayMEFunction {
     }
 
     func checkCondition(_ onError: @escaping (Dictionary<String, AnyObject>) -> Void) -> Bool {
-        if (loggedIn == false || dataInit == nil) {
+        if loggedIn == false || dataInit == nil {
             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
             return false
         }
-        if !(Reachability.isConnectedToNetwork()) {
+        if !Reachability.isConnectedToNetwork() {
             onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
             return false
         }
-        if (accessToken == "") {
+        if !isAccountActivated {
             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
             return false
         }
-        if (kycState != "APPROVED") {
+        if kycState != "APPROVED" {
             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
             return false
         }
@@ -95,7 +96,7 @@ class PayMEFunction {
             _ onError: @escaping ([String: AnyObject]) -> ()
     ) {
         if checkCondition(onError) {
-            if accessToken != "" && kycState == "APPROVED" {
+            if isAccountActivated && kycState == "APPROVED" {
                 request.getWalletInfo(
                         onSuccess: { walletInfo in onSuccess(walletInfo) },
                         onError: { error in onError(error) }
@@ -292,9 +293,12 @@ class PayMEFunction {
                 onSuccess: { responseAccessToken in
                     let result = responseAccessToken["OpenEWallet"]!["Init"] as! Dictionary<String, AnyObject>
                     let accessToken = result["accessToken"] as? String
+                    let updateToken = result["updateToken"] as? String
                     let kycState = result["kyc"]!["state"] as? String
                     let appEnv = result["appEnv"] as? String
+                    let succeeded = result["succeeded"] as? Bool
 
+                    self.isAccountActivated = succeeded ?? false && accessToken != nil && updateToken == nil
                     self.accessToken = accessToken ?? ""
                     self.appEnv = appEnv ?? ""
                     self.kycState = kycState ?? ""
@@ -364,15 +368,15 @@ class PayMEFunction {
     ) {
         initSDK(onSuccess: { success in
             self.loggedIn = true
-            if (self.accessToken == "") {
+            if !self.isAccountActivated {
                 onSuccess(["code": PayME.KYCState.NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
                 return
             }
-            if (self.kycState != "APPROVED") {
+            if self.kycState != "APPROVED" {
                 onSuccess(["code": PayME.KYCState.NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
                 return
             }
-            if (self.accessToken != "" && self.kycState == "APPROVED") {
+            if self.accessToken != "" && self.kycState == "APPROVED" {
                 onSuccess(["code": PayME.KYCState.KYC_APPROVED as AnyObject, "message": "Đăng nhập thành công" as AnyObject])
                 return
             }
@@ -387,8 +391,8 @@ class PayMEFunction {
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         if (loggedIn == true) {
-            if (self.accessToken == "") {
-                onError(["code": PayME.KYCState.NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+            if !isAccountActivated {
+                onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
                 return
             }
             request.getAccountInfo(

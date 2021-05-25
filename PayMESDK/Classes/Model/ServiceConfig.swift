@@ -16,9 +16,9 @@ public class ServiceConfig {
         self.description = description
     }
     public func getCode() -> String {
-        return self.code
+        code
     }
     public func getDescription() -> String {
-        return self.description
+        description
     }
 }
