@@ -685,12 +685,24 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let contentRect: CGRect = methodsView.subviews.reduce(into: .zero) { rect, view in
                 rect = rect.union(view.frame)
             }
-            modalHeight = min(keyboardSize.height + 10 + contentRect.height, screenSize.height)
-            let newATMHeight = min(modalHeight! - (detailView.bounds.size.height
-                    + txtLabel.bounds.size.height
-                    + methodTitle.bounds.size.height + 70
-                    + keyboardSize.height + 10
-                    + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
+
+            var newATMHeight: CGFloat = 0
+            if #available(iOS 11.0, *) {
+                modalHeight = min(keyboardSize.height + 10 + contentRect.height, view.safeAreaLayoutGuide.layoutFrame.height)
+                newATMHeight = min(modalHeight! - (detailView.bounds.size.height
+                        + txtLabel.bounds.size.height
+                        + methodTitle.bounds.size.height + 40
+                        + keyboardSize.height + 10
+                        + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
+
+            } else {
+                modalHeight = min(keyboardSize.height + 10 + contentRect.height, screenSize.height)
+                newATMHeight = min(modalHeight! - (detailView.bounds.size.height
+                        + txtLabel.bounds.size.height
+                        + methodTitle.bounds.size.height + 70
+                        + keyboardSize.height + 10
+                        + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
+            }
             atmHeightConstraint?.constant = newATMHeight
         }
         updateViewConstraints()
