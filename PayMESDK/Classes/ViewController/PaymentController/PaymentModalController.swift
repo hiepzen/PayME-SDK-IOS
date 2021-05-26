@@ -439,7 +439,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         confirmationView.reset()
         if let orderTransaction = order {
             confirmationView.setPaymentInfo(paymentInfo: [
-                ["key": "Dịch vụ", "value": "\(orderTransaction.storeId)"],
+                ["key": "Dịch vụ", "value": "\(orderTransaction.storeName)"],
                 ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: orderTransaction.amount)) đ", "color": UIColor(12, 170, 38)],
                 ["key": "Nội dung", "value": orderTransaction.note]
             ])

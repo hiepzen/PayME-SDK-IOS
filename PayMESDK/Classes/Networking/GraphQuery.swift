@@ -311,6 +311,7 @@ class GraphQuery {
                                         phone
                                         isExistInMainWallet
                                         updateToken
+                                        storeName
                                       }
                                     }
                                   }
