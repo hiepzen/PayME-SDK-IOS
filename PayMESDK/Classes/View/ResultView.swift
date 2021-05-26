@@ -29,13 +29,6 @@ class ResultView: UIView {
         return view
     }()
 
-//    let closeButton: UIButton = {
-//        let button = UIButton()
-//        button.setImage(UIImage(for: ResultView.self, named: "16Px"), for: .normal)
-//        button.translatesAutoresizingMaskIntoConstraints = false
-//        return button
-//    }()
-
     let image: UIImageView = {
         var bgImage = UIImageView(image: UIImage(for: ResultView.self, named: "success"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
@@ -194,7 +187,7 @@ class ResultView: UIView {
         transactionView.bottomAnchor.constraint(equalTo: detailView.bottomAnchor).isActive = true
 
         let serviceView = InformationView(data: [
-            ["key": "Dịch vụ", "value": "\(result.orderTransaction.storeId)"],
+            ["key": "Dịch vụ", "value": "\(result.orderTransaction.storeName)"],
             ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(12, 170, 38)],
             ["key": "Nội dung", "value": result.orderTransaction.note]
         ])
