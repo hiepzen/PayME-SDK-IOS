@@ -648,7 +648,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             paymentPresentation.getLinkBank()
             break
         default:
-            toastMessError(title: "", message: "Tính năng đang được xây dựng.")
+            toastMessError(title: "", message: "Tính năng đang được xây dựng.") { [self] alertAction in
+                if paymentMethodID != nil {
+                    dismiss(animated: true)
+                }
+            }
         }
     }
 
@@ -732,9 +736,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         panModalTransition(to: .shortForm)
     }
 
-    func toastMessError(title: String, message: String) {
+    func toastMessError(title: String, message: String, handler: ((UIAlertAction) -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: handler))
         present(alert, animated: true, completion: nil)
     }
 
