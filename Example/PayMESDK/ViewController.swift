@@ -227,6 +227,32 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return textField
     }()
 
+    let transferButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
+        button.setTitle("Chuyển", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    let moneyTransfer: UITextField = {
+        let textField = UITextField()
+        textField.layer.borderColor = UIColor.black.cgColor
+        textField.layer.borderWidth = 0.5
+        textField.backgroundColor = UIColor.white
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.placeholder = "Nhập số tiền"
+        textField.text = "10000"
+        textField.setLeftPaddingPoints(10)
+        textField.keyboardType = .numberPad
+        return textField
+    }()
+
     let getMethodButton: UIButton = {
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
@@ -378,12 +404,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
 
     @objc func withDrawAction(sender: UIButton!) {
-        if (self.connectToken != "") {
+        if (connectToken != "") {
             if (moneyWithDraw.text != "") {
                 let amount = Int(moneyWithDraw.text!)
                 if (amount! >= 10000) {
                     let amountWithDraw = amount!
-                    self.payME!.withdraw(currentVC: self, amount: amountWithDraw, description: "", extraData: nil,
+                    payME!.withdraw(currentVC: self, amount: amountWithDraw, description: "", extraData: nil,
                             onSuccess: { success in
                                 Log.custom.push(title: "withdraw", message: success)
 
@@ -410,8 +436,44 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
     }
 
+    @objc func transferAction(sender: UIButton!) {
+        if (connectToken != "") {
+            if (moneyWithDraw.text != "") {
+                let amount = Int(moneyWithDraw.text!)
+                if (amount! >= 10000) {
+                    let amountWithDraw = amount!
+                    payME!.transfer(currentVC: self, amount: amountWithDraw, description: "", extraData: nil, onSuccess: { success in
+                        Log.custom.push(title: "withdraw", message: success)
+                    }, onError: { error in
+                        Log.custom.push(title: "withdraw", message: error)
+                        if let code = error["code"] as? Int {
+                            if (code != PayME.ResponseCode.USER_CANCELLED) {
+                                let message = error["message"] as? String
+                                self.toastMess(title: "Lỗi", value: message)
+                            }
+                        }
+                    })
+                } else {
+                    toastMess(title: "Lỗi", value: "Vui lòng chuyển hơn 10.000VND")
+                }
+            } else {
+                toastMess(title: "Lỗi", value: "Vui lòng chuyển hơn 10.000VND")
+            }
+        } else {
+            toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
+        }
+
+    }
+
     @objc func getListMethod(sender: UIButton!) {
-        payME!.getPaymentMethods(onSuccess: { listMethods in
+        var storeId = 6868
+        if (currentEnv == PayME.Env.SANDBOX) {
+            storeId = 37048160
+        }
+        if (currentEnv == PayME.Env.PRODUCTION) {
+            storeId = 57956431
+        }
+        payME!.getPaymentMethods(storeId: storeId, onSuccess: { listMethods in
             self.toastMess(title: "Lấy danh sách phương thức thanh toán thành công", value: "\(listMethods)")
         }, onError: { error in
             let message = error["message"] as? String
@@ -487,7 +549,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         //For mobile numer validation
-        if textField == phoneTextField || textField == moneyDeposit || textField == moneyWithDraw || textField == moneyPay {
+        if textField == phoneTextField || textField == moneyDeposit || textField == moneyWithDraw || textField == moneyPay || textField == moneyTransfer {
             let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")//Here change this characters based on your requirement
             let characterSet = CharacterSet(charactersIn: string)
             let maxLength = 10
@@ -595,6 +657,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(moneyWithDraw)
         sdkContainer.addSubview(payButton)
         sdkContainer.addSubview(moneyPay)
+        sdkContainer.addSubview(transferButton)
+        sdkContainer.addSubview(moneyTransfer)
         sdkContainer.addSubview(getMethodButton)
 
         view.bringSubview(toFront: envList)
@@ -711,16 +775,27 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         payButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         payButton.addTarget(self, action: #selector(payAction), for: .touchUpInside)
 
-        getMethodButton.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 10).isActive = true
-        getMethodButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
-        getMethodButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
-        getMethodButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        getMethodButton.addTarget(self, action: #selector(getListMethod), for: .touchUpInside)
-
         moneyPay.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
         moneyPay.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true
         moneyPay.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
+        transferButton.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 10).isActive = true
+        transferButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        transferButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        transferButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        transferButton.addTarget(self, action: #selector(transferAction), for: .touchUpInside)
+
+        moneyTransfer.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 10).isActive = true
+        moneyTransfer.leadingAnchor.constraint(equalTo: transferButton.trailingAnchor, constant: 10).isActive = true
+        moneyTransfer.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        moneyTransfer.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
+        getMethodButton.topAnchor.constraint(equalTo: transferButton.bottomAnchor, constant: 10).isActive = true
+        getMethodButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        getMethodButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        getMethodButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        getMethodButton.addTarget(self, action: #selector(getListMethod), for: .touchUpInside)
 
         updateViewConstraints()
         view.layoutIfNeeded()
@@ -735,7 +810,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //        a.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
 //        a.heightAnchor.constraint(equalToConstant: 200).isActive = true
 
-        sdkContainer.bottomAnchor.constraint(equalTo: sdkContainer.subviews[sdkContainer.subviews.count - 1].bottomAnchor, constant:  8).isActive = true
+        sdkContainer.bottomAnchor.constraint(equalTo: sdkContainer.subviews[sdkContainer.subviews.count - 1].bottomAnchor, constant: 8).isActive = true
 
         updateViewConstraints()
         view.layoutIfNeeded()

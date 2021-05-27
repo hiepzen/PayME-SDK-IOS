@@ -54,6 +54,7 @@ class API {
     private let appToken: String
     private let connectToken: String
     private let deviceId: String
+    private var storeId: Int = 0
 
     init(_ publicKey: String, _ privateKey: String, _ env: PayME.Env, _ appToken: String,
          _ connectToken: String, _ deviceId: String, _ appId: String) {
@@ -69,6 +70,10 @@ class API {
     func setAccessData(_ accessToken: String, _ clientId: String) {
         self.accessToken = accessToken
         self.clientId = clientId
+    }
+
+    func setExtraData(storeId: Int = 0) {
+        self.storeId = storeId
     }
 
     func uploadVideoKYC(
@@ -421,7 +426,10 @@ class API {
         let path = "/graphql"
         let variables: [String: Any] = [
             "getPaymentMethodInput": [
-                "serviceType": "OPEN_EWALLET_PAYMENT"
+                "serviceType": "OPEN_EWALLET_PAYMENT",
+                "extraData": [
+                    "storeId": storeId
+                ]
             ]
         ]
         let json: [String: Any] = [

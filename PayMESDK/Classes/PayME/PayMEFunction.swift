@@ -23,6 +23,7 @@ class PayMEFunction {
     private var loggedIn = false
     private var isShowLog = 0
     private var storeName = ""
+    private var kycMode: [String: Bool]? = nil
 
     var request: API
     var appEnv = ""
@@ -218,6 +219,7 @@ class PayMEFunction {
     ) {
         if checkPayCondition(onError) {
             PayME.currentVC = currentVC
+            request.setExtraData(storeId: storeId)
             if (amount < PaymentModalController.minAmount) {
                 onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.minAmount))" as AnyObject])
                 return
@@ -237,9 +239,11 @@ class PayMEFunction {
     }
 
     func getPaymentMethods(
+            _ storeId: Int,
             _ onSuccess: @escaping ([Dictionary<String, Any>]) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
+        request.setExtraData(storeId: storeId)
         request.getTransferMethods(onSuccess: { response in
             let items = (response["Utility"]!["GetPaymentMethod"] as! Dictionary<String, AnyObject>)["methods"] as! [Dictionary<String, AnyObject>]
             onSuccess(items)
@@ -344,9 +348,35 @@ class PayMEFunction {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config dịch vụ, vui lòng thử lại sau" as AnyObject])
                         }
 
+                        if let configKYCMode = configs.first(where: { config in
+                            let key = (config["key"] as? String) ?? ""
+                            return key == "kyc.mode.enable"
+                        }) {
+//                            self.kycMode = (configKYCMode["value"] as! [String : Bool])
+                        } else {
+                            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config dịch vụ, vui lòng thử lại sau" as AnyObject])
+                        }
+
                         onSuccess(result)
                     }, onError: { error in onError(error) })
                 }, onError: { errorAccessToken in onError(errorAccessToken) })
+    }
+
+    func KYC(
+            _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    ) {
+        if kycState != "APPROVED" {
+            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Tài khoản đã định danh" as AnyObject])
+            return
+        }
+        if kycMode == nil {
+            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config KYC, vui lòng thử lại sau" as AnyObject])
+            return
+        }
+        KYCController.reset()
+        let kycController = KYCController(payMEFunction: self, flowKYC: kycMode!)
+        kycController.kyc()
     }
 
     private func initSDK(
