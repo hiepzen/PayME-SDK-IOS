@@ -101,16 +101,16 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
     let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
+        scrollView.backgroundColor = .lightGray
         scrollView.isScrollEnabled = true
-        scrollView.alwaysBounceVertical = true
+        scrollView.alwaysBounceVertical = false
+        scrollView.isHidden = true
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
 
     let sdkContainer: UIView = {
         let container = UIView()
-        container.backgroundColor = UIColor.lightGray
-        container.isHidden = true
         container.translatesAutoresizingMaskIntoConstraints = false
         return container
     }()
@@ -286,13 +286,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             )
             self.showSpinner(onView: self.view)
             self.payME?.login(onSuccess: { success in
-                self.sdkContainer.isHidden = false
+                self.scrollView.isHidden = false
                 self.getBalance(self.refreshButton)
                 self.loginButton.backgroundColor = UIColor.gray
                 self.logoutButton.backgroundColor = UIColor.white
                 self.removeSpinner()
             }, onError: { error in
-                self.sdkContainer.isHidden = true
+                self.scrollView.isHidden = true
                 self.removeSpinner()
                 self.toastMess(title: "Lỗi", value: (error["message"] as? String) ?? "Something went wrong")
             })
@@ -322,7 +322,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
     @objc func logout(sender: UIButton!) {
         payME?.logout()
-        sdkContainer.isHidden = true
+        scrollView.isHidden = true
         loginButton.backgroundColor = UIColor.white
         logoutButton.backgroundColor = UIColor.gray
     }
@@ -411,9 +411,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
 
     @objc func getListMethod(sender: UIButton!) {
-        toastMess(title: "Lỗi", value: "qwe")
         payME!.getPaymentMethods(onSuccess: { listMethods in
-            print(listMethods)
+            self.toastMess(title: "Lấy danh sách phương thức thanh toán thành công", value: "\(listMethods)")
         }, onError: { error in
             let message = error["message"] as? String
             self.toastMess(title: "Lỗi", value: message)
@@ -582,9 +581,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         view.addSubview(phoneTextField)
         view.addSubview(loginButton)
         view.addSubview(logoutButton)
-        view.addSubview(sdkContainer)
+        view.addSubview(scrollView)
 
-//        scrollView.addSubview(sdkContainer)
+        scrollView.addSubview(sdkContainer)
 
         sdkContainer.addSubview(balance)
         sdkContainer.addSubview(priceLabel)
@@ -656,15 +655,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         logoutButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         logoutButton.addTarget(self, action: #selector(logout), for: .touchUpInside)
 
-//        scrollView.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 20).isActive = true
-//        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
-//        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
-//        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
+        scrollView.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 20).isActive = true
+        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
 
-        sdkContainer.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 20).isActive = true
-        sdkContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
-        sdkContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
-        sdkContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
+        sdkContainer.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+        sdkContainer.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        sdkContainer.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+        sdkContainer.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
 
         balance.topAnchor.constraint(equalTo: sdkContainer.topAnchor, constant: 20).isActive = true
         balance.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
@@ -723,13 +722,31 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyPay.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
+        updateViewConstraints()
+        view.layoutIfNeeded()
+
+        //them view o day
+//        let a = UIView(frame: CGRect.zero)
+//        a.backgroundColor = .red
+//        sdkContainer.addSubview(a)
+//        a.translatesAutoresizingMaskIntoConstraints = false
+//        a.topAnchor.constraint(equalTo: getMethodButton.bottomAnchor).isActive = true
+//        a.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+//        a.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+//        a.heightAnchor.constraint(equalToConstant: 200).isActive = true
+
+        sdkContainer.bottomAnchor.constraint(equalTo: sdkContainer.subviews[sdkContainer.subviews.count - 1].bottomAnchor, constant:  8).isActive = true
+
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        scrollView.contentSize = sdkContainer.frame.size
 
         let env = UserDefaults.standard.string(forKey: "env") ?? ""
         if (env == "") {
-            self.setEnv(env: PayME.Env.SANDBOX, text: "sandbox")
+            setEnv(env: PayME.Env.SANDBOX, text: "sandbox")
         } else {
             envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
-            self.setEnv(env: envData[env], text: env)
+            setEnv(env: envData[env], text: env)
         }
     }
 
