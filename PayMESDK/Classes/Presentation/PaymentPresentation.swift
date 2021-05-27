@@ -42,6 +42,7 @@ class PaymentPresentation {
     private let request: API
     private let onSuccess: (Dictionary<String, AnyObject>) -> ()
     private let onError: (Dictionary<String, AnyObject>) -> ()
+    var onNetworkError: () -> ()
     private let accessToken: String
     private let kycState: String
 
@@ -49,7 +50,9 @@ class PaymentPresentation {
             request: API, paymentViewModel: PaymentViewModel,
             accessToken: String, kycState: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-            onError: @escaping (Dictionary<String, AnyObject>) -> ()
+            onError: @escaping (Dictionary<String, AnyObject>) -> (),
+            onNetworkError: @escaping () -> () = {
+            }
     ) {
         self.request = request
         self.paymentViewModel = paymentViewModel
@@ -57,6 +60,7 @@ class PaymentPresentation {
         self.kycState = kycState
         self.onSuccess = onSuccess
         self.onError = onError
+        self.onNetworkError = onNetworkError
     }
 
     func paymentPayMEMethod(securityCode: String, orderTransaction: OrderTransaction) {
@@ -110,7 +114,8 @@ class PaymentPresentation {
                         }
                     }
                     self.onError(error)
-                })
+                },
+                onNetworkError: onNetworkError)
     }
 
     func transferByLinkedBank(transaction: String, orderTransaction: OrderTransaction, linkedId: Int, OTP: String) {
@@ -169,7 +174,8 @@ class PaymentPresentation {
                         }
                     }
                     self.onError(error)
-                })
+                },
+                onNetworkError: onNetworkError)
     }
 
     func paymentLinkedMethod(orderTransaction: OrderTransaction) {
@@ -263,7 +269,8 @@ class PaymentPresentation {
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
                         }
                     }
-                })
+                },
+                onNetworkError: onNetworkError)
     }
 
     func createSecurityCode(password: String, orderTransaction: OrderTransaction) {
@@ -305,7 +312,7 @@ class PaymentPresentation {
                 }
             }
             self.onError(error)
-        })
+        }, onNetworkError: onNetworkError)
     }
 
     func payATM(orderTransaction: OrderTransaction) {
@@ -397,7 +404,8 @@ class PaymentPresentation {
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
                         }
                     }
-                })
+                },
+                onNetworkError: onNetworkError)
     }
 
     func getListMethods(
@@ -440,7 +448,9 @@ class PaymentPresentation {
                 onSuccess(methods)
             }
 
-        }, onError: { error in onError(error) })
+        },
+                onError: { error in onError(error) },
+                onNetworkError: onNetworkError)
     }
 
     func getLinkBank() {
@@ -454,7 +464,7 @@ class PaymentPresentation {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: listBank))
         }, onError: { bankListError in
             self.onError(bankListError)
-        })
+        }, onNetworkError: onNetworkError)
     }
 
     func getFee(orderTransaction: OrderTransaction) {
@@ -466,6 +476,6 @@ class PaymentPresentation {
             }
         }, onError: { error in
             print(error)
-        })
+        }, onNetworkError: onNetworkError)
     }
 }

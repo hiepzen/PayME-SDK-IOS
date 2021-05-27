@@ -27,6 +27,7 @@ public class PayME {
         case WITHDRAW = "WITHDRAW"
         case UTILITY = "UTILITY"
         case FORGOT_PASSWORD = "FORGOT_PASSWORD"
+        case TRANSFER = "TRANSFER"
     }
 
     public enum Env: String {
@@ -115,6 +116,14 @@ public class PayME {
         payMEFunction.openWallet(true, currentVC, PayME.Action.WITHDRAW, amount, nil, nil, "", closeWhenDone, onSuccess, onError)
     }
 
+    public func transfer(
+            currentVC: UIViewController, amount: Int?, description: String?, extraData: String?, closeWhenDone: Bool = false,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void
+    ) {
+        payMEFunction.openWallet(true, currentVC, PayME.Action.TRANSFER, amount, nil, nil, "", closeWhenDone, onSuccess, onError)
+    }
+
     public func openService(
             currentVC: UIViewController, amount: Int?, description: String?, extraData: String?, service: ServiceConfig,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
@@ -140,10 +149,18 @@ public class PayME {
     }
 
     public func getPaymentMethods(
+            storeId: Int,
             onSuccess: @escaping ([Dictionary<String, Any>]) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        payMEFunction.getPaymentMethods(onSuccess, onError)
+        payMEFunction.getPaymentMethods(storeId, onSuccess, onError)
+    }
+
+    public func KYC(
+            onSuccess: @escaping (Dictionary<String, Any>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    ) {
+        payMEFunction.KYC(onSuccess, onError)
     }
 
     static private func getAppId(_ appToken: String) -> String {

@@ -52,7 +52,7 @@ func urlGraphQL(env: PayME.Env) -> String {
 
 func urlWebview(env: PayME.Env) -> String {
     if (env == PayME.Env.DEV) {
-        return "https://sbx-sdk2.payme.com.vn/active/"
+        return "https://dev-sdk.payme.com.vn/active/"
     } else if (env == PayME.Env.SANDBOX) {
         return "https://sbx-sdk.payme.com.vn/active/"
     }

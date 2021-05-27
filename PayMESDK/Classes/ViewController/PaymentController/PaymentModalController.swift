@@ -77,6 +77,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        paymentPresentation.onNetworkError = { self.removeSpinner() }
         view.backgroundColor = .white
         PaymentModalController.isShowCloseModal = true
 
@@ -115,7 +116,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     if paymentState.state == State.ATM {
                         self.setupUIATM(banks: paymentState.banks ?? self.listBank)
                     }
-
                     if paymentState.state == State.ERROR {
                         self.removeSpinner()
                         let responseError = paymentState.error!
