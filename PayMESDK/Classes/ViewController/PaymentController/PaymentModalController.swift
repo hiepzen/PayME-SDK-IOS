@@ -77,6 +77,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        paymentPresentation.onNetworkError = { self.removeSpinner() }
         view.backgroundColor = .white
         PaymentModalController.isShowCloseModal = true
 
