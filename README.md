@@ -273,6 +273,26 @@ Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action 
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
 | <code>closeWhenDone</code> | <code>false</code>          | <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
 
+### transfer() - Chuyển tiền
+
+```swift
+public func transfer(
+    currentVC : UIViewController, 
+    amount: Int?, 
+    description: String?, 
+    extraData: String?,
+    closeWhenDone: Bool = false,
+    onSuccess: (Dictionary<String, AnyObject>) -> (),
+    onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
+```
+
+Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action là <code>Action.TRANSFER</code>
+
+| **Tham số**                                                  | **Mặc định** | **Giải thích**                                               |
+| :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
+| <code>closeWhenDone</code> | <code>false</code>          | <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
+
 ### pay() - Thanh toán
 
 Hàm này được dùng khi app cần thanh toán 1 khoản tiền từ ví PayME đã được kích hoạt.
@@ -313,9 +333,21 @@ Hàm này được gọi khi từ app tích hợp khi muốn lấy danh sách c�
 
 ```swift
 public func getPaymentMethods(
+	storeId: Int,
         onSuccess: ([Dictionary<String, AnyObject>]) -> (),
         onError: (Dictionary<String, AnyObject>) -> ()
-)
+) -> ()
+```
+
+### KYC() - Mở modal định danh tài khoản
+
+Hàm này được gọi khi từ app tích hợp khi muốn mở modal định danh tài khoản ( yêu cầu tài khoản phải chưa định danh )
+
+```swift
+public func KYC(
+        onSuccess: ([Dictionary<String, AnyObject>]) -> (),
+        onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
 ```
 
 ### getWalletInfo() - **Lấy các thông tin của ví**
