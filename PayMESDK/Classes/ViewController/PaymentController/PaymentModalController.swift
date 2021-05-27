@@ -115,7 +115,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     if paymentState.state == State.ATM {
                         self.setupUIATM(banks: paymentState.banks ?? self.listBank)
                     }
-
                     if paymentState.state == State.ERROR {
                         self.removeSpinner()
                         let responseError = paymentState.error!
