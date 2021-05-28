@@ -268,6 +268,20 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
 
 
+    let kycButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
+        button.setTitle("Định danh tài khoản", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
+        button.isHidden = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
     private var connectToken: String = ""
     private var currentEnv: PayME.Env = PayME.Env.SANDBOX
 
@@ -303,31 +317,35 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                                                                      env: \(self.currentEnv)
                                                                      }
                                                                      """)
-            self.payME = PayME(
+            payME = PayME(
                     appToken: EnvironmentSettings.standard.appToken,
                     publicKey: EnvironmentSettings.standard.publicKey,
                     connectToken: self.connectToken,
                     appPrivateKey: EnvironmentSettings.standard.privateKey,
-                    env: self.currentEnv,
+                    env: currentEnv,
                     configColor: ["#75255b", "#a81308"],
                     showLog: 1
             )
-            self.showSpinner(onView: self.view)
-            self.payME?.login(onSuccess: { success in
+            showSpinner(onView: view)
+            payME?.login(onSuccess: { success in
                 self.scrollView.isHidden = false
+                if success["code"] as! PayME.KYCState == PayME.KYCState.NOT_KYC {
+                    self.kycButton.isHidden = false
+                }
                 self.getBalance(self.refreshButton)
                 self.loginButton.backgroundColor = UIColor.gray
                 self.logoutButton.backgroundColor = UIColor.white
                 self.removeSpinner()
             }, onError: { error in
                 self.scrollView.isHidden = true
+
                 self.removeSpinner()
                 self.toastMess(title: "Lỗi", value: (error["message"] as? String) ?? "Something went wrong")
             })
         } else {
             let alert = UIAlertController(title: "Success", message: "Vui lòng nhập userID", preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+            present(alert, animated: true, completion: nil)
         }
     }
 
@@ -479,6 +497,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             self.toastMess(title: "Lấy danh sách phương thức thanh toán thành công", value: "\(listMethods)")
         }, onError: { error in
             let message = error["message"] as? String
+            self.toastMess(title: "Lỗi", value: message)
+        })
+    }
+
+    @objc func onKYC() {
+        payME!.KYC(currentVC: self, onSuccess: { dictionary in
+
+        }, onError: { dictionary in
+            let message = dictionary["message"] as? String
             self.toastMess(title: "Lỗi", value: message)
         })
     }
@@ -662,6 +689,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(transferButton)
         sdkContainer.addSubview(moneyTransfer)
         sdkContainer.addSubview(getMethodButton)
+        sdkContainer.addSubview(kycButton)
 
         view.bringSubview(toFront: envList)
 
@@ -798,6 +826,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         getMethodButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         getMethodButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         getMethodButton.addTarget(self, action: #selector(getListMethod), for: .touchUpInside)
+
+        kycButton.topAnchor.constraint(equalTo: getMethodButton.bottomAnchor, constant: 10).isActive = true
+        kycButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        kycButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        kycButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        kycButton.addTarget(self, action: #selector(onKYC), for: .touchUpInside)
 
         updateViewConstraints()
         view.layoutIfNeeded()

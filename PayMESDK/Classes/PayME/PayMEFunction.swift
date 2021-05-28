@@ -198,7 +198,7 @@ class PayMEFunction {
                         "serviceCode": "\(serviceCode)",
                         "amount": "\(checkIntNil(input: amount))",
                         "closeWhenDone": \(closeWhenDone),
-                        "description: "\(description)"
+                        "description": "\(description ?? "")"
                       },
                       "env": "\(env.rawValue)",
                       "showLog": "\(isShowLog)"
@@ -359,7 +359,16 @@ class PayMEFunction {
                             let key = (config["key"] as? String) ?? ""
                             return key == "kyc.mode.enable"
                         }) {
-//                            self.kycMode = (configKYCMode["value"] as! [String : Bool])
+                            if let kycMode = configKYCMode["value"] as? [String : Bool] {
+                                self.kycMode = kycMode
+                            } else {
+                                onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config KYC, vui lòng thử lại sau" as AnyObject])
+                                self.kycMode = [
+                                    "identifyImg": true,
+                                    "faceImg": true,
+                                    "kycVideo": true
+                                ]
+                            }
                         } else {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config dịch vụ, vui lòng thử lại sau" as AnyObject])
                         }
@@ -370,10 +379,11 @@ class PayMEFunction {
     }
 
     func KYC(
+            _ currentVC: UIViewController,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        if kycState != "APPROVED" {
+        if kycState == "APPROVED" {
             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Tài khoản đã định danh" as AnyObject])
             return
         }
@@ -381,6 +391,7 @@ class PayMEFunction {
             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config KYC, vui lòng thử lại sau" as AnyObject])
             return
         }
+        PayME.currentVC = currentVC
         KYCController.reset()
         let kycController = KYCController(payMEFunction: self, flowKYC: kycMode!)
         kycController.kyc()

@@ -26,11 +26,11 @@ class KYCController {
         PayME.currentVC?.navigationItem.hidesBackButton = true
         PayME.currentVC?.navigationController?.isNavigationBarHidden = true
         let popupKYC = PopupKYC()
-        if (KYCController.flowKYC!["kycIdentifyImg"]! == true) {
+        if (KYCController.flowKYC!["identifyImg"]! == true) {
             print("flow1")
             popupKYC.active = 0
             PayME.currentVC?.present(popupKYC, animated: true)
-        } else if (KYCController.flowKYC!["kycFace"]! == true) {
+        } else if (KYCController.flowKYC!["faceImg"]! == true) {
             print("flow2")
             popupKYC.active = 1
             PayME.currentVC?.present(popupKYC, animated: true)
