@@ -197,7 +197,8 @@ class PayMEFunction {
                         "type": "\(action)",
                         "serviceCode": "\(serviceCode)",
                         "amount": "\(checkIntNil(input: amount))",
-                        "closeWhenDone": \(closeWhenDone)
+                        "closeWhenDone": \(closeWhenDone),
+                        "description: "\(description)"
                       },
                       "env": "\(env.rawValue)",
                       "showLog": "\(isShowLog)"

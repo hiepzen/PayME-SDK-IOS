@@ -121,7 +121,7 @@ public class PayME {
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        payMEFunction.openWallet(true, currentVC, PayME.Action.TRANSFER, amount, nil, nil, "", closeWhenDone, onSuccess, onError)
+        payMEFunction.openWallet(true, currentVC, PayME.Action.TRANSFER, amount, description, nil, "", closeWhenDone, onSuccess, onError)
     }
 
     public func openService(
