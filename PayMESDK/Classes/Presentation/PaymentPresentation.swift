@@ -458,8 +458,10 @@ class PaymentPresentation {
             let banks = bankListResponse["Setting"]!["banks"] as! [[String: AnyObject]]
             var listBank: [Bank] = []
             for bank in banks {
-                let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int, cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String, shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String)
-                listBank.append(temp)
+                if bank["depositable"] as? Bool ?? false && ((bank["cardNumberLength"] as? Int) != nil) && ((bank["cardPrefix"] as? String) != nil) {
+                    let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int, cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String, shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String)
+                    listBank.append(temp)
+                }
             }
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: listBank))
         }, onError: { bankListError in

@@ -34,6 +34,7 @@ public class PayME {
         case SANDBOX = "sandbox"
         case PRODUCTION = "production"
         case DEV = "dev"
+        case STAGING = "staging"
     }
 
     public enum Language: String {
