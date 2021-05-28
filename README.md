@@ -345,6 +345,7 @@ Hàm này được gọi khi từ app tích hợp khi muốn mở modal định 
 
 ```swift
 public func KYC(
+	currentVC: UIViewController,
         onSuccess: ([Dictionary<String, AnyObject>]) -> (),
         onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
