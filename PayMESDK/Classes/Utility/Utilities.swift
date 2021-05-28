@@ -46,6 +46,8 @@ func urlGraphQL(env: PayME.Env) -> String {
         return "https://dev-fe.payme.net.vn"
     } else if (env == PayME.Env.SANDBOX) {
         return "https://sbx-fe.payme.vn"
+    } else if (env == PayME.Env.STAGING) {
+        return "https://sfe.payme.vn"
     }
     return "https://fe.payme.vn"
 }

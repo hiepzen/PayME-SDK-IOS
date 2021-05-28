@@ -7,7 +7,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var floatingButtonController: FloatingButtonController = FloatingButtonController()
     var payME: PayME?
     var activeTextField: UITextField? = nil
-    let envData: Dictionary = ["dev": PayME.Env.DEV, "sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION]
+    let envData: Dictionary = ["dev": PayME.Env.DEV, "sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION, "staging": PayME.Env.STAGING]
 
     let environment: UILabel = {
         let label = UILabel()
