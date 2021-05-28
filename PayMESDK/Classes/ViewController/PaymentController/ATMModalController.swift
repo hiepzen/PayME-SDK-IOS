@@ -96,7 +96,7 @@ class ATMModal: UIViewController {
             let dateArr = issuedAt!.components(separatedBy: "/")
             let month = Int(dateArr[0]) ?? 0
             let year = Int(dateArr[1]) ?? 0
-            if (month == 0 || year == 0 || month > 12 || year > 21 || month <= 0) {
+            if (month == 0 || year == 0 || month > 12 || month <= 0) {
                 atmView.dateInput.errorMessage = "Vui lòng nhập ngày phát hành thẻ hợp lệ"
                 atmView.dateInput.updateState(state: .error)
                 return

@@ -580,17 +580,28 @@ class API {
 
     func getFee(
             amount: Int,
+            payment: [String: Any]?,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onNetworkError: @escaping () -> () = {}
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let variables: [String: Any] = ["getFeeInput": [
-            "clientId": clientId,
-            "serviceType": "OPEN_EWALLET_PAYMENT",
-            "amount": amount
-        ]]
+        let variables: [String: Any] = {
+            if let paymentArg = payment {
+                return ["getFeeInput": [
+                    "clientId": clientId,
+                    "serviceType": "OPEN_EWALLET_PAYMENT",
+                    "payment": paymentArg,
+                    "amount": amount
+                ]]
+            }
+            return ["getFeeInput": [
+                "clientId": clientId,
+                "serviceType": "OPEN_EWALLET_PAYMENT",
+                "amount": amount
+            ]]
+        }()
         let json: [String: Any] = [
             "query": GraphQuery.getFeeGraphQLQuery,
             "variables": variables,

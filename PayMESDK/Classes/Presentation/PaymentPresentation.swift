@@ -14,6 +14,7 @@ enum ResponseErrorCode {
     case REQUIRED_OTP
     case REQUIRED_VERIFY
     case INVALID_OTP
+    case OVER_QUOTA
 }
 
 struct ResponseError {
@@ -486,7 +487,44 @@ class PaymentPresentation {
     }
 
     func getFee(orderTransaction: OrderTransaction) {
-        request.getFee(amount: orderTransaction.amount, onSuccess: { response in
+        let payment: [String: Any]? = {
+            switch orderTransaction.paymentMethod?.type {
+            case MethodType.WALLET.rawValue:
+                return [
+                    "wallet": [
+                        "active": true
+                    ]
+                ]
+            case MethodType.BANK_CARD.rawValue:
+               return [
+                "bankCard": [
+                    "cardNumber": orderTransaction.paymentMethod?.dataBank?.cardNumber ?? "",
+                    "cardHolder": orderTransaction.paymentMethod?.dataBank?.cardHolder ?? "",
+                    "issuedAt": orderTransaction.paymentMethod?.dataBank?.issueDate ?? ""
+                ]
+            ]
+            case MethodType.LINKED.rawValue:
+                return [
+                    "linked": [
+                        "linkedId": orderTransaction.paymentMethod?.dataLinked?.linkedId ?? 0,
+                        "envName": "MobileApp"
+                    ]
+                ]
+
+            default: return nil
+            }
+        }()
+        request.getFee(amount: orderTransaction.amount, payment: payment, onSuccess: { response in
+            if let state = (response["Utility"]!["GetFee"] as? [String: AnyObject])?["state"] as? String {
+                if state == "OVER_DAY_QUOTA" || state == "OVER_MONTH_QUOTA" {
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR,
+                            error: ResponseError(code: ResponseErrorCode.OVER_QUOTA,
+                                    message: (response["Utility"]!["GetFee"] as? [String: AnyObject])?["message"] as? String ??
+                                            "Vượt qua giới hạn giao dịch. Vui lòng chọn phương thức khác để thực hiện giao dịch hoặc thử lại sau."
+                            )))
+                    return
+                }
+            }
             if let fee = ((response["Utility"]!["GetFee"] as? [String: AnyObject])?["fee"] as? [String: AnyObject])?["fee"] as? Int {
                 orderTransaction.paymentMethod?.fee = fee
                 orderTransaction.total = orderTransaction.amount + fee

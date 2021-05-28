@@ -173,11 +173,13 @@ class ResultView: UIView {
             let animation = Animation.named("Result_Thanh_Cong", bundle: resourceBundle!)
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
+            button.setTitle("HOÀN TẤT", for: .normal)
         } else {
             failLabel.text = result.failReasonLabel
             let animation = Animation.named("Result_That_Bai", bundle: resourceBundle!)
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
+            button.setTitle("ĐÃ HIỂU", for: .normal)
         }
         let transactionView = TransactionInformationView(id: result.transactionInfo.transaction, time: result.transactionInfo.transactionTime)
         detailView.addSubview(transactionView)

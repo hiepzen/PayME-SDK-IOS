@@ -151,6 +151,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         if responseError.code == ResponseErrorCode.REQUIRED_VERIFY {
                             self.setupWebview(responseError)
                         }
+                        if responseError.code == ResponseErrorCode.OVER_QUOTA {
+                            self.toastMessError(title: "Thông báo", message: responseError.message) { [self] alertAction in
+                                if paymentMethodID != nil {
+                                    dismiss(animated: true)
+                                }
+                            }
+                        }
                     }
                 }).disposed(by: disposeBag)
     }
