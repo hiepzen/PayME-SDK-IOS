@@ -6,6 +6,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
             showSpinner(onView: view)
+            otpView.txtErrorMessage.isHidden = true
             paymentPresentation.transferByLinkedBank(transaction: transaction, orderTransaction: orderTransaction, linkedId: (getMethodSelected().dataLinked?.linkedId)!, OTP: code)
         }
     }
@@ -131,6 +132,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             self.securityCode.otpView.reloadAppearance()
                             self.securityCode.txtErrorMessage.text = responseError.message
                             self.securityCode.txtErrorMessage.isHidden = false
+                            self.panModalSetNeedsLayoutUpdate()
+                            self.panModalTransition(to: .longForm)
+                        }
+                        if responseError.code == ResponseErrorCode.INVALID_OTP {
+                            self.otpView.otpView.text = ""
+                            self.otpView.otpView.reloadAppearance()
+                            self.otpView.txtErrorMessage.text = responseError.message
+                            self.otpView.txtErrorMessage.isHidden = false
                             self.panModalSetNeedsLayoutUpdate()
                             self.panModalTransition(to: .longForm)
                         }

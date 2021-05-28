@@ -41,6 +41,15 @@ internal class OTPView: UIView {
         return label
     }()
 
+    let txtErrorMessage: UILabel = {
+        let label = UILabel()
+        label.textColor = .red
+        label.backgroundColor = .clear
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     let otpView: OTPInput = {
         let pinField = OTPInput()
         pinField.layer.cornerRadius = 10
@@ -82,8 +91,14 @@ internal class OTPView: UIView {
         self.addSubview(closeButton)
         self.addSubview(txtLabel)
         self.addSubview(otpView)
+        addSubview(txtErrorMessage)
         self.addSubview(sendOtpButton)
 
+        txtErrorMessage.text = "OTP không chính xác"
+        txtErrorMessage.isHidden = true
+        txtErrorMessage.lineBreakMode = .byWordWrapping
+        txtErrorMessage.numberOfLines = 0
+        txtErrorMessage.textAlignment = .center
 
         txtLabel.text = "Xác thực OTP"
         roleLabel.text = "Nhập mã OTP đã được gửi qua số điện thoại đăng ký thẻ"
@@ -113,7 +128,12 @@ internal class OTPView: UIView {
         otpView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -15).isActive = true
         otpView.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
-        sendOtpButton.topAnchor.constraint(equalTo: otpView.bottomAnchor, constant: 30).isActive = true
+        txtErrorMessage.topAnchor.constraint(equalTo: otpView.bottomAnchor, constant: 16).isActive = true
+        txtErrorMessage.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        txtErrorMessage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
+        txtErrorMessage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30).isActive = true
+
+        sendOtpButton.topAnchor.constraint(equalTo: txtErrorMessage.bottomAnchor, constant: 30).isActive = true
         sendOtpButton.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         sendOtpButton.addTarget(self, action: #selector(onPress), for: .touchUpInside)
     }

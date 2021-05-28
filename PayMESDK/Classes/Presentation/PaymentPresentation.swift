@@ -13,6 +13,7 @@ enum ResponseErrorCode {
     case PASSWORD_INVALID
     case REQUIRED_OTP
     case REQUIRED_VERIFY
+    case INVALID_OTP
 }
 
 struct ResponseError {
@@ -150,19 +151,32 @@ class PaymentPresentation {
                                 "payment": ["transaction": paymentInfo["transaction"] as? String]
                             ] as [String: AnyObject]
                             self.onSuccess(responseSuccess)
+                            let result = Result(
+                                    type: ResultType.SUCCESS,
+                                    orderTransaction: orderTransaction,
+                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                            )
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                         } else {
-                            let message = payInfo["message"] as? String
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                            if let state = payInfo["payment"]!["state"] as? String {
+                                if state == "INVALID_OTP" {
+                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
+                                            code: ResponseErrorCode.INVALID_OTP, message: payInfo["message"] as? String ?? "Có lỗi xảy ra"
+                                    )))
+                                }
+                                if state == "FAILED" {
+                                    let message = payInfo["message"] as? String
+                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                                    let result = Result(
+                                            type: ResultType.FAIL,
+                                            failReasonLabel: payInfo["message"] as? String ?? "Có lỗi xảy ra",
+                                            orderTransaction: orderTransaction,
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    )
+                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                }
+                            }
                         }
-
-                        let message = payInfo["message"] as? String
-                        let result = Result(
-                                type: succeeded ? ResultType.SUCCESS : ResultType.FAIL,
-                                failReasonLabel: message ?? "Có lỗi xảy ra",
-                                orderTransaction: orderTransaction,
-                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                        )
-                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                     } else {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
                     }
