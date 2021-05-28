@@ -70,7 +70,7 @@ class Method: UITableViewCell {
                 methodView.buttonTitle = "Định danh ngay"
                 methodView.note = "(*) Vui lòng định danh tài khoản ví trước khi sử dụng"
                 methodView.onPress = {
-                    self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
+                    PayME.currentVC?.dismiss(animated: true) { payMEFunction.KYC(PayME.currentVC!, { dictionary in}, { dictionary in}) }
                 }
             } else {
                 let balance = presentable.dataWallet?.balance ?? 0

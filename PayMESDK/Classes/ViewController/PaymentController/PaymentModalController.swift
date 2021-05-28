@@ -77,7 +77,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        paymentPresentation.onNetworkError = { self.removeSpinner() }
+        paymentPresentation.onNetworkError = {
+            self.removeSpinner()
+        }
         view.backgroundColor = .white
         PaymentModalController.isShowCloseModal = true
 
@@ -627,7 +629,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             if payMEFunction.accessToken == "" {
                 openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
             } else if payMEFunction.kycState != "APPROVED" {
-                openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
+                PayME.currentVC?.dismiss(animated: true) {
+                    self.payMEFunction.KYC(PayME.currentVC!, { dictionary in }, { dictionary in })
+                }
             } else {
                 let balance = method.dataWallet?.balance ?? 0
                 if balance < orderTransaction.amount {
