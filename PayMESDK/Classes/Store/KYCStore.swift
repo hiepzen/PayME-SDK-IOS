@@ -14,12 +14,14 @@ class KYCController {
     static var videoKYC: URL?
     static var active: Int?
     static var flowKYC: [String: Bool]?
+    static var onSuccess: () -> () = {}
 
     static var payMEFunction: PayMEFunction?
 
-    init(payMEFunction: PayMEFunction, flowKYC: [String: Bool]) {
+    init(payMEFunction: PayMEFunction, flowKYC: [String: Bool], onSuccess: @escaping () -> () = {}) {
         KYCController.payMEFunction = payMEFunction
         KYCController.flowKYC = flowKYC
+        KYCController.onSuccess = onSuccess
     }
 
     func kyc() {
@@ -55,7 +57,9 @@ class KYCController {
                 imageDocument: KYCController.imageDocument,
                 imageAvatar: KYCController.imageAvatar,
                 videoKYC: KYCController.videoKYC,
-                active: KYCController.active)
+                active: KYCController.active,
+                onSuccess: KYCController.onSuccess
+        )
         uploadKYC.upload()
     }
 
