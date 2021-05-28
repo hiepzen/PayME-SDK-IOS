@@ -14,7 +14,7 @@ import Foundation
 
 public class Bank {
     internal var id : Int!
-    internal var cardNumberLength: Int!
+    internal var cardNumberLength: Int
     internal var cardPrefix: String = ""
     internal var enName: String = ""
     internal var viName: String = ""

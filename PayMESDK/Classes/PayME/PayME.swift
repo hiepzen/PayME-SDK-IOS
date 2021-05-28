@@ -34,6 +34,7 @@ public class PayME {
         case SANDBOX = "sandbox"
         case PRODUCTION = "production"
         case DEV = "dev"
+        case STAGING = "staging"
     }
 
     public enum Language: String {
@@ -157,10 +158,11 @@ public class PayME {
     }
 
     public func KYC(
+            currentVC: UIViewController,
             onSuccess: @escaping (Dictionary<String, Any>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        payMEFunction.KYC(onSuccess, onError)
+        payMEFunction.KYC(currentVC, onSuccess, onError)
     }
 
     static private func getAppId(_ appToken: String) -> String {

@@ -278,6 +278,7 @@ class GraphQuery {
                                         swiftCode
                                         cardNumberLength
                                         cardPrefix
+                                        depositable
                                       }
                                     }
                                   }
