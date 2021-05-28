@@ -387,6 +387,10 @@ class PayMEFunction {
             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Tài khoản đã định danh" as AnyObject])
             return
         }
+        if kycState == "PENDING" {
+            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Tài khoản đang chờ duyệt định danh" as AnyObject])
+            return
+        }
         if kycMode == nil {
             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config KYC, vui lòng thử lại sau" as AnyObject])
             return
