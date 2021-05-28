@@ -504,7 +504,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     ["key": "Số thẻ ATM", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.cardNumberFormatted() ?? "N/A")],
                     ["key": "Họ tên chủ thẻ", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.cardHolder ?? "N/A")],
                     ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
-                    ["key": "Số tiền trừ ví", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
+                    ["key": "Số tiền thanh toán", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
                 ])
                 confirmationView.onPressConfirm = {
                     self.showSpinner(onView: self.view)
