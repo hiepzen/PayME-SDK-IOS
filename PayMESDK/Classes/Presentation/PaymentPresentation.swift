@@ -416,7 +416,9 @@ class PaymentPresentation {
             let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
             var methods: [PaymentMethod] = []
             for (index, item) in items.enumerated() {
-                let methodType = item["type"] as! String
+                guard let methodType = item["type"] as? String else {
+                    continue
+                }
                 let methodInformation = PaymentMethod(
                         methodId: (item["methodId"] as! Int), type: item["type"] as! String,
                         title: item["title"] as! String, label: item["label"] as! String,
