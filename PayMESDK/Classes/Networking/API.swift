@@ -48,6 +48,7 @@ class API {
     private let publicKey: String
     private let privateKey: String
     private var accessToken: String = ""
+    private var accessTokenKYC: String = ""
     private let env: PayME.Env
     private var clientId: String = ""
     private let appId: String
@@ -67,9 +68,10 @@ class API {
         self.appId = appId
     }
 
-    func setAccessData(_ accessToken: String, _ clientId: String) {
+    func setAccessData(_ accessToken: String, _ accessTokenKYC: String, _ clientId: String?) {
         self.accessToken = accessToken
-        self.clientId = clientId
+        self.clientId = clientId ?? self.clientId
+        self.accessTokenKYC = accessTokenKYC
     }
 
     func setExtraData(storeId: Int = 0) {
@@ -472,7 +474,15 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        let request = NetworkRequestGraphQL(appId: appId, url: url, path: path, token: accessTokenKYC, params: params, publicKey: publicKey, privateKey: privateKey)
+        if (env == PayME.Env.DEV) {
+            request.setOnRequest(onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) })
+        } else {
+            request.setOnRequestCrypto(onError: { error in onError(error) },
+                    onSuccess: { data in onSuccess(data) },
+                    onNetworkError: { onNetworkError() }
+            )
+        }
     }
 
     func getBankName(

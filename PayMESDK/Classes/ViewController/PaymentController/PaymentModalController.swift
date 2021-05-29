@@ -646,7 +646,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
             } else if payMEFunction.kycState != "APPROVED" {
                 PayME.currentVC?.dismiss(animated: true) {
-                    self.payMEFunction.KYC(PayME.currentVC!, { dictionary in }, { dictionary in })
+                    self.payMEFunction.KYC(PayME.currentVC!, { }, { dictionary in })
                 }
             } else {
                 let balance = method.dataWallet?.balance ?? 0

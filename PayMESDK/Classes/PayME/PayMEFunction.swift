@@ -318,7 +318,7 @@ class PayMEFunction {
                     self.dataInit = result
                     self.storeName = storeName ?? ""
 
-                    self.request.setAccessData(kycState == "APPROVED" ? self.accessToken : "", self.clientId)
+                    self.request.setAccessData(kycState == "APPROVED" ? self.accessToken : "", self.accessToken, self.clientId)
 
                     self.request.getSetting(onSuccess: { success in
                         let configs = success["Setting"]!["configs"] as! [Dictionary<String, AnyObject>]
@@ -362,7 +362,6 @@ class PayMEFunction {
                             if let kycMode = configKYCMode["value"] as? [String : Bool] {
                                 self.kycMode = kycMode
                             } else {
-                                onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config KYC, vui lòng thử lại sau" as AnyObject])
                                 self.kycMode = [
                                     "identifyImg": true,
                                     "faceImg": true,
@@ -380,15 +379,19 @@ class PayMEFunction {
 
     func KYC(
             _ currentVC: UIViewController,
-            _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            _ onSuccess: @escaping () -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
+        if !isAccountActivated {
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+            return
+        }
         if kycState == "APPROVED" {
             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Tài khoản đã định danh" as AnyObject])
             return
         }
         if kycState == "PENDING" {
-            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Tài khoản đang chờ duyệt định danh" as AnyObject])
+            openWallet(false, currentVC, PayME.Action.OPEN, nil, "", "", "", false, { dictionary in  }, onError)
             return
         }
         if kycMode == nil {
@@ -397,7 +400,7 @@ class PayMEFunction {
         }
         PayME.currentVC = currentVC
         KYCController.reset()
-        let kycController = KYCController(payMEFunction: self, flowKYC: kycMode!)
+        let kycController = KYCController(payMEFunction: self, flowKYC: kycMode!, onSuccess: onSuccess)
         kycController.kyc()
     }
 

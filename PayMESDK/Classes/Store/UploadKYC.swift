@@ -76,36 +76,48 @@ public class UploadKYC {
                                             navigationArray.removeLast()
                                         }
                                         PayME.currentVC?.navigationController?.viewControllers = navigationArray
-                                        (PayME.currentVC?.navigationController?.visibleViewController as! WebViewController).reload()
+                                        (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.reload()
+                                        self.onSuccess()
                                     }
                                 }
                             } else {
+                                print("minh khoa 4")
+                                print(result)
                                 PayME.currentVC?.removeSpinner()
                                 self.toastMess(title: "Lỗi", message: result["message"] as? String ?? "Something went wrong")
                             }
                         } else {
+                            print("minh khoa 3")
+                            print(result)
                             PayME.currentVC?.removeSpinner()
                             self.toastMess(title: "Lỗi", message: result["message"] as? String ?? "Something went wrong")
                         }
                     }
-                }, onError: { error in
-            if let extensions = error["extensions"] as? [String: AnyObject] {
-                let code = extensions["code"] as? Int
-                if (code != nil) {
-                    if (code == 401) {
-                        self.payMEFunction.resetInitState()
-                        guard let navigationController = PayME.currentVC?.navigationController else {
-                            return
+                },
+                onError: { error in
+                    if let extensions = error["extensions"] as? [String: AnyObject] {
+                        let code = extensions["code"] as? Int
+                        if (code != nil) {
+                            if (code == 401) {
+                                self.payMEFunction.resetInitState()
+                                guard let navigationController = PayME.currentVC?.navigationController else {
+                                    return
+                                }
+                                let navigationArray = navigationController.viewControllers
+                                PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                            }
                         }
-                        let navigationArray = navigationController.viewControllers
-                        PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                        print("minh khoa 1")
+                        print(error)
+                        self.toastMess(title: "Lỗi", message: error["message"] as? String ?? "Something went wrong")
+                        PayME.currentVC?.removeSpinner()
+                    } else {
+                        print("minh khoa 2")
+                        print(error)
+                        self.toastMess(title: "Lỗi", message: "Something went wrong")
+                        PayME.currentVC?.removeSpinner()
                     }
-                }
-                self.toastMess(title: "Lỗi", message: error["message"] as? String ?? "Something went wrong")
-                PayME.currentVC?.removeSpinner()
-            }
-
-        })
+                })
     }
 
     private func uploadVideo() {

@@ -159,7 +159,7 @@ public class PayME {
 
     public func KYC(
             currentVC: UIViewController,
-            onSuccess: @escaping (Dictionary<String, Any>) -> (),
+            onSuccess: @escaping () -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         payMEFunction.KYC(currentVC, onSuccess, onError)

@@ -250,10 +250,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 if (actions == "onRegisterSuccess") {
                     if let data = dictionary["data"] as? [String: AnyObject] {
                         if let dataInit = data["Init"] as? [String: AnyObject] {
+                            let accessToken = (dataInit["accessToken"] as? String) ?? ""
+                            let kycState = (dataInit["kyc"]!["state"] as? String) ?? ""
                             payMEFunction?.dataInit = dataInit
-                            payMEFunction?.accessToken = (dataInit["accessToken"] as? String) ?? ""
-                            payMEFunction?.kycState = (dataInit["kyc"]!["state"] as? String) ?? ""
+                            payMEFunction?.accessToken = accessToken
+                            payMEFunction?.kycState = kycState
                             payMEFunction?.handShake = (dataInit["handShake"] as? String) ?? ""
+                            payMEFunction?.request.setAccessData(kycState == "APPROVED" ? accessToken : "", accessToken, nil)
                         }
                     }
                     onSuccess!(dictionary)

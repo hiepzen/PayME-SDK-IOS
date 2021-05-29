@@ -502,7 +502,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
 
     @objc func onKYC() {
-        payME!.KYC(currentVC: self, onSuccess: { dictionary in
+        payME!.KYC(currentVC: self, onSuccess: {
             self.kycButton.isHidden = true
         }, onError: { dictionary in
             let message = dictionary["message"] as? String
