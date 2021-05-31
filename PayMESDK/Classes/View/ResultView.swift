@@ -98,7 +98,6 @@ class ResultView: UIView {
         addSubview(topView)
         addSubview(containerView)
         addSubview(button)
-//        addSubview(closeButton)
 
         containerView.addSubview(detailView)
 
@@ -106,14 +105,10 @@ class ResultView: UIView {
         topView.addSubview(nameLabel)
         topView.addSubview(roleLabel)
         topView.addSubview(failLabel)
-        // Semi-transparent background
-//        closeButton.topAnchor.constraint(equalTo: topAnchor, constant: 19).isActive = true
-//        closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
 
         containerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         containerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         containerView.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
-        containerView.bottomAnchor.constraint(equalTo: button.topAnchor, constant: -8).isActive = true
 
         topView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         topView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
@@ -141,14 +136,14 @@ class ResultView: UIView {
         topView.bottomAnchor.constraint(equalTo: failLabel.bottomAnchor, constant: 18).isActive = true
 
         //detailView - bottomView
-        detailView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 20).isActive = true
+        detailView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20).isActive = true
         detailView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         detailView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
 
         //methodView
         button.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         button.heightAnchor.constraint(equalToConstant: 45).isActive = true
-        button.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 20).isActive = true
+        button.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8).isActive = true
         button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         if #available(iOS 11.0, *) {
@@ -193,7 +188,7 @@ class ResultView: UIView {
             ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(12, 170, 38)],
             ["key": "Nội dung", "value": result.orderTransaction.note]
         ])
-        containerView.addSubview(serviceView)
+        detailView.addSubview(serviceView)
         serviceView.topAnchor.constraint(equalTo: transactionView.bottomAnchor, constant: 12).isActive = true
         serviceView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         serviceView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
@@ -225,7 +220,7 @@ class ResultView: UIView {
                 break
             }
 
-            containerView.addSubview(paymentView)
+            detailView.addSubview(paymentView)
             paymentView.topAnchor.constraint(equalTo: serviceView.bottomAnchor, constant: 12).isActive = true
             paymentView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
             paymentView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
@@ -233,10 +228,10 @@ class ResultView: UIView {
 
         updateConstraints()
         layoutIfNeeded()
-        var contentRect: CGRect = containerView.subviews.reduce(into: .zero) { rect, view in
+        var contentRect: CGRect = detailView.subviews.reduce(into: .zero) { rect, view in
             rect = rect.union(view.frame)
         }
-        contentRect = contentRect.union(CGRect(x: 0, y: contentRect.size.height - 16, width: contentRect.size.width, height: 0))
+        contentRect = contentRect.union(CGRect(x: 0, y: contentRect.size.height, width: contentRect.size.width, height: 32))
 
         containerView.contentSize = contentRect.size
         containerView.showsHorizontalScrollIndicator = false

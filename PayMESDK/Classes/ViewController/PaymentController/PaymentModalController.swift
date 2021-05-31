@@ -587,7 +587,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             resultView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
             resultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
             resultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-//            resultView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
             resultView.adaptView(result: result)
             modalHeight = resultView.frame.size.height
             updateViewConstraints()
