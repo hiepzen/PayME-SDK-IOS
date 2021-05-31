@@ -51,6 +51,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var onPay: String = "onPay"
     var onDeposit: String = "onDeposit"
     var onWithdraw: String = "onWithdraw"
+    var onTransfer: String = "onTransfer"
     var form = ""
     var imageFront: UIImage?
     var imageBack: UIImage?
@@ -85,6 +86,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onRegisterSuccess)
         userController.add(self, name: onDeposit)
         userController.add(self, name: onWithdraw)
+        userController.add(self, name: onTransfer)
         userController.addUserScript(getZoomDisableScript())
 
         let config = WKWebViewConfiguration()
@@ -228,7 +230,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        if message.name == onDeposit || message.name == onWithdraw {
+        if message.name == onDeposit || message.name == onWithdraw || message.name == onTransfer {
             onCloseWebview()
             if let dictionary = message.body as? [String: AnyObject] {
                 let status = dictionary["data"]!["status"] as! String
