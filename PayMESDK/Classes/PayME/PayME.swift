@@ -157,7 +157,7 @@ public class PayME {
         payMEFunction.getPaymentMethods(storeId, onSuccess, onError)
     }
 
-    public func KYC(
+    public func openKYC(
             currentVC: UIViewController,
             onSuccess: @escaping () -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
