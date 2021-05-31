@@ -339,12 +339,12 @@ public func getPaymentMethods(
 ) -> ()
 ```
 
-### KYC() - Mở modal định danh tài khoản
+### openKYC() - Mở modal định danh tài khoản
 
 Hàm này được gọi khi từ app tích hợp khi muốn mở modal định danh tài khoản ( yêu cầu tài khoản phải chưa định danh )
 
 ```swift
-public func KYC(
+public func openKYC(
 	currentVC: UIViewController,
         onSuccess: ([Dictionary<String, AnyObject>]) -> (),
         onError: (Dictionary<String, AnyObject>) -> ()
