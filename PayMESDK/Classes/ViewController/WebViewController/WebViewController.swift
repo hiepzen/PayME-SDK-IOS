@@ -254,6 +254,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                         if let dataInit = data["Init"] as? [String: AnyObject] {
                             let accessToken = (dataInit["accessToken"] as? String) ?? ""
                             let kycState = (dataInit["kyc"]!["state"] as? String) ?? ""
+                            let isAccountActivated = (dataInit["isAccountActived"] as? Bool) ?? true
+                            payMEFunction?.isAccountActivated = isAccountActivated
                             payMEFunction?.dataInit = dataInit
                             payMEFunction?.accessToken = accessToken
                             payMEFunction?.kycState = kycState
