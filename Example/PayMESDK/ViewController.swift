@@ -462,7 +462,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let amount = Int(moneyWithDraw.text!)
                 if (amount! >= 10000) {
                     let amountWithDraw = amount!
-                    payME!.transfer(currentVC: self, amount: amountWithDraw, description: "", extraData: nil, onSuccess: { success in
+                    payME!.transfer(currentVC: self, amount: amountWithDraw, description: "", extraData: nil, closeWhenDone: true, onSuccess: { success in
                         Log.custom.push(title: "withdraw", message: success)
                     }, onError: { error in
                         Log.custom.push(title: "withdraw", message: error)
@@ -502,7 +502,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
 
     @objc func onKYC() {
-        payME!.KYC(currentVC: self, onSuccess: {
+        payME!.openKYC(currentVC: self, onSuccess: {
             self.kycButton.isHidden = true
         }, onError: { dictionary in
             let message = dictionary["message"] as? String
