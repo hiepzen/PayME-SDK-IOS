@@ -18,15 +18,13 @@ public class UploadKYC {
     private var pathAvatar: String?
     private var pathVideo: String?
     private let payMEFunction: PayMEFunction
-    private let onSuccess: () -> ()
 
-    init(payMEFunction: PayMEFunction, imageDocument: [UIImage]?, imageAvatar: UIImage?, videoKYC: URL?, active: Int?, onSuccess: @escaping () -> ()) {
+    init(payMEFunction: PayMEFunction, imageDocument: [UIImage]?, imageAvatar: UIImage?, videoKYC: URL?, active: Int?) {
         self.payMEFunction = payMEFunction
         self.imageDocument = imageDocument
         self.imageAvatar = imageAvatar
         self.videoKYC = videoKYC
         self.active = active
-        self.onSuccess = onSuccess
     }
 
     func upload() {
@@ -54,7 +52,6 @@ public class UploadKYC {
                                         PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
                                         let rootViewController = navigationArray.first
                                         (rootViewController as? WebViewController)?.reload()
-                                        self.onSuccess()
                                     } else {
                                         if (self.imageDocument != nil) {
                                             if (self.active == 2) {
@@ -77,7 +74,6 @@ public class UploadKYC {
                                         }
                                         PayME.currentVC?.navigationController?.viewControllers = navigationArray
                                         (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.reload()
-                                        self.onSuccess()
                                     }
                                 }
                             } else {

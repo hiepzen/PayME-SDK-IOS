@@ -267,7 +267,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }()
 
 
-
     let kycButton: UIButton = {
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
@@ -503,7 +502,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
     @objc func onKYC() {
         payME!.openKYC(currentVC: self, onSuccess: {
-            self.kycButton.isHidden = true
+
         }, onError: { dictionary in
             let message = dictionary["message"] as? String
             self.toastMess(title: "Lỗi", value: message)

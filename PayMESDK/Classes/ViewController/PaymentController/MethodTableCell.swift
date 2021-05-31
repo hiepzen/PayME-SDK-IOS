@@ -15,16 +15,11 @@ class Method: UITableViewCell {
 
     var methodView: MethodView = MethodView(type: .WALLET, title: "")
 
-//    let uncheckImage: UIImageView = {
-//        var bgImage = UIImageView(image: UIImage(for: Method.self, named: "uncheck"))
-//        bgImage.translatesAutoresizingMaskIntoConstraints = false
-//        return bgImage
-//    }()
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         isAccessibilityElement = true
-        self.addSubview(methodView)
+        backgroundColor = .white
+        addSubview(methodView)
         methodView.topAnchor.constraint(equalTo: topAnchor, constant: 12).isActive = true
         methodView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         methodView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true

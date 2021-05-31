@@ -14,14 +14,14 @@ class KYCController {
     static var videoKYC: URL?
     static var active: Int?
     static var flowKYC: [String: Bool]?
-    static var onSuccess: () -> () = {}
+    var onSuccess: () -> () = {}
 
     static var payMEFunction: PayMEFunction?
 
     init(payMEFunction: PayMEFunction, flowKYC: [String: Bool], onSuccess: @escaping () -> () = {}) {
         KYCController.payMEFunction = payMEFunction
         KYCController.flowKYC = flowKYC
-        KYCController.onSuccess = onSuccess
+        self.onSuccess = onSuccess
     }
 
     func kyc() {
@@ -31,15 +31,21 @@ class KYCController {
         if (KYCController.flowKYC!["identifyImg"] == true) {
             print("flow1")
             popupKYC.active = 0
-            PayME.currentVC?.present(popupKYC, animated: true)
+            PayME.currentVC?.present(popupKYC, animated: true) {
+                self.onSuccess()
+            }
         } else if (KYCController.flowKYC!["faceImg"] == true) {
             print("flow2")
             popupKYC.active = 1
-            PayME.currentVC?.present(popupKYC, animated: true)
+            PayME.currentVC?.present(popupKYC, animated: true) {
+                self.onSuccess()
+            }
         } else if (KYCController.flowKYC!["kycVideo"] == true) {
             print("flow3")
             popupKYC.active = 2
-            PayME.currentVC?.present(popupKYC, animated: true)
+            PayME.currentVC?.present(popupKYC, animated: true) {
+                self.onSuccess()
+            }
         }
     }
 
@@ -57,8 +63,7 @@ class KYCController {
                 imageDocument: KYCController.imageDocument,
                 imageAvatar: KYCController.imageAvatar,
                 videoKYC: KYCController.videoKYC,
-                active: KYCController.active,
-                onSuccess: KYCController.onSuccess
+                active: KYCController.active
         )
         uploadKYC.upload()
     }

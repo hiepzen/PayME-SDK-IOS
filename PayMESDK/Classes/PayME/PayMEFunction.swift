@@ -113,7 +113,7 @@ class PayMEFunction {
             _ extraData: String?, _ serviceCode: String = "", _ closeWhenDone: Bool = false,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (), _ onError: @escaping ([String: AnyObject]) -> ()
     ) {
-        let condition = isChecked ? checkCondition(onError) : true
+        let condition = isChecked ? checkCondition(onError) : checkPayCondition(onError)
         if condition {
             currentVC.navigationItem.hidesBackButton = true
             currentVC.navigationController?.isNavigationBarHidden = true
@@ -150,8 +150,6 @@ class PayMEFunction {
                 topSafeArea = PayME.isRecreateNavigationController ? 1 : currentVC.topLayoutGuide.length
                 bottomSafeArea = currentVC.bottomLayoutGuide.length
             }
-
-
 
             let message = dataInit!["message"] as? String
             let accessToken = dataInit!["accessToken"] as? String
