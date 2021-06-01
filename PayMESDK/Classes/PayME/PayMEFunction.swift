@@ -468,7 +468,14 @@ class PayMEFunction {
         request.getService(onSuccess: { success in onSuccess(success) }, onError: { error in onError(error) })
     }
 
-    func getSupportedServices() -> [ServiceConfig] {
-        configService
+    func getSupportedServices(
+            _ onSuccess: @escaping ([ServiceConfig]) -> (),
+            _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    ) {
+        if loggedIn == false || dataInit == nil {
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+        } else {
+            onSuccess(configService)
+        }
     }
 }

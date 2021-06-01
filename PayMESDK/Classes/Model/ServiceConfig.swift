@@ -8,8 +8,8 @@
 import Foundation
 
 public class ServiceConfig {
-    internal var code: String = ""
-    internal var description: String = ""
+    var code: String = ""
+    var description: String = ""
 
     public init(_ code: String, _ description: String) {
         self.code = code

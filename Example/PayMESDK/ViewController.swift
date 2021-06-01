@@ -266,6 +266,19 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return button
     }()
 
+    let getServiceButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
+        button.setTitle("Lấy danh sách dịch vụ", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
 
     let kycButton: UIButton = {
         let button = UIButton()
@@ -500,6 +513,19 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         })
     }
 
+    @objc func getListService() {
+        payME!.getSupportedServices(onSuccess: { configs in
+            var serviceList = ""
+            configs.forEach { service in
+                serviceList += "[Key: \(service.getCode()) - Name: \(service.getDescription())]"
+            }
+            self.toastMess(title: "Lấy danh sách dịch vụ thành công", value: "\(serviceList)")
+        }, onError: { error in
+            let message = error["message"] as? String
+            self.toastMess(title: "Lỗi", value: message)
+        })
+    }
+
     @objc func onKYC() {
         payME!.openKYC(currentVC: self, onSuccess: {
 
@@ -687,6 +713,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(moneyPay)
         sdkContainer.addSubview(transferButton)
         sdkContainer.addSubview(moneyTransfer)
+        sdkContainer.addSubview(getServiceButton)
         sdkContainer.addSubview(getMethodButton)
         sdkContainer.addSubview(kycButton)
 
@@ -820,7 +847,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyTransfer.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyTransfer.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
-        getMethodButton.topAnchor.constraint(equalTo: transferButton.bottomAnchor, constant: 10).isActive = true
+        getServiceButton.topAnchor.constraint(equalTo: transferButton.bottomAnchor, constant: 10).isActive = true
+        getServiceButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        getServiceButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        getServiceButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        getServiceButton.addTarget(self, action: #selector(getListService), for: .touchUpInside)
+
+        getMethodButton.topAnchor.constraint(equalTo: getServiceButton.bottomAnchor, constant: 10).isActive = true
         getMethodButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         getMethodButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         getMethodButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
