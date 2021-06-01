@@ -335,7 +335,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 return
             }
             self.orderTransaction.paymentMethod = method
-            self.onPressMethod(method)
+            self.onPressMethod(method, isTarget: true)
         }
     }
 
@@ -637,19 +637,33 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         )
     }
 
-    func onPressMethod(_ method: PaymentMethod) {
-        print("\(method.type)")
+    func onPressMethod(_ method: PaymentMethod, isTarget: Bool = false) {
         switch method.type {
         case MethodType.WALLET.rawValue:
             if payMEFunction.accessToken == "" {
+                if isTarget == true {
+                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+                    dismiss(animated: true, completion: nil)
+                    return
+                }
                 openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
             } else if payMEFunction.kycState != "APPROVED" {
+                if isTarget == true {
+                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
+                    dismiss(animated: true, completion: nil)
+                    return
+                }
                 PayME.currentVC?.dismiss(animated: true) {
                     self.payMEFunction.KYC(PayME.currentVC!, { }, { dictionary in })
                 }
             } else {
                 let balance = method.dataWallet?.balance ?? 0
                 if balance < orderTransaction.amount {
+                    if isTarget == true {
+                        onError(["code": PayME.ResponseCode.BALANCE_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
+                        dismiss(animated: true, completion: nil)
+                        return
+                    }
                     openWallet(action: PayME.Action.DEPOSIT, amount: orderTransaction.amount - balance, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
                 } else {
                     paymentPresentation.getFee(orderTransaction: orderTransaction)
