@@ -76,15 +76,11 @@ public class PayME {
         payMEFunction.getAccountInfo(onSuccess, onError)
     }
 
-    public func getService(
-            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+    public func getSupportedServices(
+            onSuccess: @escaping ([ServiceConfig]) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        payMEFunction.getService(onSuccess, onError)
-    }
-
-    public func getSupportedServices() -> [ServiceConfig] {
-        payMEFunction.getSupportedServices()
+        payMEFunction.getSupportedServices(onSuccess, onError)
     }
 
     public func login(
