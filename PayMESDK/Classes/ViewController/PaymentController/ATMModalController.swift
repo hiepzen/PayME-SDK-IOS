@@ -227,10 +227,13 @@ class ATMModal: UIViewController {
                     self.atmView.nameInput.textInput.text = ""
                 }
             }, onError: { error in
+                self.atmView.nameInput.isHidden = false
+                self.atmView.nameInput.textInput.text = ""
                 print(error)
             })
         } else {
             atmView.nameInput.isHidden = true
+            atmView.nameInput.textInput.text = ""
             atmView.cardInput.updateExtraInfo(data: "")
         }
 
