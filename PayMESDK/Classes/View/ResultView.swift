@@ -146,7 +146,9 @@ class ResultView: UIView {
         button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         if #available(iOS 11.0, *) {
-            button.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
+            button.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor,
+                    constant: UIApplication.shared.delegate?.window??.safeAreaInsets.bottom ?? 0 > 0 ? -34 : -16
+            ).isActive = true
         } else {
             button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16).isActive = true
         }
