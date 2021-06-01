@@ -143,7 +143,6 @@ class ResultView: UIView {
         //methodView
         button.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         button.heightAnchor.constraint(equalToConstant: 45).isActive = true
-        button.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8).isActive = true
         button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         if #available(iOS 11.0, *) {
@@ -151,6 +150,7 @@ class ResultView: UIView {
         } else {
             button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16).isActive = true
         }
+        containerView.bottomAnchor.constraint(equalTo: button.topAnchor, constant: -8).isActive = true
 
         button.setTitle("HOÀN TẤT", for: .normal)
     }
