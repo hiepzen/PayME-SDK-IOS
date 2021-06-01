@@ -398,7 +398,20 @@ public func getAccountInfo(
 Dùng để xác định các dịch vụ có thể dùng SDK để thanh toán (điện, nước, học phí...).
 
 ```swift
-public func getSupportedServices() -> Array<ServiceConfig>
+public func getSupportedServices(
+            onSuccess: ([ServiceConfig]) -> (),
+            onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
+```
+
+```swift
+class ServiceConfig {
+	...
+	public func getCode() -> String
+	
+   	public func getDescription() -> String
+	...
+}
 ```
 
 ### openService()
