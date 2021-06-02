@@ -337,7 +337,12 @@ public func pay(
 | <code>onSuccess</code> | Yes | Callback trả kết quả khi thành công |
 | <code>onError</code> | Yes | Callback trả kết quả khi thất bại |
 
-Trong trường hợp app tích hợp cần lấy số dư để tự hiển thị lên UI trên app thì có thể dùng hàm, hàm này không hiển thị UI của PayME SDK
+Trong trường hợp app tích hợp cần lấy số dư để tự hiển thị lên UI trên app thì có thể dùng hàm <code>getWalletInfo()</code>
+, hàm này không hiển thị UI của PayME SDK
+
+- Khi thanh toán bằng ví PayME thì yêu cầu tài khoản đã kích hoạt,định danh và số dư trong ví phải lớn hơn số tiền thanh toán
+- Thông tin tài khoản lấy qua hàm <code>getAccountInfo()</code>
+- Thông tin số dư lấy qua hàm <code>getWalletInfo()</code>
 
 ### openKYC() - Mở modal định danh tài khoản
 
