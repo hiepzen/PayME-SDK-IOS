@@ -52,6 +52,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var onDeposit: String = "onDeposit"
     var onWithdraw: String = "onWithdraw"
     var onTransfer: String = "onTransfer"
+    var onUpdateIdentify: String = "onUpdateIdentify"
     var form = ""
     var imageFront: UIImage?
     var imageBack: UIImage?
@@ -87,6 +88,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onDeposit)
         userController.add(self, name: onWithdraw)
         userController.add(self, name: onTransfer)
+        userController.add(self, name: onUpdateIdentify)
         userController.addUserScript(getZoomDisableScript())
 
         let config = WKWebViewConfiguration()
@@ -164,6 +166,16 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         return WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
     }
 
+    func updateIdentify() {
+        let injectedJS = "       const script = document.createElement('script');\n" +
+                "          script.type = 'text/javascript';\n" +
+                "          script.async = true;\n" +
+                "          script.text = 'onUpdateIdentify()';\n" +
+                "          document.body.appendChild(script);\n" +
+                "          true; // note: this is required, or you'll sometimes get silent failures\n"
+        webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
+    }
+
     internal func reload() {
         webView.reload()
     }
@@ -237,9 +249,17 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 if status == "SUCCEEDED" {
                     onSuccess!(dictionary["data"] as! [String: AnyObject])
                 } else {
-                    onError!(dictionary["data"] as! [String: AnyObject])
+                    let message = dictionary["data"]!["message"] as? String ?? "Có lỗi xảy ra"
+                    onError!(["code": PayME.ResponseCode.OTHER as AnyObject, "message": message as AnyObject])
                 }
             }
+        }
+        if message.name == onUpdateIdentify {
+            setupCamera(dictionary: [
+                "identifyImg": true,
+                "faceImg": false,
+                "kycVideo": false
+            ] as [String : AnyObject], isUpdateIdentify: true)
         }
         if message.name == openCamera {
             if let dictionary = message.body as? [String: AnyObject] {
@@ -297,8 +317,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
 
-    func setupCamera(dictionary: [String: AnyObject]) {
+    func setupCamera(dictionary: [String: AnyObject], isUpdateIdentify: Bool? = nil) {
         KYCController.reset()
+        KYCController.isUpdateIdentify = isUpdateIdentify ?? KYCController.isUpdateIdentify
         if let dictionary = dictionary as? [String: Bool] {
             let kycController = KYCController(payMEFunction: payMEFunction!, flowKYC: dictionary)
             kycController.kyc()

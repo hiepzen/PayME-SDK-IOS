@@ -36,6 +36,7 @@ public class UploadKYC {
 
     private func verifyKYC() {
         payMEFunction.request.verifyKYC(pathFront: pathFront, pathBack: pathBack, pathAvatar: pathAvatar, pathVideo: pathVideo,
+                isUpdateIdentify: KYCController.isUpdateIdentify ?? false,
                 onSuccess: { response in
                     print(response)
                     if let result = response["Account"]!["KYC"] as? [String: AnyObject] {
@@ -51,7 +52,11 @@ public class UploadKYC {
                                     if PayME.isRecreateNavigationController {
                                         PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
                                         let rootViewController = navigationArray.first
-                                        (rootViewController as? WebViewController)?.reload()
+                                        if KYCController.isUpdateIdentify ?? false {
+                                            (rootViewController as? WebViewController)?.updateIdentify()
+                                        } else {
+                                            (rootViewController as? WebViewController)?.reload()
+                                        }
                                     } else {
                                         if (self.imageDocument != nil) {
                                             if (self.active == 2) {
@@ -73,7 +78,11 @@ public class UploadKYC {
                                             navigationArray.removeLast()
                                         }
                                         PayME.currentVC?.navigationController?.viewControllers = navigationArray
-                                        (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.reload()
+                                        if KYCController.isUpdateIdentify ?? false {
+                                            (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.updateIdentify()
+                                        } else {
+                                            (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.reload()
+                                        }
                                     }
                                 }
                             } else {

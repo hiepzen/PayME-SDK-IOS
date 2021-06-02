@@ -444,7 +444,7 @@ class API {
 
 
     func verifyKYC(
-            pathFront: String?, pathBack: String?, pathAvatar: String?, pathVideo: String?,
+            pathFront: String?, pathBack: String?, pathAvatar: String?, pathVideo: String?, isUpdateIdentify: Bool = false,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onNetworkError: @escaping () -> () = {}
@@ -460,7 +460,11 @@ class API {
             if (pathBack != nil) {
                 image.updateValue(pathBack!, forKey: "back")
             }
-            kycInput.updateValue(image, forKey: "image")
+            if isUpdateIdentify {
+                kycInput.updateValue(image, forKey: "identifyIC")
+            } else {
+                kycInput.updateValue(image, forKey: "image")
+            }
         }
         if (pathVideo != nil) {
             kycInput.updateValue(pathVideo!, forKey: "video")

@@ -49,6 +49,7 @@ public class PayME {
 
     public struct ResponseCode {
         public static let EXPIRED = 401
+        public static let OTHER = 0
         public static let NETWORK = -1
         public static let SYSTEM = -2
         public static let LIMIT = -3

@@ -128,7 +128,13 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
 
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
         pressCamera.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
-        choiceDocumentType.addTarget(self, action: #selector(choiceDocument), for: .touchUpInside)
+        if KYCController.isUpdateIdentify ?? false {
+            active = 1
+            choiceDocumentType.setTitle("Căn cước công dân", for: .normal)
+            choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top: 0, left: 185, bottom: 0, right: 0)
+        } else {
+            choiceDocumentType.addTarget(self, action: #selector(choiceDocument), for: .touchUpInside)
+        }
         getPhoto.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         titleButton.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
@@ -279,8 +285,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
             confirmKYCFront.active = active
             confirmKYCFront.parentVC = self
             navigationController?.pushViewController(confirmKYCFront, animated: true)
-
-
         } else {
             let confirmKYCBack = KYCBackController()
             confirmKYCBack.kycImage = imageFront
