@@ -15,11 +15,12 @@ class KYCController {
     static var active: Int?
     static var flowKYC: [String: Bool]?
     static var isUpdateIdentify: Bool?
-    var onOpenModalSuccess: () -> () = {}
-
+    var onOpenModalSuccess: () -> () = {
+    }
     static var payMEFunction: PayMEFunction?
 
-    init(payMEFunction: PayMEFunction, flowKYC: [String: Bool], onSuccess: @escaping () -> () = {}) {
+    init(payMEFunction: PayMEFunction, flowKYC: [String: Bool], onSuccess: @escaping () -> () = {
+    }) {
         KYCController.payMEFunction = payMEFunction
         KYCController.flowKYC = flowKYC
         onOpenModalSuccess = onSuccess
@@ -65,7 +66,8 @@ class KYCController {
                 imageDocument: KYCController.imageDocument,
                 imageAvatar: KYCController.imageAvatar,
                 videoKYC: KYCController.videoKYC,
-                active: KYCController.active
+                active: KYCController.active,
+                isUpdateIdentify: KYCController.isUpdateIdentify
         )
         uploadKYC.upload()
     }
