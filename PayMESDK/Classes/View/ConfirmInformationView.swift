@@ -11,6 +11,10 @@ class InformationRow: UIStackView {
     var value: String
     var color: UIColor
     var font: UIFont
+    var keyColor: UIColor
+    var keyFont: UIFont
+
+
     let keyLabel: UILabel = {
         let keyLabel = UILabel()
         keyLabel.textColor = UIColor(100, 112, 129)
@@ -32,11 +36,14 @@ class InformationRow: UIStackView {
     }()
 
     
-    init(key: String, value: String, color: UIColor?  = UIColor(4, 4, 4), font: UIFont? = .systemFont(ofSize: 15, weight: .medium)){
+    init(key: String, value: String, color: UIColor?  = UIColor(4, 4, 4), font: UIFont? = .systemFont(ofSize: 15, weight: .medium),
+         keyColor: UIColor? = UIColor(100, 112, 129), keyFont: UIFont? = .systemFont(ofSize: 15, weight: .light)){
         self.key = key
         self.value = value
         self.color = color ?? UIColor(4, 4, 4)
-        self.font = font ?? UIFont.systemFont(ofSize: 15, weight: .medium)
+        self.font = font ?? .systemFont(ofSize: 15, weight: .medium)
+        self.keyFont = keyFont ?? .systemFont(ofSize: 15, weight: .light)
+        self.keyColor = keyColor ?? UIColor(100, 112, 129)
         super.init(frame: CGRect.zero)
         setUpUI()
     }
@@ -47,6 +54,8 @@ class InformationRow: UIStackView {
         translatesAutoresizingMaskIntoConstraints = false
         valueLabel.textColor = color
         valueLabel.font = font
+        keyLabel.textColor = keyColor
+        keyLabel.font = keyFont
         valueLabel.text = value
         keyLabel.text = key
 

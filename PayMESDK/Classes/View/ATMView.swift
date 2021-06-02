@@ -28,12 +28,6 @@ class ATMView: UIScrollView {
         return button
     }()
 
-    let walletMethodImage: UIImageView = {
-        var bgImage = UIImageView(image: UIImage(for: Method.self, named: "ptAtm"))
-        bgImage.translatesAutoresizingMaskIntoConstraints = false
-        return bgImage
-    }()
-
     let cardInput = InputView(title: "NHẬP SỐ THẺ", placeholder: "Số thẻ", keyboardType: .numberPad)
     let nameInput = InputView(title: "NHẬP HỌ TÊN CHỦ THẺ", placeholder: "Họ tên chủ thẻ")
     let dateInput = InputView(title: "NGÀY PHÁT HÀNH", placeholder: "MM/YY", keyboardType: .numberPad)

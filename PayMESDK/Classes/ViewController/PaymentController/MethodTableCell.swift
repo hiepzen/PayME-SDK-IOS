@@ -8,11 +8,6 @@
 import UIKit
 
 class Method: UITableViewCell {
-    struct Constants {
-        static let contentInsets = UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0)
-        static let avatarSize = CGSize(width: 36.0, height: 36.0)
-    }
-
     var methodView: MethodView = MethodView(type: .WALLET, title: "")
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

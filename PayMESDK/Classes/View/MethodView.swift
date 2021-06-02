@@ -130,14 +130,12 @@ class MethodView: UIView {
         vStack.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12).isActive = true
 
         vStack.addArrangedSubview(containerInfo)
-        containerInfo.topAnchor.constraint(equalTo: vStack.topAnchor).isActive = true
-        containerInfo.leadingAnchor.constraint(equalTo: vStack.leadingAnchor).isActive = true
-        containerInfo.trailingAnchor.constraint(equalTo: vStack.trailingAnchor).isActive = true
         containerInfo.heightAnchor.constraint(equalToConstant: 32).isActive = true
 
         containerInfo.addSubview(image)
         image.heightAnchor.constraint(equalToConstant: 32).isActive = true
         image.widthAnchor.constraint(equalToConstant: 32).isActive = true
+        image.leadingAnchor.constraint(equalTo: containerInfo.leadingAnchor).isActive = true
 
         containerInfo.addSubview(titleLabel)
         titleLabel.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 8).isActive = true
@@ -160,8 +158,6 @@ class MethodView: UIView {
         imageNext.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
 
         vStack.addArrangedSubview(seperator)
-        seperator.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
-        seperator.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
         seperator.heightAnchor.constraint(equalToConstant: 1).isActive = true
         vStack.addArrangedSubview(noteLabel)
         updateUI()

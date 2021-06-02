@@ -44,6 +44,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let placeholderView = UIView()
     let activityIndicator = UIActivityIndicatorView(style: .white)
 
+
     let payMEFunction: PayMEFunction
     let orderTransaction: OrderTransaction
     let paymentPresentation: PaymentPresentation
@@ -51,6 +52,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     private var modalHeight: CGFloat? = UIScreen.main.bounds.height
 
     private var atmHeightConstraint: NSLayoutConstraint?
+    private var tableHeightConstraint: NSLayoutConstraint?
+    let orderView: OrderView
 
     init(
             payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, paymentMethodID: Int?, isShowResultUI: Bool,
@@ -72,6 +75,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction, isShowResult: self.isShowResultUI,
                 paymentPresentation: paymentPresentation, onSuccess: self.onSuccess, onError: self.onError
         )
+        orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName, serviceCode: "123456",
+                note: orderTransaction.note == "" ? "Không có nội dung" : self.orderTransaction.note)
         disposeBag = DisposeBag()
         super.init(nibName: nil, bundle: nil)
     }
@@ -81,9 +86,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         paymentPresentation.onNetworkError = {
             self.removeSpinner()
         }
-        view.backgroundColor = .white
+//        view.backgroundColor = UIColor(239, 242, 247)
+    view.backgroundColor = .blue
         PaymentModalController.isShowCloseModal = true
-
         setupUI()
         if paymentMethodID != nil {
             setupTargetMethod()
@@ -208,123 +213,80 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupUI() {
+        view.addSubview(footer)
         view.addSubview(methodsView)
 
-        methodsView.backgroundColor = .white
+        methodsView.backgroundColor = .red
         methodsView.translatesAutoresizingMaskIntoConstraints = false
-        methodsView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-        methodsView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-        methodsView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
 
-        methodsView.addSubview(closeButton)
-        methodsView.addSubview(buttonBack)
-        methodsView.addSubview(txtLabel)
-        methodsView.addSubview(detailView)
-        methodsView.addSubview(methodTitleStamp)
+        methodsView.topAnchor.constraint(equalTo:view.topAnchor).isActive = true
+        methodsView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        methodsView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+
+        methodsView.addSubview(orderView)
         methodsView.addSubview(methodTitle)
         methodsView.addSubview(tableView)
 
-        atmHeightConstraint = atmController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
-        atmHeightConstraint!.isActive = true
+        orderView.topAnchor.constraint(equalTo: methodsView.topAnchor).isActive = true
+        orderView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+        orderView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
 
+        methodTitle.text = "Nguồn thanh toán"
+        methodTitle.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
+        methodTitle.topAnchor.constraint(equalTo: orderView.bottomAnchor, constant: 12).isActive = true
+
+        tableView.register(Method.self, forCellReuseIdentifier: "cell")
+        tableView.delegate = self
+        tableView.dataSource = self
+
+//        atmHeightConstraint = atmController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
+//        atmHeightConstraint!.isActive = true
         if !(atmController.view.isHidden) {
             atmController.view.isHidden = true
         }
         UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
             self.tableView.isHidden = false
         })
-
-        detailView.backgroundColor = UIColor(8, 148, 31)
-        detailView.addSubview(price)
-        detailView.addSubview(contentLabel)
-        detailView.addSubview(memoLabel)
-        txtLabel.text = "Thanh toán"
-        price.text = "\(formatMoney(input: orderTransaction.amount)) đ"
-        contentLabel.text = "Nội dung"
-        memoLabel.text = orderTransaction.note == "" ? "Không có nội dung" : orderTransaction.note
-        methodTitle.text = "Nguồn thanh toán"
-        tableView.register(Method.self, forCellReuseIdentifier: "cell")
-        tableView.delegate = self
-        tableView.dataSource = self
-
-        detailView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
-        detailView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
-        detailView.heightAnchor.constraint(equalToConstant: 118.0).isActive = true
-        detailView.centerXAnchor.constraint(equalTo: methodsView.centerXAnchor).isActive = true
-        detailView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 16).isActive = true
-
-        price.topAnchor.constraint(equalTo: detailView.topAnchor, constant: 16).isActive = true
-        price.centerXAnchor.constraint(equalTo: detailView.centerXAnchor).isActive = true
-
-        contentLabel.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -15).isActive = true
-        contentLabel.leadingAnchor.constraint(equalTo: detailView.leadingAnchor, constant: 16).isActive = true
-        contentLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
-        contentLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-
-        memoLabel.bottomAnchor.constraint(equalTo: detailView.bottomAnchor, constant: -15).isActive = true
-        memoLabel.leadingAnchor.constraint(equalTo: contentLabel.trailingAnchor, constant: 30).isActive = true
-        memoLabel.trailingAnchor.constraint(equalTo: detailView.trailingAnchor, constant: -30).isActive = true
-        memoLabel.setContentHuggingPriority(UILayoutPriority(rawValue: 250), for: .horizontal)
-        memoLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        methodTitleStamp.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
-        methodTitleStamp.topAnchor.constraint(equalTo: detailView.bottomAnchor, constant: 16).isActive = true
-        methodTitleStamp.heightAnchor.constraint(equalToConstant: 16).isActive = true
-        methodTitleStamp.widthAnchor.constraint(equalToConstant: 3).isActive = true
-        methodTitle.topAnchor.constraint(equalTo: detailView.bottomAnchor, constant: 16).isActive = true
-        methodTitle.leadingAnchor.constraint(equalTo: methodTitleStamp.trailingAnchor, constant: 8).isActive = true
-
-        txtLabel.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 18).isActive = true
-        txtLabel.centerXAnchor.constraint(equalTo: methodsView.centerXAnchor).isActive = true
-
         tableView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
         tableView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
         tableView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
         tableView.alwaysBounceVertical = false
 
-        closeButton.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 19).isActive = true
-        closeButton.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -30).isActive = true
-        closeButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-
-        buttonBack.topAnchor.constraint(equalTo: methodsView.topAnchor, constant: 16).isActive = true
-        buttonBack.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
-        buttonBack.widthAnchor.constraint(equalToConstant: 24).isActive = true
-        buttonBack.heightAnchor.constraint(equalToConstant: 24).isActive = true
-        buttonBack.addTarget(self, action: #selector(goBack), for: .touchUpInside)
-        buttonBack.isHidden = true
-
-        methodsView.addSubview(confirmationView)
-        confirmationView.translatesAutoresizingMaskIntoConstraints = false
-        confirmationView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor).isActive = true
-        confirmationView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
-        confirmationView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
-        confirmationView.isHidden = true
-
-        methodsView.addSubview(atmController.view)
-        atmController.view.translatesAutoresizingMaskIntoConstraints = false
-        atmController.view.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
-        atmController.view.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
-        atmController.view.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
-        atmController.view.isHidden = true
+//        methodsView.addSubview(confirmationView)
+//        confirmationView.translatesAutoresizingMaskIntoConstraints = false
+////        confirmationView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor).isActive = true
+//        confirmationView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
+//        confirmationView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+//        confirmationView.isHidden = true
+//
+//        methodsView.addSubview(atmController.view)
+//        atmController.view.translatesAutoresizingMaskIntoConstraints = false
+//        atmController.view.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
+//        atmController.view.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+//        atmController.view.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
+//        atmController.view.isHidden = true
 
         activityIndicator.color = UIColor(hexString: PayME.configColor[0])
         activityIndicator.startAnimating()
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         methodsView.addSubview(activityIndicator)
-        activityIndicator.topAnchor.constraint(equalTo: methodTitle.bottomAnchor, constant: 10).isActive = true
+        activityIndicator.topAnchor.constraint(equalTo: methodTitle.bottomAnchor, constant: 16).isActive = true
         activityIndicator.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
         activityIndicator.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
         activityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
+        methodsView.bottomAnchor.constraint(equalTo: activityIndicator.bottomAnchor, constant: 16).isActive = true
+
+        footer.topAnchor.constraint(equalTo: methodsView.bottomAnchor).isActive = true
+        footer.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        footer.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+
         updateViewConstraints()
         view.layoutIfNeeded()
-        let viewHeight = txtLabel.bounds.size.height
-                + detailView.bounds.size.height
-                + methodTitle.bounds.size.height
-                + (bottomLayoutGuide.length == 0 ? 16 : 0)
-                + 100
+
+        let viewHeight = methodsView.bounds.size.height
+                + footer.bounds.size.height
+                + (bottomLayoutGuide.length > 0 ? 0 : 16)
         modalHeight = viewHeight
     }
 
@@ -368,14 +330,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func setupUIATM(banks: [Bank]) {
         confirmationView.isHidden = true
-        buttonBack.isHidden = true
         tableView.isHidden = false
         atmController.view.isHidden = false
-        detailView.isHidden = false
         methodTitle.isHidden = false
-        methodTitleStamp.isHidden = false
         methodsView.backgroundColor = .white
-        txtLabel.text = "Thanh toán"
         atmController.atmView.methodView.buttonTitle = paymentMethodID != nil ? nil : "Thay đổi"
         atmController.atmView.methodView.updateUI()
 
@@ -386,13 +344,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             self.atmController.view.isHidden = false
         })
 
-        let realATMViewHeight = min(screenSize.size.height - (topLayoutGuide.length + detailView.bounds.size.height
-                + txtLabel.bounds.size.height
+        let realATMViewHeight = min(screenSize.size.height - (topLayoutGuide.length + orderView.bounds.size.height
                 + methodTitle.bounds.size.height + 50
                 + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
         let viewHeight = realATMViewHeight
-                + detailView.bounds.size.height
-                + txtLabel.bounds.size.height
+                + orderView.bounds.size.height
                 + methodTitle.bounds.size.height + 50
                 + (bottomLayoutGuide.length == 0 ? 16 : 0)
         modalHeight = viewHeight
@@ -401,37 +357,34 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
+
     }
 
     func showMethods(_ methods: [PaymentMethod]) {
         view.endEditing(false)
         confirmationView.isHidden = true
         atmController.view.isHidden = true
-        buttonBack.isHidden = true
         UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews]) {
             self.tableView.isHidden = false
-            self.detailView.isHidden = false
             self.methodTitle.isHidden = false
-            self.methodTitleStamp.isHidden = false
         }
-        methodsView.backgroundColor = .white
-        txtLabel.text = "Thanh toán"
-        tableView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude).isActive = true
+        tableHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
+        tableHeightConstraint!.isActive = true
         tableView.reloadData()
         tableView.layoutIfNeeded()
-        let tableViewHeight = min(tableView.contentSize.height, screenSize.height - (topLayoutGuide.length + detailView.bounds.size.height
-                + txtLabel.bounds.size.height
-                + methodTitle.bounds.size.height + 100))
-        tableView.heightAnchor.constraint(equalToConstant: tableViewHeight).isActive = true
-        tableView.alwaysBounceVertical = false
+        let tableViewHeight = min(tableView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
+                + methodTitle.bounds.size.height
+                + footer.bounds.size.height
+                + (bottomLayoutGuide.length != 0 ? bottomLayoutGuide.length : 16)))
+        tableHeightConstraint?.constant = tableViewHeight
         tableView.isScrollEnabled = true
+        methodsView.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 16).isActive = true
+
         updateViewConstraints()
         view.layoutIfNeeded()
-        let viewHeight = tableView.bounds.size.height
-                + detailView.bounds.size.height
-                + txtLabel.bounds.size.height
-                + methodTitle.bounds.size.height + 50
-                + (bottomLayoutGuide.length == 0 ? 16 : 0)
+        let viewHeight = methodsView.bounds.size.height
+                + footer.bounds.size.height
+                + (bottomLayoutGuide.length > 0 ? 0 : 16)
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
@@ -445,12 +398,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         })
         tableView.isHidden = true
         atmController.view.isHidden = true
-        detailView.isHidden = true
         methodTitle.isHidden = true
-        methodTitleStamp.isHidden = true
         methodsView.backgroundColor = UIColor(239, 242, 247)
-        txtLabel.text = "Xác nhận thanh toán"
-        buttonBack.isHidden = paymentMethodID != nil ? true : false
     }
 
     func updateConfirmationInfo(order: OrderTransaction?) {
@@ -514,7 +463,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             }
             updateViewConstraints()
             view.layoutIfNeeded()
-            let viewHeight = txtLabel.bounds.size.height
+            let viewHeight = orderView.bounds.size.height
                     + confirmationView.bounds.size.height
                     + (bottomLayoutGuide.length == 0 ? 16 : 0)
             modalHeight = viewHeight
@@ -603,8 +552,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let primaryColor = payMEFunction.configColor[0]
         let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
 
+        orderView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
-        detailView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
         resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
         atmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
         confirmationView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
@@ -726,16 +675,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             var newATMHeight: CGFloat = 0
             if #available(iOS 11.0, *) {
                 modalHeight = min(keyboardSize.height + 10 + contentRect.height, view.safeAreaLayoutGuide.layoutFrame.height)
-                newATMHeight = min(modalHeight! - (detailView.bounds.size.height
-                        + txtLabel.bounds.size.height
+                newATMHeight = min(modalHeight! - (orderView.bounds.size.height
                         + methodTitle.bounds.size.height + 40
                         + keyboardSize.height + 10
                         + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
 
             } else {
                 modalHeight = min(keyboardSize.height + 10 + contentRect.height, screenSize.height)
-                newATMHeight = min(modalHeight! - (detailView.bounds.size.height
-                        + txtLabel.bounds.size.height
+                newATMHeight = min(modalHeight! - (orderView.bounds.size.height
                         + methodTitle.bounds.size.height + 70
                         + keyboardSize.height + 10
                         + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
@@ -775,12 +722,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         present(alert, animated: true, completion: nil)
     }
 
-    let detailView: UIView = {
-        let detailView = UIView()
-        detailView.translatesAutoresizingMaskIntoConstraints = false
-        return detailView
-    }()
-
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -789,54 +730,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         return tableView
     }()
 
-    let price: UILabel = {
-        let price = UILabel()
-        price.textColor = .white
-        price.backgroundColor = .clear
-        price.font = UIFont.systemFont(ofSize: 32, weight: .semibold)
-        price.translatesAutoresizingMaskIntoConstraints = false
-        return price
-    }()
-
-    let memoLabel: UILabel = {
-        let memoLabel = UILabel()
-        memoLabel.textColor = .white
-        memoLabel.backgroundColor = .clear
-        memoLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        memoLabel.translatesAutoresizingMaskIntoConstraints = false
-        memoLabel.textAlignment = .right
-        return memoLabel
-    }()
-
-    let methodTitleStamp: UIView = {
-        let stamp = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: 16))
-        stamp.translatesAutoresizingMaskIntoConstraints = false
-        stamp.backgroundColor = UIColor(45, 187, 84)
-        return stamp
-    }()
     let methodTitle: UILabel = {
         let methodTitle = UILabel()
         methodTitle.textColor = UIColor(11, 11, 11)
-        methodTitle.backgroundColor = .clear
         methodTitle.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         methodTitle.translatesAutoresizingMaskIntoConstraints = false
         return methodTitle
-    }()
-
-    let contentLabel: UILabel = {
-        let contentLabel = UILabel()
-        contentLabel.textColor = .white
-        contentLabel.backgroundColor = .clear
-        contentLabel.font = UIFont.systemFont(ofSize: 15, weight: .light)
-        contentLabel.translatesAutoresizingMaskIntoConstraints = false
-        return contentLabel
-    }()
-
-    let closeButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(for: QRNotFound.self, named: "16Px"), for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
     }()
 
     let button: UIButton = {
@@ -846,21 +745,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         return button
     }()
 
-    let buttonBack: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(for: PaymentModalController.self, named: "32Px"), for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-
-    let txtLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = UIColor(11, 11, 11)
-        label.backgroundColor = .clear
-        label.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    let footer = PaymeLogoView()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
