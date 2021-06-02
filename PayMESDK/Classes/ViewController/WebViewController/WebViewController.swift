@@ -302,7 +302,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 removeSpinner()
                 let code = dictionary["code"] as! Int
                 if (code == 401) {
-                    navigationController?.popViewController(animated: true)
+                    onCloseWebview()
                     payMEFunction?.resetInitState()
                 }
                 onError!(dictionary)
