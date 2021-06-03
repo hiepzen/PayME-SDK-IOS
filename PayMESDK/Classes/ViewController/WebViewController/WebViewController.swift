@@ -67,7 +67,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     let closeButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "close.svg"), for: .normal)
+        button.setImage(UIImage(for: QRNotFound.self, named: "16Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
