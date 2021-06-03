@@ -54,6 +54,7 @@ class ATMView: UIScrollView {
 //        self.addSubview(nameField)
 
         button.setTitle("Thanh toán", for: .normal)
+//        button.setImage(UIImage(named: ""), for: .normal)
 
         methodView.topAnchor.constraint(equalTo: topAnchor, constant: 14).isActive = true
         methodView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true

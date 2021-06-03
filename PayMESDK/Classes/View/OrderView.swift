@@ -17,9 +17,15 @@ class OrderView: UIView {
         return label
     }()
 
-//    let logoView: UIImageView = {
-//        let image  =
-//    }
+    let logoView: UIImageView = {
+        let image = UIImageView()
+        image.translatesAutoresizingMaskIntoConstraints = false
+        image.contentMode = .scaleAspectFit
+        image.backgroundColor = .white
+        image.layer.cornerRadius = 28
+        image.layer.masksToBounds = true
+        return image
+    }()
 
     let vStack: UIStackView = {
        let stack = UIStackView()
@@ -36,6 +42,7 @@ class OrderView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .horizontal
         stack.spacing = 8
+        stack.alignment = .center
         return stack
     }()
 
@@ -72,12 +79,15 @@ class OrderView: UIView {
 
         let storeNameRow = InformationRow(key: "Người nhận", value: storeName, color: .white, font: .systemFont(ofSize: 14, weight: .bold),
                 keyColor: .white, keyFont: .systemFont(ofSize: 14, weight: .regular))
-        let serviceRow = InformationRow(key: "Mã dịch vụ", value: "123456789", color: .white, font: .systemFont(ofSize: 14, weight: .regular),
+        let serviceRow = InformationRow(key: "Mã dịch vụ", value: serviceCode, color: .white, font: .systemFont(ofSize: 14, weight: .regular),
                 keyColor: .white, keyFont: .systemFont(ofSize: 14, weight: .regular))
         let noteRow = InformationRow(key: "Nội dung", value: note, color: .white, font: .systemFont(ofSize: 14, weight: .regular),
                 keyColor: .white, keyFont: .systemFont(ofSize: 14, weight: .regular))
         if logoUrl != nil && logoUrl != "" {
-
+            logoView.load(url: logoUrl!)
+            hStack.addArrangedSubview(logoView)
+            logoView.heightAnchor.constraint(equalToConstant: 56).isActive = true
+            logoView.widthAnchor.constraint(equalToConstant: 56).isActive = true
         } else {
             amountTitle.textAlignment = .center
             amountLabel.textAlignment = .center

@@ -11,6 +11,7 @@ class OrderTransaction {
     var amount: Int
     var storeId: Int
     var storeName: String
+    var storeImage: String
     var orderId: String
     var extraData: String
     var note: String
@@ -21,6 +22,7 @@ class OrderTransaction {
             amount: Int = 10000,
             storeId: Int,
             storeName: String = "",
+            storeImage: String = "",
             orderId: String,
             note: String,
             extraData: String,
@@ -30,6 +32,7 @@ class OrderTransaction {
         self.amount = amount
         self.storeId = storeId
         self.storeName = storeName
+        self.storeImage = storeImage
         self.orderId = orderId
         self.note = note
         self.extraData = extraData

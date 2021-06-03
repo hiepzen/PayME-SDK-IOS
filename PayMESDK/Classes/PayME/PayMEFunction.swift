@@ -23,6 +23,7 @@ class PayMEFunction {
     private var loggedIn = false
     private var isShowLog = 0
     private var storeName = ""
+    private var storeImage: String = ""
     private var kycMode: [String: Bool]? = nil
 
     var request: API
@@ -233,7 +234,7 @@ class PayMEFunction {
                 onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.maxAmount))" as AnyObject])
                 return
             }
-            let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: storeName, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
+            let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: storeName, storeImage: storeImage, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
             let paymentModalController = PaymentModalController(
                     payMEFunction: self, orderTransaction: orderTransaction,
                     paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
@@ -308,6 +309,7 @@ class PayMEFunction {
                     let appEnv = result["appEnv"] as? String
                     let succeeded = result["succeeded"] as? Bool
                     let storeName = result["storeName"] as? String
+                    let storeImage: String? = result["storeImage"] as? String
 
                     self.isAccountActivated = succeeded ?? false && accessToken != nil && updateToken == nil
                     self.accessToken = accessToken ?? ""
@@ -315,6 +317,7 @@ class PayMEFunction {
                     self.kycState = kycState ?? ""
                     self.dataInit = result
                     self.storeName = storeName ?? ""
+                    self.storeImage = storeImage ?? ""
 
                     self.request.setAccessData(kycState == "APPROVED" ? self.accessToken : "", self.accessToken, self.clientId)
 

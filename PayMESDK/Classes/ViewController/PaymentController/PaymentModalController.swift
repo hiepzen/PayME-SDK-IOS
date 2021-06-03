@@ -76,8 +76,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction, isShowResult: self.isShowResultUI,
                 paymentPresentation: paymentPresentation, onSuccess: self.onSuccess, onError: self.onError
         )
-        orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName, serviceCode: "123456",
-                note: orderTransaction.note == "" ? "Không có nội dung" : self.orderTransaction.note)
+        orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
+                serviceCode: self.orderTransaction.orderId,
+                note: orderTransaction.note == "" ? "Không có nội dung" : self.orderTransaction.note,
+                logoUrl: self.orderTransaction.storeImage)
         disposeBag = DisposeBag()
         super.init(nibName: nil, bundle: nil)
     }
