@@ -376,7 +376,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
         if (tableHeightConstraint?.constant == nil) {
             tableHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
-            tableHeightConstraint!.isActive = true
+            tableHeightConstraint?.isActive = true
             tableView.reloadData()
             tableView.layoutIfNeeded()
             let tableViewHeight = min(tableView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12

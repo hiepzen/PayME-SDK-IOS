@@ -97,7 +97,6 @@ class OrderView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         if vStack.isDescendant(of: self) && seperator.isDescendant(of: vStack) {
-            print("aksjhfkdsahjfasdkjjfaslokjfadslkdjf")
             seperator.createDashedLine(from: CGPoint(x: 0, y: 0), to: CGPoint(x: vStack.frame.size.width, y: 0), color: UIColor(203, 203, 203), strokeLength: 2, gapLength: 2, width: 1)
         }
     }
