@@ -470,7 +470,7 @@ class PaymentPresentation {
                 onNetworkError: onNetworkError)
     }
 
-    func getLinkBank() {
+    func getLinkBank(orderTransaction: OrderTransaction) {
         request.getBankList(onSuccess: { bankListResponse in
             let banks = bankListResponse["Setting"]!["banks"] as! [[String: AnyObject]]
             var listBank: [Bank] = []
@@ -480,7 +480,7 @@ class PaymentPresentation {
                     listBank.append(temp)
                 }
             }
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: listBank))
+            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: listBank, orderTransaction: orderTransaction))
         }, onError: { bankListError in
             self.onError(bankListError)
         }, onNetworkError: onNetworkError)
