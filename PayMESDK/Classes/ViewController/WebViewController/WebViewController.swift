@@ -65,6 +65,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
     private var onError: (([String: AnyObject]) -> ())? = nil
 
+    let closeButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "close.svg"), for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
     init(payMEFunction: PayMEFunction?, nibName: String?, bundle: Bundle?) {
         self.payMEFunction = payMEFunction
         super.init(nibName: nibName, bundle: bundle)
@@ -206,6 +213,19 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             }
             URLCache.shared.removeAllCachedResponses()
         }
+
+        webView.addSubview(closeButton)
+        closeButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        closeButton.topAnchor.constraint(equalTo: webView.topAnchor, constant: 60).isActive = true
+        closeButton.trailingAnchor.constraint(equalTo: webView.trailingAnchor, constant: -20).isActive = true
+        closeButton.addTarget(self, action: #selector(closeWebViewPaymentModal), for: .touchUpInside)
+    }
+
+    @objc func closeWebViewPaymentModal() {
+        dismiss(animated: true) {
+            PayME.currentVC?.dismiss(animated: true)
+        }
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -259,7 +279,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 "identifyImg": true,
                 "faceImg": false,
                 "kycVideo": false
-            ] as [String : AnyObject], isUpdateIdentify: true)
+            ] as [String: AnyObject], isUpdateIdentify: true)
         }
         if message.name == openCamera {
             if let dictionary = message.body as? [String: AnyObject] {
