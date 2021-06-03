@@ -123,8 +123,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             webView.scrollView.alwaysBounceVertical = false
             webView.scrollView.bounces = false
             webView.load(myRequest)
+            closeButton.isHidden = true
         } else {
             webView.loadHTMLString(form, baseURL: nil)
+            closeButton.isHidden = false
         }
     }
 
