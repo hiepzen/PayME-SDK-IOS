@@ -23,7 +23,6 @@ enum MethodType: String {
 
 import Foundation
 class MethodView: UIView {
-    var type: MethodType = MethodType.WALLET
     var content: String?
     var title: String = ""
     var buttonTitle: String?
@@ -107,8 +106,7 @@ class MethodView: UIView {
         return bgImage
     }()
 
-    init (type: MethodType, title: String, content: String? = nil, buttonTitle: String? = nil, note: String? = nil){
-        self.type = type
+    init (title: String = "", content: String? = nil, buttonTitle: String? = nil, note: String? = nil){
         self.title = title
         self.content = content ?? nil
         self.buttonTitle = buttonTitle ?? nil

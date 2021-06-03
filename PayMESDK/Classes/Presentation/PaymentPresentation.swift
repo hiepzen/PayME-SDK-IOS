@@ -498,9 +498,9 @@ class PaymentPresentation {
             case MethodType.BANK_CARD.rawValue:
                return [
                 "bankCard": [
-                    "cardNumber": orderTransaction.paymentMethod?.dataBank?.cardNumber ?? "",
+                    "cardNumber": "cardNumber",
                     "cardHolder": orderTransaction.paymentMethod?.dataBank?.cardHolder ?? "",
-                    "issuedAt": orderTransaction.paymentMethod?.dataBank?.issueDate ?? ""
+                    "issuedAt": "2000-01-01T00:00:00.000Z"
                 ]
             ]
             case MethodType.LINKED.rawValue:

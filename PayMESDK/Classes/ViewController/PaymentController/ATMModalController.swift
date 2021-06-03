@@ -24,6 +24,8 @@ class ATMModal: UIViewController {
     let isShowResultUI: Bool
     let paymentPresentation: PaymentPresentation
 
+    var payActionByMethod = {}
+
     init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool, paymentPresentation: PaymentPresentation,
          onSuccess: (([String: AnyObject]) -> ())? = nil, onError: (([String: AnyObject]) -> ())? = nil) {
         self.payMEFunction = payMEFunction
@@ -56,8 +58,13 @@ class ATMModal: UIViewController {
         atmView.dateInput.textInput.delegate = self
         atmView.nameInput.textInput.delegate = self
 
-        atmView.button.addTarget(self, action: #selector(payATM), for: .touchUpInside)
+        atmView.button.addTarget(self, action: #selector(payAction), for: .touchUpInside)
         atmView.methodView.onPress = {
+            self.atmView.nameInput.isHidden = true
+            self.atmView.nameInput.textInput.text = ""
+            self.atmView.cardInput.updateExtraInfo(data: "")
+            self.atmView.cardInput.textInput.text = ""
+            self.atmView.updateContentSize()
             self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS))
         }
 
@@ -74,7 +81,15 @@ class ATMModal: UIViewController {
         dismiss(animated: true, completion: nil)
     }
 
-    @objc func payATM() {
+    @objc func payAction() {
+        if (orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue) {
+            payATM()
+        } else {
+            payActionByMethod()
+        }
+    }
+
+    func payATM() {
         let cardNumber = atmView.cardInput.textInput.text?.filter("0123456789".contains)
         let cardHolder = atmView.nameInput.textInput.text
         let issuedAt = atmView.dateInput.textInput.text
@@ -103,7 +118,8 @@ class ATMModal: UIViewController {
             }
             let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
             orderTransaction.paymentMethod?.dataBank = BankInformation(cardNumber: cardNumber!, cardHolder: cardHolder!, issueDate: date, bank: bankDetect)
-            paymentPresentation.getFee(orderTransaction: orderTransaction)
+            self.showSpinner(onView: view)
+            paymentPresentation.payATM(orderTransaction: orderTransaction)
         }
     }
 
@@ -222,19 +238,23 @@ class ATMModal: UIViewController {
                     self.atmView.cardInput.updateExtraInfo(data: name)
                     self.atmView.nameInput.isHidden = true
                     self.atmView.nameInput.textInput.text = name
+                    self.atmView.updateContentSize()
                 } else {
                     self.atmView.nameInput.isHidden = false
                     self.atmView.nameInput.textInput.text = ""
+                    self.atmView.updateContentSize()
                 }
             }, onError: { error in
                 self.atmView.nameInput.isHidden = false
                 self.atmView.nameInput.textInput.text = ""
+                self.atmView.updateContentSize()
                 print(error)
             })
         } else {
             atmView.nameInput.isHidden = true
             atmView.nameInput.textInput.text = ""
             atmView.cardInput.updateExtraInfo(data: "")
+            atmView.updateContentSize()
         }
 
     }

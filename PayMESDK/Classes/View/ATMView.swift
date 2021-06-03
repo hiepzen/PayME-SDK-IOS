@@ -8,8 +8,6 @@
 import Foundation
 
 class ATMView: UIScrollView {
-    var activeTextField: UITextField? = nil
-
     let vStack: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -31,8 +29,9 @@ class ATMView: UIScrollView {
     let cardInput = InputView(title: "NHẬP SỐ THẺ", placeholder: "Số thẻ", keyboardType: .numberPad)
     let nameInput = InputView(title: "NHẬP HỌ TÊN CHỦ THẺ", placeholder: "Họ tên chủ thẻ")
     let dateInput = InputView(title: "NGÀY PHÁT HÀNH", placeholder: "MM/YY", keyboardType: .numberPad)
-    let methodView: MethodView = MethodView(type: .BANK_CARD, title: "Thẻ ATM nội địa", buttonTitle: "Thay đổi")
+    let methodView: MethodView = MethodView(buttonTitle: "Thay đổi")
 
+    var paymentInfo = InformationView(data: [])
 
     init() {
         super.init(frame: CGRect.zero)
@@ -40,8 +39,9 @@ class ATMView: UIScrollView {
         translatesAutoresizingMaskIntoConstraints = false
         isScrollEnabled = true
         isPagingEnabled = false
-        showsVerticalScrollIndicator = true
+        showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
+
         bounces = false
 
         addSubview(methodView)
@@ -55,9 +55,7 @@ class ATMView: UIScrollView {
 
         button.setTitle("Thanh toán", for: .normal)
 
-        methodView.image.image = UIImage(for: Method.self, named: "iconAtm")
         methodView.topAnchor.constraint(equalTo: topAnchor, constant: 14).isActive = true
-//        methodView.heightAnchor.constraint(equalToConstant: 40).isActive = true
         methodView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         methodView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
 
@@ -70,17 +68,72 @@ class ATMView: UIScrollView {
         dateInput.heightAnchor.constraint(equalToConstant: 56).isActive = true
 
         button.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        button.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 48).isActive = true
         button.topAnchor.constraint(equalTo: vStack.bottomAnchor, constant: 16).isActive = true
         button.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
-        button.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
 
+        cardInput.isHidden = true
+        dateInput.isHidden = true
         nameInput.isHidden = true
+
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func updateContentSize() {
+        updateConstraints()
+        layoutIfNeeded()
+        let contentRect: CGRect = self.subviews.reduce(into: .zero) { rect, view in
+            rect = rect.union(view.frame)
+        }
+        self.contentSize = contentRect.size
+    }
+
+    func updateUIByMethod(_ method: PaymentMethod) {
+        cardInput.isHidden = true
+        dateInput.isHidden = true
+        methodView.title = method.title
+        methodView.content = method.label
+        methodView.note = nil
+        switch method.type {
+        case MethodType.LINKED.rawValue:
+            if method.dataLinked != nil {
+                let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(method.dataLinked!.swiftCode!).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
+                DispatchQueue.global().async {
+                    if let sureURL = url as URL? {
+                        let data = try? Data(contentsOf: sureURL)
+                        DispatchQueue.main.async {
+                            self.methodView.image.image = UIImage(data: data!)
+                        }
+                    }
+                }
+            }
+            break
+        case MethodType.BANK_CARD.rawValue:
+            cardInput.isHidden = false
+            dateInput.isHidden = false
+            methodView.image.image = UIImage(for: MethodView.self, named: "iconAtm")
+            break
+        case MethodType.BANK_QR_CODE.rawValue:
+            methodView.image.image = UIImage(for: MethodView.self, named: "iconQRBank")
+        default:
+            methodView.image.image = UIImage(for: MethodView.self, named: "iconWallet")
+            break
+        }
+        methodView.updateUI()
+        updateContentSize()
+    }
+
+    func updatePaymentInfo(_ data: [Dictionary<String, Any>]) {
+        paymentInfo.removeFromSuperview()
+        paymentInfo = InformationView(data: data)
+        vStack.addArrangedSubview(paymentInfo)
+        paymentInfo.layer.borderWidth = 0.5
+        paymentInfo.layer.borderColor = UIColor(142, 142, 142).cgColor
+        updateContentSize()
     }
 
 }

@@ -35,7 +35,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let otpView = OTPView()
     let securityCode = SecurityCode()
     let atmController: ATMModal
-    let confirmationView = ConfirmationModal()
     let resultView = ResultView()
     var keyBoardHeight: CGFloat = 0
     let screenSize: CGRect = UIScreen.main.bounds
@@ -53,6 +52,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     private var atmHeightConstraint: NSLayoutConstraint?
     private var tableHeightConstraint: NSLayoutConstraint?
+    private var methodsBottomConstraint: NSLayoutConstraint?
+
     let orderView: OrderView
 
     init(
@@ -86,8 +87,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         paymentPresentation.onNetworkError = {
             self.removeSpinner()
         }
-//        view.backgroundColor = UIColor(239, 242, 247)
-    view.backgroundColor = .blue
+        view.backgroundColor = UIColor(239, 242, 247)
         PaymentModalController.isShowCloseModal = true
         setupUI()
         if paymentMethodID != nil {
@@ -115,14 +115,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.setupResult(paymentState.result!)
                     }
                     if paymentState.state == State.CONFIRMATION {
-                        self.setupUIConfirmation()
-                        self.updateConfirmationInfo(order: paymentState.orderTransaction)
+                        self.setupUIFee()
+//                        self.updateConfirmationInfo(order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.METHODS {
                         self.showMethods(paymentState.methods ?? self.data)
                     }
                     if paymentState.state == State.ATM {
-                        self.setupUIATM(banks: paymentState.banks ?? self.listBank)
+                        self.setupUIConfirm(banks: paymentState.banks ?? self.listBank)
                     }
                     if paymentState.state == State.ERROR {
                         self.removeSpinner()
@@ -216,7 +216,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.addSubview(footer)
         view.addSubview(methodsView)
 
-        methodsView.backgroundColor = .red
+        methodsView.backgroundColor = .white
         methodsView.translatesAutoresizingMaskIntoConstraints = false
 
         methodsView.topAnchor.constraint(equalTo:view.topAnchor).isActive = true
@@ -239,8 +239,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.delegate = self
         tableView.dataSource = self
 
-//        atmHeightConstraint = atmController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
-//        atmHeightConstraint!.isActive = true
         if !(atmController.view.isHidden) {
             atmController.view.isHidden = true
         }
@@ -252,19 +250,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
         tableView.alwaysBounceVertical = false
 
-//        methodsView.addSubview(confirmationView)
-//        confirmationView.translatesAutoresizingMaskIntoConstraints = false
-////        confirmationView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor).isActive = true
-//        confirmationView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
-//        confirmationView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
-//        confirmationView.isHidden = true
-//
-//        methodsView.addSubview(atmController.view)
-//        atmController.view.translatesAutoresizingMaskIntoConstraints = false
-//        atmController.view.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
-//        atmController.view.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
-//        atmController.view.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
-//        atmController.view.isHidden = true
+        methodsView.addSubview(atmController.view)
+        atmController.view.translatesAutoresizingMaskIntoConstraints = false
+        atmController.view.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
+        atmController.view.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
+        atmController.view.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
+        atmController.view.isHidden = true
 
         activityIndicator.color = UIColor(hexString: PayME.configColor[0])
         activityIndicator.startAnimating()
@@ -275,7 +266,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         activityIndicator.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
         activityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
-        methodsView.bottomAnchor.constraint(equalTo: activityIndicator.bottomAnchor, constant: 16).isActive = true
+        methodsBottomConstraint = methodsView.bottomAnchor.constraint(equalTo: activityIndicator.bottomAnchor, constant: 16)
+        methodsBottomConstraint?.isActive = true
 
         footer.topAnchor.constraint(equalTo: methodsView.bottomAnchor).isActive = true
         footer.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -328,15 +320,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         })
     }
 
-    func setupUIATM(banks: [Bank]) {
-        confirmationView.isHidden = true
-        tableView.isHidden = false
-        atmController.view.isHidden = false
-        methodTitle.isHidden = false
-        methodsView.backgroundColor = .white
+    func setupUIConfirm(banks: [Bank]) {
         atmController.atmView.methodView.buttonTitle = paymentMethodID != nil ? nil : "Thay đổi"
-        atmController.atmView.methodView.updateUI()
-
+        atmController.atmView.updateUIByMethod(orderTransaction.paymentMethod!)
         listBank = banks
         atmController.setListBank(listBank: banks)
         tableView.isHidden = true
@@ -344,41 +330,65 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             self.atmController.view.isHidden = false
         })
 
-        let realATMViewHeight = min(screenSize.size.height - (topLayoutGuide.length + orderView.bounds.size.height
-                + methodTitle.bounds.size.height + 50
-                + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
-        let viewHeight = realATMViewHeight
-                + orderView.bounds.size.height
-                + methodTitle.bounds.size.height + 50
-                + (bottomLayoutGuide.length == 0 ? 16 : 0)
-        modalHeight = viewHeight
-        atmHeightConstraint?.constant = realATMViewHeight
+        if (atmHeightConstraint?.constant == nil) {
+            atmHeightConstraint = atmController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
+            atmHeightConstraint?.isActive = true
+        }
+        atmController.view.layoutIfNeeded()
+        let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
+                + methodTitle.bounds.size.height
+                + footer.bounds.size.height
+                + (bottomLayoutGuide.length != 0 ? bottomLayoutGuide.length : 16)))
+        atmHeightConstraint?.constant = atmHeight
+        methodsBottomConstraint?.isActive = false
+        methodsBottomConstraint = methodsView.bottomAnchor.constraint(equalTo: atmController.view.bottomAnchor, constant: 16)
+        methodsBottomConstraint?.isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
+        let viewHeight = methodsView.bounds.size.height
+                + footer.bounds.size.height
+                + (bottomLayoutGuide.length > 0 ? 0 : 16)
+        modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
+
+//        let realATMViewHeight = min(screenSize.size.height - (topLayoutGuide.length + orderView.bounds.size.height
+//                + methodTitle.bounds.size.height + 50
+//                + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
+//        let viewHeight = realATMViewHeight
+//                + orderView.bounds.size.height
+//                + methodTitle.bounds.size.height + 50
+//                + (bottomLayoutGuide.length == 0 ? 16 : 0)
+//        modalHeight = viewHeight
+//        atmHeightConstraint?.constant = realATMViewHeight
+//        updateViewConstraints()
+//        view.layoutIfNeeded()
+//        panModalSetNeedsLayoutUpdate()
+//        panModalTransition(to: .longForm)
 
     }
 
     func showMethods(_ methods: [PaymentMethod]) {
         view.endEditing(false)
-        confirmationView.isHidden = true
         atmController.view.isHidden = true
         UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews]) {
             self.tableView.isHidden = false
-            self.methodTitle.isHidden = false
         }
-        tableHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
-        tableHeightConstraint!.isActive = true
-        tableView.reloadData()
-        tableView.layoutIfNeeded()
-        let tableViewHeight = min(tableView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
-                + methodTitle.bounds.size.height
-                + footer.bounds.size.height
-                + (bottomLayoutGuide.length != 0 ? bottomLayoutGuide.length : 16)))
-        tableHeightConstraint?.constant = tableViewHeight
-        tableView.isScrollEnabled = true
-        methodsView.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 16).isActive = true
+        if (tableHeightConstraint?.constant == nil) {
+            tableHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
+            tableHeightConstraint!.isActive = true
+            tableView.reloadData()
+            tableView.layoutIfNeeded()
+            let tableViewHeight = min(tableView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
+                    + methodTitle.bounds.size.height
+                    + footer.bounds.size.height
+                    + (bottomLayoutGuide.length != 0 ? bottomLayoutGuide.length : 16)))
+            tableHeightConstraint?.constant = tableViewHeight
+        }
+
+        methodsBottomConstraint?.isActive = false
+        methodsBottomConstraint =  methodsView.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 16)
+        methodsBottomConstraint?.isActive = true
 
         updateViewConstraints()
         view.layoutIfNeeded()
@@ -390,87 +400,118 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         panModalTransition(to: .longForm)
     }
 
-    func setupUIConfirmation() {
+    func setupUIFee() {
         view.endEditing(false)
+        atmController.atmView.updatePaymentInfo([
+        ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
+        ["key": "Tổng thanh toán", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
+        ])
+        atmController.view.layoutIfNeeded()
+        let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
+                + methodTitle.bounds.size.height
+                + footer.bounds.size.height
+                + (bottomLayoutGuide.length != 0 ? bottomLayoutGuide.length : 16)))
+        atmHeightConstraint?.constant = atmHeight
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        let viewHeight = methodsView.bounds.size.height
+                + footer.bounds.size.height
+                + (bottomLayoutGuide.length > 0 ? 0 : 16)
+        modalHeight = viewHeight
+        panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .longForm)
 
-        UIView.transition(with: confirmationView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
-            self.confirmationView.isHidden = false
-        })
-        tableView.isHidden = true
-        atmController.view.isHidden = true
-        methodTitle.isHidden = true
-        methodsView.backgroundColor = UIColor(239, 242, 247)
-    }
-
-    func updateConfirmationInfo(order: OrderTransaction?) {
-        confirmationView.reset()
-        if let orderTransaction = order {
-            confirmationView.setPaymentInfo(paymentInfo: [
-                ["key": "Dịch vụ", "value": "\(orderTransaction.storeName)"],
-                ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: orderTransaction.amount)) đ", "color": UIColor(12, 170, 38)],
-                ["key": "Nội dung", "value": orderTransaction.note]
-            ])
-            switch (orderTransaction.paymentMethod?.type) {
-            case MethodType.WALLET.rawValue:
-                confirmationView.setServiceInfo(serviceInfo: [
-                    ["key": "Phương thức", "value": "Số dư ví"],
-                    ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
-                    ["key": "Tổng thanh toán", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
-                ])
-                confirmationView.onPressConfirm = {
-                    if (orderTransaction.paymentMethod?.dataWallet?.balance ?? 0) < orderTransaction.amount {
-                        PaymentModalController.isShowCloseModal = false
-                        self.dismiss(animated: true, completion: {
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
-                        })
-                        return
-                    }
-                    self.setupSecurity()
-                }
-                break
-            case MethodType.LINKED.rawValue:
-                confirmationView.setServiceInfo(serviceInfo: [
-                    ["key": "Phương thức", "value": "Tài khoản liên kết"],
-                    ["key": "Số tài khoản", "value": "\(String(describing: orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: orderTransaction.paymentMethod!.label.suffix(4)))"],
-                    ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
-                    ["key": "Số tiền trừ ví", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
-                ])
-                confirmationView.onPressConfirm = {
-                    if (self.payMEFunction.appEnv.isEqual("SANDBOX")) {
-                        PaymentModalController.isShowCloseModal = false
-                        self.dismiss(animated: true) {
-                            self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
-                        }
-                        return
-                    }
-                    self.setupSecurity()
-                }
-                break
-            case MethodType.BANK_CARD.rawValue:
-                confirmationView.setServiceInfo(serviceInfo: [
-                    ["key": "Phương thức", "value": "Thẻ ATM nội địa"],
-                    ["key": "Ngân hàng", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? "N/A")],
-                    ["key": "Số thẻ ATM", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.cardNumberFormatted() ?? "N/A")],
-                    ["key": "Họ tên chủ thẻ", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.cardHolder ?? "N/A")],
-                    ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
-                    ["key": "Số tiền thanh toán", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
-                ])
-                confirmationView.onPressConfirm = {
-                    self.showSpinner(onView: self.view)
-                    self.paymentPresentation.payATM(orderTransaction: orderTransaction)
-                }
-            default: break
+        switch orderTransaction.paymentMethod?.type {
+        case MethodType.WALLET.rawValue:
+            atmController.payActionByMethod = {
+                self.setupSecurity()
             }
-            updateViewConstraints()
-            view.layoutIfNeeded()
-            let viewHeight = orderView.bounds.size.height
-                    + confirmationView.bounds.size.height
-                    + (bottomLayoutGuide.length == 0 ? 16 : 0)
-            modalHeight = viewHeight
-            panModalSetNeedsLayoutUpdate()
-            panModalTransition(to: .longForm)
+            break
+        case MethodType.LINKED.rawValue:
+            atmController.payActionByMethod = {
+                if (self.payMEFunction.appEnv.isEqual("SANDBOX")) {
+                    PaymentModalController.isShowCloseModal = false
+                    self.dismiss(animated: true) {
+                        self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+                    }
+                    return
+                }
+                self.setupSecurity()
+            }
+            break
+        default: break
         }
     }
+
+//    func updateConfirmationInfo(order: OrderTransaction?) {
+//        confirmationView.reset()
+//        if let orderTransaction = order {
+//            confirmationView.setPaymentInfo(paymentInfo: [
+//                ["key": "Dịch vụ", "value": "\(orderTransaction.storeName)"],
+//                ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: orderTransaction.amount)) đ", "color": UIColor(12, 170, 38)],
+//                ["key": "Nội dung", "value": orderTransaction.note]
+//            ])
+//            switch (orderTransaction.paymentMethod?.type) {
+//            case MethodType.WALLET.rawValue:
+//                confirmationView.setServiceInfo(serviceInfo: [
+//                    ["key": "Phương thức", "value": "Số dư ví"],
+//                    ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
+//                    ["key": "Tổng thanh toán", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
+//                ])
+//                confirmationView.onPressConfirm = {
+//                    if (orderTransaction.paymentMethod?.dataWallet?.balance ?? 0) < orderTransaction.amount {
+//                        PaymentModalController.isShowCloseModal = false
+//                        self.dismiss(animated: true, completion: {
+//                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
+//                        })
+//                        return
+//                    }
+//                    self.setupSecurity()
+//                }
+//                break
+//            case MethodType.LINKED.rawValue:
+//                confirmationView.setServiceInfo(serviceInfo: [
+//                    ["key": "Phương thức", "value": "Tài khoản liên kết"],
+//                    ["key": "Số tài khoản", "value": "\(String(describing: orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: orderTransaction.paymentMethod!.label.suffix(4)))"],
+//                    ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
+//                    ["key": "Số tiền trừ ví", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
+//                ])
+//                confirmationView.onPressConfirm = {
+//                    if (self.payMEFunction.appEnv.isEqual("SANDBOX")) {
+//                        PaymentModalController.isShowCloseModal = false
+//                        self.dismiss(animated: true) {
+//                            self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+//                        }
+//                        return
+//                    }
+//                    self.setupSecurity()
+//                }
+//                break
+//            case MethodType.BANK_CARD.rawValue:
+//                confirmationView.setServiceInfo(serviceInfo: [
+//                    ["key": "Phương thức", "value": "Thẻ ATM nội địa"],
+//                    ["key": "Ngân hàng", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? "N/A")],
+//                    ["key": "Số thẻ ATM", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.cardNumberFormatted() ?? "N/A")],
+//                    ["key": "Họ tên chủ thẻ", "value": String(describing: orderTransaction.paymentMethod?.dataBank?.cardHolder ?? "N/A")],
+//                    ["key": "Phí", "value": (orderTransaction.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTransaction.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
+//                    ["key": "Số tiền thanh toán", "value": "\(String(describing: formatMoney(input: orderTransaction.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
+//                ])
+//                confirmationView.onPressConfirm = {
+//                    self.showSpinner(onView: self.view)
+//                    self.paymentPresentation.payATM(orderTransaction: orderTransaction)
+//                }
+//            default: break
+//            }
+//            updateViewConstraints()
+//            view.layoutIfNeeded()
+//            let viewHeight = orderView.bounds.size.height
+//                    + confirmationView.bounds.size.height
+//                    + (bottomLayoutGuide.length == 0 ? 16 : 0)
+//            modalHeight = viewHeight
+//            panModalSetNeedsLayoutUpdate()
+//            panModalTransition(to: .longForm)
+//        }
+//    }
 
     func setupOTP() {
         view.addSubview(otpView)
@@ -556,7 +597,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
         resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
         atmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
-        confirmationView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
+//        confirmationView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
     }
 
     func panModalDidDismiss() {
@@ -615,11 +656,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     }
                     openWallet(action: PayME.Action.DEPOSIT, amount: orderTransaction.amount - balance, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
                 } else {
+                    payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM))
                     paymentPresentation.getFee(orderTransaction: orderTransaction)
                 }
             }
             break
         case MethodType.LINKED.rawValue:
+            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM))
             paymentPresentation.getFee(orderTransaction: orderTransaction)
             break
         case MethodType.BANK_CARD.rawValue:
@@ -628,6 +671,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 return
             }
             paymentPresentation.getLinkBank()
+            paymentPresentation.getFee(orderTransaction: orderTransaction)
             break
         default:
             toastMessError(title: "", message: "Tính năng đang được xây dựng.") { [self] alertAction in
@@ -668,25 +712,17 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             modalHeight = keyboardSize.height + 10 + contentRect.height
         }
         if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
-            let contentRect: CGRect = methodsView.subviews.reduce(into: .zero) { rect, view in
-                rect = rect.union(view.frame)
-            }
-
-            var newATMHeight: CGFloat = 0
             if #available(iOS 11.0, *) {
-                modalHeight = min(keyboardSize.height + 10 + contentRect.height, view.safeAreaLayoutGuide.layoutFrame.height)
-                newATMHeight = min(modalHeight! - (orderView.bounds.size.height
-                        + methodTitle.bounds.size.height + 40
-                        + keyboardSize.height + 10
-                        + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
-
+                modalHeight = min(keyboardSize.height + methodsView.bounds.size.height + footer.bounds.size.height,
+                        view.safeAreaLayoutGuide.layoutFrame.height)
             } else {
-                modalHeight = min(keyboardSize.height + 10 + contentRect.height, screenSize.height)
-                newATMHeight = min(modalHeight! - (orderView.bounds.size.height
-                        + methodTitle.bounds.size.height + 70
-                        + keyboardSize.height + 10
-                        + (bottomLayoutGuide.length == 0 ? 16 : 0)), atmController.atmView.contentSize.height)
+                modalHeight = min(keyboardSize.height + methodsView.bounds.size.height + footer.bounds.size.height, screenSize.height)
             }
+            let newATMHeight = min(atmController.atmView.contentSize.height, modalHeight! - (orderView.bounds.size.height + 12
+                    + methodTitle.bounds.size.height
+                    + footer.bounds.size.height
+                    + keyboardSize.height
+                    + (bottomLayoutGuide.length > 0 ? bottomLayoutGuide.length : 16)))
             atmHeightConstraint?.constant = newATMHeight
         }
         updateViewConstraints()
@@ -727,6 +763,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .white
         tableView.separatorStyle = .none
+        tableView.isScrollEnabled = true
         return tableView
     }()
 

@@ -8,7 +8,7 @@
 import UIKit
 
 class Method: UITableViewCell {
-    var methodView: MethodView = MethodView(type: .WALLET, title: "")
+    var methodView: MethodView = MethodView(title: "")
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
