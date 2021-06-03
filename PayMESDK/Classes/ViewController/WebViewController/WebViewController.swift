@@ -52,6 +52,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var onDeposit: String = "onDeposit"
     var onWithdraw: String = "onWithdraw"
     var onTransfer: String = "onTransfer"
+    var onUpdateIdentify: String = "onUpdateIdentify"
     var form = ""
     var imageFront: UIImage?
     var imageBack: UIImage?
@@ -63,6 +64,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     private var onFailWebView: ((String) -> ())? = nil
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
     private var onError: (([String: AnyObject]) -> ())? = nil
+
+    let closeButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "close.svg"), for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
 
     init(payMEFunction: PayMEFunction?, nibName: String?, bundle: Bundle?) {
         self.payMEFunction = payMEFunction
@@ -87,6 +95,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onDeposit)
         userController.add(self, name: onWithdraw)
         userController.add(self, name: onTransfer)
+        userController.add(self, name: onUpdateIdentify)
         userController.addUserScript(getZoomDisableScript())
 
         let config = WKWebViewConfiguration()
@@ -114,8 +123,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             webView.scrollView.alwaysBounceVertical = false
             webView.scrollView.bounces = false
             webView.load(myRequest)
+            closeButton.isHidden = true
         } else {
             webView.loadHTMLString(form, baseURL: nil)
+            closeButton.isHidden = false
         }
     }
 
@@ -164,6 +175,16 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         return WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
     }
 
+    func updateIdentify() {
+        let injectedJS = "       const script = document.createElement('script');\n" +
+                "          script.type = 'text/javascript';\n" +
+                "          script.async = true;\n" +
+                "          script.text = 'onUpdateIdentify()';\n" +
+                "          document.body.appendChild(script);\n" +
+                "          true; // note: this is required, or you'll sometimes get silent failures\n"
+        webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
+    }
+
     internal func reload() {
         webView.reload()
     }
@@ -193,6 +214,19 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 print("Lỗi")
             }
             URLCache.shared.removeAllCachedResponses()
+        }
+
+        webView.addSubview(closeButton)
+        closeButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        closeButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        closeButton.topAnchor.constraint(equalTo: webView.topAnchor, constant: 60).isActive = true
+        closeButton.trailingAnchor.constraint(equalTo: webView.trailingAnchor, constant: -20).isActive = true
+        closeButton.addTarget(self, action: #selector(closeWebViewPaymentModal), for: .touchUpInside)
+    }
+
+    @objc func closeWebViewPaymentModal() {
+        dismiss(animated: true) {
+            PayME.currentVC?.dismiss(animated: true)
         }
     }
 
@@ -237,9 +271,17 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 if status == "SUCCEEDED" {
                     onSuccess!(dictionary["data"] as! [String: AnyObject])
                 } else {
-                    onError!(dictionary["data"] as! [String: AnyObject])
+                    let message = dictionary["data"]!["message"] as? String ?? "Có lỗi xảy ra"
+                    onError!(["code": PayME.ResponseCode.OTHER as AnyObject, "message": message as AnyObject])
                 }
             }
+        }
+        if message.name == onUpdateIdentify {
+            setupCamera(dictionary: [
+                "identifyImg": true,
+                "faceImg": false,
+                "kycVideo": false
+            ] as [String: AnyObject], isUpdateIdentify: true)
         }
         if message.name == openCamera {
             if let dictionary = message.body as? [String: AnyObject] {
@@ -282,7 +324,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 removeSpinner()
                 let code = dictionary["code"] as! Int
                 if (code == 401) {
-                    navigationController?.popViewController(animated: true)
+                    onCloseWebview()
                     payMEFunction?.resetInitState()
                 }
                 onError!(dictionary)
@@ -297,8 +339,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
 
-    func setupCamera(dictionary: [String: AnyObject]) {
+    func setupCamera(dictionary: [String: AnyObject], isUpdateIdentify: Bool? = nil) {
         KYCController.reset()
+        KYCController.isUpdateIdentify = isUpdateIdentify ?? KYCController.isUpdateIdentify
         if let dictionary = dictionary as? [String: Bool] {
             let kycController = KYCController(payMEFunction: payMEFunction!, flowKYC: dictionary)
             kycController.kyc()

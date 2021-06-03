@@ -14,14 +14,16 @@ class KYCController {
     static var videoKYC: URL?
     static var active: Int?
     static var flowKYC: [String: Bool]?
-    var onSuccess: () -> () = {}
-
+    static var isUpdateIdentify: Bool?
+    var onOpenModalSuccess: () -> () = {
+    }
     static var payMEFunction: PayMEFunction?
 
-    init(payMEFunction: PayMEFunction, flowKYC: [String: Bool], onSuccess: @escaping () -> () = {}) {
+    init(payMEFunction: PayMEFunction, flowKYC: [String: Bool], onSuccess: @escaping () -> () = {
+    }) {
         KYCController.payMEFunction = payMEFunction
         KYCController.flowKYC = flowKYC
-        self.onSuccess = onSuccess
+        onOpenModalSuccess = onSuccess
     }
 
     func kyc() {
@@ -32,19 +34,19 @@ class KYCController {
             print("flow1")
             popupKYC.active = 0
             PayME.currentVC?.present(popupKYC, animated: true) {
-                self.onSuccess()
+                self.onOpenModalSuccess()
             }
         } else if (KYCController.flowKYC!["faceImg"] == true) {
             print("flow2")
             popupKYC.active = 1
             PayME.currentVC?.present(popupKYC, animated: true) {
-                self.onSuccess()
+                self.onOpenModalSuccess()
             }
         } else if (KYCController.flowKYC!["kycVideo"] == true) {
             print("flow3")
             popupKYC.active = 2
             PayME.currentVC?.present(popupKYC, animated: true) {
-                self.onSuccess()
+                self.onOpenModalSuccess()
             }
         }
     }
@@ -55,6 +57,7 @@ class KYCController {
         KYCController.videoKYC = nil
         KYCController.active = nil
         KYCController.flowKYC = nil
+        KYCController.isUpdateIdentify = nil
     }
 
     static func uploadKYC() {
@@ -63,7 +66,8 @@ class KYCController {
                 imageDocument: KYCController.imageDocument,
                 imageAvatar: KYCController.imageAvatar,
                 videoKYC: KYCController.videoKYC,
-                active: KYCController.active
+                active: KYCController.active,
+                isUpdateIdentify: KYCController.isUpdateIdentify
         )
         uploadKYC.upload()
     }

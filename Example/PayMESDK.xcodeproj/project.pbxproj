@@ -465,9 +465,9 @@
 			baseConfigurationReference = 7BA0A4D32A154EC9E34544FD /* Pods-PayMESDK_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 59;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 60;
 				DEVELOPMENT_TEAM = JHVD9NA6RN;
 				INFOPLIST_FILE = PayMESDK/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -478,7 +478,7 @@
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = vn.payme.sdk.example;
 				PRODUCT_NAME = "PayMESDK Demo";
-				PROVISIONING_PROFILE_SPECIFIER = "PayME SDK Example";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};
@@ -489,9 +489,9 @@
 			baseConfigurationReference = 1A94455197E9788A249F4432 /* Pods-PayMESDK_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 59;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 60;
 				DEVELOPMENT_TEAM = JHVD9NA6RN;
 				INFOPLIST_FILE = PayMESDK/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -502,7 +502,7 @@
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = vn.payme.sdk.example;
 				PRODUCT_NAME = "PayMESDK Demo";
-				PROVISIONING_PROFILE_SPECIFIER = "PayME SDK Example";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};

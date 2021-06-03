@@ -132,8 +132,8 @@ class KYCBackController: UIViewController {
     }
 
     @objc func confirmAction() {
-        KYCController.imageDocument = [self.kycImage!, self.kycImageBack!]
-        KYCController.active = self.active
+        KYCController.imageDocument = [kycImage!, kycImageBack!]
+        KYCController.active = active
         let popupKYC = PopupKYC()
         if (KYCController.flowKYC!["kycFace"] == true) {
             popupKYC.active = 1
@@ -142,7 +142,6 @@ class KYCBackController: UIViewController {
         } else if (KYCController.flowKYC!["kycVideo"] == true) {
             popupKYC.active = 2
             PayME.currentVC?.present(popupKYC, animated: true)
-
         } else {
             KYCController.uploadKYC()
         }

@@ -18,13 +18,15 @@ public class UploadKYC {
     private var pathAvatar: String?
     private var pathVideo: String?
     private let payMEFunction: PayMEFunction
+    private let isUpdateIdentify: Bool?
 
-    init(payMEFunction: PayMEFunction, imageDocument: [UIImage]?, imageAvatar: UIImage?, videoKYC: URL?, active: Int?) {
+    init(payMEFunction: PayMEFunction, imageDocument: [UIImage]?, imageAvatar: UIImage?, videoKYC: URL?, active: Int?, isUpdateIdentify: Bool?) {
         self.payMEFunction = payMEFunction
         self.imageDocument = imageDocument
         self.imageAvatar = imageAvatar
         self.videoKYC = videoKYC
         self.active = active
+        self.isUpdateIdentify = isUpdateIdentify
     }
 
     func upload() {
@@ -36,6 +38,7 @@ public class UploadKYC {
 
     private func verifyKYC() {
         payMEFunction.request.verifyKYC(pathFront: pathFront, pathBack: pathBack, pathAvatar: pathAvatar, pathVideo: pathVideo,
+                isUpdateIdentify: isUpdateIdentify ?? false,
                 onSuccess: { response in
                     print(response)
                     if let result = response["Account"]!["KYC"] as? [String: AnyObject] {
@@ -51,7 +54,11 @@ public class UploadKYC {
                                     if PayME.isRecreateNavigationController {
                                         PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
                                         let rootViewController = navigationArray.first
-                                        (rootViewController as? WebViewController)?.reload()
+                                        if self.isUpdateIdentify ?? false {
+                                            (rootViewController as? WebViewController)?.updateIdentify()
+                                        } else {
+                                            (rootViewController as? WebViewController)?.reload()
+                                        }
                                     } else {
                                         if (self.imageDocument != nil) {
                                             if (self.active == 2) {
@@ -73,7 +80,11 @@ public class UploadKYC {
                                             navigationArray.removeLast()
                                         }
                                         PayME.currentVC?.navigationController?.viewControllers = navigationArray
-                                        (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.reload()
+                                        if self.isUpdateIdentify ?? false {
+                                            (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.updateIdentify()
+                                        } else {
+                                            (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.reload()
+                                        }
                                     }
                                 }
                             } else {
