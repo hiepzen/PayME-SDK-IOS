@@ -313,7 +313,7 @@ class GraphQuery {
                                         isExistInMainWallet
                                         updateToken
                                         storeName
-                                        storeImage
+                                        
                                       }
                                     }
                                   }

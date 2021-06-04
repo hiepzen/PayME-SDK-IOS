@@ -109,10 +109,10 @@ internal class SecurityCode: UIView {
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
 
-        txtLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 21).isActive = true
+        txtLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 20).isActive = true
         txtLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
 
-        closeButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 19).isActive = true
+        closeButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 20).isActive = true
         closeButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
 
         image.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 22).isActive = true
@@ -128,14 +128,16 @@ internal class SecurityCode: UIView {
         otpView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
         otpView.heightAnchor.constraint(equalToConstant: 64).isActive = true
 
-        txtErrorMessage.topAnchor.constraint(equalTo: otpView.bottomAnchor, constant: 16).isActive = true
+        txtErrorMessage.topAnchor.constraint(equalTo: otpView.bottomAnchor, constant: 8).isActive = true
         txtErrorMessage.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         txtErrorMessage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
         txtErrorMessage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30).isActive = true
 
         forgotPassButton.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
-        forgotPassButton.topAnchor.constraint(equalTo: txtErrorMessage.bottomAnchor, constant: 15).isActive = true
+        forgotPassButton.topAnchor.constraint(equalTo: txtErrorMessage.bottomAnchor, constant: 8).isActive = true
         forgotPassButton.addTarget(self, action: #selector(onPressForgotPass), for: .touchUpInside)
+
+        bottomAnchor.constraint(equalTo: forgotPassButton.bottomAnchor, constant: 22).isActive = true
     }
 
     @objc func onPressForgotPass() {

@@ -109,33 +109,35 @@ internal class OTPView: UIView {
         // self.hideKeyboardWhenTappedAround()
 
 
-        txtLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 19).isActive = true
+        txtLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 20).isActive = true
         txtLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
 
-        closeButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 19).isActive = true
+        closeButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 20).isActive = true
         closeButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
 
-        image.topAnchor.constraint(equalTo: txtLabel.topAnchor, constant: 30).isActive = true
+        image.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 22).isActive = true
         image.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
 
         roleLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        roleLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 10).isActive = true
+        roleLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 16).isActive = true
         roleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
         roleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
 
         otpView.topAnchor.constraint(equalTo: roleLabel.bottomAnchor, constant: 20).isActive = true
-        otpView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 15).isActive = true
-        otpView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -15).isActive = true
+        otpView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
+        otpView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
         otpView.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
-        txtErrorMessage.topAnchor.constraint(equalTo: otpView.bottomAnchor, constant: 16).isActive = true
+        txtErrorMessage.topAnchor.constraint(equalTo: otpView.bottomAnchor, constant: 8).isActive = true
         txtErrorMessage.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         txtErrorMessage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
         txtErrorMessage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30).isActive = true
 
-        sendOtpButton.topAnchor.constraint(equalTo: txtErrorMessage.bottomAnchor, constant: 30).isActive = true
+        sendOtpButton.topAnchor.constraint(equalTo: txtErrorMessage.bottomAnchor, constant: 8).isActive = true
         sendOtpButton.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         sendOtpButton.addTarget(self, action: #selector(onPress), for: .touchUpInside)
+
+        bottomAnchor.constraint(equalTo: sendOtpButton.bottomAnchor, constant: 22).isActive = true
     }
 
     var countdownValue = 0

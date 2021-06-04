@@ -53,6 +53,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     private var atmHeightConstraint: NSLayoutConstraint?
     private var tableHeightConstraint: NSLayoutConstraint?
     private var methodsBottomConstraint: NSLayoutConstraint?
+    private var footerTopConstraint: NSLayoutConstraint?
+
+    var safeAreaInset: UIEdgeInsets? = nil
 
     let orderView: OrderView
 
@@ -86,6 +89,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        if #available(iOS 11.0, *) {
+            safeAreaInset = UIApplication.shared.keyWindow?.safeAreaInsets
+        } else {
+            safeAreaInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        }
         paymentPresentation.onNetworkError = {
             self.removeSpinner()
         }
@@ -271,7 +279,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsBottomConstraint = methodsView.bottomAnchor.constraint(equalTo: activityIndicator.bottomAnchor, constant: 16)
         methodsBottomConstraint?.isActive = true
 
-        footer.topAnchor.constraint(equalTo: methodsView.bottomAnchor).isActive = true
+        footerTopConstraint = footer.topAnchor.constraint(equalTo: methodsView.bottomAnchor)
+        footerTopConstraint?.isActive = true
         footer.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         footer.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
 
@@ -280,7 +289,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
         let viewHeight = methodsView.bounds.size.height
                 + footer.bounds.size.height
-                + (bottomLayoutGuide.length > 0 ? 0 : 16)
         modalHeight = viewHeight
     }
 
@@ -342,7 +350,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
                 + methodTitle.bounds.size.height
                 + footer.bounds.size.height
-                + (bottomLayoutGuide.length != 0 ? bottomLayoutGuide.length : 16)))
+                + (safeAreaInset?.bottom ?? 0) ))
         atmHeightConstraint?.constant = atmHeight
         methodsBottomConstraint?.isActive = false
         methodsBottomConstraint = methodsView.bottomAnchor.constraint(equalTo: atmController.view.bottomAnchor, constant: 16)
@@ -351,7 +359,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.layoutIfNeeded()
         let viewHeight = methodsView.bounds.size.height
                 + footer.bounds.size.height
-                + (bottomLayoutGuide.length > 0 ? 0 : 16)
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
@@ -371,7 +378,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let tableViewHeight = min(tableView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
                     + methodTitle.bounds.size.height
                     + footer.bounds.size.height
-                    + (bottomLayoutGuide.length != 0 ? bottomLayoutGuide.length : 16)))
+                    + (safeAreaInset?.bottom ?? 0) ))
             tableHeightConstraint?.constant = tableViewHeight
         }
 
@@ -383,7 +390,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.layoutIfNeeded()
         let viewHeight = methodsView.bounds.size.height
                 + footer.bounds.size.height
-                + (bottomLayoutGuide.length > 0 ? 0 : 16)
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
@@ -400,13 +406,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
                     + methodTitle.bounds.size.height
                     + footer.bounds.size.height
-                    + (bottomLayoutGuide.length != 0 ? bottomLayoutGuide.length : 16)))
+                    + (safeAreaInset?.bottom ?? 0) ))
             atmHeightConstraint?.constant = atmHeight
             updateViewConstraints()
             view.layoutIfNeeded()
             let viewHeight = methodsView.bounds.size.height
                     + footer.bounds.size.height
-                    + (bottomLayoutGuide.length > 0 ? 0 : 16)
             modalHeight = viewHeight
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
@@ -435,40 +440,45 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupOTP() {
+        methodsView.isHidden = true
+        securityCode.isHidden = true
+        otpView.isHidden = false
         view.addSubview(otpView)
-
         otpView.updateBankName(name: orderTransaction.paymentMethod?.title ?? "")
         otpView.translatesAutoresizingMaskIntoConstraints = false
         otpView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-        otpView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
         otpView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         otpView.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: otpView.otpView.bottomAnchor, constant: 10).isActive = true
+
+        footerTopConstraint?.isActive = false
+        footerTopConstraint = footer.topAnchor.constraint(equalTo: otpView.bottomAnchor)
+        footerTopConstraint?.isActive = true
+
         updateViewConstraints()
         view.layoutIfNeeded()
-        panModalTransition(to: .shortForm)
-        panModalSetNeedsLayoutUpdate()
         otpView.otpView.properties.delegate = self
-        otpView.otpView.becomeFirstResponder()
         otpView.startCountDown(from: 60)
         otpView.onPressSendOTP = {
             self.otpView.startCountDown(from: 120)
         }
+        otpView.otpView.becomeFirstResponder()
     }
 
     func setupSecurity() {
         methodsView.isHidden = true
         view.addSubview(securityCode)
-
+        securityCode.isHidden = false
         securityCode.translatesAutoresizingMaskIntoConstraints = false
         securityCode.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-        securityCode.heightAnchor.constraint(equalTo: methodsView.heightAnchor).isActive = true
         securityCode.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         securityCode.closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+
+        footerTopConstraint?.isActive = false
+        footerTopConstraint = footer.topAnchor.constraint(equalTo: securityCode.bottomAnchor)
+        footerTopConstraint?.isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
         securityCode.otpView.properties.delegate = self
-        securityCode.otpView.becomeFirstResponder()
         securityCode.onPressForgot = {
             PayME.currentVC!.dismiss(animated: true)
             self.payMEFunction.openWallet(
@@ -477,14 +487,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     { dictionary in }
             )
         }
-        let contentRect: CGRect = securityCode.subviews.reduce(into: .zero) { rect, view in
-            rect = rect.union(view.frame)
-        }
-        modalHeight = screenSize.height / 3 + contentRect.height
-        updateViewConstraints()
-        view.layoutIfNeeded()
-        panModalSetNeedsLayoutUpdate()
-        panModalTransition(to: .longForm)
+        securityCode.otpView.becomeFirstResponder()
     }
 
     func setupResultView(result: Result) {
@@ -619,19 +622,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             return
         }
         if otpView.isDescendant(of: view) {
-            let contentRect: CGRect = otpView.subviews.reduce(into: .zero) { rect, view in
-                rect = rect.union(view.frame)
-            }
-
-            modalHeight = keyboardSize.height + 10 + contentRect.height
+            modalHeight = keyboardSize.height + otpView.bounds.size.height + footer.bounds.size.height - (safeAreaInset?.bottom ?? 0)
         }
-        if securityCode.isDescendant(of: view) {
-            let contentRect: CGRect = securityCode.subviews.reduce(into: .zero) { rect, view in
-                rect = rect.union(view.frame)
-            }
-            modalHeight = keyboardSize.height + 10 + contentRect.height
+        else if securityCode.isDescendant(of: view) {
+            modalHeight = keyboardSize.height + securityCode.bounds.size.height + footer.bounds.size.height - (safeAreaInset?.bottom ?? 0)
         }
-        if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
+        else if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
             if #available(iOS 11.0, *) {
                 modalHeight = min(keyboardSize.height + methodsView.bounds.size.height + footer.bounds.size.height,
                         view.safeAreaLayoutGuide.layoutFrame.height)
@@ -642,7 +638,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     + methodTitle.bounds.size.height
                     + footer.bounds.size.height
                     + keyboardSize.height
-                    + (bottomLayoutGuide.length > 0 ? bottomLayoutGuide.length : 16)))
+                    + (safeAreaInset?.bottom ?? 0) ))
             atmHeightConstraint?.constant = newATMHeight
         }
         updateViewConstraints()
@@ -658,13 +654,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             }
             modalHeight = contentRect.height
         }
-        if otpView.isDescendant(of: view) {
+        else if otpView.isDescendant(of: view) {
             let contentRect: CGRect = otpView.subviews.reduce(into: .zero) { rect, view in
                 rect = rect.union(view.frame)
             }
             modalHeight = contentRect.height
         }
-        if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
+        else if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
         }
         updateViewConstraints()
         view.layoutIfNeeded()
