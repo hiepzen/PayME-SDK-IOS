@@ -94,6 +94,6 @@ class PaymeLogoView: UIView {
         hStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         imageLogoPayme.widthAnchor.constraint(equalToConstant: 54).isActive = true
 
-        bottomAnchor.constraint(equalTo: hStack.bottomAnchor).isActive = true
+        bottomAnchor.constraint(equalTo: hStack.bottomAnchor, constant: 4).isActive = true
     }
 }

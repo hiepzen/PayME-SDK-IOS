@@ -58,6 +58,9 @@ class ATMModal: UIViewController {
         atmView.dateInput.textInput.delegate = self
         atmView.nameInput.textInput.delegate = self
 
+        atmView.methodView.button.setTitleColor(UIColor(hexString: payMEFunction.configColor[0]), for: .normal)
+        atmView.methodView.button.layer.borderColor = UIColor(hexString: payMEFunction.configColor[0]).cgColor
+
         atmView.button.addTarget(self, action: #selector(payAction), for: .touchUpInside)
         atmView.methodView.onPress = {
             self.atmView.nameInput.isHidden = true

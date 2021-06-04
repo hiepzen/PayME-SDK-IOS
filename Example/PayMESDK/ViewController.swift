@@ -335,7 +335,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     connectToken: self.connectToken,
                     appPrivateKey: EnvironmentSettings.standard.privateKey,
                     env: currentEnv,
-                    configColor: ["#75255b", "#a81308"],
+                    configColor: ["#6756d6", "#4430b3"],
                     showLog: 1
             )
             showSpinner(onView: view)

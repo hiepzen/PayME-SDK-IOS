@@ -20,6 +20,8 @@ class ResultView: UIView {
     let containerView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
         return scrollView
     }()
 
@@ -106,10 +108,6 @@ class ResultView: UIView {
         topView.addSubview(roleLabel)
         topView.addSubview(failLabel)
 
-        containerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        containerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        containerView.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
-
         topView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         topView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         topView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
@@ -135,26 +133,23 @@ class ResultView: UIView {
         failLabel.centerXAnchor.constraint(equalTo: topView.centerXAnchor).isActive = true
         topView.bottomAnchor.constraint(equalTo: failLabel.bottomAnchor, constant: 18).isActive = true
 
+        containerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        containerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        containerView.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
         //detailView - bottomView
         detailView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20).isActive = true
         detailView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         detailView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
 
         //methodView
+        button.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 12).isActive = true
         button.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         button.heightAnchor.constraint(equalToConstant: 45).isActive = true
         button.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
-        if #available(iOS 11.0, *) {
-            button.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor,
-                    constant: UIApplication.shared.delegate?.window??.safeAreaInsets.bottom ?? 0 > 0 ? -34 : -16
-            ).isActive = true
-        } else {
-            button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16).isActive = true
-        }
-        containerView.bottomAnchor.constraint(equalTo: button.topAnchor, constant: -8).isActive = true
 
-        button.setTitle("HOÀN TẤT", for: .normal)
+        bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 4).isActive = true
+        button.setTitle("Hoàn tất", for: .normal)
     }
 
     func adaptView(result: Result) {
@@ -170,13 +165,13 @@ class ResultView: UIView {
             let animation = Animation.named("Result_Thanh_Cong", bundle: resourceBundle!)
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
-            button.setTitle("HOÀN TẤT", for: .normal)
+            button.setTitle("Hoàn tất", for: .normal)
         } else {
             failLabel.text = result.failReasonLabel
             let animation = Animation.named("Result_That_Bai", bundle: resourceBundle!)
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
-            button.setTitle("ĐÃ HIỂU", for: .normal)
+            button.setTitle("Đã hiểu", for: .normal)
         }
         let transactionView = TransactionInformationView(id: result.transactionInfo.transaction, time: result.transactionInfo.transactionTime)
         detailView.addSubview(transactionView)
@@ -230,15 +225,14 @@ class ResultView: UIView {
 
         updateConstraints()
         layoutIfNeeded()
+
         var contentRect: CGRect = detailView.subviews.reduce(into: .zero) { rect, view in
             rect = rect.union(view.frame)
         }
-        contentRect = contentRect.union(CGRect(x: 0, y: contentRect.size.height, width: contentRect.size.width, height: 32))
 
         containerView.contentSize = contentRect.size
-        containerView.showsHorizontalScrollIndicator = false
-        updateConstraints()
-        layoutIfNeeded()
+        //total top margin: 20
+        containerView.contentSize.height = contentRect.size.height + 20
     }
 
     required init?(coder aDecoder: NSCoder) {

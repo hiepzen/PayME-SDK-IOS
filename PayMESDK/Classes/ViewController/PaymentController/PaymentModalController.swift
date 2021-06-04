@@ -54,6 +54,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     private var tableHeightConstraint: NSLayoutConstraint?
     private var methodsBottomConstraint: NSLayoutConstraint?
     private var footerTopConstraint: NSLayoutConstraint?
+    private var resultContentConstraint: NSLayoutConstraint?
 
     var safeAreaInset: UIEdgeInsets? = nil
 
@@ -399,8 +400,20 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.endEditing(false)
         if let orderTrans = order {
             atmController.atmView.updatePaymentInfo([
-                ["key": "Phí", "value": (orderTrans.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTrans.paymentMethod?.fee ?? 0))) đ" : "Miễn phí"],
-                ["key": "Tổng thanh toán", "value": "\(String(describing: formatMoney(input: orderTrans.total ?? 0))) đ", "font": UIFont.systemFont(ofSize: 20, weight: .medium), "color": UIColor.red]
+                ["key": "Phí",
+                 "value": (orderTrans.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTrans.paymentMethod?.fee ?? 0))) đ" : "Miễn phí",
+                "keyColor": UIColor(3, 3, 3),
+                 "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
+                 "color": UIColor(3, 3, 3),
+                 "font": UIFont.systemFont(ofSize: 15, weight: .regular)
+                ],
+                ["key": "Tổng thanh toán",
+                 "value": "\(String(describing: formatMoney(input: orderTrans.total ?? 0))) đ",
+                 "font": UIFont.systemFont(ofSize: 20, weight: .bold),
+                 "color": UIColor.black,
+                 "keyColor": UIColor(3, 3, 3),
+                 "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
+                ]
             ])
             atmController.view.layoutIfNeeded()
             let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
@@ -492,18 +505,38 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func setupResultView(result: Result) {
         view.endEditing(false)
+        methodsView.isHidden = true
+        otpView.isHidden = true
+        securityCode.isHidden = true
         PaymentModalController.isShowCloseModal = false
         if (isShowResultUI == true) {
             view.addSubview(resultView)
             resultView.translatesAutoresizingMaskIntoConstraints = false
             resultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-            resultView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
             resultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
             resultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+
+            resultContentConstraint = resultView.containerView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
+            resultContentConstraint?.isActive = true
             resultView.adaptView(result: result)
-            modalHeight = resultView.frame.size.height
+
+            let resultContainerHeight = min(resultView.containerView.contentSize.height, screenSize.height - (resultView.topView.bounds.size.height
+                    + footer.bounds.size.height
+                    + resultView.button.bounds.size.height
+                    + (safeAreaInset?.bottom ?? 0)
+                    + (safeAreaInset?.top ?? 0)
+                    + 34
+            ))
+            resultContentConstraint?.constant = resultContainerHeight
+
+            footerTopConstraint?.isActive = false
+            footerTopConstraint = footer.topAnchor.constraint(equalTo: resultView.bottomAnchor)
+            footerTopConstraint?.isActive = true
             updateViewConstraints()
             view.layoutIfNeeded()
+            let viewHeight = resultView.bounds.size.height
+                    + footer.bounds.size.height
+            modalHeight = viewHeight
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
             resultView.animationView.play()

@@ -198,6 +198,21 @@ extension UIView {
         shapeLayer.path = path
         layer.addSublayer(shapeLayer)
     }
+
+    @discardableResult
+    func addLineDashedStroke(pattern: [NSNumber]?, radius: CGFloat, color: CGColor, width: CGFloat = 0.5) -> CALayer {
+        let borderLayer = CAShapeLayer()
+
+        borderLayer.strokeColor = color
+        borderLayer.lineDashPattern = pattern
+        borderLayer.lineWidth = width
+        borderLayer.frame = bounds
+        borderLayer.fillColor = nil
+        borderLayer.path = UIBezierPath(roundedRect: bounds, byRoundingCorners: .allCorners, cornerRadii: CGSize(width: radius, height: radius)).cgPath
+        layer.addSublayer(borderLayer)
+        return borderLayer
+    }
+
     func applyGradient(colors: [CGColor], radius : CGFloat)
     {
         let gradientLayer = CAGradientLayer()

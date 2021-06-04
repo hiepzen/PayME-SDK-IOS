@@ -119,7 +119,7 @@ class InformationView: UIView{
                     seperator.trailingAnchor.constraint(equalTo: stackView.trailingAnchor).isActive = true
                     seperator.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: stackView.frame.size.width, y: 0), color: UIColor(203, 203, 203), strokeLength: 4, gapLength: 4, width: 1)
                 }
-                let row = InformationRow(key: key, value: value, color: info["color"] as? UIColor, font: info["font"] as? UIFont)
+                let row = InformationRow(key: key, value: value, color: info["color"] as? UIColor, font: info["font"] as? UIFont, keyColor: info["keyColor"] as? UIColor, keyFont: info["keyFont"] as? UIFont)
                 stackView.addArrangedSubview(row)
             }
         }

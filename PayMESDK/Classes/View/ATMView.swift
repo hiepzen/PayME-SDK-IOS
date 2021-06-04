@@ -132,8 +132,8 @@ class ATMView: UIScrollView {
         paymentInfo.removeFromSuperview()
         paymentInfo = InformationView(data: data)
         vStack.addArrangedSubview(paymentInfo)
-        paymentInfo.layer.borderWidth = 0.5
-        paymentInfo.layer.borderColor = UIColor(142, 142, 142).cgColor
+        layoutIfNeeded()
+        paymentInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
         updateContentSize()
     }
 
