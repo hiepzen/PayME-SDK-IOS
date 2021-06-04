@@ -124,6 +124,14 @@ class MethodView: UIView {
         return label
     }()
 
+    let infoHStack: UIStackView = {
+    let stack = UIStackView()
+    stack.translatesAutoresizingMaskIntoConstraints = false
+    stack.axis = .horizontal
+    stack.spacing = 6
+    return stack
+    }()
+
     init (title: String = "", content: String? = nil, buttonTitle: String? = nil, note: String? = nil, methodDescription: String? = nil){
         self.title = title
         self.content = content ?? nil
@@ -147,25 +155,26 @@ class MethodView: UIView {
         vStack.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12).isActive = true
 
         vStack.addArrangedSubview(containerInfo)
-        containerInfo.heightAnchor.constraint(equalToConstant: 32).isActive = true
+        containerInfo.heightAnchor.constraint(equalToConstant: 34).isActive = true
 
         containerInfo.addSubview(image)
-        image.heightAnchor.constraint(equalToConstant: 32).isActive = true
-        image.widthAnchor.constraint(equalToConstant: 32).isActive = true
+        image.heightAnchor.constraint(equalToConstant: 34).isActive = true
+        image.widthAnchor.constraint(equalToConstant: 34).isActive = true
         image.leadingAnchor.constraint(equalTo: containerInfo.leadingAnchor).isActive = true
 
         containerInfo.addSubview(infoVStack)
         infoVStack.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 12).isActive = true
         infoVStack.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
 
-        infoVStack.addArrangedSubview(titleLabel)
+        infoVStack.addArrangedSubview(infoHStack)
+        infoHStack.addArrangedSubview(titleLabel)
+        infoHStack.addArrangedSubview(contentLabel)
 //        titleLabel.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 8).isActive = true
 //        titleLabel.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
         infoVStack.addArrangedSubview(methodDescriptionLabel)
 
-        infoVStack.addSubview(contentLabel)
-        contentLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5).isActive = true
-        contentLabel.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
+//        contentLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5).isActive = true
+//        contentLabel.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
 
         containerInfo.addSubview(button)
         button.trailingAnchor.constraint(equalTo: containerInfo.trailingAnchor).isActive = true
