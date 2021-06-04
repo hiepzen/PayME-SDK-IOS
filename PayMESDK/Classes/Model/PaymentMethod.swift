@@ -15,6 +15,7 @@ class PaymentMethod {
     var label: String = ""
     var fee: Int!
     var minFee: Int!
+    var feeDescription: String
     var dataWallet: WalletInformation?
     var dataLinked: LinkedInformation?
     var dataBank: BankInformation?
@@ -27,6 +28,7 @@ class PaymentMethod {
         label: String,
         fee: Int,
         minFee: Int,
+        feeDescription: String = "",
         dataWallet: WalletInformation? = nil,
         dataLinked: LinkedInformation? = nil,
         dataBank: BankInformation? = nil,
@@ -38,6 +40,7 @@ class PaymentMethod {
         self.label = label
         self.fee = fee
         self.minFee = minFee
+        self.feeDescription = feeDescription
         self.dataWallet = dataWallet
         self.dataLinked = dataLinked
         self.dataBank = dataBank

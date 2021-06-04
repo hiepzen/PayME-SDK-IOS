@@ -50,6 +50,7 @@ class Method: UITableViewCell {
         if (presentable.type == MethodType.WALLET.rawValue) {
             methodView.title = "Số dư ví"
             methodView.image.image = UIImage(for: PaymentModalController.self, named: "iconWallet")
+            methodView.methodDescription = presentable.feeDescription
             if payMEFunction.accessToken == "" {
                 methodView.buttonTitle = "Kích hoạt ngay"
                 methodView.note = "(*) Vui lòng kích hoạt tài khoản ví trước khi sử dụng"

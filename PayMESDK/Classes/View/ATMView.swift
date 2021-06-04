@@ -99,7 +99,13 @@ class ATMView: UIScrollView {
         methodView.title = method.title
         methodView.content = method.label
         methodView.note = nil
+        methodView.methodDescription = method.feeDescription
         switch method.type {
+        case MethodType.WALLET.rawValue:
+            methodView.title = "Số dư ví"
+            methodView.image.image = UIImage(for: PaymentModalController.self, named: "iconWallet")
+            let balance = method.dataWallet?.balance ?? 0
+            methodView.content = "(\(formatMoney(input: balance))đ)"
         case MethodType.LINKED.rawValue:
             if method.dataLinked != nil {
                 let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(method.dataLinked!.swiftCode!).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")

@@ -438,6 +438,7 @@ class PaymentPresentation {
                         methodId: (item["methodId"] as! Int), type: item["type"] as! String,
                         title: item["title"] as! String, label: item["label"] as! String,
                         fee: item["fee"] as! Int, minFee: item["minFee"] as! Int,
+                        feeDescription: item["feeDescription"] as? String ?? "",
                         active: index == 0 ? true : false
                 )
                 if methodType == "WALLET" {

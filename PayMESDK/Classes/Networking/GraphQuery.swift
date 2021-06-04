@@ -232,6 +232,7 @@ class GraphQuery {
                                                 label
                                                 fee
                                                 minFee
+                                                feeDescription
                                                 data {
                                                   ... on LinkedMethodInfo {
                                                     swiftCode
@@ -313,7 +314,7 @@ class GraphQuery {
                                         isExistInMainWallet
                                         updateToken
                                         storeName
-                                        
+                                        storeImage
                                       }
                                     }
                                   }

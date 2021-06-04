@@ -27,6 +27,7 @@ class MethodView: UIView {
     var title: String = ""
     var buttonTitle: String?
     var note: String?
+    var methodDescription: String?
     var onPress: (() -> ())? = nil
 
     let vStack: UIStackView = {
@@ -54,7 +55,7 @@ class MethodView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor(11, 11, 11)
-        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .bold)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
@@ -106,11 +107,29 @@ class MethodView: UIView {
         return bgImage
     }()
 
-    init (title: String = "", content: String? = nil, buttonTitle: String? = nil, note: String? = nil){
+    let infoVStack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        return stack
+    }()
+
+    let methodDescriptionLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(100, 112, 129)
+        label.backgroundColor = .clear
+        label.font = .systemFont(ofSize: 11, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .left
+        return label
+    }()
+
+    init (title: String = "", content: String? = nil, buttonTitle: String? = nil, note: String? = nil, methodDescription: String? = nil){
         self.title = title
         self.content = content ?? nil
         self.buttonTitle = buttonTitle ?? nil
         self.note = note ?? nil
+        self.methodDescription = methodDescription ?? nil
         super.init(frame: CGRect.zero)
         setUpUI()
     }
@@ -135,11 +154,16 @@ class MethodView: UIView {
         image.widthAnchor.constraint(equalToConstant: 32).isActive = true
         image.leadingAnchor.constraint(equalTo: containerInfo.leadingAnchor).isActive = true
 
-        containerInfo.addSubview(titleLabel)
-        titleLabel.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 8).isActive = true
-        titleLabel.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
+        containerInfo.addSubview(infoVStack)
+        infoVStack.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 12).isActive = true
+        infoVStack.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
 
-        containerInfo.addSubview(contentLabel)
+        infoVStack.addArrangedSubview(titleLabel)
+//        titleLabel.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 8).isActive = true
+//        titleLabel.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
+        infoVStack.addArrangedSubview(methodDescriptionLabel)
+
+        infoVStack.addSubview(contentLabel)
         contentLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5).isActive = true
         contentLabel.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
 
@@ -165,6 +189,7 @@ class MethodView: UIView {
         titleLabel.text = title
         contentLabel.text = content ?? ""
         noteLabel.text = note ?? ""
+        methodDescriptionLabel.text = methodDescription ?? ""
 
 
         if (buttonTitle != nil) {
@@ -182,6 +207,12 @@ class MethodView: UIView {
         } else {
             seperator.isHidden = true
             noteLabel.isHidden = true
+        }
+
+        if (methodDescription != nil && methodDescription != "") {
+            methodDescriptionLabel.isHidden = false
+        } else {
+            methodDescriptionLabel.isHidden = true
         }
     }
 
