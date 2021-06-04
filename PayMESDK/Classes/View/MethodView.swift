@@ -66,7 +66,7 @@ class MethodView: UIView {
         let label = UILabel()
         label.textColor = UIColor(124, 124, 124)
         label.backgroundColor = .clear
-        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         return label

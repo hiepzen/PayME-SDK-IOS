@@ -53,7 +53,7 @@ class ATMView: UIScrollView {
         vStack.addArrangedSubview(dateInput)
 //        self.addSubview(nameField)
 
-        button.setTitle("Thanh toán", for: .normal)
+        button.setTitle("Xác nhận", for: .normal)
 //        button.setImage(UIImage(named: ""), for: .normal)
 
         methodView.topAnchor.constraint(equalTo: topAnchor, constant: 14).isActive = true
