@@ -14,6 +14,11 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     let session = AVCaptureSession()
     var camera: AVCaptureDevice?
     var imagePicker = UIImagePickerController()
+    private let popupPassport: PopupPassport = {
+        let popUpWindowView = PopupPassport()
+        popUpWindowView.translatesAutoresizingMaskIntoConstraints = false
+        return popUpWindowView
+    }()
     var cameraPreviewLayer: AVCaptureVideoPreviewLayer?
     let screenSize: CGRect = UIScreen.main.bounds
     weak var shapeLayer_topLeft: CAShapeLayer?
@@ -24,6 +29,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     var imageFront: UIImage?
     var cameraCaptureInput: AVCaptureDeviceInput?
     var cameraCaptureOutput: AVCapturePhotoOutput?
+    let kycDocumentController = KYCDocumentController()
 
     public var data: [KYCDocument] = [
         KYCDocument(id: "0", name: "Chứng minh nhân dân", active: true),
@@ -68,6 +74,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         view.addSubview(frontSide)
         view.addSubview(getPhoto)
         view.addSubview(titleButton)
+        view.addSubview(popupPassport)
 
         getPhoto.isHidden = true
         titleButton.isHidden = true
@@ -138,41 +145,65 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         getPhoto.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         titleButton.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
         view.bringSubviewToFront(backButton)
+
+        popupPassport.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+        popupPassport.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
+        popupPassport.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        popupPassport.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        popupPassport.continueButton.addTarget(self, action: #selector(acceptOptionPassport), for: .touchUpInside)
+        popupPassport.cancelButton.addTarget(self, action: #selector(closePopupPassport), for: .touchUpInside)
+        popupPassport.isHidden = true
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let colorButton = [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor]
+        popupPassport.continueButton.applyGradient(colors: colorButton, radius: 10)
+        popupPassport.continueButton.setTitleColor(.white, for: .normal)
+        popupPassport.cancelButton.applyGradient(colors: colorButton, radius: 10)
+        popupPassport.cancelButton.setTitleColor(.white, for: .normal)
+    }
 
     @objc func choiceDocument() {
-        let kycDocumentController = KYCDocumentController()
         kycDocumentController.data = data
         kycDocumentController.active = active
         kycDocumentController.setOnSuccessChoiceKYC(onSuccessChoiceKYC: { response in
-            self.active = response
             DispatchQueue.main.async {
-                if (self.active == 0) {
+                if (response == 0) {
                     self.choiceDocumentType.setTitle("Chứng minh nhân dân", for: .normal)
                     self.choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top: 0, left: 185, bottom: 0, right: 0) //adjust these to have fit right
-
+                    self.active = response
                 }
-                if (self.active == 1) {
+                if (response == 1) {
                     self.choiceDocumentType.setTitle("Căn cước công dân", for: .normal)
-                    self.choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top: 0, left: 185, bottom: 0, right: 0) //adjust these to have fit right
-
+                    self.choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top: 0, left: 160, bottom: 0, right: 0) //adjust these to have fit right
+                    self.active = response
                 }
-                if (self.active == 2) {
-                    self.choiceDocumentType.setTitle("Hộ chiếu", for: .normal)
-                    self.choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top: 0, left: 80, bottom: 0, right: 0) //adjust these to have fit right
-
+                if (response == 2) {
+                    self.popupPassport.isHidden = false
                 }
             }
         })
-        self.presentPanModal(kycDocumentController)
+        presentPanModal(kycDocumentController)
+    }
 
+    @objc func closePopupPassport() {
+        popupPassport.isHidden = true
+        kycDocumentController.onSelectionRow(index: active)
+        kycDocumentController.tableView.reloadData()
+        presentPanModal(kycDocumentController)
+    }
+
+    @objc func acceptOptionPassport() {
+        choiceDocumentType.setTitle("Hộ chiếu", for: .normal)
+        choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top: 0, left: 80, bottom: 0, right: 0) //adjust these to have fit right
+        active = 2
+        popupPassport.isHidden = true
     }
 
     @objc func back() {
         session.stopRunning()
         navigationController?.popViewController(animated: true)
-
     }
 
     @objc func takePicture() {
