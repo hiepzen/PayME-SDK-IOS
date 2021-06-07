@@ -180,37 +180,42 @@ class ResultView: UIView {
         transactionView.trailingAnchor.constraint(equalTo: detailView.trailingAnchor).isActive = true
         transactionView.bottomAnchor.constraint(equalTo: detailView.bottomAnchor).isActive = true
 
-        let serviceView = InformationView(data: [
-            ["key": "Dịch vụ", "value": "\(result.orderTransaction.storeName)"],
-            ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(hexString: PayME.configColor[0])],
-            ["key": "Nội dung", "value": result.orderTransaction.note]
-        ])
-        detailView.addSubview(serviceView)
-        serviceView.topAnchor.constraint(equalTo: transactionView.bottomAnchor, constant: 12).isActive = true
-        serviceView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
-        serviceView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
-
         if result.type == ResultType.SUCCESS {
+            let serviceView = InformationView(data: [
+                ["key": "Người nhận", "value": "\(result.orderTransaction.storeName)"],
+//                ["key": "Mã dịch vụ", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(12, 170, 38)],
+                ["key": "Mã dịch vụ", "value": "\(result.orderTransaction.orderId)"],
+                ["key": "Nội dung", "value": result.orderTransaction.note]
+            ])
+            detailView.addSubview(serviceView)
+            serviceView.topAnchor.constraint(equalTo: transactionView.bottomAnchor, constant: 12).isActive = true
+            serviceView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+            serviceView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+
             var paymentView: InformationView
             switch result.orderTransaction.paymentMethod?.type {
             case MethodType.WALLET.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "Phương thức", "value": "Số dư ví"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil]
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil],
+                   ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
                 break
             case MethodType.LINKED.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "Phương thức", "value": "Tài khoản liên kết"],
                     ["key": "Số tài khoản", "value": "\(String(describing: result.orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: result.orderTransaction.paymentMethod!.label.suffix(4)))"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil]
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil],
+                    ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
+
                 ])
                 break
             case MethodType.BANK_CARD.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "Phương thức", "value": "Thẻ ATM nội địa"],
                     ["key": "Số thẻ", "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.cardNumber.suffix(4) ?? ""))"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil]
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil],
+                    ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
             default:
                 paymentView = InformationView(data: [])
@@ -221,6 +226,17 @@ class ResultView: UIView {
             paymentView.topAnchor.constraint(equalTo: serviceView.bottomAnchor, constant: 12).isActive = true
             paymentView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
             paymentView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        } else {
+            button.applyGradient(colors: [UIColor(236, 42, 42).cgColor], radius: 10)
+            let serviceView = InformationView(data: [
+                ["key": "Dịch vụ", "value": "\(result.orderTransaction.storeName)"],
+                ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(hexString: PayME.configColor[0])],
+                ["key": "Nội dung", "value": result.orderTransaction.note]
+            ])
+            detailView.addSubview(serviceView)
+            serviceView.topAnchor.constraint(equalTo: transactionView.bottomAnchor, constant: 12).isActive = true
+            serviceView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+            serviceView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         }
 
         updateConstraints()
