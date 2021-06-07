@@ -54,7 +54,9 @@ class ATMView: UIScrollView {
 //        self.addSubview(nameField)
 
         button.setTitle("Xác nhận", for: .normal)
-//        button.setImage(UIImage(named: ""), for: .normal)
+        button.setImage(UIImage(for: ATMView.self, named: "iconLock"), for: .normal)
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 12)
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 0)
 
         methodView.topAnchor.constraint(equalTo: topAnchor, constant: 14).isActive = true
         methodView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
