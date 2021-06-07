@@ -80,7 +80,7 @@ internal class SecurityCode: UIView {
         button.setAttributedTitle(NSAttributedString(string: "Quên mật khẩu",
         attributes: [
             .font: UIFont.systemFont(ofSize: 16, weight: .semibold),
-            .foregroundColor: UIColor(0, 165, 0),
+            .foregroundColor: UIColor(hexString: PayME.configColor[0]),
             .underlineStyle: NSUnderlineStyle.single.rawValue
         ]), for: .normal)
         return button

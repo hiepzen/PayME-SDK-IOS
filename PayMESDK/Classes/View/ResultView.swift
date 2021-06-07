@@ -155,7 +155,7 @@ class ResultView: UIView {
     func adaptView(result: Result) {
         nameLabel.text = result.titleLabel
         roleLabel.text = "\(formatMoney(input: result.orderTransaction.amount)) đ"
-        roleLabel.textColor = result.type == ResultType.FAIL ? UIColor(0, 0, 0) : UIColor(45, 187, 84)
+        roleLabel.textColor = result.type == ResultType.FAIL ? UIColor(0, 0, 0) : UIColor(hexString: PayME.configColor[0])
 
         let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
@@ -182,7 +182,7 @@ class ResultView: UIView {
 
         let serviceView = InformationView(data: [
             ["key": "Dịch vụ", "value": "\(result.orderTransaction.storeName)"],
-            ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(12, 170, 38)],
+            ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(hexString: PayME.configColor[0])],
             ["key": "Nội dung", "value": result.orderTransaction.note]
         ])
         detailView.addSubview(serviceView)

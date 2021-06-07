@@ -78,7 +78,7 @@ internal class OTPView: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Gửi lại OTP", for: .normal)
-        button.setTitleColor(UIColor(130, 130, 130), for: .normal)
+        button.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
         return button
     }()
 
@@ -154,7 +154,7 @@ internal class OTPView: UIView {
                     self.countdownValue -= 1
                 } else {
                     self.sendOtpButton.setTitle("Gửi lại OTP", for: .normal)
-                    self.sendOtpButton.setTitleColor(UIColor(0, 165, 0), for: .normal)
+                    self.sendOtpButton.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
                     self.sendOtpButton.isEnabled = true
                     timer.invalidate()
                 }
