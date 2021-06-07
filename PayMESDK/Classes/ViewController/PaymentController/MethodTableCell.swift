@@ -82,6 +82,7 @@ class Method: UITableViewCell {
             methodView.content = presentable.label
             methodView.buttonTitle = nil
             methodView.note = nil
+            methodView.methodDescription = presentable.feeDescription
             switch presentable.type {
             case MethodType.LINKED.rawValue:
                 if presentable.dataLinked != nil {
