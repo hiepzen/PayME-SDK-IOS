@@ -53,6 +53,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var onWithdraw: String = "onWithdraw"
     var onTransfer: String = "onTransfer"
     var onUpdateIdentify: String = "onUpdateIdentify"
+    var showButtonCloseNapas: String = "showButtonCloseNapas"
     var form = ""
     var imageFront: UIImage?
     var imageBack: UIImage?
@@ -67,7 +68,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     let closeButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "close.svg"), for: .normal)
+        button.setImage(UIImage(for: QRNotFound.self, named: "16Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -96,6 +97,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onWithdraw)
         userController.add(self, name: onTransfer)
         userController.add(self, name: onUpdateIdentify)
+        userController.add(self, name: showButtonCloseNapas)
         userController.addUserScript(getZoomDisableScript())
 
         let config = WKWebViewConfiguration()
@@ -105,6 +107,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         webView.navigationDelegate = self
         view = webView
 
+        reloadHomePage()
+    }
+
+    func reloadHomePage() {
         if (form == "") {
             let urlString = urlRequest.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
             let myURL = URL(string: urlString!)
@@ -185,7 +191,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
     }
 
-    internal func reload() {
+    func reload() {
         webView.reload()
     }
 
@@ -225,8 +231,12 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
     @objc func closeWebViewPaymentModal() {
-        dismiss(animated: true) {
-            PayME.currentVC?.dismiss(animated: true)
+        if form == "" { //form == "" -> payme open wallet, form != "" -> napas
+            reloadHomePage()
+        } else {
+            dismiss(animated: true) {
+                PayME.currentVC?.dismiss(animated: true)
+            }
         }
     }
 
@@ -286,6 +296,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         if message.name == openCamera {
             if let dictionary = message.body as? [String: AnyObject] {
                 setupCamera(dictionary: dictionary)
+            }
+        }
+        if message.name == showButtonCloseNapas {
+            if let dictionary = message.body as? [String: AnyObject] {
+                if let isShowButtonClose = dictionary["isShowButtonClose"] as? Bool {
+                    closeButton.isHidden = !isShowButtonClose
+                }
             }
         }
         if message.name == onCommunicate {
