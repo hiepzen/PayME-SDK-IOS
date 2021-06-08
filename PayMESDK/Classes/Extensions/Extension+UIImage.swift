@@ -36,6 +36,13 @@ extension UIImageView {
 }
 
 extension SVGKImage {
+    convenience init?(for aClass: AnyClass, named: String) {
+        let bundle = Bundle(for: aClass)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        self.init(named: named, in: resourceBundle)
+    }
+
     private func fillColorForSubLayer(layer: CALayer, color: UIColor, opacity: Float) {
         if layer is CAShapeLayer {
             let shapeLayer = layer as! CAShapeLayer

@@ -90,10 +90,7 @@ class SecurityCode: UIView {
     init() {
         super.init(frame: CGRect.zero)
 
-        let bundle = Bundle(for: SecurityCode.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let imageSVG = SVGKImage(named: "bigIconsV160", in: resourceBundle)
+        let imageSVG = SVGKImage(for: SecurityCode.self, named: "bigIconsV160")
         imageSVG?.fillColor(color: .systemPink, opacity: 1)
 
         let svgImageView = UIImageView()
