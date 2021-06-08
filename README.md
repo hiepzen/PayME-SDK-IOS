@@ -45,7 +45,7 @@ Chuẩn mã hóa: RSA-512bit. Có thể dùng tool sau để sinh ra [tại đâ
 Trước khi sử dụng PayME SDK cần gọi phương thức khởi tạo một lần duy nhất để khởi tạo SDK.
 
 ```swift
-let payme = PayME(appId : "AppToken", 
+let payme = PayME(appToken : "AppToken", 
                   publicKey: "PublicKey", 
                   connectToken : "ConnectToken",
                   appPrivateKey : "AppPrivateKey", 
