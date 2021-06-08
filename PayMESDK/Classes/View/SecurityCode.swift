@@ -6,10 +6,11 @@
 //
 
 import Foundation
+import SVGKit
+import WebKit
 
-internal class SecurityCode: UIView {
+class SecurityCode: UIView {
     var onPressForgot: () -> () = {}
-
 
     let closeButton: UIButton = {
         let button = UIButton()
@@ -89,9 +90,20 @@ internal class SecurityCode: UIView {
     init() {
         super.init(frame: CGRect.zero)
 
+        let bundle = Bundle(for: SecurityCode.self)
+        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+        let resourceBundle = Bundle(url: bundleURL!)
+        let imageSVG = SVGKImage(named: "bigIconsV160", in: resourceBundle)
+        imageSVG?.fillColor(color: .systemPink, opacity: 1)
+
+        let svgImageView = UIImageView()
+        svgImageView.translatesAutoresizingMaskIntoConstraints = false
+        svgImageView.image = imageSVG?.uiImage
+
         backgroundColor = .white
         addSubview(roleLabel)
         addSubview(image)
+        addSubview(svgImageView)
         addSubview(closeButton)
         addSubview(txtLabel)
         addSubview(otpView)
@@ -118,8 +130,11 @@ internal class SecurityCode: UIView {
         image.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 22).isActive = true
         image.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
 
+        svgImageView.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 20).isActive = true
+        svgImageView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+
         roleLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        roleLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 16).isActive = true
+        roleLabel.topAnchor.constraint(equalTo: svgImageView.bottomAnchor, constant: 16).isActive = true
         roleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
         roleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
 
