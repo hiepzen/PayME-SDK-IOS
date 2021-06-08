@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import SVGKit
+import WebKit
 
 internal class OTPView: UIView {
     var onPressSendOTP: () -> () = {}
@@ -15,12 +17,6 @@ internal class OTPView: UIView {
         button.setImage(UIImage(for: QRNotFound.self, named: "16Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
-    }()
-
-    let image: UIImageView = {
-        var bgImage = UIImageView(image: UIImage(for: QRNotFound.self, named: "iconNoticeVerifyPass"))
-        bgImage.translatesAutoresizingMaskIntoConstraints = false
-        return bgImage
     }()
 
     let roleLabel: UILabel = {
@@ -57,20 +53,20 @@ internal class OTPView: UIView {
         pinField.translatesAutoresizingMaskIntoConstraints = false
         pinField.backgroundColor = .clear
         pinField.properties.numberOfCharacters = 6
-        pinField.appearance.font = .menloBold(26) // Default to appearance.MonospacedFont.menlo(40)
+        pinField.appearance.font = .menloBold(24) // Default to appearance.MonospacedFont.menlo(40)
         pinField.appearance.kerning = 35 // Space between characters, default to 16
         pinField.appearance.tokenColor = .clear // token color, default to text color
-        pinField.appearance.textColor = UIColor(11, 11, 11)
+        pinField.appearance.textColor = UIColor(0, 0, 0)
         pinField.properties.animateFocus = false
         pinField.appearance.backOffset = 10 // Backviews spacing between each other
-        pinField.appearance.backColor = UIColor(242, 244, 243)
-        pinField.appearance.backBorderWidth = 1
-        pinField.appearance.backBorderColor = .clear
+        pinField.appearance.backColor = UIColor(255, 255, 255)
+        pinField.appearance.backBorderWidth = 0.5
+        pinField.appearance.backBorderColor = UIColor(190, 190, 190)
         pinField.appearance.backCornerRadius = 15
-        pinField.appearance.backFocusColor = UIColor.clear
-        pinField.appearance.backBorderFocusColor = UIColor(10, 146, 32)
-        pinField.appearance.backActiveColor = UIColor(242, 244, 243)
-        pinField.appearance.backBorderActiveColor = UIColor.clear
+        pinField.appearance.backFocusColor = UIColor(239, 242, 247)
+        pinField.appearance.backBorderFocusColor = UIColor(239, 242, 247)
+        pinField.appearance.backActiveColor = UIColor(239, 242, 247)
+        pinField.appearance.backBorderActiveColor = UIColor(239, 242, 247)
         pinField.appearance.backRounded = false
         return pinField
     }()
@@ -84,15 +80,21 @@ internal class OTPView: UIView {
 
     init() {
         super.init(frame: CGRect.zero)
+        let imageSVG = SVGKImage(for: SecurityCode.self, named: "bigIconsV160")
+        imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
 
+        let svgImageView = UIImageView()
+        svgImageView.translatesAutoresizingMaskIntoConstraints = false
+        svgImageView.image = imageSVG?.uiImage
         backgroundColor = .white
-        self.addSubview(roleLabel)
-        self.addSubview(image)
-        self.addSubview(closeButton)
-        self.addSubview(txtLabel)
-        self.addSubview(otpView)
+
+        addSubview(roleLabel)
+        addSubview(svgImageView)
+        addSubview(closeButton)
+        addSubview(txtLabel)
+        addSubview(otpView)
         addSubview(txtErrorMessage)
-        self.addSubview(sendOtpButton)
+        addSubview(sendOtpButton)
 
         txtErrorMessage.text = "OTP không chính xác"
         txtErrorMessage.isHidden = true
@@ -115,11 +117,11 @@ internal class OTPView: UIView {
         closeButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 20).isActive = true
         closeButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
 
-        image.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 22).isActive = true
-        image.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        svgImageView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 22).isActive = true
+        svgImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
 
         roleLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        roleLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 16).isActive = true
+        roleLabel.topAnchor.constraint(equalTo: svgImageView.bottomAnchor, constant: 16).isActive = true
         roleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
         roleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
 
@@ -168,7 +170,7 @@ internal class OTPView: UIView {
 
     func updateBankName(name: String) {
 
-        roleLabel.text = "Nhập mã OTP \(name ?? "") đã được gửi qua số điện thoại đăng ký thẻ"
+        roleLabel.text = "Nhập mã OTP \(name) đã được gửi qua số điện thoại đăng ký thẻ"
     }
 
 

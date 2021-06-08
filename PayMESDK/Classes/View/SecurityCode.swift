@@ -19,12 +19,6 @@ class SecurityCode: UIView {
         return button
     }()
 
-    let image: UIImageView = {
-        var bgImage = UIImageView(image: UIImage(for: QRNotFound.self, named: "iconNoticeVerifyPass"))
-        bgImage.translatesAutoresizingMaskIntoConstraints = false
-        return bgImage
-    }()
-
     let roleLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor(11, 11, 11)
@@ -91,7 +85,7 @@ class SecurityCode: UIView {
         super.init(frame: CGRect.zero)
 
         let imageSVG = SVGKImage(for: SecurityCode.self, named: "bigIconsV160")
-        imageSVG?.fillColor(color: .systemPink, opacity: 1)
+        imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
 
         let svgImageView = UIImageView()
         svgImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -99,7 +93,6 @@ class SecurityCode: UIView {
 
         backgroundColor = .white
         addSubview(roleLabel)
-        addSubview(image)
         addSubview(svgImageView)
         addSubview(closeButton)
         addSubview(txtLabel)
@@ -124,10 +117,7 @@ class SecurityCode: UIView {
         closeButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 20).isActive = true
         closeButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30).isActive = true
 
-        image.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 22).isActive = true
-        image.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-
-        svgImageView.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 20).isActive = true
+        svgImageView.topAnchor.constraint(equalTo: txtLabel.bottomAnchor, constant: 22).isActive = true
         svgImageView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
 
         roleLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
