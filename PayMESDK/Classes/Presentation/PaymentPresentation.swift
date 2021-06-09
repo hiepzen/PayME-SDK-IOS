@@ -446,7 +446,7 @@ class PaymentPresentation {
                 }
                 if methodType == "LINKED" {
                     methodInformation.dataLinked = LinkedInformation(
-                            swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as! String,
+                            swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as? String,
                             linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int
                     )
                 }
