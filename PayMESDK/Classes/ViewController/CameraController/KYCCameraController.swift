@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 import AVFoundation
-
+import SVGKit
 
 class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     let session = AVCaptureSession()
@@ -158,10 +158,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let colorButton = [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor]
-        popupPassport.continueButton.applyGradient(colors: colorButton, radius: 10)
-        popupPassport.continueButton.setTitleColor(.white, for: .normal)
-        popupPassport.cancelButton.applyGradient(colors: colorButton, radius: 10)
-        popupPassport.cancelButton.setTitleColor(.white, for: .normal)
     }
 
     @objc func choiceDocument() {
@@ -222,7 +218,9 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
 
     let pressCamera: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(for: KYCCameraController.self, named: "takepicBtn"), for: .normal)
+        let imageSVG = SVGKImage(for: KYCCameraController.self, named: "buttonTakepic")
+        imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
+        button.setImage(imageSVG?.uiImage, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
