@@ -72,9 +72,9 @@ class ResultView: UIView {
 
     let button: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(8, 148, 31)
+        button.backgroundColor = .clear
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 20
         return button
     }()
 
@@ -165,12 +165,14 @@ class ResultView: UIView {
             let animation = Animation.named("Result_Thanh_Cong", bundle: resourceBundle!)
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
+            animationView.loopMode = .loop
             button.setTitle("Hoàn tất", for: .normal)
         } else {
             failLabel.text = result.failReasonLabel
             let animation = Animation.named("Result_That_Bai", bundle: resourceBundle!)
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
+            animationView.loopMode = .loop
             button.setTitle("Đã hiểu", for: .normal)
         }
         let transactionView = TransactionInformationView(id: result.transactionInfo.transaction, time: result.transactionInfo.transactionTime)
@@ -183,7 +185,6 @@ class ResultView: UIView {
         if result.type == ResultType.SUCCESS {
             let serviceView = InformationView(data: [
                 ["key": "Người nhận", "value": "\(result.orderTransaction.storeName)"],
-//                ["key": "Mã dịch vụ", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(12, 170, 38)],
                 ["key": "Mã dịch vụ", "value": "\(result.orderTransaction.orderId)"],
                 ["key": "Nội dung", "value": result.orderTransaction.note]
             ])
@@ -227,7 +228,7 @@ class ResultView: UIView {
             paymentView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
             paymentView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         } else {
-            button.applyGradient(colors: [UIColor(236, 42, 42).cgColor], radius: 10)
+//            button.applyGradient(colors: [UIColor(236, 42, 42).cgColor], radius: 20)
             let serviceView = InformationView(data: [
                 ["key": "Dịch vụ", "value": "\(result.orderTransaction.storeName)"],
                 ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(hexString: PayME.configColor[0])],

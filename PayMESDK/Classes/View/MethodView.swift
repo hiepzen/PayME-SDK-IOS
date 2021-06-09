@@ -75,10 +75,10 @@ class MethodView: UIView {
     let button: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitleColor(UIColor(45, 187, 84), for: .normal)
+        button.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
         button.layer.cornerRadius = 12
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor(45, 187, 84).cgColor
+        button.layer.borderColor = UIColor(hexString: PayME.configColor[0]).cgColor
         button.titleLabel?.font = .systemFont(ofSize: 14, weight: .regular)
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         return button

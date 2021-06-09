@@ -222,6 +222,15 @@ extension UIView {
         gradientLayer.frame = self.bounds
         gradientLayer.cornerRadius = radius
         self.layer.insertSublayer(gradientLayer, at: 0)
+        self.layer.insertSublayer(gradientLayer, at: 0)
+    }
+
+    func removeGradient() {
+        for subLayer in (layer.sublayers ?? []) {
+            if subLayer is CAGradientLayer {
+                subLayer.removeFromSuperlayer()
+            }
+        }
     }
 }
 extension UIImage {

@@ -21,8 +21,8 @@ class ATMView: UIScrollView {
     let button: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = 10
-        button.backgroundColor = .blue
+        button.layer.cornerRadius = 20
+        button.backgroundColor = .clear
         return button
     }()
 
