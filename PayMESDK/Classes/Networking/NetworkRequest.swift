@@ -204,7 +204,7 @@ public class NetworkRequestGraphQL {
                 return
             }
             let xAPIKeyResponse = headers.allHeaderFields["x-api-key"] as! String
-            let xAPIValidateResponse = headers.allHeaderFields["x-api-validate"] as! String
+//            let xAPIValidateResponse = headers.allHeaderFields["x-api-validate"] as! String
             let xAPIActionResponse = headers.allHeaderFields["x-api-action"] as! String
             guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
                 DispatchQueue.main.async {
@@ -220,7 +220,7 @@ public class NetworkRequestGraphQL {
             validateString += xAPIMessageResponse
             validateString += decryptKey
 
-            let validateMD5 = CryptoAES.MD5(validateString)!
+//            let validateMD5 = CryptoAES.MD5(validateString)!
             let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey)
             let formattedString = self.formatString(dataRaw: stringJSON)
             let dataJSON = formattedString.data(using: .utf8)

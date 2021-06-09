@@ -21,7 +21,7 @@ extension UIImageView {
     func load(url: String) {
         let tempUrl = URL(string: url)
         DispatchQueue.global().async { [weak self] in
-            if let unwrappedUrl = tempUrl as? URL {
+            if let unwrappedUrl = tempUrl {
                 if let data = try? Data(contentsOf: unwrappedUrl) {
                     if let image = UIImage(data: data) {
                         DispatchQueue.main.async {

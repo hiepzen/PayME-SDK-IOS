@@ -198,7 +198,7 @@ class ResultView: UIView {
             case MethodType.WALLET.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "Phương thức", "value": "Số dư ví"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil],
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
                    ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
                 break
@@ -206,7 +206,7 @@ class ResultView: UIView {
                 paymentView = InformationView(data: [
                     ["key": "Phương thức", "value": "Tài khoản liên kết"],
                     ["key": "Số tài khoản", "value": "\(String(describing: result.orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: result.orderTransaction.paymentMethod!.label.suffix(4)))"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil],
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
                     ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
 
                 ])
@@ -215,7 +215,7 @@ class ResultView: UIView {
                 paymentView = InformationView(data: [
                     ["key": "Phương thức", "value": "Thẻ ATM nội địa"],
                     ["key": "Số thẻ", "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.cardNumber.suffix(4) ?? ""))"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil],
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
                     ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
             default:
@@ -243,7 +243,7 @@ class ResultView: UIView {
         updateConstraints()
         layoutIfNeeded()
 
-        var contentRect: CGRect = detailView.subviews.reduce(into: .zero) { rect, view in
+        let contentRect: CGRect = detailView.subviews.reduce(into: .zero) { rect, view in
             rect = rect.union(view.frame)
         }
 

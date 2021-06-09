@@ -141,7 +141,6 @@ extension UIViewController {
 
     func removeSpinnerAnimation() {
         DispatchQueue.main.async {
-            print(vSpinner)
             vSpinner?.removeFromSuperview()
             vSpinner = nil
         }

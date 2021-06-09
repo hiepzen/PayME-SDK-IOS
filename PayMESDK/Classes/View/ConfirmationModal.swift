@@ -98,7 +98,7 @@ class ConfirmationModal: UIView {
     }
 
     @objc func onPressFunction() {
-        (onPressConfirm ?? {})()
+        (onPressConfirm)()
     }
     
     required init?(coder: NSCoder) {

@@ -252,7 +252,7 @@ class API {
         if (extraData != "") {
             payInput.updateValue(extraData, forKey: "referExtraData")
         }
-        var variables: [String: Any] = ["payInput": payInput]
+        let variables: [String: Any] = ["payInput": payInput]
         let json: [String: Any] = [
             "query": GraphQuery.transferATMQuery,
             "variables": variables,
