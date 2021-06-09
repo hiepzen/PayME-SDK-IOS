@@ -360,7 +360,7 @@ private class PopupDocument: UIView {
         let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
-        let animation = Animation.named("Chup_CMNN", bundle: resourceBundle!)
+        let animation = Animation.named("take_video", bundle: resourceBundle!)
         animationView.animation = animation
         animationView.contentMode = .scaleAspectFit
         animationView.loopMode = .loop

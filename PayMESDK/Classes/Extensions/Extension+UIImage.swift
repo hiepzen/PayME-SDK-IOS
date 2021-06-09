@@ -43,11 +43,13 @@ extension SVGKImage {
         self.init(named: named, in: resourceBundle)
     }
 
-    private func fillColorForSubLayer(layer: CALayer, color: UIColor, opacity: Float) {
+    private func fillColorForSubLayer(layer: CALayer, color: UIColor, opacity: Float, defaultColor: String = "#6756D6") {
         if layer is CAShapeLayer {
             let shapeLayer = layer as! CAShapeLayer
             if shapeLayer.fillColor != nil {
-                if hexStringFromColor(color: UIColor(cgColor: shapeLayer.fillColor!)) == "#6756D6" {
+//                print("minh khoa")
+//                print(hexStringFromColor(color: UIColor(cgColor: shapeLayer.fillColor!)))
+                if hexStringFromColor(color: UIColor(cgColor: shapeLayer.fillColor!)) == defaultColor {
                     shapeLayer.fillColor = color.cgColor
                     shapeLayer.opacity = opacity
                 }
@@ -56,7 +58,7 @@ extension SVGKImage {
 
         if let sublayers = layer.sublayers {
             for subLayer in sublayers {
-                fillColorForSubLayer(layer: subLayer, color: color, opacity: opacity)
+                fillColorForSubLayer(layer: subLayer, color: color, opacity: opacity, defaultColor: defaultColor)
             }
         }
     }
@@ -78,9 +80,9 @@ extension SVGKImage {
         return hexString
     }
 
-    func fillColor(color: UIColor, opacity: Float) {
+    func fillColor(color: UIColor, opacity: Float, defaultColor: String = "#6756D6") {
         if let layer = caLayerTree {
-            fillColorForSubLayer(layer: layer, color: color, opacity: opacity)
+            fillColorForSubLayer(layer: layer, color: color, opacity: opacity, defaultColor: defaultColor)
         }
     }
 

@@ -7,6 +7,7 @@
 
 import Foundation
 import Lottie
+import SVGKit
 
 class PopupPassport: UIView {
     let rootView = UIStackView()
@@ -15,7 +16,6 @@ class PopupPassport: UIView {
     let icon: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.image = UIImage(for: PopupPassport.self, named: "artHochieu")
         return imageView
     }()
 
@@ -81,6 +81,10 @@ class PopupPassport: UIView {
         buttonContainer.addArrangedSubview(cancelButton)
         rootView.addSubview(titleLabel)
         rootView.addSubview(icon)
+
+        let imageSVG = SVGKImage(for: PopupPassport.self, named: "artHochieu")
+        imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1, defaultColor: "#0AB822")
+        icon.image = imageSVG?.uiImage
 
         rootView.translatesAutoresizingMaskIntoConstraints = false
         rootView.axis = .vertical
