@@ -9,7 +9,6 @@ import Foundation
 import Lottie
 import RxSwift
 
-
 class ResultView: UIView {
     public let resultSubject : PublishSubject<Result> = PublishSubject()
     private let disposeBag = DisposeBag()
@@ -166,6 +165,13 @@ class ResultView: UIView {
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
             animationView.loopMode = .loop
+
+            let color = ColorValueProvider(UIColor(hexString: PayME.configColor[0]).lottieColorValue)
+            let keyPathLL = AnimationKeypath(keypath: "Laplanh.**.Fill 1.Color")
+            let keyPathDO = AnimationKeypath(keypath: "Do.**.Fill 1.Color")
+            animationView.setValueProvider(color, keypath: keyPathLL)
+            animationView.setValueProvider(color, keypath: keyPathDO)
+
             button.setTitle("Hoàn tất", for: .normal)
         } else {
             failLabel.text = result.failReasonLabel
