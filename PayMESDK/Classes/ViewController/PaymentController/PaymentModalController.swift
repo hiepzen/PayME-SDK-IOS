@@ -348,10 +348,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             atmHeightConstraint?.isActive = true
         }
         atmController.view.layoutIfNeeded()
-        let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
+        let temp = orderView.bounds.size.height + 12
                 + methodTitle.bounds.size.height
                 + footer.bounds.size.height
-                + (safeAreaInset?.bottom ?? 0) ))
+                + (safeAreaInset?.bottom ?? 0)
+        let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - temp)
         atmHeightConstraint?.constant = atmHeight
         methodsBottomConstraint?.isActive = false
         methodsBottomConstraint = methodsView.bottomAnchor.constraint(equalTo: atmController.view.bottomAnchor, constant: 16)
@@ -376,10 +377,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             tableHeightConstraint?.isActive = true
             tableView.reloadData()
             tableView.layoutIfNeeded()
-            let tableViewHeight = min(tableView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
+            let temp = orderView.bounds.size.height + 12
                     + methodTitle.bounds.size.height
                     + footer.bounds.size.height
-                    + (safeAreaInset?.bottom ?? 0) ))
+                    + (safeAreaInset?.bottom ?? 0)
+            let tableViewHeight = min(tableView.contentSize.height, screenSize.height - temp)
             tableHeightConstraint?.constant = tableViewHeight
         }
 
@@ -416,10 +418,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 ]
             ])
             atmController.view.layoutIfNeeded()
-            let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - (orderView.bounds.size.height + 12
+            let temp = orderView.bounds.size.height + 12
                     + methodTitle.bounds.size.height
                     + footer.bounds.size.height
-                    + (safeAreaInset?.bottom ?? 0) ))
+                    + (safeAreaInset?.bottom ?? 0)
+            let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - temp)
             atmHeightConstraint?.constant = atmHeight
             updateViewConstraints()
             view.layoutIfNeeded()
@@ -520,13 +523,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             resultContentConstraint?.isActive = true
             resultView.adaptView(result: result)
 
-            let resultContainerHeight = min(resultView.containerView.contentSize.height, screenSize.height - (resultView.topView.bounds.size.height
+            let temp = resultView.topView.bounds.size.height
                     + footer.bounds.size.height
                     + resultView.button.bounds.size.height
                     + (safeAreaInset?.bottom ?? 0)
                     + (safeAreaInset?.top ?? 0)
-                    + 34
-            ))
+            let resultContainerHeight = min(resultView.containerView.contentSize.height, screenSize.height - temp - 34)
             resultContentConstraint?.constant = resultContainerHeight
 
             footerTopConstraint?.isActive = false
@@ -550,9 +552,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
 
         orderView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
-        button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
-        resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
-        atmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
+        button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+        resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+        atmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
 //        confirmationView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
     }
 
@@ -667,11 +669,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             } else {
                 modalHeight = min(keyboardSize.height + methodsView.bounds.size.height + footer.bounds.size.height, screenSize.height)
             }
-            let newATMHeight = min(atmController.atmView.contentSize.height, modalHeight! - (orderView.bounds.size.height + 12
+            let temp = orderView.bounds.size.height + 12
                     + methodTitle.bounds.size.height
                     + footer.bounds.size.height
                     + keyboardSize.height
-                    + (safeAreaInset?.bottom ?? 0) ))
+                    + (safeAreaInset?.bottom ?? 0)
+            let newATMHeight = min(atmController.atmView.contentSize.height, modalHeight! - temp)
             atmHeightConstraint?.constant = newATMHeight
         }
         updateViewConstraints()
