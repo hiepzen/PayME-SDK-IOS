@@ -151,6 +151,11 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("Dangquay_3", bundle: resourceBundle!)
         animationButton.animation = animation
+
+        let color = ColorValueProvider(UIColor(hexString: PayME.configColor[0]).lottieColorValue)
+        let keyPath = AnimationKeypath(keypath: "Camera.**.Color")
+        animationButton.setValueProvider(color, keypath: keyPath)
+
         animationButton.contentMode = .scaleAspectFit
         animationButton.setPlayRange(fromMarker: "touchDownStart", toMarker: "touchDownEnd", event: .touchDown)
     }
