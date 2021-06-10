@@ -237,6 +237,7 @@ class GraphQuery {
                                                   ... on LinkedMethodInfo {
                                                     swiftCode
                                                     linkedId
+                                                    issuer
                                                   }
                                                   ... on WalletMethodInfo {
                                                     accountId
@@ -346,4 +347,18 @@ class GraphQuery {
                                               }
                                             }
                                             """
+    static let creditPaymentSubscription = """
+                                           subscription CreditCardPaymentStatus {
+                                             CreditCard {
+                                               ... on PaymentStatusSubscription {
+                                                 state
+                                                 serviceCode
+                                                 transaction
+                                                 amount
+                                                 total
+                                                 fee
+                                               }
+                                             }
+                                           }
+                                           """
 }

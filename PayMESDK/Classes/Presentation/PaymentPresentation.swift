@@ -241,9 +241,10 @@ class PaymentPresentation {
                                     )
                                 } else if (state == "REQUIRED_VERIFY") {
                                     if let html = payment["html"] as? String {
+                                        let realHtml = (orderTransaction.paymentMethod?.dataLinked?.swiftCode != nil ? html : "<html><body onload=\"document.forms[0].submit();\">\(html)</html>")
                                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
                                                 code: ResponseErrorCode.REQUIRED_VERIFY,
-                                                html: html,
+                                                html: realHtml,
                                                 transactionInformation: TransactionInformation(
                                                         transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber
                                                 ),
@@ -446,8 +447,9 @@ class PaymentPresentation {
                 }
                 if methodType == "LINKED" {
                     methodInformation.dataLinked = LinkedInformation(
-                            swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as! String,
-                            linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int
+                            swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as? String,
+                            linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int,
+                            issuer: (item["data"] as! [String: AnyObject])["issuer"] as? String ?? ""
                     )
                 }
                 methods.append(methodInformation)

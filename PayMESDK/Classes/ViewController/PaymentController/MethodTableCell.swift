@@ -86,12 +86,13 @@ class Method: UITableViewCell {
             switch presentable.type {
             case MethodType.LINKED.rawValue:
                 if presentable.dataLinked != nil {
-                    let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode!).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
+                    let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(presentable.dataLinked!.swiftCode ?? presentable.dataLinked!.issuer).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
                     DispatchQueue.global().async {
                         if let sureURL = url as URL? {
-                            let data = try? Data(contentsOf: sureURL)
-                            DispatchQueue.main.async {
-                                self.methodView.image.image = UIImage(data: data!)
+                            if let data = try? Data(contentsOf: sureURL) {
+                                DispatchQueue.main.async {
+                                    self.methodView.image.image = UIImage(data: data)
+                                }
                             }
                         }
                     }
