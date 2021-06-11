@@ -35,23 +35,23 @@ class PopupPassport: UIView {
 
     let continueButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(red: 14 / 255, green: 182 / 255, blue: 42 / 255, alpha: 1)
+        button.backgroundColor = UIColor(hexString: PayME.configColor[0])
         button.setTitle("Đồng ý", for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)
-        button.layer.cornerRadius = 50
+        button.layer.cornerRadius = 20
         return button
     }()
 
     let cancelButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(red: 14 / 255, green: 182 / 255, blue: 42 / 255, alpha: 1)
+        button.backgroundColor = UIColor(hexString: PayME.configColor[0])
         button.setTitle("Thay đổi", for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)
-        button.layer.cornerRadius = 50
+        button.layer.cornerRadius = 20
         return button
     }()
 

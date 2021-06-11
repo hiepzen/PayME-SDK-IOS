@@ -215,30 +215,36 @@ private class PopupDocument: UIView {
 
     let continueButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(red: 14 / 255, green: 182 / 255, blue: 42 / 255, alpha: 1)
+        button.backgroundColor = UIColor(hexString: PayME.configColor[0])
         button.setTitle("TIẾP TỤC", for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 20
         return button
     }()
 
     let iconChecked1: UIImageView = {
         var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
+        bgImage.image = bgImage.image?.withRenderingMode(.alwaysTemplate)
+        bgImage.tintColor = UIColor(hexString: PayME.configColor[0])
         return bgImage
     }()
 
     let iconChecked2: UIImageView = {
         var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
+        bgImage.image = bgImage.image?.withRenderingMode(.alwaysTemplate)
+        bgImage.tintColor = UIColor(hexString: PayME.configColor[0])
         return bgImage
     }()
 
     let iconChecked3: UIImageView = {
         var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
+        bgImage.image = bgImage.image?.withRenderingMode(.alwaysTemplate)
+        bgImage.tintColor = UIColor(hexString: PayME.configColor[0])
         return bgImage
     }()
 
@@ -360,8 +366,30 @@ private class PopupDocument: UIView {
         let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
-        let animation = Animation.named("take_video", bundle: resourceBundle!)
+        let animation = Animation.named("Chup_CMNN", bundle: resourceBundle!)
         animationView.animation = animation
+
+        let color = ColorValueProvider(UIColor(hexString: PayME.configColor[0]).lottieColorValue)
+        let keyPath = AnimationKeypath(keypath: "CMNN Outlines.Group 1.**.Color")
+        let keyPath1 = AnimationKeypath(keypath: "CMNN Outlines.Group 2.**.Color")
+        let keyPath2 = AnimationKeypath(keypath: "CMNN Outlines.Group 14.**.Color")
+        let keyPath3 = AnimationKeypath(keypath: "Chup_xanh.**.Fill 1.Color")
+        let keyPath4 = AnimationKeypath(keypath: "Focus_xanh.**.Fill 1.Color")
+        let keyPath5 = AnimationKeypath(keypath: "CMNN_xanh.**.Fill 1.Color")
+        let keyPath6 = AnimationKeypath(keypath: "CMNN_2_xanh.**.Fill 1.Color")
+        let keyPath7 = AnimationKeypath(keypath: "Bo_xanh.**.Stroke 1.Color")
+        animationView.setValueProvider(color, keypath: keyPath)
+        animationView.setValueProvider(color, keypath: keyPath1)
+        animationView.setValueProvider(color, keypath: keyPath2)
+        animationView.setValueProvider(color, keypath: keyPath3)
+        animationView.setValueProvider(color, keypath: keyPath4)
+        animationView.setValueProvider(color, keypath: keyPath5)
+        animationView.setValueProvider(color, keypath: keyPath6)
+        animationView.setValueProvider(color, keypath: keyPath7)
+
+        print("minh khoa")
+        print(animationView.logHierarchyKeypaths())
+
         animationView.contentMode = .scaleAspectFit
         animationView.loopMode = .loop
         animationView.play()
@@ -377,7 +405,6 @@ private class PopupFace: UIView {
     let rootView = UIStackView()
     let screenSize: CGRect = UIScreen.main.bounds
     let animationView = AnimationView()
-
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -421,12 +448,12 @@ private class PopupFace: UIView {
 
     let continueButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(red: 14 / 255, green: 182 / 255, blue: 42 / 255, alpha: 1)
+        button.backgroundColor = UIColor(hexString: PayME.configColor[0])
         button.setTitle("TIẾP TỤC", for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 20
         return button
     }()
 
@@ -439,12 +466,16 @@ private class PopupFace: UIView {
     let iconChecked1: UIImageView = {
         var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
+        bgImage.image = bgImage.image?.withRenderingMode(.alwaysTemplate)
+        bgImage.tintColor = UIColor(hexString: PayME.configColor[0])
         return bgImage
     }()
 
     let iconChecked2: UIImageView = {
         var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
+        bgImage.image = bgImage.image?.withRenderingMode(.alwaysTemplate)
+        bgImage.tintColor = UIColor(hexString: PayME.configColor[0])
         return bgImage
     }()
 
@@ -537,6 +568,13 @@ private class PopupFace: UIView {
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("take_face", bundle: resourceBundle!)
         animationView.animation = animation
+
+        let color = ColorValueProvider(UIColor(hexString: PayME.configColor[0]).lottieColorValue)
+        let keyPath = AnimationKeypath(keypath: "Focus.**.Color")
+        let keyPath1 = AnimationKeypath(keypath: "Mat.**.Fill 1.Color")
+        animationView.setValueProvider(color, keypath: keyPath)
+        animationView.setValueProvider(color, keypath: keyPath1)
+
         animationView.contentMode = .scaleAspectFit
         animationView.loopMode = .loop
         animationView.play()
@@ -606,12 +644,12 @@ private class PopupVideo: UIView {
 
     let continueButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(red: 14 / 255, green: 182 / 255, blue: 42 / 255, alpha: 1)
+        button.backgroundColor = UIColor(hexString: PayME.configColor[0])
         button.setTitle("TIẾP TỤC", for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 20
         return button
     }()
 
@@ -624,12 +662,16 @@ private class PopupVideo: UIView {
     let iconChecked1: UIImageView = {
         var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
+        bgImage.image = bgImage.image?.withRenderingMode(.alwaysTemplate)
+        bgImage.tintColor = UIColor(hexString: PayME.configColor[0])
         return bgImage
     }()
 
     let iconChecked2: UIImageView = {
         var bgImage = UIImageView(image: UIImage(for: QRScannerController.self, named: "checkBullet"))
         bgImage.translatesAutoresizingMaskIntoConstraints = false
+        bgImage.image = bgImage.image?.withRenderingMode(.alwaysTemplate)
+        bgImage.tintColor = UIColor(hexString: PayME.configColor[0])
         return bgImage
     }()
 
@@ -724,6 +766,13 @@ private class PopupVideo: UIView {
         let resourceBundle = Bundle(url: bundleURL!)
         let animation = Animation.named("take_video", bundle: resourceBundle!)
         animationView.animation = animation
+
+        let color = ColorValueProvider(UIColor(hexString: PayME.configColor[0]).lottieColorValue)
+        let keyPath = AnimationKeypath(keypath: "Focus.**.Fill 1.Color")
+        let keyPath1 = AnimationKeypath(keypath: "CMNN_bg.Group 6.**.Fill 1.Color")
+        animationView.setValueProvider(color, keypath: keyPath)
+        animationView.setValueProvider(color, keypath: keyPath1)
+
         animationView.contentMode = .scaleAspectFit
         animationView.loopMode = .loop
         animationView.play()
