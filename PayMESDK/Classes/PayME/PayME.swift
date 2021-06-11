@@ -18,6 +18,7 @@ public class PayME {
     static var currentVC: UIViewController?
     static var rootVC: UIViewController?
     static var isRecreateNavigationController: Bool = false
+    static var isWebviewOpening: Bool = false
 
     let payMEFunction: PayMEFunction
 
@@ -69,6 +70,18 @@ public class PayME {
 
     public func logout() {
         payMEFunction.resetInitState()
+    }
+
+    public func close() {
+        if PayME.isWebviewOpening {
+            if PayME.isRecreateNavigationController {
+                PayME.currentVC?.dismiss(animated: true)
+            } else {
+                PayME.currentVC?.navigationController?.popViewController(animated: true)
+            }
+        } else {
+            PayME.currentVC?.dismiss(animated: true)
+        }
     }
 
     public func getAccountInfo(

@@ -135,7 +135,9 @@ class PayMEFunction {
                 if #available(iOS 13.0, *) {
                     PayME.currentVC?.isModalInPresentation = false
                 }
-                currentVC.present(navigationController, animated: true)
+                currentVC.present(navigationController, animated: true) {
+                    PayME.isWebviewOpening = true
+                }
             }
 
             let topSafeArea: CGFloat
