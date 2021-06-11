@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
   s.source_files = 'PayMESDK/Classes/**/*'
 
   s.resource_bundles = {
-        'PayMESDK' => ['PayMESDK/Resource/*.png','PayMESDK/Resource/*.json', 'PayMESDK/Resource/*.svg]
+        'PayMESDK' => ['PayMESDK/Resource/*.png','PayMESDK/Resource/*.json', 'PayMESDK/Resource/*.svg']
   }
 
   # s.public_header_files = 'Pod/**/*.h'
@@ -49,4 +49,5 @@ Pod::Spec.new do |s|
   s.dependency 'RxSwift'
   s.dependency 'RxCocoa'
   s.dependency 'SVGKit'
+  s.dependency 'LiveGQL', '1.1.1'
 end

@@ -1,8 +1,9 @@
 import UIKit
 import CommonCrypto
 import RxSwift
+import LiveGQL
 
-class PaymentModalController: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate {
+class PaymentModalController: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate, LiveGQLDelegate {
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
             showSpinner(onView: view)
@@ -59,7 +60,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     var safeAreaInset: UIEdgeInsets? = nil
 
     let orderView: OrderView
-
+    var gql: LiveGQL!
     init(
             payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, paymentMethodID: Int?, isShowResultUI: Bool,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -114,7 +115,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         } else {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
-
+        gql = LiveGQL(socket: "wss://sbx-fe.payme.vn/graphql")
+        gql.delegate = self
+        gql.initServer(connectionParams: [
+            "Authorization": payMEFunction.accessToken,
+            "x-api-client": payMEFunction.appId
+        ], reconnect: true)
         setupSubscription()
     }
 
@@ -184,6 +190,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     private func setupWebview(_ responseError: ResponseError) {
+        gql.subscribe(graphql: GraphQuery.creditPaymentSubscription, identifier: "credit")
         let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
         webViewController.form = responseError.html
         webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
@@ -810,6 +817,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }.joined()
         return result
     }
+
+    func receivedRawMessage(text: String) {
+        print("rawMessage: \(text)")
+    }
+
 }
 
 
