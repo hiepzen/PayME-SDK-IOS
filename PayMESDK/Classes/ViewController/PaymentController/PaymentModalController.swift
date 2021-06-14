@@ -1,9 +1,8 @@
 import UIKit
 import CommonCrypto
 import RxSwift
-import LiveGQL
 
-class PaymentModalController: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate, LiveGQLDelegate {
+class PaymentModalController: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate {
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
             showSpinner(onView: view)
@@ -60,7 +59,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     var safeAreaInset: UIEdgeInsets? = nil
 
     let orderView: OrderView
-    var gql: LiveGQL!
 
     init(
             payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, paymentMethodID: Int?, isShowResultUI: Bool,
@@ -116,12 +114,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         } else {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
-        gql = LiveGQL(socket: "https://sbx-fe.payme.vn/graphql")
-        gql.delegate = self
-        gql.initServer(connectionParams: [
-            "Authorization": payMEFunction.accessToken,
-            "x-api-client": payMEFunction.appId
-        ], reconnect: true)
         setupSubscription()
     }
 
@@ -130,6 +122,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 .observe(on: MainScheduler.asyncInstance)
                 .subscribe(onNext: { paymentState in
                     if paymentState.state == State.RESULT {
+                        self.timer?.invalidate()
                         self.setupResult(paymentState.result!)
                     }
                     if paymentState.state == State.CONFIRMATION {
@@ -190,32 +183,40 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         setupResultView(result: result)
     }
 
-    @discardableResult
-    func getCreditHistory(transactionInfo: TransactionInformation?) -> DispatchWorkItem {
-        let task = DispatchWorkItem {
-            self.gql.unsubscribe(subscribtion: "credit")
+    var timer: Timer?
+    var count = 0
+
+    private func callCreditHistory(transactionInfo: TransactionInformation?) {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
             if let transInfo = transactionInfo {
-                self.paymentPresentation.getTransactionInfo(transactionInfo: transInfo, orderTransaction: self.orderTransaction)
+                self.count += 1
+                if self.count < 7 {
+                    self.showSpinner(onView: PayME.currentVC!.view)
+                    if self.count < 6 {
+                        self.paymentPresentation.getTransactionInfo(transactionInfo: transInfo, orderTransaction: self.orderTransaction)
+                    } else {
+                        self.paymentPresentation.getTransactionInfo(transactionInfo: transInfo, orderTransaction: self.orderTransaction, isAcceptPending: true)
+                    }
+                } else {
+                    self.timer?.invalidate()
+                }
             }
         }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 30, execute: task)
-
-        return task
     }
+
     var callApiWhenSocketFail: DispatchWorkItem!
     var transactionInfo: TransactionInformation!
     private func setupWebview(_ responseError: ResponseError) {
         let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
         webViewController.form = responseError.html
         if ((orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "") {
-            gql.subscribe(graphql: GraphQuery.creditPaymentSubscription, identifier: "credit")
             transactionInfo = responseError.transactionInformation
             webViewController.setOnNavigateToPayme { isAccess in
                 if isAccess == true {
-                    webViewController.dismiss(animated: true)
-                    self.showSpinner(onView: self.view)
-                    self.callApiWhenSocketFail = self.getCreditHistory(transactionInfo: responseError.transactionInformation)
+                    webViewController.dismiss(animated: true) {
+                        self.callCreditHistory(transactionInfo: responseError.transactionInformation)
+                    }
                 }
             }
         } else {
@@ -589,14 +590,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
         resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
         atmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-//        confirmationView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
     }
 
     func panModalDidDismiss() {
         if (PaymentModalController.isShowCloseModal == true) {
             onError(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
         }
-        gql.closeConnection()
     }
 
     @objc func closeAction(button: UIButton) {
@@ -844,25 +843,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             String(format: "%02hhx", $0)
         }.joined()
         return result
-    }
-
-    func receivedRawMessage(text: String) {
-        print("rawMessage: \(text)")
-    }
-    func receiveDictMessage(dict: [String: Any]?) {
-        guard let response = dict else { return }
-        if response["type"] as! String == "data" {
-            guard let data = response["payload"] as? [String: String] else { return }
-            guard let message = data["x-api-message"] as? String,
-                  let key = data["x-api-key"] as? String
-                    else { return }
-            paymentPresentation.decryptSubscriptionMessage(xAPIMessage: message, xAPIKey: key,
-                    transactionInfo: transactionInfo, orderTransaction: orderTransaction) {
-                if self.callApiWhenSocketFail?.isCancelled == false {
-                    self.callApiWhenSocketFail?.cancel()
-                }
-            }
-        }
     }
 }
 

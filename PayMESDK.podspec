@@ -49,5 +49,4 @@ Pod::Spec.new do |s|
   s.dependency 'RxSwift'
   s.dependency 'RxCocoa'
   s.dependency 'SVGKit'
-  s.dependency "LiveGL", :git => 'https://github.com/PayME-Tech/LiveGQL.git', :branch => 'payme'
 end
