@@ -163,6 +163,14 @@ public func logout()
 
 Dùng để đăng xuất ra khỏi phiên làm việc trên SDK
 
+### close() - Đóng SDK
+
+Hàm này được dùng để app tích hợp đóng lại UI của SDK khi đang <code>pay()</code> hoặc <code>openWallet()</code>
+
+```swift
+public func close() -> ()
+```
+
 ### openWallet() - Mở UI chức năng PayME tổng hợp
 
 ```swift
