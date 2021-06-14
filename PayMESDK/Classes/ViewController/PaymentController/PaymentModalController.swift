@@ -114,7 +114,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         } else {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
-
         setupSubscription()
     }
 
@@ -123,6 +122,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 .observe(on: MainScheduler.asyncInstance)
                 .subscribe(onNext: { paymentState in
                     if paymentState.state == State.RESULT {
+                        self.timer?.invalidate()
                         self.setupResult(paymentState.result!)
                     }
                     if paymentState.state == State.CONFIRMATION {
@@ -183,43 +183,78 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         setupResultView(result: result)
     }
 
+    var timer: Timer?
+    var count = 0
+
+    private func callCreditHistory(transactionInfo: TransactionInformation?) {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
+            if let transInfo = transactionInfo {
+                self.count += 1
+                if self.count < 7 {
+                    self.showSpinner(onView: PayME.currentVC!.view)
+                    if self.count < 6 {
+                        self.paymentPresentation.getTransactionInfo(transactionInfo: transInfo, orderTransaction: self.orderTransaction)
+                    } else {
+                        self.paymentPresentation.getTransactionInfo(transactionInfo: transInfo, orderTransaction: self.orderTransaction, isAcceptPending: true)
+                    }
+                } else {
+                    self.timer?.invalidate()
+                }
+            }
+        }
+    }
+
+    var callApiWhenSocketFail: DispatchWorkItem!
+    var transactionInfo: TransactionInformation!
     private func setupWebview(_ responseError: ResponseError) {
         let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
         webViewController.form = responseError.html
-        webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
-            webViewController.dismiss(animated: true)
-            let paymentInfo = responseError.paymentInformation!["history"]!["payment"] as! [String: AnyObject]
-            let responseSuccess = [
-                "payment": ["transaction": paymentInfo["transaction"] as? String]
-            ] as [String: AnyObject]
-            self.onSuccess(responseSuccess)
-            let result = Result(
-                    type: ResultType.SUCCESS,
-                    orderTransaction: self.orderTransaction,
-                    transactionInfo: responseError.transactionInformation!
-            )
-            self.setupResult(result)
-        })
-        webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
-            webViewController.dismiss(animated: true)
-            let failWebview: [String: AnyObject] = ["OpenEWallet": [
-                "Payment": [
-                    "Pay": [
-                        "success": true as AnyObject,
-                        "message": responseFromWebView as AnyObject,
-                        "history": responseError.paymentInformation!["history"] as AnyObject
+        if ((orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "") {
+            transactionInfo = responseError.transactionInformation
+            webViewController.setOnNavigateToPayme { isAccess in
+                if isAccess == true {
+                    webViewController.dismiss(animated: true) {
+                        self.callCreditHistory(transactionInfo: responseError.transactionInformation)
+                    }
+                }
+            }
+        } else {
+            webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
+                webViewController.dismiss(animated: true)
+                let paymentInfo = responseError.paymentInformation!["history"]!["payment"] as! [String: AnyObject]
+                let responseSuccess = [
+                    "payment": ["transaction": paymentInfo["transaction"] as? String]
+                ] as [String: AnyObject]
+                self.onSuccess(responseSuccess)
+                let result = Result(
+                        type: ResultType.SUCCESS,
+                        orderTransaction: self.orderTransaction,
+                        transactionInfo: responseError.transactionInformation!
+                )
+                self.setupResult(result)
+            })
+            webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
+                webViewController.dismiss(animated: true)
+                let failWebview: [String: AnyObject] = ["OpenEWallet": [
+                    "Payment": [
+                        "Pay": [
+                            "success": true as AnyObject,
+                            "message": responseFromWebView as AnyObject,
+                            "history": responseError.paymentInformation!["history"] as AnyObject
+                        ]
                     ]
-                ]
-            ] as AnyObject]
-            self.onError(failWebview)
-            let result = Result(
-                    type: ResultType.FAIL,
-                    failReasonLabel: responseFromWebView as String,
-                    orderTransaction: self.orderTransaction,
-                    transactionInfo: responseError.transactionInformation!
-            )
-            self.setupResult(result)
-        })
+                ] as AnyObject]
+                self.onError(failWebview)
+                let result = Result(
+                        type: ResultType.FAIL,
+                        failReasonLabel: responseFromWebView as String,
+                        orderTransaction: self.orderTransaction,
+                        transactionInfo: responseError.transactionInformation!
+                )
+                self.setupResult(result)
+            })
+        }
         presentPanModal(webViewController)
     }
 
@@ -555,7 +590,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
         resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
         atmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-//        confirmationView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 10)
     }
 
     func panModalDidDismiss() {

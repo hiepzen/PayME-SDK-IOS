@@ -624,6 +624,27 @@ class API {
         onRequest(url, path, params, onSuccess, onError, onNetworkError)
     }
 
+    func getTransactionInfo(
+            transaction: String,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> (),
+            onNetworkError: @escaping () -> () = {}
+    ) {
+        let url = urlGraphQL(env: env)
+        let path = "/graphql"
+        let variables: [String: Any] = [
+            "getTransactionInfoInput": [
+                "transaction": transaction
+            ]
+        ]
+        let json: [String: Any] = [
+            "query": GraphQuery.getTransactionInfo,
+            "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+    }
+
     private func onRequest(
             _ url: String, _ path: String, _ params: Data?,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -638,6 +659,62 @@ class API {
                     onSuccess: { data in onSuccess(data) },
                     onNetworkError: { onNetworkError() }
             )
+        }
+    }
+
+    public func decryptSubscriptionMessage(
+            xAPIMessageResponse: String,
+            xAPIKeyResponse: String,
+//            xAPIValidateResponse: String,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping ([String: AnyObject]) -> (),
+            onNetworkError: @escaping () -> () = { }
+    ) {
+        guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
+            DispatchQueue.main.async {
+                onError(["code": PayME.ResponseCode.ERROR_KEY_ENCODE as AnyObject, "message": "Giải mã thất bại" as AnyObject])
+            }
+            return
+        }
+        let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey)
+//        let formattedString = self.formatString(dataRaw: stringJSON)
+        let dataJSON = stringJSON.data(using: .utf8)
+        if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options: []) as? Dictionary<String, AnyObject> {
+            if let errors = finalJSON["errors"] as? [[String: AnyObject]] {
+                DispatchQueue.main.async {
+                    var code = PayME.ResponseCode.SYSTEM
+                    if let extensions = errors[0]["extensions"] as? [String: AnyObject] {
+                        if let responseCode = extensions["code"] as? Int {
+                            if responseCode == 401 {
+                                code = PayME.ResponseCode.EXPIRED
+                            }
+                        }
+                    }
+                    let message = (errors[0]["message"] as? String) ?? "Có lỗi xảy ra!"
+                    onError(["code": code as AnyObject, "message": message as AnyObject])
+                }
+                return
+            }
+            if let data = finalJSON["data"] as? Dictionary<String, AnyObject> {
+                DispatchQueue.main.async {
+                    onSuccess(data)
+                }
+            }
+        } else {
+            let dataJSONRest = stringJSON.data(using: .utf8)
+            if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSONRest!, options: []) as? Dictionary<String, AnyObject> {
+                if let data = finalJSON["data"] as? [String: AnyObject] {
+                    DispatchQueue.main.async {
+//                        onError(["code": code as AnyObject, "message": data["message"] as AnyObject])
+                    }
+                    return
+                }
+            } else {
+                DispatchQueue.main.async {
+                    onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nỗi tới server" as AnyObject])
+                    return
+                }
+            }
         }
     }
 }

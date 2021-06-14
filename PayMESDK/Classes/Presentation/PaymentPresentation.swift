@@ -241,9 +241,10 @@ class PaymentPresentation {
                                     )
                                 } else if (state == "REQUIRED_VERIFY") {
                                     if let html = payment["html"] as? String {
+                                        let realHtml = (orderTransaction.paymentMethod?.dataLinked?.swiftCode != nil ? html : "<html><body onload=\"document.forms[0].submit();\">\(html)</html>")
                                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
                                                 code: ResponseErrorCode.REQUIRED_VERIFY,
-                                                html: html,
+                                                html: realHtml,
                                                 transactionInformation: TransactionInformation(
                                                         transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber
                                                 ),
@@ -447,7 +448,8 @@ class PaymentPresentation {
                 if methodType == "LINKED" {
                     methodInformation.dataLinked = LinkedInformation(
                             swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as? String,
-                            linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int
+                            linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int,
+                            issuer: (item["data"] as! [String: AnyObject])["issuer"] as? String ?? ""
                     )
                 }
                 methods.append(methodInformation)
@@ -534,5 +536,70 @@ class PaymentPresentation {
         }, onError: { error in
             print(error)
         }, onNetworkError: onNetworkError)
+    }
+
+    func getTransactionInfo(transactionInfo: TransactionInformation, orderTransaction: OrderTransaction, isAcceptPending: Bool = false) {
+        request.getTransactionInfo(transaction: transactionInfo.transaction,
+                onSuccess: { response in
+                    let payment = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
+                    if let transInfo = payment["GetTransactionInfo"] as? [String: AnyObject] {
+                        let state = transInfo["state"] as! String
+                        let message = transInfo["message"] as? String
+                        if let total: Int = transInfo["total"] as? Int {
+                            orderTransaction.total = total
+                        }
+                        if let fee: Int = transInfo["fee"] as? Int {
+                            orderTransaction.paymentMethod?.fee = fee
+                        }
+
+                        print("minh khoa")
+                        print(transInfo)
+                        let result: Result? = {
+                            if state == "PENDING" {
+                                if isAcceptPending {
+                                    return Result(type: ResultType.PENDING, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
+                                } else {
+                                    return nil
+                                }
+                            } else if state == "SUCCEEDED" {
+                                return Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
+                            } else {
+                                return Result(type: ResultType.FAIL, failReasonLabel: message ?? "", orderTransaction: orderTransaction, transactionInfo: transactionInfo)
+                            }
+                        }()
+                        if result != nil {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                        }
+                    }
+                },
+                onError: { error in print("\(error)") },
+                onNetworkError: onNetworkError)
+    }
+
+    public func decryptSubscriptionMessage(
+            xAPIMessage: String,
+            xAPIKey: String,
+            transactionInfo: TransactionInformation, orderTransaction: OrderTransaction,
+//            onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
+            onSuccess: @escaping () -> ()
+    ){
+        request.decryptSubscriptionMessage(xAPIMessageResponse: xAPIMessage, xAPIKeyResponse: xAPIKey,
+                onSuccess: { response in
+                    guard let data = response["CreditCard"] as? [String: Any] else { return }
+                    guard let state = data["state"] as? String else { return }
+                    if (state == "SUCCEEDED") {
+                        onSuccess()
+                        let result = Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                    } else if (state == "FAIL") {
+                        onSuccess()
+//                        let result = Result(type: ResultType.FAIL, failReasonLabel: message ?? "", orderTransaction: orderTransaction, transactionInfo: transactionInfo)
+                        let result = Result(type: ResultType.FAIL, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                    }
+                },
+                onError: { error in print("\(error)") },
+                onNetworkError: onNetworkError
+        )
     }
 }

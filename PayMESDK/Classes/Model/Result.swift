@@ -10,6 +10,7 @@ import Foundation
 public enum ResultType {
     case SUCCESS
     case FAIL
+    case PENDING
 }
 
 struct Result {
@@ -29,13 +30,19 @@ struct Result {
             transactionInfo: TransactionInformation
         ) {
         self.type = type
-        if (type == ResultType.SUCCESS) {
+        switch type {
+        case ResultType.SUCCESS:
             self.image = "success"
             self.titleLabel = "Thanh toán thành công"
-        } else if (type == ResultType.FAIL) {
+            break
+        case ResultType.FAIL:
             self.image = "failed"
             self.titleLabel = "Thanh toán thất bại"
-        } else {
+            break
+        case ResultType.PENDING:
+            self.image = "success"
+            self.titleLabel = "Thanh toán đang chờ xử lí"
+        default:
             self.image = image
             self.titleLabel = titleLabel
         }

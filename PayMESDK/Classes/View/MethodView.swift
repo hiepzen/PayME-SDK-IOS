@@ -49,6 +49,7 @@ class MethodView: UIView {
     let image: UIImageView = {
         var bgImage = UIImageView()
         bgImage.translatesAutoresizingMaskIntoConstraints = false
+        bgImage.contentMode = .scaleAspectFit
         return bgImage
     }()
 

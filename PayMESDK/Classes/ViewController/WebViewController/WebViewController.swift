@@ -65,6 +65,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     private var onFailWebView: ((String) -> ())? = nil
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
     private var onError: (([String: AnyObject]) -> ())? = nil
+    private var onNavigateToPayme: ((Bool) -> ())? = nil
 
     let closeButton: UIButton = {
         let button = UIButton()
@@ -245,6 +246,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             if (navigationAction.request.url != nil) {
                 let host = navigationAction.request.url!.host ?? ""
                 print(host)
+                if navigationAction.request.url?.absoluteString == "https://payme.vn/web/" {
+                    onNavigateToPayme?(true)
+                }
                 if (host == "payme.vn") {
                     let params = navigationAction.request.url!.queryParameters ?? ["": ""]
                     if (params["success"] == "true") {
@@ -262,6 +266,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                     decisionHandler(.allow)
 
                 } else {
+                    onNavigateToPayme?(false)
                     decisionHandler(.allow)
                 }
 
@@ -398,6 +403,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     public func setOnFailWebView(onFailWebView: @escaping (String) -> ()) {
         self.onFailWebView = onFailWebView
+    }
+
+    public func setOnNavigateToPayme(onNavigateToPayme: @escaping (Bool) -> ()){
+        self.onNavigateToPayme = onNavigateToPayme
     }
 
     public func setOnErrorCallback(onError: @escaping ([String: AnyObject]) -> ()) {

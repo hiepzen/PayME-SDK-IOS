@@ -16,7 +16,7 @@ class PayMEFunction {
     private let disposeBag = DisposeBag()
     private var configService = Array<ServiceConfig>()
     private var connectToken = ""
-    private var appId = ""
+    var appId = ""
     private var publicKey = ""
     private var privateKey = ""
     private var appToken = ""

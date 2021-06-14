@@ -154,13 +154,14 @@ class ResultView: UIView {
     func adaptView(result: Result) {
         nameLabel.text = result.titleLabel
         roleLabel.text = "\(formatMoney(input: result.orderTransaction.amount)) đ"
-        roleLabel.textColor = result.type == ResultType.FAIL ? UIColor(0, 0, 0) : UIColor(hexString: PayME.configColor[0])
 
         let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
         let resourceBundle = Bundle(url: bundleURL!)
-        if result.type == ResultType.SUCCESS {
+        switch result.type! {
+        case ResultType.SUCCESS:
             failLabel.isHidden = true
+            roleLabel.textColor =  UIColor(hexString: PayME.configColor[0])
             let animation = Animation.named("Result_Thanh_Cong", bundle: resourceBundle!)
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
@@ -173,13 +174,24 @@ class ResultView: UIView {
             animationView.setValueProvider(color, keypath: keyPathDO)
 
             button.setTitle("Hoàn tất", for: .normal)
-        } else {
+            break
+        case ResultType.PENDING:
+            roleLabel.textColor =  UIColor(0, 0, 0)
             failLabel.text = result.failReasonLabel
-            let animation = Animation.named("Result_That_Bai", bundle: resourceBundle!)
+            let animation = Animation.named("Result_Cho_xu_ly", bundle: resourceBundle!)
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
             animationView.loopMode = .loop
             button.setTitle("Đã hiểu", for: .normal)
+            break
+        default:
+            roleLabel.textColor =  UIColor(0, 0, 0)
+            failLabel.text = result.failReasonLabel
+                let animation = Animation.named("Result_That_Bai", bundle: resourceBundle!)
+                animationView.animation = animation
+                animationView.contentMode = .scaleAspectFit
+                animationView.loopMode = .loop
+                button.setTitle("Đã hiểu", for: .normal)
         }
         let transactionView = TransactionInformationView(id: result.transactionInfo.transaction, time: result.transactionInfo.transactionTime)
         detailView.addSubview(transactionView)
@@ -188,7 +200,7 @@ class ResultView: UIView {
         transactionView.trailingAnchor.constraint(equalTo: detailView.trailingAnchor).isActive = true
         transactionView.bottomAnchor.constraint(equalTo: detailView.bottomAnchor).isActive = true
 
-        if result.type == ResultType.SUCCESS {
+        if result.type == ResultType.SUCCESS || result.type == ResultType.PENDING {
             let serviceView = InformationView(data: [
                 ["key": "Người nhận", "value": "\(result.orderTransaction.storeName)"],
                 ["key": "Mã dịch vụ", "value": "\(result.orderTransaction.orderId)"],
