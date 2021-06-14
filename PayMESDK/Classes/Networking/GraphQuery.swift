@@ -361,4 +361,20 @@ class GraphQuery {
                                              }
                                            }
                                            """
+    static let getTransactionInfo = """
+                                   mutation SucceededMutation($getTransactionInfoInput: GetTransactionInfoInput!) {
+                                      OpenEWallet {
+                                        Payment {
+                                          GetTransactionInfo(input: $getTransactionInfoInput) {
+                                            succeeded
+                                            message
+                                            transaction
+                                            state
+                                            fee
+                                            description
+                                          }
+                                        }
+                                      }
+                                    }
+                                   """
 }

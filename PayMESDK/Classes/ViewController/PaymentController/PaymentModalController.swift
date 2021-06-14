@@ -61,6 +61,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     let orderView: OrderView
     var gql: LiveGQL!
+
     init(
             payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, paymentMethodID: Int?, isShowResultUI: Bool,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -115,7 +116,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         } else {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
-        gql = LiveGQL(socket: "wss://sbx-fe.payme.vn/graphql")
+        gql = LiveGQL(socket: "https://sbx-fe.payme.vn/graphql")
         gql.delegate = self
         gql.initServer(connectionParams: [
             "Authorization": payMEFunction.accessToken,
@@ -189,44 +190,70 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         setupResultView(result: result)
     }
 
+    @discardableResult
+    func getCreditHistory(transactionInfo: TransactionInformation?) -> DispatchWorkItem {
+        let task = DispatchWorkItem {
+            self.gql.unsubscribe(subscribtion: "credit")
+            if let transInfo = transactionInfo {
+                self.paymentPresentation.getTransactionInfo(transactionInfo: transInfo, orderTransaction: self.orderTransaction)
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 30, execute: task)
+
+        return task
+    }
+    var callApiWhenSocketFail: DispatchWorkItem!
+    var transactionInfo: TransactionInformation!
     private func setupWebview(_ responseError: ResponseError) {
-        gql.subscribe(graphql: GraphQuery.creditPaymentSubscription, identifier: "credit")
         let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
         webViewController.form = responseError.html
-        webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
-            webViewController.dismiss(animated: true)
-            let paymentInfo = responseError.paymentInformation!["history"]!["payment"] as! [String: AnyObject]
-            let responseSuccess = [
-                "payment": ["transaction": paymentInfo["transaction"] as? String]
-            ] as [String: AnyObject]
-            self.onSuccess(responseSuccess)
-            let result = Result(
-                    type: ResultType.SUCCESS,
-                    orderTransaction: self.orderTransaction,
-                    transactionInfo: responseError.transactionInformation!
-            )
-            self.setupResult(result)
-        })
-        webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
-            webViewController.dismiss(animated: true)
-            let failWebview: [String: AnyObject] = ["OpenEWallet": [
-                "Payment": [
-                    "Pay": [
-                        "success": true as AnyObject,
-                        "message": responseFromWebView as AnyObject,
-                        "history": responseError.paymentInformation!["history"] as AnyObject
+        if ((orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "") {
+            gql.subscribe(graphql: GraphQuery.creditPaymentSubscription, identifier: "credit")
+            transactionInfo = responseError.transactionInformation
+            webViewController.setOnNavigateToPayme { isAccess in
+                if isAccess == true {
+                    webViewController.dismiss(animated: true)
+                    self.showSpinner(onView: self.view)
+                    self.callApiWhenSocketFail = self.getCreditHistory(transactionInfo: responseError.transactionInformation)
+                }
+            }
+        } else {
+            webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
+                webViewController.dismiss(animated: true)
+                let paymentInfo = responseError.paymentInformation!["history"]!["payment"] as! [String: AnyObject]
+                let responseSuccess = [
+                    "payment": ["transaction": paymentInfo["transaction"] as? String]
+                ] as [String: AnyObject]
+                self.onSuccess(responseSuccess)
+                let result = Result(
+                        type: ResultType.SUCCESS,
+                        orderTransaction: self.orderTransaction,
+                        transactionInfo: responseError.transactionInformation!
+                )
+                self.setupResult(result)
+            })
+            webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
+                webViewController.dismiss(animated: true)
+                let failWebview: [String: AnyObject] = ["OpenEWallet": [
+                    "Payment": [
+                        "Pay": [
+                            "success": true as AnyObject,
+                            "message": responseFromWebView as AnyObject,
+                            "history": responseError.paymentInformation!["history"] as AnyObject
+                        ]
                     ]
-                ]
-            ] as AnyObject]
-            self.onError(failWebview)
-            let result = Result(
-                    type: ResultType.FAIL,
-                    failReasonLabel: responseFromWebView as String,
-                    orderTransaction: self.orderTransaction,
-                    transactionInfo: responseError.transactionInformation!
-            )
-            self.setupResult(result)
-        })
+                ] as AnyObject]
+                self.onError(failWebview)
+                let result = Result(
+                        type: ResultType.FAIL,
+                        failReasonLabel: responseFromWebView as String,
+                        orderTransaction: self.orderTransaction,
+                        transactionInfo: responseError.transactionInformation!
+                )
+                self.setupResult(result)
+            })
+        }
         presentPanModal(webViewController)
     }
 
@@ -569,6 +596,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if (PaymentModalController.isShowCloseModal == true) {
             onError(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
         }
+        gql.closeConnection()
     }
 
     @objc func closeAction(button: UIButton) {
@@ -821,7 +849,21 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func receivedRawMessage(text: String) {
         print("rawMessage: \(text)")
     }
-
+    func receiveDictMessage(dict: [String: Any]?) {
+        guard let response = dict else { return }
+        if response["type"] as! String == "data" {
+            guard let data = response["payload"] as? [String: String] else { return }
+            guard let message = data["x-api-message"] as? String,
+                  let key = data["x-api-key"] as? String
+                    else { return }
+            paymentPresentation.decryptSubscriptionMessage(xAPIMessage: message, xAPIKey: key,
+                    transactionInfo: transactionInfo, orderTransaction: orderTransaction) {
+                if self.callApiWhenSocketFail?.isCancelled == false {
+                    self.callApiWhenSocketFail?.cancel()
+                }
+            }
+        }
+    }
 }
 
 
