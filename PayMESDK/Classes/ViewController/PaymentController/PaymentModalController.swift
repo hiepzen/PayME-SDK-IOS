@@ -136,7 +136,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.setupUIConfirm(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.BANK_TRANSFER {
-                        self.setupUIBankTransfer(banks: paymentState.listBankManual!, order: paymentState.orderTransaction)
+                        self.setupUIConfirm(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
+//                        self.setupUIBankTransfer(banks: paymentState.listBankManual!, order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.ERROR {
                         self.removeSpinner()

@@ -643,8 +643,8 @@ class PaymentPresentation {
                                 swiftCode: bank["swiftCode"] as? String ?? ""
                         ))
                     }
+                    orderTransaction.paymentMethod?.dataBankTransfer = listBank[0]
                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, listBankManual: listBank, orderTransaction: orderTransaction))
-
                 },
                 onError: { error in
                     print(error)

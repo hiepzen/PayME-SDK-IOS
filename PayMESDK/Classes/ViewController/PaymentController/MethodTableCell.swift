@@ -103,6 +103,8 @@ class Method: UITableViewCell {
                 break
             case MethodType.BANK_QR_CODE.rawValue:
                 methodView.image.image = UIImage(for: Method.self, named: "iconQRBank")
+            case MethodType.BANK_TRANSFER.rawValue:
+                methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")
             default:
                 methodView.image.image = UIImage(for: Method.self, named: "iconWallet")
                 break

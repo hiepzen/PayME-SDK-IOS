@@ -32,6 +32,8 @@ class ATMView: UIScrollView {
     let methodView: MethodView = MethodView(buttonTitle: "Thay đổi")
 
     var paymentInfo = InformationView(data: [])
+    var contentView = BankTransferView()
+
 
     init() {
         super.init(frame: CGRect.zero)
@@ -51,6 +53,7 @@ class ATMView: UIScrollView {
         vStack.addArrangedSubview(cardInput)
         vStack.addArrangedSubview(nameInput)
         vStack.addArrangedSubview(dateInput)
+        vStack.addArrangedSubview(contentView)
 //        self.addSubview(nameField)
 
         button.setTitle("Xác nhận", for: .normal)
@@ -79,7 +82,7 @@ class ATMView: UIScrollView {
         cardInput.isHidden = true
         dateInput.isHidden = true
         nameInput.isHidden = true
-
+        contentView.isHidden = true
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -98,6 +101,8 @@ class ATMView: UIScrollView {
     func updateUIByMethod(_ method: PaymentMethod) {
         cardInput.isHidden = true
         dateInput.isHidden = true
+        nameInput.isHidden = true
+        contentView.isHidden = true
         methodView.title = method.title
         methodView.content = method.label
         methodView.note = nil
@@ -108,6 +113,7 @@ class ATMView: UIScrollView {
             methodView.image.image = UIImage(for: PaymentModalController.self, named: "iconWallet")
             let balance = method.dataWallet?.balance ?? 0
             methodView.content = "(\(formatMoney(input: balance))đ)"
+            break
         case MethodType.LINKED.rawValue:
             if method.dataLinked != nil {
                 let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(method.dataLinked!.swiftCode ?? method.dataLinked!.issuer).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
@@ -129,6 +135,13 @@ class ATMView: UIScrollView {
             break
         case MethodType.BANK_QR_CODE.rawValue:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconQRBank")
+            break
+        case MethodType.BANK_TRANSFER.rawValue:
+            paymentInfo.removeFromSuperview()
+            contentView.isHidden = false
+            methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")
+            contentView.updateInfo(bank: method.dataBankTransfer)
+            break
         default:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconWallet")
             break

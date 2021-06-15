@@ -13,6 +13,7 @@ class InformationRow: UIStackView {
     var font: UIFont
     var keyColor: UIColor
     var keyFont: UIFont
+    var allowCopy: Bool
 
 
     let keyLabel: UILabel = {
@@ -35,15 +36,15 @@ class InformationRow: UIStackView {
         return valueLabel
     }()
 
-    
     init(key: String, value: String, color: UIColor?  = UIColor(4, 4, 4), font: UIFont? = .systemFont(ofSize: 15, weight: .medium),
-         keyColor: UIColor? = UIColor(100, 112, 129), keyFont: UIFont? = .systemFont(ofSize: 15, weight: .light)){
+         keyColor: UIColor? = UIColor(100, 112, 129), keyFont: UIFont? = .systemFont(ofSize: 15, weight: .light), allowCopy: Bool = false){
         self.key = key
         self.value = value
         self.color = color ?? UIColor(4, 4, 4)
         self.font = font ?? .systemFont(ofSize: 15, weight: .medium)
         self.keyFont = keyFont ?? .systemFont(ofSize: 15, weight: .light)
         self.keyColor = keyColor ?? UIColor(100, 112, 129)
+        self.allowCopy = allowCopy
         super.init(frame: CGRect.zero)
         setUpUI()
     }
@@ -78,7 +79,6 @@ class InformationView: UIView{
     let stackView: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .white
         stack.distribution = .equalSpacing
         stack.axis = .vertical
         stack.spacing = 8
@@ -119,7 +119,8 @@ class InformationView: UIView{
                     seperator.trailingAnchor.constraint(equalTo: stackView.trailingAnchor).isActive = true
                     seperator.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: stackView.frame.size.width, y: 0), color: UIColor(203, 203, 203), strokeLength: 4, gapLength: 4, width: 1)
                 }
-                let row = InformationRow(key: key, value: value, color: info["color"] as? UIColor, font: info["font"] as? UIFont, keyColor: info["keyColor"] as? UIColor, keyFont: info["keyFont"] as? UIFont)
+                let row = InformationRow(key: key, value: value, color: info["color"] as? UIColor, font: info["font"] as? UIFont,
+                        keyColor: info["keyColor"] as? UIColor, keyFont: info["keyFont"] as? UIFont, allowCopy: info["allowCopy"] as? Bool ?? false)
                 stackView.addArrangedSubview(row)
             }
         }
