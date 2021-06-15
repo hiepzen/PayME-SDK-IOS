@@ -377,4 +377,29 @@ class GraphQuery {
                                       }
                                     }
                                    """
+    static let getListBankManual = """
+                                   mutation DepositMutation($depositInput: WalletDepositInput) {
+                                     Wallet {
+                                       Deposit(input: $depositInput) {
+                                         succeeded
+                                         message
+                                         payment {
+                                           ... on PaymentBankTransferResponsed {
+                                             bankTranferState: state
+                                             message
+                                             bankList {
+                                               bankName
+                                               bankCity
+                                               bankBranch
+                                               bankAccountName
+                                               bankAccountNumber
+                                               content
+                                               swiftCode
+                                             }
+                                           }
+                                         }
+                                       }
+                                     }
+                                   }
+                                   """
 }

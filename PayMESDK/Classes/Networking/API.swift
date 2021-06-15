@@ -645,6 +645,32 @@ class API {
         onRequest(url, path, params, onSuccess, onError, onNetworkError)
     }
 
+    func getListBankManual(
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> (),
+            onNetworkError: @escaping () -> () = {}
+    ) {
+        let url = urlGraphQL(env: env)
+        let path = "/graphql"
+        let variables: [String: Any] = [
+            "depositInput": [
+                "clientId": clientId,
+                "payment": [
+                    "bankTransfer": [
+                        "active": true,
+                        "recheck": false
+                    ]
+                ]
+            ]
+        ]
+        let json: [String: Any] = [
+            "query": GraphQuery.getListBankManual,
+            "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+    }
+
     private func onRequest(
             _ url: String, _ path: String, _ params: Data?,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),

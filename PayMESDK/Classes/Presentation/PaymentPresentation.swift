@@ -499,13 +499,13 @@ class PaymentPresentation {
                     ]
                 ]
             case MethodType.BANK_CARD.rawValue:
-               return [
-                "bankCard": [
-                    "cardNumber": "cardNumber",
-                    "cardHolder": orderTransaction.paymentMethod?.dataBank?.cardHolder ?? "",
-                    "issuedAt": "2000-01-01T00:00:00.000Z"
+                return [
+                    "bankCard": [
+                        "cardNumber": "cardNumber",
+                        "cardHolder": orderTransaction.paymentMethod?.dataBank?.cardHolder ?? "",
+                        "issuedAt": "2000-01-01T00:00:00.000Z"
+                    ]
                 ]
-            ]
             case MethodType.LINKED.rawValue:
                 return [
                     "linked": [
@@ -562,7 +562,8 @@ class PaymentPresentation {
                                         "state": transInfo["state"] as? String
                                     ] as [String: AnyObject]
                                     self.onError(responseError)
-                                    return Result(type: ResultType.PENDING, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
+                                    let textPending = "Cần thời gian thêm để xử lý. Vui lòng không thực hiện lại tránh bị trùng. Liên hệ CSKH để hỗ trợ 1900 88 66 65"
+                                    return Result(type: ResultType.PENDING, failReasonLabel: textPending, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
                                 } else {
                                     return nil
                                 }
@@ -593,13 +594,16 @@ class PaymentPresentation {
             xAPIMessage: String,
             xAPIKey: String,
             transactionInfo: TransactionInformation, orderTransaction: OrderTransaction,
-//            onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
             onSuccess: @escaping () -> ()
-    ){
+    ) {
         request.decryptSubscriptionMessage(xAPIMessageResponse: xAPIMessage, xAPIKeyResponse: xAPIKey,
                 onSuccess: { response in
-                    guard let data = response["CreditCard"] as? [String: Any] else { return }
-                    guard let state = data["state"] as? String else { return }
+                    guard let data = response["CreditCard"] as? [String: Any] else {
+                        return
+                    }
+                    guard let state = data["state"] as? String else {
+                        return
+                    }
                     if (state == "SUCCEEDED") {
                         onSuccess()
                         let result = Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
@@ -612,6 +616,39 @@ class PaymentPresentation {
                     }
                 },
                 onError: { error in print("\(error)") },
+                onNetworkError: onNetworkError
+        )
+    }
+
+    func getListBankManual(orderTransaction: OrderTransaction) {
+        request.getListBankManual(
+                onSuccess: { response in
+                    guard let payment = response["Wallet"]!["Deposit"] as? [String: AnyObject] else {
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        return
+                    }
+                    guard let bankList = payment["payment"]!["bankList"] as? [[String: AnyObject]] else {
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        return
+                    }
+                    var listBank: [BankManual] = []
+                    for bank in bankList {
+                        listBank.append(BankManual(
+                                bankAccountName: bank["bankAccountName"] as? String ?? "",
+                                bankAccountNumber: bank["bankAccountNumber"] as? String ?? "",
+                                bankBranch: bank["bankBranch"] as? String ?? "",
+                                bankCity: bank["bankCity"] as? String ?? "",
+                                bankName: bank["bankName"] as? String ?? "",
+                                content: bank["content"] as? String ?? "",
+                                swiftCode: bank["swiftCode"] as? String ?? ""
+                        ))
+                    }
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, listBankManual: listBank, orderTransaction: orderTransaction))
+
+                },
+                onError: { error in
+                    print(error)
+                },
                 onNetworkError: onNetworkError
         )
     }

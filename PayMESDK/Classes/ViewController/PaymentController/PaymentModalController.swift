@@ -135,6 +135,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     if paymentState.state == State.ATM {
                         self.setupUIConfirm(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
                     }
+                    if paymentState.state == State.BANK_TRANSFER {
+                        self.setupUIBankTransfer(banks: paymentState.listBankManual!)
+                    }
                     if paymentState.state == State.ERROR {
                         self.removeSpinner()
                         let responseError = paymentState.error!
@@ -176,6 +179,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         }
                     }
                 }).disposed(by: disposeBag)
+    }
+
+    private func setupUIBankTransfer(banks: [BankManual]) {
+        print("minh khoa")
+        print(banks)
     }
 
     private func setupResult(_ result: Result) {
@@ -594,7 +602,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func panModalDidDismiss() {
         if (PaymentModalController.isShowCloseModal == true) {
-            onError(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "Đóng modal thanh toán" as AnyObject])
+            onError(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "" as AnyObject])
         }
     }
 
@@ -664,6 +672,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             }
             paymentPresentation.getLinkBank(orderTransaction: orderTransaction)
             paymentPresentation.getFee(orderTransaction: orderTransaction)
+            break
+        case MethodType.BANK_TRANSFER.rawValue:
+            paymentPresentation.getListBankManual(orderTransaction: orderTransaction)
             break
         default:
             toastMessError(title: "", message: "Tính năng đang được xây dựng.") { [self] alertAction in
