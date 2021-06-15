@@ -552,18 +552,31 @@ class PaymentPresentation {
                             orderTransaction.paymentMethod?.fee = fee
                         }
 
-                        print("minh khoa")
+                        print("minh khoa credit")
                         print(transInfo)
+
                         let result: Result? = {
                             if state == "PENDING" {
                                 if isAcceptPending {
+                                    let responseError = [
+                                        "state": transInfo["state"] as? String
+                                    ] as [String: AnyObject]
+                                    self.onError(responseError)
                                     return Result(type: ResultType.PENDING, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
                                 } else {
                                     return nil
                                 }
                             } else if state == "SUCCEEDED" {
+                                let responseSuccess = [
+                                    "payment": ["transaction": transInfo["transaction"] as? String]
+                                ] as [String: AnyObject]
+                                self.onSuccess(responseSuccess)
                                 return Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
                             } else {
+                                let responseError = [
+                                    "state": transInfo["state"] as? String
+                                ] as [String: AnyObject]
+                                self.onError(responseError)
                                 return Result(type: ResultType.FAIL, failReasonLabel: message ?? "", orderTransaction: orderTransaction, transactionInfo: transactionInfo)
                             }
                         }()
