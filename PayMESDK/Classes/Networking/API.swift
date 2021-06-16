@@ -261,6 +261,40 @@ class API {
         onRequest(url, path, params, onSuccess, onError, onNetworkError)
     }
 
+    func paymentBankTransfer(
+            storeId: Int, orderId: String, extraData: String, note: String, amount: Int,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> (),
+            onNetworkError: @escaping () -> () = {}
+    ) {
+        let url = urlGraphQL(env: env)
+        let path = "/graphql"
+        var payInput: [String: Any] = [
+            "clientId": clientId,
+            "storeId": storeId,
+            "amount": amount,
+            "orderId": orderId,
+            "payment": [
+                "bankTransfer": [
+                    "active": true,
+                    "recheck": true
+                ]
+            ]
+        ]
+        if (note != "") {
+            payInput.updateValue(note, forKey: "note")
+        }
+        if (extraData != "") {
+            payInput.updateValue(extraData, forKey: "referExtraData")
+        }
+        let variables: [String: Any] = ["payInput": payInput]
+        let json: [String: Any] = [
+            "query": GraphQuery.paymentBankTransfer,
+            "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+    }
 
     func createSecurityCode(
             password: String,

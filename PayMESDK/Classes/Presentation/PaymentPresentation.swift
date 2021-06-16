@@ -331,6 +331,26 @@ class PaymentPresentation {
         }, onNetworkError: onNetworkError)
     }
 
+    func payBankTransfer(orderTransaction: OrderTransaction) {
+        request.paymentBankTransfer(
+                storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
+                note: orderTransaction.note, amount: orderTransaction.amount,
+                onSuccess: { success in
+                    print("minh khoa")
+                    print(success)
+                },
+                onError: { error in
+                    self.onError(error)
+                    if let code = error["code"] as? Int {
+                        if (code == 401) {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                        }
+                    }
+                },
+                onNetworkError: onNetworkError
+        )
+    }
+
     func payATM(orderTransaction: OrderTransaction) {
         request.transferATM(
                 storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
@@ -513,7 +533,13 @@ class PaymentPresentation {
                         "envName": "MobileApp"
                     ]
                 ]
-
+            case MethodType.BANK_TRANSFER.rawValue:
+                return [
+                    "bankTransfer": [
+                        "active": true,
+                        "recheck": false
+                    ]
+                ]
             default: return nil
             }
         }()
@@ -531,7 +557,13 @@ class PaymentPresentation {
             if let fee = ((response["Utility"]!["GetFee"] as? [String: AnyObject])?["fee"] as? [String: AnyObject])?["fee"] as? Int {
                 orderTransaction.paymentMethod?.fee = fee
                 orderTransaction.total = orderTransaction.amount + fee
-                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
+                if orderTransaction.paymentMethod?.type == MethodType.BANK_TRANSFER.rawValue {
+                    // get list bank transfer -> setup UI Bank Transfer
+                    self.getListBankManual(orderTransaction: orderTransaction)
+                } else {
+                    // setup UI fee
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
+                }
             }
         }, onError: { error in
             print(error)
@@ -610,7 +642,6 @@ class PaymentPresentation {
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                     } else if (state == "FAIL") {
                         onSuccess()
-//                        let result = Result(type: ResultType.FAIL, failReasonLabel: message ?? "", orderTransaction: orderTransaction, transactionInfo: transactionInfo)
                         let result = Result(type: ResultType.FAIL, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                     }

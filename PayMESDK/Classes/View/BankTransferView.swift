@@ -70,7 +70,7 @@ class BankTransferView: UIView {
 
         bottomAnchor.constraint(equalTo: note.bottomAnchor).isActive = true
     }
-    func updateInfo(bank: BankManual?) {
+    func updateInfo(bank: BankManual?, orderTransaction: OrderTransaction) {
         guard let paymeBank = bank else { return }
         contentLabel.text = paymeBank.bankName
         paymeInfo.removeFromSuperview()
@@ -97,6 +97,14 @@ class BankTransferView: UIView {
              "font": UIFont.systemFont(ofSize: 14, weight: .regular)
             ],
         ])
+
+        normalText1.append(NSMutableAttributedString(string: "\(formatMoney(input: orderTransaction.total ?? 0)) đ ", attributes: [
+            .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+            .foregroundColor: UIColor(236, 42, 42)
+        ]))
+        normalText1.append(normalText2)
+        info.attributedText = normalText1
+
         vStack.addArrangedSubview(paymeInfo)
         paymeInfo.leadingAnchor.constraint(equalTo: vStack.leadingAnchor).isActive = true
         layoutIfNeeded()
@@ -159,24 +167,17 @@ class BankTransferView: UIView {
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
         label.textAlignment = .center
-
-        let normalText1 = NSMutableAttributedString(string: "Vui lòng chuyển khoản ", attributes: [
-            .font: UIFont.systemFont(ofSize: 14, weight: .regular),
-            .foregroundColor: UIColor(0, 0, 0)
-        ])
-        let moneyText = NSMutableAttributedString(string: "jafkldjsj ", attributes: [
-            .font: UIFont.systemFont(ofSize: 14, weight: .bold),
-            .foregroundColor: UIColor(236, 42, 42)
-        ])
-        let normalText2 = NSMutableAttributedString(string: "tới thông tin tài khoản bên dưới:", attributes: [
-            .font: UIFont.systemFont(ofSize: 14, weight: .regular),
-            .foregroundColor: UIColor(0, 0, 0)
-        ])
-        normalText1.append(moneyText)
-        normalText1.append(normalText2)
-        label.attributedText = normalText1
         return label
     }()
+
+    let normalText1 = NSMutableAttributedString(string: "Vui lòng chuyển khoản ", attributes: [
+        .font: UIFont.systemFont(ofSize: 14, weight: .regular),
+        .foregroundColor: UIColor(0, 0, 0)
+    ])
+    let normalText2 = NSMutableAttributedString(string: "tới thông tin tài khoản bên dưới:", attributes: [
+        .font: UIFont.systemFont(ofSize: 14, weight: .regular),
+        .foregroundColor: UIColor(0, 0, 0)
+    ])
 
     let seperator = UIView()
 

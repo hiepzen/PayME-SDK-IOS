@@ -98,7 +98,8 @@ class ATMView: UIScrollView {
         self.contentSize = contentRect.size
     }
 
-    func updateUIByMethod(_ method: PaymentMethod) {
+    func updateUIByMethod(orderTransaction: OrderTransaction) {
+        let method = orderTransaction.paymentMethod!
         cardInput.isHidden = true
         dateInput.isHidden = true
         nameInput.isHidden = true
@@ -140,7 +141,7 @@ class ATMView: UIScrollView {
             paymentInfo.removeFromSuperview()
             contentView.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")
-            contentView.updateInfo(bank: method.dataBankTransfer)
+            contentView.updateInfo(bank: method.dataBankTransfer, orderTransaction: orderTransaction)
             break
         default:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconWallet")

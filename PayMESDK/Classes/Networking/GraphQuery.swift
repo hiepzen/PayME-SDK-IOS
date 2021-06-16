@@ -402,4 +402,39 @@ class GraphQuery {
                                      }
                                    }
                                    """
+    static let paymentBankTransfer = """
+                                           mutation paymentBankTransfer($payInput: OpenEWalletPaymentPayInput!) {
+                                             OpenEWallet {
+                                               Payment {
+                                                 Pay(input: $payInput) {
+                                                   succeeded
+                                                   message
+                                                   history {
+                                                     payment {
+                                                       transaction
+                                                       method
+                                                       description
+                                                     }
+                                                     createdAt
+                                                   }
+                                                   payment {
+                                                     ... on PaymentBankTransferResponsed {
+                                                       bankTranferState: state
+                                                       message
+                                                       bankList {
+                                                         bankName
+                                                         bankCity
+                                                         bankBranch
+                                                         bankAccountName
+                                                         bankAccountNumber
+                                                         content
+                                                         swiftCode
+                                                       }
+                                                     }
+                                                   }
+                                                 }
+                                               }
+                                             }
+                                           }
+                                           """
 }

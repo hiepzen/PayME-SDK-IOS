@@ -127,7 +127,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     }
                     if paymentState.state == State.CONFIRMATION {
                         self.setupUIFee(order: paymentState.orderTransaction)
-//                        self.updateConfirmationInfo(order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.METHODS {
                         self.showMethods(paymentState.methods ?? self.data)
@@ -137,7 +136,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     }
                     if paymentState.state == State.BANK_TRANSFER {
                         self.setupUIConfirm(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
-//                        self.setupUIBankTransfer(banks: paymentState.listBankManual!, order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.ERROR {
                         self.removeSpinner()
@@ -378,7 +376,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func setupUIConfirm(banks: [Bank], order: OrderTransaction?) {
         atmController.atmView.methodView.buttonTitle = paymentMethodID != nil ? nil : "Thay đổi"
         if let orderTransaction = order {
-            atmController.atmView.updateUIByMethod(orderTransaction.paymentMethod!)
+            atmController.atmView.updateUIByMethod(orderTransaction: orderTransaction)
         }
         listBank = banks
         atmController.setListBank(listBank: banks)
@@ -675,7 +673,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             paymentPresentation.getFee(orderTransaction: orderTransaction)
             break
         case MethodType.BANK_TRANSFER.rawValue:
-            paymentPresentation.getListBankManual(orderTransaction: orderTransaction)
+            paymentPresentation.getFee(orderTransaction: orderTransaction)
             break
         default:
             toastMessError(title: "", message: "Tính năng đang được xây dựng.") { [self] alertAction in
