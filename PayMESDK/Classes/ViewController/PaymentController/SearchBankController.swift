@@ -48,11 +48,17 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         backButton.addTarget(self, action: #selector(onPressBack), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(onPressClose), for: .touchUpInside)
     }
 
     @objc func onPressBack(){
         payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANSFER, orderTransaction: orderTransaction))
     }
+
+    @objc func onPressClose(){
+        PayME.currentVC!.dismiss(animated: true)
+    }
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         listBank.count
     }

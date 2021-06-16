@@ -17,6 +17,7 @@ enum State {
     case RESULT
     case ERROR
     case BANK_SEARCH
+    case BANK_TRANS_RESULT
 }
 
 struct PaymentState {
@@ -26,6 +27,7 @@ struct PaymentState {
     let listBankManual: [BankManual]?
     let orderTransaction: OrderTransaction?
     let result: Result?
+    let bankTransferState: ResultType?
     let error: ResponseError?
 
     init(state: State,
@@ -34,6 +36,7 @@ struct PaymentState {
          listBankManual: [BankManual]? = nil,
          orderTransaction: OrderTransaction? = nil,
          result: Result? = nil,
+         bankTransferState: ResultType? = nil,
          error: ResponseError? = nil) {
         self.state = state
         self.methods = methods
@@ -42,6 +45,7 @@ struct PaymentState {
         self.orderTransaction = orderTransaction
         self.result = result
         self.error = error
+        self.bankTransferState = bankTransferState
     }
 }
 

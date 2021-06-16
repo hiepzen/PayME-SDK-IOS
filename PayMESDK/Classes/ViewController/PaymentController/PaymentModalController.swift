@@ -35,6 +35,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     var listBankManual: [BankManual] = []
     let otpView = OTPView()
     let securityCode = SecurityCode()
+    let bankTransResultView = BankTransferResultView()
     let atmController: ATMModal
     let resultView = ResultView()
     let searchBankController: SearchBankController
@@ -145,6 +146,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     if paymentState.state == State.BANK_SEARCH {
                         self.setupUISearchBank(orderTransaction: paymentState.orderTransaction)
                     }
+                    if (paymentState.state == State.BANK_TRANS_RESULT) {
+                        self.setupUIBankTransResult(type: paymentState.bankTransferState ?? .PENDING)
+                    }
                     if paymentState.state == State.ERROR {
                         self.removeSpinner()
                         let responseError = paymentState.error!
@@ -186,11 +190,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         }
                     }
                 }).disposed(by: disposeBag)
-    }
-
-    private func setupUIBankTransfer(banks: [BankManual], order: OrderTransaction) {
-        print("minh khoa")
-        print(banks)
     }
 
     private func setupResult(_ result: Result) {
@@ -606,6 +605,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func setupResultView(result: Result) {
         view.endEditing(false)
         methodsView.isHidden = true
+        searchBankController.view.isHidden = true
         otpView.isHidden = true
         securityCode.isHidden = true
         PaymentModalController.isShowCloseModal = false
@@ -644,6 +644,29 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
     }
 
+    func setupUIBankTransResult(type: ResultType) {
+        methodsView.isHidden = true
+        searchBankController.view.isHidden = true
+        otpView.isHidden = true
+        securityCode.isHidden = true
+        view.addSubview(bankTransResultView)
+        bankTransResultView.translatesAutoresizingMaskIntoConstraints = false
+        bankTransResultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        bankTransResultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        bankTransResultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        bankTransResultView.updateUI(type: type)
+        footerTopConstraint?.isActive = false
+        footerTopConstraint = footer.topAnchor.constraint(equalTo: bankTransResultView.bottomAnchor)
+        footerTopConstraint?.isActive = true
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        let viewHeight = bankTransResultView.bounds.size.height
+                + footer.bounds.size.height
+        modalHeight = viewHeight
+        panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .longForm)
+    }
+
     override func viewDidLayoutSubviews() {
         let primaryColor = payMEFunction.configColor[0]
         let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
@@ -652,6 +675,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
         resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
         atmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+        bankTransResultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
     }
 
     func panModalDidDismiss() {

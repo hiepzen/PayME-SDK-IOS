@@ -55,14 +55,10 @@ class BankTransferView: UIView {
         transferInfo.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
 
         vStack.topAnchor.constraint(equalTo: transferInfo.topAnchor, constant: 10).isActive = true
-        vStack.leadingAnchor.constraint(equalTo: transferInfo.leadingAnchor).isActive = true
-        vStack.trailingAnchor.constraint(equalTo: transferInfo.trailingAnchor).isActive = true
+        vStack.leadingAnchor.constraint(equalTo: transferInfo.leadingAnchor, constant: 16).isActive = true
+        vStack.trailingAnchor.constraint(equalTo: transferInfo.trailingAnchor, constant: -16).isActive = true
 
-        info.leadingAnchor.constraint(equalTo: vStack.leadingAnchor, constant: 16).isActive = true
-        info.trailingAnchor.constraint(equalTo: vStack.trailingAnchor, constant: -16).isActive = true
         divider.heightAnchor.constraint(equalToConstant: 12).isActive = true
-        seperator.leadingAnchor.constraint(equalTo: vStack.leadingAnchor, constant: 16).isActive = true
-        seperator.trailingAnchor.constraint(equalTo: vStack.trailingAnchor, constant: -16).isActive = true
 
         transferInfo.bottomAnchor.constraint(equalTo: vStack.bottomAnchor, constant: 6).isActive = true
 
@@ -83,7 +79,8 @@ class BankTransferView: UIView {
              "keyColor": UIColor(100, 112, 129),
              "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
              "color": UIColor(0, 0, 0),
-             "font": UIFont.systemFont(ofSize: 14, weight: .regular)
+             "font": UIFont.systemFont(ofSize: 14, weight: .regular),
+             "allowCopy": true
             ],
             ["key": "Chủ tài khoản",
              "value": paymeBank.bankAccountName,
@@ -97,7 +94,8 @@ class BankTransferView: UIView {
              "keyColor": UIColor(100, 112, 129),
              "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
              "color": UIColor(0, 0, 0),
-             "font": UIFont.systemFont(ofSize: 14, weight: .regular)
+             "font": UIFont.systemFont(ofSize: 14, weight: .regular),
+             "allowCopy": true
             ],
         ])
 
@@ -173,7 +171,6 @@ class BankTransferView: UIView {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
-        stack.alignment = .fill
         return stack
     }()
     let info: UILabel = {

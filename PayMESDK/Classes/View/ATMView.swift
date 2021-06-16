@@ -56,8 +56,6 @@ class ATMView: UIScrollView {
         vStack.addArrangedSubview(contentView)
 //        self.addSubview(nameField)
 
-        button.setTitle("Xác nhận", for: .normal)
-        button.setImage(UIImage(for: ATMView.self, named: "iconLock"), for: .normal)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 12)
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 0)
 
@@ -99,6 +97,8 @@ class ATMView: UIScrollView {
     }
 
     func updateUIByMethod(orderTransaction: OrderTransaction) {
+        button.setTitle("Xác nhận", for: .normal)
+        button.setImage(UIImage(for: ATMView.self, named: "iconLock"), for: .normal)
         let method = orderTransaction.paymentMethod!
         cardInput.isHidden = true
         dateInput.isHidden = true
@@ -138,6 +138,8 @@ class ATMView: UIScrollView {
             methodView.image.image = UIImage(for: MethodView.self, named: "iconQRBank")
             break
         case MethodType.BANK_TRANSFER.rawValue:
+            button.setTitle("Xác nhận đã chuyển", for: .normal)
+            button.setImage(nil, for: .normal)
             paymentInfo.removeFromSuperview()
             contentView.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")

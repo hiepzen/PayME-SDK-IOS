@@ -332,12 +332,47 @@ class PaymentPresentation {
     }
 
     func payBankTransfer(orderTransaction: OrderTransaction) {
+        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANS_RESULT, bankTransferState: .PENDING))
         request.paymentBankTransfer(
                 storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
                 note: orderTransaction.note, amount: orderTransaction.amount,
                 onSuccess: { success in
-                    print("minh khoa")
-                    print(success)
+                    let paymentInfo = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
+                    if let payInfo = paymentInfo["Pay"] as? [String: AnyObject] {
+                        if let payment = payInfo["payment"] as? [String: AnyObject] {
+                            if let bankTranferState = payment["bankTranferState"] as? String {
+                                if bankTranferState == "SUCCEEDED" {
+                                    var formatDate = ""
+                                    var transactionNumber = ""
+                                    if let history = payInfo["history"] as? [String: AnyObject] {
+                                        if let createdAt = history["createdAt"] as? String {
+                                            if let date = toDate(dateString: createdAt) {
+                                                formatDate = toDateString(date: date)
+                                            }
+                                        }
+                                        if let payment = history["payment"] as? [String: AnyObject] {
+                                            if let transaction = payment["transaction"] as? String {
+                                                transactionNumber = transaction
+                                            }
+
+                                        }
+                                    }
+                                    let responseSuccess = [
+                                        "payment": ["transaction": transactionNumber]
+                                    ] as [String: AnyObject]
+                                    self.onSuccess(responseSuccess)
+                                    let result = Result(
+                                            type: ResultType.SUCCESS,
+                                            orderTransaction: orderTransaction,
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
+                                    )
+                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                } else if bankTranferState == "FAILED" {
+                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANS_RESULT, bankTransferState: .FAIL))
+                                }
+                            }
+                        }
+                    }
                 },
                 onError: { error in
                     self.onError(error)

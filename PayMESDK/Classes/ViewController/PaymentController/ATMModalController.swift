@@ -90,9 +90,13 @@ class ATMModal: UIViewController {
     @objc func payAction() {
         if (orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue) {
             payATM()
-        } else {
-            payActionByMethod()
+            return
         }
+        if (orderTransaction.paymentMethod?.type == MethodType.BANK_TRANSFER.rawValue) {
+            paymentPresentation.payBankTransfer(orderTransaction: orderTransaction)
+        }
+        payActionByMethod()
+
     }
 
     func payATM() {

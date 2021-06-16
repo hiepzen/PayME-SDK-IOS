@@ -86,7 +86,6 @@ class SecurityCode: UIView {
 
         let imageSVG = SVGKImage(for: SecurityCode.self, named: "bigIconsV160")
         imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
-
         let svgImageView = UIImageView()
         svgImageView.translatesAutoresizingMaskIntoConstraints = false
         svgImageView.image = imageSVG?.uiImage

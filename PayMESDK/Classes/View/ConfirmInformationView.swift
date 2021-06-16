@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SVGKit
 class InformationRow: UIStackView {
     var key: String
     var value: String
@@ -36,6 +37,13 @@ class InformationRow: UIStackView {
         return valueLabel
     }()
 
+    let svgImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isUserInteractionEnabled = true
+        return imageView
+    }()
+
     init(key: String, value: String, color: UIColor?  = UIColor(4, 4, 4), font: UIFont? = .systemFont(ofSize: 15, weight: .medium),
          keyColor: UIColor? = UIColor(100, 112, 129), keyFont: UIFont? = .systemFont(ofSize: 15, weight: .light), allowCopy: Bool = false){
         self.key = key
@@ -62,10 +70,25 @@ class InformationRow: UIStackView {
 
         addArrangedSubview(keyLabel)
         addArrangedSubview(valueLabel)
+        if allowCopy == true {
+            let imageSVG = SVGKImage(for: InformationRow.self, named: "iconCopy")
+            imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
+            svgImage.image = imageSVG?.uiImage
+            let singleTap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onPressCopy))
+            singleTap.numberOfTapsRequired = 1
+            svgImage.addGestureRecognizer(singleTap)
+            addArrangedSubview(svgImage)
+        }
 
         valueLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         keyLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        svgImage.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         valueLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+    }
+
+    @objc func onPressCopy() {
+        let pasteboard = UIPasteboard.general
+        pasteboard.string = value
     }
     
     required init(coder: NSCoder) {
