@@ -9,6 +9,7 @@ import Foundation
 
 class BankTransferView: UIView {
     var paymeInfo = InformationView(data: [])
+    var onPressSearch: () -> () = {}
 
     init () {
         super.init(frame: .zero)
@@ -45,6 +46,7 @@ class BankTransferView: UIView {
         buttonBank.centerYAnchor.constraint(equalTo: bankContainer.centerYAnchor).isActive = true
         buttonBank.trailingAnchor.constraint(equalTo: bankContainer.trailingAnchor, constant: -16).isActive = true
         buttonBank.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        buttonBank.addTarget(self, action: #selector(onPressChange), for: .touchUpInside)
 
         bankContainer.bottomAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 8).isActive = true
 
@@ -70,6 +72,7 @@ class BankTransferView: UIView {
 
         bottomAnchor.constraint(equalTo: note.bottomAnchor).isActive = true
     }
+
     func updateInfo(bank: BankManual?, orderTransaction: OrderTransaction) {
         guard let paymeBank = bank else { return }
         contentLabel.text = paymeBank.bankName
@@ -98,6 +101,14 @@ class BankTransferView: UIView {
             ],
         ])
 
+        let normalText1 = NSMutableAttributedString(string: "Vui lòng chuyển khoản ", attributes: [
+            .font: UIFont.systemFont(ofSize: 14, weight: .regular),
+            .foregroundColor: UIColor(0, 0, 0)
+        ])
+        let normalText2 = NSMutableAttributedString(string: "tới thông tin tài khoản bên dưới:", attributes: [
+            .font: UIFont.systemFont(ofSize: 14, weight: .regular),
+            .foregroundColor: UIColor(0, 0, 0)
+        ])
         normalText1.append(NSMutableAttributedString(string: "\(formatMoney(input: orderTransaction.total ?? 0)) đ ", attributes: [
             .font: UIFont.systemFont(ofSize: 14, weight: .bold),
             .foregroundColor: UIColor(236, 42, 42)
@@ -110,6 +121,10 @@ class BankTransferView: UIView {
         layoutIfNeeded()
         seperator.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: seperator.frame.size.width, y: 0), color: UIColor(142, 142, 142), strokeLength: 4, gapLength: 4, width: 1)
         transferInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
+    }
+
+    @objc func onPressChange() {
+        onPressSearch()
     }
 
     let bankContainer: UIView = {
@@ -169,15 +184,6 @@ class BankTransferView: UIView {
         label.textAlignment = .center
         return label
     }()
-
-    let normalText1 = NSMutableAttributedString(string: "Vui lòng chuyển khoản ", attributes: [
-        .font: UIFont.systemFont(ofSize: 14, weight: .regular),
-        .foregroundColor: UIColor(0, 0, 0)
-    ])
-    let normalText2 = NSMutableAttributedString(string: "tới thông tin tài khoản bên dưới:", attributes: [
-        .font: UIFont.systemFont(ofSize: 14, weight: .regular),
-        .foregroundColor: UIColor(0, 0, 0)
-    ])
 
     let seperator = UIView()
 

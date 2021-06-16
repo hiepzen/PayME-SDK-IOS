@@ -32,10 +32,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     static var maxAmount: Int = 100000000
 
     var listBank: [Bank] = []
+    var listBankManual: [BankManual] = []
     let otpView = OTPView()
     let securityCode = SecurityCode()
     let atmController: ATMModal
     let resultView = ResultView()
+    let searchBankController: SearchBankController
     var keyBoardHeight: CGFloat = 0
     let screenSize: CGRect = UIScreen.main.bounds
     static var isShowCloseModal: Bool = true
@@ -55,6 +57,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     private var methodsBottomConstraint: NSLayoutConstraint?
     private var footerTopConstraint: NSLayoutConstraint?
     private var resultContentConstraint: NSLayoutConstraint?
+    private var searchBankHeightConstraint: NSLayoutConstraint?
 
     var safeAreaInset: UIEdgeInsets? = nil
 
@@ -84,6 +87,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 serviceCode: self.orderTransaction.orderId,
                 note: orderTransaction.note == "" ? "Không có nội dung" : self.orderTransaction.note,
                 logoUrl: self.orderTransaction.storeImage)
+        searchBankController = SearchBankController(payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction)
         disposeBag = DisposeBag()
         super.init(nibName: nil, bundle: nil)
     }
@@ -136,6 +140,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     }
                     if paymentState.state == State.BANK_TRANSFER {
                         self.setupUIConfirm(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
+                        self.listBankManual = paymentState.listBankManual ?? self.listBankManual
+                    }
+                    if paymentState.state == State.BANK_SEARCH {
+                        self.setupUISearchBank(orderTransaction: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.ERROR {
                         self.removeSpinner()
@@ -295,6 +303,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if !(atmController.view.isHidden) {
             atmController.view.isHidden = true
         }
+        searchBankController.view.isHidden = true
         UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
             self.tableView.isHidden = false
         })
@@ -308,7 +317,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         atmController.view.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
         atmController.view.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
         atmController.view.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
-        atmController.view.isHidden = true
+
+        view.addSubview(searchBankController.view)
+        searchBankController.view.translatesAutoresizingMaskIntoConstraints = false
+        searchBankController.view.topAnchor.constraint(equalTo:view.topAnchor).isActive = true
+        searchBankController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        searchBankController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+
 
         activityIndicator.color = UIColor(hexString: PayME.configColor[0])
         activityIndicator.startAnimating()
@@ -373,6 +388,34 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         })
     }
 
+    func setupUISearchBank(orderTransaction: OrderTransaction?) {
+        guard let orderTrans = orderTransaction else { return }
+        methodsView.isHidden = true
+        securityCode.isHidden = true
+        searchBankController.view.isHidden = false
+        otpView.isHidden = true
+        searchBankController.updateListBank(listBankManual)
+        searchBankController.view.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        if (searchBankHeightConstraint?.constant == nil) {
+            searchBankHeightConstraint = searchBankController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
+            searchBankHeightConstraint?.isActive = true
+        }
+        searchBankController.view.layoutIfNeeded()
+        let temp = footer.bounds.size.height + (safeAreaInset?.bottom ?? 0)
+        let searchHeight = min(searchBankController.updateSizeHeight(), screenSize.height - temp)
+        searchBankHeightConstraint?.constant = searchHeight
+        footerTopConstraint?.isActive = false
+        footerTopConstraint = footer.topAnchor.constraint(equalTo: searchBankController.view.bottomAnchor)
+        footerTopConstraint?.isActive = true
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        let viewHeight = searchBankController.view.bounds.size.height
+                + footer.bounds.size.height
+        modalHeight = viewHeight
+        panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .longForm)
+    }
+
     func setupUIConfirm(banks: [Bank], order: OrderTransaction?) {
         atmController.atmView.methodView.buttonTitle = paymentMethodID != nil ? nil : "Thay đổi"
         if let orderTransaction = order {
@@ -381,7 +424,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         listBank = banks
         atmController.setListBank(listBank: banks)
         tableView.isHidden = true
+        searchBankController.view.isHidden = true
         UIScrollView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
+            self.methodsView.isHidden = false
             self.atmController.view.isHidden = false
         })
 
@@ -399,6 +444,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsBottomConstraint?.isActive = false
         methodsBottomConstraint = methodsView.bottomAnchor.constraint(equalTo: atmController.view.bottomAnchor, constant: 16)
         methodsBottomConstraint?.isActive = true
+        footerTopConstraint?.isActive = false
+        footerTopConstraint = footer.topAnchor.constraint(equalTo: methodsView.bottomAnchor)
+        footerTopConstraint?.isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
         let viewHeight = methodsView.bounds.size.height
@@ -430,6 +478,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsBottomConstraint?.isActive = false
         methodsBottomConstraint =  methodsView.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 16)
         methodsBottomConstraint?.isActive = true
+
+        footerTopConstraint?.isActive = false
+        footerTopConstraint = footer.topAnchor.constraint(equalTo: methodsView.bottomAnchor)
+        footerTopConstraint?.isActive = true
 
         updateViewConstraints()
         view.layoutIfNeeded()
@@ -500,6 +552,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func setupOTP() {
         methodsView.isHidden = true
         securityCode.isHidden = true
+        searchBankController.view.isHidden = true
         otpView.isHidden = false
         view.addSubview(otpView)
         otpView.updateBankName(name: orderTransaction.paymentMethod?.title ?? "")
@@ -524,6 +577,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func setupSecurity() {
         methodsView.isHidden = true
+        searchBankController.view.isHidden = true
+        otpView.isHidden = true
         view.addSubview(securityCode)
         securityCode.isHidden = false
         securityCode.translatesAutoresizingMaskIntoConstraints = false

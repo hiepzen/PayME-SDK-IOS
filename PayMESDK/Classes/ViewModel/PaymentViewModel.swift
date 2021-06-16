@@ -16,6 +16,7 @@ enum State {
     case VALIDATION
     case RESULT
     case ERROR
+    case BANK_SEARCH
 }
 
 struct PaymentState {

@@ -70,6 +70,9 @@ class ATMModal: UIViewController {
             self.atmView.updateContentSize()
             self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS))
         }
+        atmView.contentView.onPressSearch = {
+            self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_SEARCH, orderTransaction: self.orderTransaction))
+        }
 
         if #available(iOS 13.0, *) {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIScene.willDeactivateNotification, object: nil)
