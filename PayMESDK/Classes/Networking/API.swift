@@ -198,7 +198,9 @@ class API {
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let variables: [String: Any] = [:]
+        let variables: [String: Any] = [
+            "configsKeys": ["limit.param.amount.payment", "kyc.mode.enable", "service.main.visible"]
+        ]
         let json: [String: Any] = [
             "query": GraphQuery.getSettingQuery,
             "variables": variables,

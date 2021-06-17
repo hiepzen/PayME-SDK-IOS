@@ -224,6 +224,19 @@ public class NetworkRequestGraphQL {
             let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey)
             let formattedString = self.formatString(dataRaw: stringJSON)
             let dataJSON = formattedString.data(using: .utf8)
+
+//            if let a = try? JSONSerialization.jsonObject(with: dataJSON!, options: .allowFragments) as? Dictionary<String, AnyObject> {
+//                print("hihi")
+//            } else {
+//                let string = self.test(dataRaw: stringJSON)
+//                if let test = try? JSONSerialization.jsonObject(with: string.data(using: .utf8)!,
+//                        options: .allowFragments) as? Dictionary<String, AnyObject> {
+//                    print("hihihihi test")
+//                } else {
+//                    print("hahaha \(string)")
+//                }
+//            }
+
             if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options: []) as? Dictionary<String, AnyObject> {
                 if let errors = finalJSON["errors"] as? [[String: AnyObject]] {
                     DispatchQueue.main.async {
@@ -269,27 +282,35 @@ public class NetworkRequestGraphQL {
     }
 
     func formatString(dataRaw: String) -> String {
-        var str = dataRaw
-        str = str.replacingOccurrences(of: "\\r", with: "");
-        str = str.replacingOccurrences(of: "\\n", with: "");
-        str = String(str.dropFirst(1).dropLast(1))
-        let regex = try! NSRegularExpression(pattern: "\\\\\"", options: NSRegularExpression.Options.caseInsensitive)
-        let range = NSMakeRange(0, str.count)
-        let modString = regex.stringByReplacingMatches(in: str, options: [], range: range, withTemplate: "\"")
-        str = modString.replacingOccurrences(of: "\\\\", with: "\\");
-        str = str.replacingOccurrences(of: "\\\"}", with: "\"}")
+        var string = dataRaw
+        string = string.replaceFirst(of: "\\n", with: "")
+        string = string.replaceFirst(of: "\\r", with: "")
+        string = string.replacingOccurrences(of: "\\\\\"", with: "\"")
+        string = string.replaceFirst(of: "\\\\", with: "\\")
+        string = string.replacingOccurrences(of: "\\", with: "", options: .literal, range: nil)
 
         let detect = """
                      {"data":{"Setting":{"configs"
                      """
-        if (str.contains(detect)) {
-            str = str.replacingOccurrences(of: "\"{", with: "{")
-            str = str.replacingOccurrences(of: "}\"", with: "}")
-            str = str.replacingOccurrences(of: "\\", with: "")
-            str = str.replacingOccurrences(of: "\"\"", with: "\"")
+        if (string.contains(detect)) {
+            string = string.replacingOccurrences(of: "\"{", with: "{")
+            string = string.replacingOccurrences(of: "}\"", with: "}")
+        } else {
+            let start = string.index(string.startIndex, offsetBy: 1)
+            let end = string.index(string.endIndex, offsetBy: -1)
+            let range = start..<end
+            return String(string[range])
         }
-        return str
+        return string
     }
 }
 
-
+fileprivate extension String {
+    func replaceFirst(of: String, with replaceString: String) -> String {
+        if let range =  self.range(of: of) {
+            return replacingOccurrences(of: of, with: replaceString, options: .literal, range: range)
+        } else {
+            return self
+        }
+    }
+}

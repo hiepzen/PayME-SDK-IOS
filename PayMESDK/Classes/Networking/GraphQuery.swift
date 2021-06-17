@@ -61,9 +61,9 @@ class GraphQuery {
                                      }
                                      """
     static let getSettingQuery = """
-                                 query getSettingQuery($configsTags: String) {
+                                 query getSettingQuery($configsKeys: [String]) {
                                    Setting {
-                                     configs(tags: $configsTags) {
+                                     configs(keys: $configsKeys) {
                                        key
                                        value
                                        tags
