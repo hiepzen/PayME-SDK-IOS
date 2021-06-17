@@ -25,6 +25,12 @@ class InputView: UIView {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         return label
     }()
+    let extraImage: UIImageView = {
+        var image = UIImageView()
+        image.translatesAutoresizingMaskIntoConstraints = false
+        image.contentMode = .scaleAspectFit
+        return image
+    }()
 
     let textInput: UITextField = {
         let textField = UITextField()
@@ -54,6 +60,7 @@ class InputView: UIView {
         addSubview(titleLabel)
         addSubview(textInput)
         addSubview(extraLabel)
+        addSubview(extraImage)
         titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
 
@@ -66,6 +73,11 @@ class InputView: UIView {
         extraLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
         extraLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 4).isActive = true
         extraLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+
+        extraImage.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
+        extraImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        extraImage.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        extraImage.widthAnchor.constraint(equalToConstant: 30).isActive = true
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -94,7 +106,26 @@ class InputView: UIView {
     }
 
     func updateExtraInfo(data: String = ""){
+        extraImage.isHidden = true
+        extraLabel.isHidden = false
         extraLabel.text = data
+    }
+    func updateExtraInfo(image: UIImage? = nil, url: String = "") {
+        extraLabel.isHidden = true
+        extraImage.isHidden = false
+        if image != nil {
+            extraImage.image = image!
+            return
+        }
+        if url != "" {
+            extraImage.load(url: url)
+        }
+    }
+    func resetExtraInfo() {
+        extraLabel.text = ""
+        extraImage.image = nil
+        extraLabel.isHidden = true
+        extraImage.isHidden = true
     }
 }
 

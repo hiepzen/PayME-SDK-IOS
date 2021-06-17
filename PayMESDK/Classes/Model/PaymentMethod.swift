@@ -20,6 +20,7 @@ class PaymentMethod {
     var dataLinked: LinkedInformation?
     var dataBank: BankInformation?
     var dataBankTransfer: BankManual?
+    var dataCreditCard: CreditCardInfomation?
     var active: Bool!
 
     init(
@@ -34,6 +35,7 @@ class PaymentMethod {
         dataLinked: LinkedInformation? = nil,
         dataBank: BankInformation? = nil,
         dataBankTransfer: BankManual? = nil,
+        dataCreditCard: CreditCardInfomation? = nil,
         active: Bool
     ) {
         self.methodId = methodId
@@ -47,6 +49,7 @@ class PaymentMethod {
         self.dataLinked = dataLinked
         self.dataBank = dataBank
         self.dataBankTransfer = dataBankTransfer
+        self.dataCreditCard = dataCreditCard
         self.active = active
     }
 }

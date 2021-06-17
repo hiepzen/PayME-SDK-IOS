@@ -754,6 +754,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         case MethodType.BANK_TRANSFER.rawValue:
             paymentPresentation.getFee(orderTransaction: orderTransaction)
             break
+        case MethodType.CREDIT_CARD.rawValue:
+            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: nil, orderTransaction: orderTransaction))
+            paymentPresentation.getFee(orderTransaction: orderTransaction)
         default:
             toastMessError(title: "", message: "Tính năng đang được xây dựng.") { [self] alertAction in
                 if paymentMethodID != nil {

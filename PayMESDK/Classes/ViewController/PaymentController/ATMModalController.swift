@@ -16,6 +16,7 @@ class ATMModal: UIViewController {
     var keyboardHeight: CGFloat = 0
     var listBank: [Bank] = []
     var bankDetect: Bank?
+    var issuerCreditDetect: String?
     var onError: (([String: AnyObject]) -> ())? = nil
     var onSuccess: (([String: AnyObject]) -> ())? = nil
     var result = false
@@ -57,6 +58,7 @@ class ATMModal: UIViewController {
         atmView.cardInput.textInput.delegate = self
         atmView.dateInput.textInput.delegate = self
         atmView.nameInput.textInput.delegate = self
+        atmView.cvvInput.textInput.delegate = self
 
         atmView.methodView.button.setTitleColor(UIColor(hexString: payMEFunction.configColor[0]), for: .normal)
         atmView.methodView.button.layer.borderColor = UIColor(hexString: payMEFunction.configColor[0]).cgColor
@@ -92,11 +94,48 @@ class ATMModal: UIViewController {
             payATM()
             return
         }
+        if (orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue) {
+            payCreditCard()
+            return
+        }
         if (orderTransaction.paymentMethod?.type == MethodType.BANK_TRANSFER.rawValue) {
             paymentPresentation.payBankTransfer(orderTransaction: orderTransaction)
         }
         payActionByMethod()
 
+    }
+
+    func payCreditCard() {
+        let cardNumber = atmView.cardInput.textInput.text?.filter("0123456789".contains)
+        let expiredAt = atmView.dateInput.textInput.text
+        let cvv = atmView.cvvInput.textInput.text
+        if cardNumber == nil || (cardNumber?.count ?? 0) < 7 {
+            atmView.cardInput.errorMessage = "Vui lòng nhập mã thẻ đúng định dạng"
+            atmView.cardInput.updateState(state: .error)
+            return
+        }
+        if (expiredAt?.count ?? 0) != 5 {
+            atmView.dateInput.errorMessage = "Vui lòng nhập ngày hết hạn thẻ"
+            atmView.dateInput.updateState(state: .error)
+            return
+        }
+        let dateArr = expiredAt!.components(separatedBy: "/")
+        let month = Int(dateArr[0]) ?? 0
+        let year = Int(dateArr[1]) ?? 0
+        if (month == 0 || year == 0 || month > 12 || month <= 0) {
+            atmView.dateInput.errorMessage = "Vui lòng nhập ngày hết hạn thẻ hợp lệ"
+            atmView.dateInput.updateState(state: .error)
+            return
+        }
+        if (cvv?.count ?? 0) != 3 {
+            atmView.cvvInput.errorMessage = "Vui lòng nhập mã bảo mật"
+            atmView.cvvInput.updateState(state: .error)
+            return
+        }
+//        let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
+        orderTransaction.paymentMethod?.dataCreditCard = CreditCardInfomation(cardNumber: cardNumber!, expiredAt: expiredAt!, cvv: cvv!)
+        showSpinner(onView: view)
+        paymentPresentation.payCreditCard(orderTransaction: orderTransaction)
     }
 
     func payATM() {
@@ -128,7 +167,7 @@ class ATMModal: UIViewController {
             }
             let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
             orderTransaction.paymentMethod?.dataBank = BankInformation(cardNumber: cardNumber!, cardHolder: cardHolder!, issueDate: date, bank: bankDetect)
-            self.showSpinner(onView: view)
+            showSpinner(onView: view)
             paymentPresentation.payATM(orderTransaction: orderTransaction)
         }
     }
@@ -168,7 +207,11 @@ class ATMModal: UIViewController {
             textField.selectedTextRange = previousSelection
             return
         } else {
-            detectBank(cardNumberWithoutSpaces)
+            if orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue {
+                detectBank(cardNumberWithoutSpaces)
+            } else if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+                detectCreditCard(cardNumberWithoutSpaces)
+            }
         }
 
         textField.text = insertCreditCardSpaces(cardNumberWithoutSpaces, preserveCursorPosition: &targetCursorPosition)
@@ -218,6 +261,29 @@ class ATMModal: UIViewController {
             stringWithAddedSpaces.append(characterToAdd)
         }
         return stringWithAddedSpaces
+    }
+
+    private func detectCreditCard(_ card: String) {
+        if card != "" && card.count >= 4 {
+            if issuerCreditDetect == nil {
+                let patterns = [
+                    "VISA": ["4"],
+                    "MASTERCARD": ["51", "55", "2221", "2229", "223", "229", "23", "26", "270", "271", "2720"],
+                    "JCB": ["2131", "1800", "3528", "3589"]
+                ]
+                for (issuer, cardPattern) in patterns {
+                    for cardPrefix in cardPattern {
+                        if card.hasPrefix(cardPrefix) {
+                            issuerCreditDetect = issuer
+                            atmView.cardInput.updateExtraInfo(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(issuer).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
+                        }
+                    }
+                }
+            }
+        } else {
+            issuerCreditDetect = nil
+            atmView.cardInput.resetExtraInfo()
+        }
     }
 
     private func detectBank(_ string: String) {
@@ -282,6 +348,11 @@ extension ATMModal: UITextFieldDelegate {
             }
             return allowedCharacters.isSuperset(of: characterSet) && !(textField.text!.count > 4 && (string.count) > range.length)
         }
+        if textField == atmView.cvvInput.textInput {
+            let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")//Here change this characters based on your requirement
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet) && !(textField.text!.count >= 3 && (string.count) > range.length)
+        }
         if textField == atmView.cardInput.textInput {
             previousTextFieldContent = textField.text
             previousSelection = textField.selectedTextRange
@@ -300,6 +371,8 @@ extension ATMModal: UITextFieldDelegate {
         case atmView.dateInput.textInput:
             atmView.dateInput.updateState(state: .focus)
             break
+        case atmView.cvvInput.textInput:
+            atmView.cvvInput.updateState(state: .focus)
         default: break
         }
     }
@@ -315,6 +388,8 @@ extension ATMModal: UITextFieldDelegate {
         case atmView.dateInput.textInput:
             atmView.dateInput.updateState(state: .normal)
             break
+        case atmView.cvvInput.textInput:
+            atmView.cvvInput.updateState(state: .normal)
         default: break
         }
     }

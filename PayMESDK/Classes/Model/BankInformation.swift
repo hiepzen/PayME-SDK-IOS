@@ -31,3 +31,15 @@ class BankInformation {
         return cardNumber
     }
 }
+
+class CreditCardInfomation {
+    var cardNumber: String = ""
+    var expiredAt: String = ""
+    var cvv: String = ""
+
+    init(cardNumber: String = "", expiredAt: String = "", cvv: String = "") {
+        self.cardNumber = cardNumber
+        self.expiredAt = expiredAt
+        self.cvv = cvv
+    }
+}

@@ -8,33 +8,6 @@
 import Foundation
 
 class ATMView: UIScrollView {
-    let vStack: UIStackView = {
-        let stack = UIStackView()
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.axis = .vertical
-        stack.spacing = 12
-        stack.distribution = .equalSpacing
-        stack.alignment = .fill
-        return stack
-    }()
-
-    let button: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = 20
-        button.backgroundColor = .clear
-        return button
-    }()
-
-    let cardInput = InputView(title: "NHẬP SỐ THẺ", placeholder: "Số thẻ", keyboardType: .numberPad)
-    let nameInput = InputView(title: "NHẬP HỌ TÊN CHỦ THẺ", placeholder: "Họ tên chủ thẻ")
-    let dateInput = InputView(title: "NGÀY PHÁT HÀNH", placeholder: "MM/YY", keyboardType: .numberPad)
-    let methodView: MethodView = MethodView(buttonTitle: "Thay đổi")
-
-    var paymentInfo = InformationView(data: [])
-    var contentView = BankTransferView()
-
-
     init() {
         super.init(frame: CGRect.zero)
         backgroundColor = .white
@@ -52,8 +25,11 @@ class ATMView: UIScrollView {
 
         vStack.addArrangedSubview(cardInput)
         vStack.addArrangedSubview(nameInput)
-        vStack.addArrangedSubview(dateInput)
+        vStack.addArrangedSubview(hStack)
         vStack.addArrangedSubview(contentView)
+        hStack.addArrangedSubview(dateInput)
+        hStack.addArrangedSubview(cvvInput)
+        cvvInput.textInput.isSecureTextEntry = true
 //        self.addSubview(nameField)
 
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 12)
@@ -80,6 +56,7 @@ class ATMView: UIScrollView {
         cardInput.isHidden = true
         dateInput.isHidden = true
         nameInput.isHidden = true
+        cvvInput.isHidden = true
         contentView.isHidden = true
     }
 
@@ -103,6 +80,7 @@ class ATMView: UIScrollView {
         cardInput.isHidden = true
         dateInput.isHidden = true
         nameInput.isHidden = true
+        cvvInput.isHidden = true
         contentView.isHidden = true
         methodView.title = method.title
         methodView.content = method.label
@@ -133,6 +111,7 @@ class ATMView: UIScrollView {
             cardInput.isHidden = false
             dateInput.isHidden = false
             methodView.image.image = UIImage(for: MethodView.self, named: "iconAtm")
+            dateInput.titleLabel.text = "NGÀY PHÁT HÀNH"
             break
         case MethodType.BANK_QR_CODE.rawValue:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconQRBank")
@@ -145,6 +124,12 @@ class ATMView: UIScrollView {
             methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")
             contentView.updateInfo(bank: method.dataBankTransfer, orderTransaction: orderTransaction)
             break
+        case MethodType.CREDIT_CARD.rawValue:
+            cardInput.isHidden = false
+            dateInput.isHidden = false
+            cvvInput.isHidden = false
+            methodView.image.image = UIImage(for: Method.self, named: "iconCreditCard")
+            dateInput.titleLabel.text = "NGÀY HẾT HẠN"
         default:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconWallet")
             break
@@ -161,7 +146,41 @@ class ATMView: UIScrollView {
         paymentInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
         updateContentSize()
     }
+    let vStack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.distribution = .equalSpacing
+        stack.alignment = .fill
+        return stack
+    }()
 
+    let hStack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.spacing = 16
+        stack.distribution = .fillEqually
+        return stack
+    }()
+
+    let button: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 20
+        button.backgroundColor = .clear
+        return button
+    }()
+
+    let cardInput = InputView(title: "NHẬP SỐ THẺ", placeholder: "Số thẻ", keyboardType: .numberPad)
+    let nameInput = InputView(title: "NHẬP HỌ TÊN CHỦ THẺ", placeholder: "Họ tên chủ thẻ")
+    let dateInput = InputView(title: "NGÀY PHÁT HÀNH", placeholder: "MM/YY", keyboardType: .numberPad)
+    let cvvInput = InputView(title: "MÃ BẢO MẬT", placeholder: "CVV/CVC", keyboardType: .numberPad)
+    let methodView: MethodView = MethodView(buttonTitle: "Thay đổi")
+
+    var paymentInfo = InformationView(data: [])
+    var contentView = BankTransferView()
 }
 
 

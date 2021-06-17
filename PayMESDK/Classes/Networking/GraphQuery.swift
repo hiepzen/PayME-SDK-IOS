@@ -437,4 +437,31 @@ class GraphQuery {
                                              }
                                            }
                                            """
+    static let transferCreditCardQuery = """
+                                  mutation transferATMQuery($payInput: OpenEWalletPaymentPayInput!) {
+                                    OpenEWallet {
+                                      Payment {
+                                        Pay(input: $payInput) {
+                                          succeeded
+                                          message
+                                          history {
+                                            payment {
+                                              transaction
+                                              method
+                                              description
+                                            }
+                                            createdAt
+                                          }
+                                          payment {
+                                            ... on PaymentCreditCardResponsed {
+                                              state
+                                              message
+                                              transaction
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                  """
 }
