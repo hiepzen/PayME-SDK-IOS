@@ -95,8 +95,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         } else {
             safeAreaInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         }
-        paymentPresentation.onNetworkError = {
+        paymentPresentation.onPaymeError = { message in
             self.removeSpinner()
+            if message != "" {
+                self.toastMessError(title: "Lỗi", message: message) { action in
+                    self.dismiss(animated: true, completion: nil)
+                }
+            }
         }
         view.backgroundColor = UIColor(239, 242, 247)
         PaymentModalController.isShowCloseModal = true
