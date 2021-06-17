@@ -229,8 +229,6 @@ public class NetworkRequestGraphQL {
 //            let validateMD5 = CryptoAES.MD5(validateString)!
             let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey)
             let formattedString = self.formatString(dataRaw: stringJSON)
-            print(stringJSON)
-            print(formattedString)
             let dataJSON = formattedString.data(using: .utf8)
             if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options: []) as? Dictionary<String, AnyObject> {
                 if let errors = finalJSON["errors"] as? [[String: AnyObject]] {
