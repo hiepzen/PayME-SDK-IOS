@@ -52,6 +52,12 @@ class BankTransferResultView: UIView {
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
             animationView.loopMode = .loop
+            let color = ColorValueProvider(UIColor(hexString: PayME.configColor[0]).lottieColorValue)
+            let keyPathLL = AnimationKeypath(keypath: "Muiten.**.Fill 1.Color")
+            let keyPathDO = AnimationKeypath(keypath: "D_xanh.Group 3.**.Fill 1.Color")
+            animationView.setValueProvider(color, keypath: keyPathLL)
+            animationView.setValueProvider(color, keypath: keyPathDO)
+
             animationView.play()
             break
         case .FAIL:

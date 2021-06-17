@@ -381,7 +381,7 @@ class PaymentPresentation {
                         }
                     }
                 },
-                onNetworkError: onNetworkError
+                onPaymeError: onPaymeError
         )
     }
 
@@ -552,7 +552,8 @@ class PaymentPresentation {
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
                         }
                     }
-                }, onNetworkError: onNetworkError)
+                }, onPaymeError: onPaymeError
+        )
     }
 
     func getListMethods(

@@ -268,7 +268,7 @@ class API {
             cardNumber: String, expiredAt: String, cvv: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -297,14 +297,14 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func paymentBankTransfer(
             storeId: Int, orderId: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -332,7 +332,7 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func createSecurityCode(
