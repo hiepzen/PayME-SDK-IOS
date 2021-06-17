@@ -498,7 +498,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
 
     @objc func getListMethod(sender: UIButton!) {
-        var storeId = 6868
+        var storeId = 9
         if (currentEnv == PayME.Env.SANDBOX) {
             storeId = 37048160
         }
@@ -541,7 +541,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let amount = Int(moneyPay.text!)
                 if (amount! >= 10000) {
                     let amountPay = amount!
-                    var storeId = 6868
+                    var storeId = 9
                     if (self.currentEnv == PayME.Env.SANDBOX) {
                         storeId = 37048160
                     }
