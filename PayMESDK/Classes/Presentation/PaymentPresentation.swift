@@ -438,7 +438,7 @@ class PaymentPresentation {
                 let methodInformation = PaymentMethod(
                         methodId: (item["methodId"] as! Int), type: item["type"] as! String,
                         title: item["title"] as! String, label: item["label"] as! String,
-                        fee: item["fee"] as! Int, minFee: item["minFee"] as! Int,
+                        minFee: item["minFee"] as! Int,
                         feeDescription: item["feeDescription"] as? String ?? "",
                         active: index == 0 ? true : false
                 )
@@ -548,7 +548,7 @@ class PaymentPresentation {
                         if let total: Int = transInfo["total"] as? Int {
                             orderTransaction.total = total
                         }
-                        if let fee: Int = transInfo["fee"] as? Int {
+                        if let fee = transInfo["fee"] as? Int {
                             orderTransaction.paymentMethod?.fee = fee
                         }
 
