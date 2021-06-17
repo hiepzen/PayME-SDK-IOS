@@ -28,7 +28,7 @@ class PaymentMethod {
         type: String,
         title: String,
         label: String,
-        fee: Int,
+        fee: Int = 0,
         minFee: Int,
         feeDescription: String = "",
         dataWallet: WalletInformation? = nil,

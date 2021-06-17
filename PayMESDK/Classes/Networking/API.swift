@@ -117,7 +117,7 @@ class API {
     func getService(
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -127,14 +127,14 @@ class API {
             "variables": variables
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func getAccountInfo(
             accountPhone: Any,
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -144,7 +144,7 @@ class API {
             "variables": variables
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
 
@@ -194,24 +194,26 @@ class API {
     func getSetting(
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let variables: [String: Any] = [:]
+        let variables: [String: Any] = [
+            "configsKeys": ["limit.param.amount.payment", "kyc.mode.enable", "service.main.visible"]
+        ]
         let json: [String: Any] = [
             "query": GraphQuery.getSettingQuery,
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
 
     func getWalletInfo(
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -221,7 +223,7 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func transferATM(
@@ -229,7 +231,7 @@ class API {
             cardNumber: String, cardHolder: String, issuedAt: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -258,7 +260,7 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func transferCreditCard(
@@ -337,7 +339,7 @@ class API {
             password: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -352,7 +354,7 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func transferByLinkedBank(
@@ -360,7 +362,7 @@ class API {
             extraData: String, note: String, otp: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -392,14 +394,14 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func readQRContent(
             qrContent: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -414,14 +416,14 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func checkFlowLinkedBank(
             storeId: Int, orderId: String, linkedId: Int, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -451,14 +453,14 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func transferWallet(
             storeId: Int, orderId: String, securityCode: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -487,13 +489,13 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func getTransferMethods(
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -510,7 +512,7 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
 
@@ -518,7 +520,7 @@ class API {
             pathFront: String?, pathBack: String?, pathAvatar: String?, pathVideo: String?, isUpdateIdentify: Bool = false,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -555,7 +557,7 @@ class API {
         } else {
             request.setOnRequestCrypto(onError: { error in onError(error) },
                     onSuccess: { data in onSuccess(data) },
-                    onNetworkError: { onNetworkError() }
+                    onPaymeError: { message in onPaymeError(message) }
             )
         }
     }
@@ -564,7 +566,7 @@ class API {
             swiftCode: String, cardNumber: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -580,13 +582,13 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func getBankList(
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -596,13 +598,13 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func registerClient(
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -623,14 +625,14 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func initAccount(
             clientID: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -644,13 +646,13 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func getWalletGraphQL(
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -660,7 +662,7 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func getFee(
@@ -668,7 +670,7 @@ class API {
             payment: [String: Any]?,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -692,14 +694,14 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func getTransactionInfo(
             transaction: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -713,13 +715,13 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     func getListBankManual(
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {}
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -739,14 +741,14 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onNetworkError)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
     private func onRequest(
             _ url: String, _ path: String, _ params: Data?,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            _ onNetworkError: @escaping () -> () = {}
+           _ onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let request = NetworkRequestGraphQL(appId: appId, url: url, path: path, token: accessToken, params: params, publicKey: publicKey, privateKey: privateKey)
         if (env == PayME.Env.DEV) {
@@ -754,7 +756,7 @@ class API {
         } else {
             request.setOnRequestCrypto(onError: { error in onError(error) },
                     onSuccess: { data in onSuccess(data) },
-                    onNetworkError: { onNetworkError() }
+                    onPaymeError: { message in onPaymeError(message) }
             )
         }
     }
@@ -765,7 +767,7 @@ class API {
 //            xAPIValidateResponse: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping ([String: AnyObject]) -> (),
-            onNetworkError: @escaping () -> () = { }
+            onPaymeError: @escaping (String) -> () = { s in }
     ) {
         guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
             DispatchQueue.main.async {

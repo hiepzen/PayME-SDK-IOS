@@ -110,13 +110,14 @@ public class NetworkRequestGraphQL {
     public func setOnRequestCrypto(
             onError: @escaping ([String: AnyObject]) -> (),
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = { }
+            onPaymeError: @escaping (String) -> ()
     ) {
         let encryptKey = "10000000"
 
         guard let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey) else {
             DispatchQueue.main.async {
                 onError(["code": PayME.ResponseCode.ERROR_KEY_ENCODE as AnyObject, "message": "Mã hóa thất bại" as AnyObject])
+                onPaymeError("Có lỗi xảy ra!")
             }
             return
         }
@@ -162,14 +163,16 @@ public class NetworkRequestGraphQL {
                     if (error?.localizedDescription != nil) {
                         if (error?.localizedDescription == "The Internet connection appears to be offline.") {
                             onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
-                            onNetworkError()
+                            onPaymeError("Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn!")
                             return
                         } else {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": error?.localizedDescription as AnyObject])
+                            onPaymeError("Có lỗi xảy ra!")
                             return
                         }
                     } else {
                         onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi hệ thống!" as AnyObject])
+                        onPaymeError("Có lỗi xảy ra!")
                         return
                     }
                 }
@@ -188,12 +191,14 @@ public class NetworkRequestGraphQL {
                     } else {
                         DispatchQueue.main.async {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nối tới server" as AnyObject])
+                            onPaymeError("Không thể kết nối tới server")
                             return
                         }
                     }
                 } else {
                     DispatchQueue.main.async {
                         onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nối tới server" as AnyObject])
+                        onPaymeError("Không thể kết nối tới server")
                         return
                     }
                 }
@@ -209,6 +214,7 @@ public class NetworkRequestGraphQL {
             guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
                 DispatchQueue.main.async {
                     onError(["code": PayME.ResponseCode.ERROR_KEY_ENCODE as AnyObject, "message": "Giải mã thất bại" as AnyObject])
+                    onPaymeError("Có lỗi xảy ra!")
                 }
                 return
             }
@@ -258,6 +264,7 @@ public class NetworkRequestGraphQL {
                 } else {
                     DispatchQueue.main.async {
                         onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nỗi tới server" as AnyObject])
+                        onPaymeError("Không thể kết nỗi tới server")
                         return
                     }
                 }
@@ -270,8 +277,9 @@ public class NetworkRequestGraphQL {
 
     func formatString(dataRaw: String) -> String {
         var str = dataRaw
-        str = str.replacingOccurrences(of: "\\r", with: "");
-        str = str.replacingOccurrences(of: "\\n", with: "");
+        str = str.replacingOccurrences(of: "\\r", with: "")
+        str = str.replacingOccurrences(of: "\\\\n", with: "")
+        str = str.replacingOccurrences(of: "\\n", with: "")
         str = String(str.dropFirst(1).dropLast(1))
         let regex = try! NSRegularExpression(pattern: "\\\\\"", options: NSRegularExpression.Options.caseInsensitive)
         let range = NSMakeRange(0, str.count)
@@ -292,4 +300,12 @@ public class NetworkRequestGraphQL {
     }
 }
 
-
+fileprivate extension String {
+    func replaceFirst(of: String, with replaceString: String) -> String {
+        if let range =  self.range(of: of) {
+            return replacingOccurrences(of: of, with: replaceString, options: .literal, range: range)
+        } else {
+            return self
+        }
+    }
+}

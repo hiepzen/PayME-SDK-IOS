@@ -245,8 +245,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         if (form != "") {
             if (navigationAction.request.url != nil) {
                 let host = navigationAction.request.url!.host ?? ""
-                print(host)
-                if navigationAction.request.url?.absoluteString == "https://payme.vn/web/" {
+                if ((navigationAction.request.url?.absoluteString.contains("https://payme.vn/web")) == true) {
                     onNavigateToPayme?(true)
                 }
                 if (host == "payme.vn") {

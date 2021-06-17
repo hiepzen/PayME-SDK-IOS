@@ -44,7 +44,7 @@ class PaymentPresentation {
     private let request: API
     private let onSuccess: (Dictionary<String, AnyObject>) -> ()
     private let onError: (Dictionary<String, AnyObject>) -> ()
-    var onNetworkError: () -> ()
+    var onPaymeError: (String) -> ()
     private let accessToken: String
     private let kycState: String
 
@@ -53,8 +53,7 @@ class PaymentPresentation {
             accessToken: String, kycState: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onNetworkError: @escaping () -> () = {
-            }
+            onPaymeError: @escaping (String) -> () = { s in  }
     ) {
         self.request = request
         self.paymentViewModel = paymentViewModel
@@ -62,7 +61,7 @@ class PaymentPresentation {
         self.kycState = kycState
         self.onSuccess = onSuccess
         self.onError = onError
-        self.onNetworkError = onNetworkError
+        self.onPaymeError = onPaymeError
     }
 
     func paymentPayMEMethod(securityCode: String, orderTransaction: OrderTransaction) {
@@ -117,7 +116,7 @@ class PaymentPresentation {
                     }
                     self.onError(error)
                 },
-                onNetworkError: onNetworkError)
+                onPaymeError: onPaymeError)
     }
 
     func transferByLinkedBank(transaction: String, orderTransaction: OrderTransaction, linkedId: Int, OTP: String) {
@@ -190,7 +189,7 @@ class PaymentPresentation {
                     }
                     self.onError(error)
                 },
-                onNetworkError: onNetworkError)
+                onPaymeError: onPaymeError)
     }
 
     func paymentLinkedMethod(orderTransaction: OrderTransaction) {
@@ -286,7 +285,7 @@ class PaymentPresentation {
                         }
                     }
                 },
-                onNetworkError: onNetworkError)
+                onPaymeError: onPaymeError)
     }
 
     func createSecurityCode(password: String, orderTransaction: OrderTransaction) {
@@ -328,7 +327,7 @@ class PaymentPresentation {
                 }
             }
             self.onError(error)
-        }, onNetworkError: onNetworkError)
+        }, onPaymeError: onPaymeError)
     }
 
     func payBankTransfer(orderTransaction: OrderTransaction) {
@@ -476,7 +475,7 @@ class PaymentPresentation {
                         }
                     }
                 },
-                onNetworkError: onNetworkError)
+                onPaymeError: onPaymeError)
     }
 
     func payCreditCard(orderTransaction: OrderTransaction) {
@@ -570,7 +569,7 @@ class PaymentPresentation {
                 let methodInformation = PaymentMethod(
                         methodId: (item["methodId"] as! Int), type: item["type"] as! String,
                         title: item["title"] as! String, label: item["label"] as! String,
-                        fee: item["fee"] as! Int, minFee: item["minFee"] as! Int,
+                        minFee: item["minFee"] as! Int,
                         feeDescription: item["feeDescription"] as? String ?? "",
                         active: index == 0 ? true : false
                 )
@@ -602,7 +601,7 @@ class PaymentPresentation {
 
         },
                 onError: { error in onError(error) },
-                onNetworkError: onNetworkError)
+                onPaymeError: onPaymeError)
     }
 
     func getLinkBank(orderTransaction: OrderTransaction) {
@@ -618,7 +617,7 @@ class PaymentPresentation {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: listBank, orderTransaction: orderTransaction))
         }, onError: { bankListError in
             self.onError(bankListError)
-        }, onNetworkError: onNetworkError)
+        }, onPaymeError: onPaymeError)
     }
 
     func getFee(orderTransaction: OrderTransaction) {
@@ -687,7 +686,7 @@ class PaymentPresentation {
             }
         }, onError: { error in
             print(error)
-        }, onNetworkError: onNetworkError)
+        }, onPaymeError: onPaymeError)
     }
 
     func getTransactionInfo(transactionInfo: TransactionInformation, orderTransaction: OrderTransaction, isAcceptPending: Bool = false) {
@@ -700,7 +699,7 @@ class PaymentPresentation {
                         if let total: Int = transInfo["total"] as? Int {
                             orderTransaction.total = total
                         }
-                        if let fee: Int = transInfo["fee"] as? Int {
+                        if let fee = transInfo["fee"] as? Int {
                             orderTransaction.paymentMethod?.fee = fee
                         }
 
@@ -739,7 +738,7 @@ class PaymentPresentation {
                     }
                 },
                 onError: { error in print("\(error)") },
-                onNetworkError: onNetworkError)
+                onPaymeError: onPaymeError)
     }
 
     public func decryptSubscriptionMessage(
@@ -767,7 +766,7 @@ class PaymentPresentation {
                     }
                 },
                 onError: { error in print("\(error)") },
-                onNetworkError: onNetworkError
+                onPaymeError: onPaymeError
         )
     }
 
@@ -800,7 +799,7 @@ class PaymentPresentation {
                 onError: { error in
                     print(error)
                 },
-                onNetworkError: onNetworkError
+                onPaymeError: onPaymeError
         )
     }
 }
