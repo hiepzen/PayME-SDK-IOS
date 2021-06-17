@@ -13,7 +13,7 @@ class PaymeLogoView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .horizontal
         stack.spacing = 8
-        stack.distribution = .fill
+        stack.distribution = .equalSpacing
         stack.alignment = .center
         return stack
     }()
