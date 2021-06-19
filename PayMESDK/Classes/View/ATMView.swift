@@ -7,18 +7,10 @@
 
 import Foundation
 
-class ATMView: UIScrollView {
+class ATMView: UIView {
     init() {
         super.init(frame: CGRect.zero)
-        backgroundColor = .white
         translatesAutoresizingMaskIntoConstraints = false
-        isScrollEnabled = true
-        isPagingEnabled = false
-        showsVerticalScrollIndicator = false
-        showsHorizontalScrollIndicator = false
-
-        bounces = false
-
         addSubview(methodView)
         addSubview(button)
         addSubview(vStack)
@@ -53,29 +45,24 @@ class ATMView: UIScrollView {
         button.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
 
+        button.setImage(UIImage(for: ATMView.self, named: "iconLock"), for: .normal)
+
         cardInput.isHidden = true
         dateInput.isHidden = true
         nameInput.isHidden = true
         cvvInput.isHidden = true
         contentView.isHidden = true
+        bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 16).isActive = true
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func updateContentSize() {
-        updateConstraints()
-        layoutIfNeeded()
-        let contentRect: CGRect = self.subviews.reduce(into: .zero) { rect, view in
-            rect = rect.union(view.frame)
-        }
-        self.contentSize = contentRect.size
-    }
+
 
     func updateUIByMethod(orderTransaction: OrderTransaction) {
         button.setTitle("Xác nhận", for: .normal)
-        button.setImage(UIImage(for: ATMView.self, named: "iconLock"), for: .normal)
         let method = orderTransaction.paymentMethod!
         cardInput.isHidden = true
         dateInput.isHidden = true
@@ -117,8 +104,7 @@ class ATMView: UIScrollView {
             methodView.image.image = UIImage(for: MethodView.self, named: "iconQRBank")
             break
         case MethodType.BANK_TRANSFER.rawValue:
-            button.setTitle("Xác nhận đã chuyển", for: .normal)
-            button.setImage(nil, for: .normal)
+//            button.setTitle("Xác nhận đã chuyển", for: .normal)
             paymentInfo.removeFromSuperview()
             contentView.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")
@@ -135,7 +121,9 @@ class ATMView: UIScrollView {
             break
         }
         methodView.updateUI()
-        updateContentSize()
+        updateConstraints()
+        layoutIfNeeded()
+//        updateContentSize()
     }
 
     func updatePaymentInfo(_ data: [Dictionary<String, Any>]) {
@@ -144,7 +132,7 @@ class ATMView: UIScrollView {
         vStack.addArrangedSubview(paymentInfo)
         layoutIfNeeded()
         paymentInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
-        updateContentSize()
+//        updateContentSize()
     }
     let vStack: UIStackView = {
         let stack = UIStackView()
@@ -152,7 +140,6 @@ class ATMView: UIScrollView {
         stack.axis = .vertical
         stack.spacing = 12
         stack.distribution = .equalSpacing
-        stack.alignment = .fill
         return stack
     }()
 

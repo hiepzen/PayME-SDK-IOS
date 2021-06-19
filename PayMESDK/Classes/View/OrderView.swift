@@ -66,7 +66,7 @@ class OrderView: UIView {
 
     let seperator = UIView()
 
-    init(amount: Int, storeName: String, serviceCode: String, note: String, logoUrl: String? = nil) {
+    init(amount: Int = 0, storeName: String = "", serviceCode: String = "", note: String = "", logoUrl: String? = nil) {
         super.init(frame: CGRect.zero)
         translatesAutoresizingMaskIntoConstraints = false
         amountLabel.text = "\(formatMoney(input: amount)) đ"

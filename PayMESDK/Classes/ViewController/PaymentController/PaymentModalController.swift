@@ -36,7 +36,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let otpView = OTPView()
     let securityCode = SecurityCode()
     let bankTransResultView = BankTransferResultView()
-    let atmController: ATMModal
+    let confirmController: ConfirmationModal
     let resultView = ResultView()
     let searchBankController: SearchBankController
     var keyBoardHeight: CGFloat = 0
@@ -80,7 +80,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 accessToken: payMEFunction.accessToken, kycState: payMEFunction.kycState,
                 onSuccess: onSuccess, onError: onError
         )
-        atmController = ATMModal(
+        confirmController = ConfirmationModal(
                 payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction, isShowResult: self.isShowResultUI,
                 paymentPresentation: paymentPresentation, onSuccess: self.onSuccess, onError: self.onError
         )
@@ -280,6 +280,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func setupUI() {
         view.addSubview(footer)
         view.addSubview(methodsView)
+        view.addSubview(confirmController.view)
+        view.addSubview(searchBankController.view)
+
+        view.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
 
         methodsView.backgroundColor = .white
         methodsView.translatesAutoresizingMaskIntoConstraints = false
@@ -304,8 +308,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.delegate = self
         tableView.dataSource = self
 
-        if !(atmController.view.isHidden) {
-            atmController.view.isHidden = true
+        if !(confirmController.view.isHidden) {
+            confirmController.view.isHidden = true
         }
         searchBankController.view.isHidden = true
         UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
@@ -316,13 +320,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
         tableView.alwaysBounceVertical = false
 
-        methodsView.addSubview(atmController.view)
-        atmController.view.translatesAutoresizingMaskIntoConstraints = false
-        atmController.view.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
-        atmController.view.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
-        atmController.view.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
+        confirmController.view.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        confirmController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        confirmController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
 
-        view.addSubview(searchBankController.view)
         searchBankController.view.translatesAutoresizingMaskIntoConstraints = false
         searchBankController.view.topAnchor.constraint(equalTo:view.topAnchor).isActive = true
         searchBankController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -394,12 +395,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func setupUISearchBank(orderTransaction: OrderTransaction?) {
         guard let orderTrans = orderTransaction else { return }
+        confirmController.view.isHidden = true
         methodsView.isHidden = true
         securityCode.isHidden = true
         searchBankController.view.isHidden = false
         otpView.isHidden = true
         searchBankController.updateListBank(listBankManual)
-        searchBankController.view.heightAnchor.constraint(equalToConstant: 200).isActive = true
         if (searchBankHeightConstraint?.constant == nil) {
             searchBankHeightConstraint = searchBankController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
             searchBankHeightConstraint?.isActive = true
@@ -421,39 +422,35 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupUIConfirm(banks: [Bank], order: OrderTransaction?) {
-        atmController.atmView.methodView.buttonTitle = paymentMethodID != nil ? nil : "Thay đổi"
-        if let orderTransaction = order {
-            atmController.atmView.updateUIByMethod(orderTransaction: orderTransaction)
-        }
-        listBank = banks
-        atmController.setListBank(listBank: banks)
-        tableView.isHidden = true
-        searchBankController.view.isHidden = true
-        UIScrollView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
-            self.methodsView.isHidden = false
-            self.atmController.view.isHidden = false
-        })
+        confirmController.atmView.methodView.buttonTitle = paymentMethodID != nil ? nil : "Thay đổi"
 
+        listBank = banks
+        confirmController.setListBank(listBank: banks)
+        searchBankController.view.isHidden = true
+        methodsView.isHidden = true
+        UIScrollView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
+            self.confirmController.view.isHidden = false
+        })
         if (atmHeightConstraint?.constant == nil) {
-            atmHeightConstraint = atmController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
+            atmHeightConstraint = confirmController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
             atmHeightConstraint?.isActive = true
         }
-        atmController.view.layoutIfNeeded()
-        let temp = orderView.bounds.size.height + 12
-                + methodTitle.bounds.size.height
-                + footer.bounds.size.height
-                + (safeAreaInset?.bottom ?? 0)
-        let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - temp)
+        if let orderTransaction = order {
+            confirmController.atmView.updateUIByMethod(orderTransaction: orderTransaction)
+        }
+        confirmController.updateContentSize()
+        confirmController.view.layoutIfNeeded()
+        let temp = footer.bounds.size.height
+                + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0)
+        let atmHeight = min(confirmController.scrollView.contentSize.height, screenSize.height - temp)
         atmHeightConstraint?.constant = atmHeight
-        methodsBottomConstraint?.isActive = false
-        methodsBottomConstraint = methodsView.bottomAnchor.constraint(equalTo: atmController.view.bottomAnchor, constant: 16)
-        methodsBottomConstraint?.isActive = true
+
         footerTopConstraint?.isActive = false
-        footerTopConstraint = footer.topAnchor.constraint(equalTo: methodsView.bottomAnchor)
+        footerTopConstraint = footer.topAnchor.constraint(equalTo: confirmController.view.bottomAnchor)
         footerTopConstraint?.isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
-        let viewHeight = methodsView.bounds.size.height
+        let viewHeight = confirmController.view.bounds.size.height
                 + footer.bounds.size.height
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
@@ -462,9 +459,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func showMethods(_ methods: [PaymentMethod]) {
         view.endEditing(false)
-        atmController.view.isHidden = true
+        confirmController.view.isHidden = true
         UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews]) {
-            self.tableView.isHidden = false
+            self.methodsView.isHidden = false
         }
         if (tableHeightConstraint?.constant == nil) {
             tableHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
@@ -499,7 +496,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func setupUIFee(order: OrderTransaction?) {
         view.endEditing(false)
         if let orderTrans = order {
-            atmController.atmView.updatePaymentInfo([
+            confirmController.atmView.updatePaymentInfo([
                 ["key": "Phí",
                  "value": (orderTrans.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTrans.paymentMethod?.fee ?? 0))) đ" : "Miễn phí",
                 "keyColor": UIColor(3, 3, 3),
@@ -515,16 +512,15 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                  "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
                 ]
             ])
-            atmController.view.layoutIfNeeded()
-            let temp = orderView.bounds.size.height + 12
-                    + methodTitle.bounds.size.height
-                    + footer.bounds.size.height
-                    + (safeAreaInset?.bottom ?? 0)
-            let atmHeight = min(atmController.atmView.contentSize.height, screenSize.height - temp)
+            confirmController.view.layoutIfNeeded()
+            confirmController.updateContentSize()
+            let temp = footer.bounds.size.height
+                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0)
+            let atmHeight = min(confirmController.scrollView.contentSize.height, screenSize.height - temp)
             atmHeightConstraint?.constant = atmHeight
             updateViewConstraints()
             view.layoutIfNeeded()
-            let viewHeight = methodsView.bounds.size.height
+            let viewHeight = confirmController.view.bounds.size.height
                     + footer.bounds.size.height
             modalHeight = viewHeight
             panModalSetNeedsLayoutUpdate()
@@ -532,12 +528,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
             switch orderTrans.paymentMethod?.type {
             case MethodType.WALLET.rawValue:
-                atmController.payActionByMethod = {
+                confirmController.payActionByMethod = {
                     self.setupSecurity()
                 }
                 break
             case MethodType.LINKED.rawValue:
-                atmController.payActionByMethod = {
+                confirmController.payActionByMethod = {
                     if (self.payMEFunction.appEnv.isEqual("SANDBOX")) {
                         PaymentModalController.isShowCloseModal = false
                         self.dismiss(animated: true) {
@@ -555,6 +551,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func setupOTP() {
         methodsView.isHidden = true
+        confirmController.view.isHidden = true
         securityCode.isHidden = true
         searchBankController.view.isHidden = true
         otpView.isHidden = false
@@ -581,6 +578,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func setupSecurity() {
         methodsView.isHidden = true
+        confirmController.view.isHidden = true
         searchBankController.view.isHidden = true
         otpView.isHidden = true
         view.addSubview(securityCode)
@@ -610,6 +608,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func setupResultView(result: Result) {
         view.endEditing(false)
         methodsView.isHidden = true
+        confirmController.view.isHidden = true
         searchBankController.view.isHidden = true
         otpView.isHidden = true
         securityCode.isHidden = true
@@ -651,6 +650,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func setupUIBankTransResult(type: ResultType) {
         methodsView.isHidden = true
+        confirmController.view.isHidden = true
         searchBankController.view.isHidden = true
         otpView.isHidden = true
         securityCode.isHidden = true
@@ -679,7 +679,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         orderView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
         resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-        atmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+        confirmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
         bankTransResultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
     }
 
@@ -778,8 +778,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if otpView.isDescendant(of: view) && !resultView.isDescendant(of: view) {
             otpView.otpView.becomeFirstResponder()
         }
-        if !atmController.view.isHidden {
-            atmController.atmView.cardInput.textInput.becomeFirstResponder()
+        if !confirmController.view.isHidden {
+            confirmController.atmView.cardInput.textInput.becomeFirstResponder()
         }
     }
 
@@ -793,19 +793,16 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         else if securityCode.isDescendant(of: view) {
             modalHeight = keyboardSize.height + securityCode.bounds.size.height + footer.bounds.size.height - (safeAreaInset?.bottom ?? 0)
         }
-        else if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
+        else if confirmController.view.isDescendant(of: view) && confirmController.view.isHidden == false {
             if #available(iOS 11.0, *) {
-                modalHeight = min(keyboardSize.height + methodsView.bounds.size.height + footer.bounds.size.height,
+                modalHeight = min(keyboardSize.height + confirmController.view.bounds.size.height + footer.bounds.size.height,
                         view.safeAreaLayoutGuide.layoutFrame.height)
             } else {
-                modalHeight = min(keyboardSize.height + methodsView.bounds.size.height + footer.bounds.size.height, screenSize.height)
+                modalHeight = min(keyboardSize.height + confirmController.view.bounds.size.height + footer.bounds.size.height, screenSize.height)
             }
-            let temp = orderView.bounds.size.height + 12
-                    + methodTitle.bounds.size.height
-                    + footer.bounds.size.height
+            let temp = footer.bounds.size.height
                     + keyboardSize.height
-                    + (safeAreaInset?.bottom ?? 0)
-            let newATMHeight = min(atmController.atmView.contentSize.height, modalHeight! - temp)
+            let newATMHeight = min(confirmController.scrollView.contentSize.height, modalHeight! - temp)
             atmHeightConstraint?.constant = newATMHeight
         }
         updateViewConstraints()
@@ -826,8 +823,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 rect = rect.union(view.frame)
             }
             modalHeight = contentRect.height
-        }
-        else if methodsView.isDescendant(of: view) && atmController.view.isDescendant(of: methodsView) {
         }
         updateViewConstraints()
         view.layoutIfNeeded()

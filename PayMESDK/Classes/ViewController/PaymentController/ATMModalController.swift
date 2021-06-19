@@ -10,7 +10,7 @@ import Lottie
 import RxSwift
 
 
-class ATMModal: UIViewController {
+class ConfirmationModal: UIViewController {
     let screenSize: CGRect = UIScreen.main.bounds
     var atmView = ATMView()
     var keyboardHeight: CGFloat = 0
@@ -26,6 +26,7 @@ class ATMModal: UIViewController {
     let paymentPresentation: PaymentPresentation
 
     var payActionByMethod = {}
+    let orderView: OrderView
 
     init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool, paymentPresentation: PaymentPresentation,
          onSuccess: (([String: AnyObject]) -> ())? = nil, onError: (([String: AnyObject]) -> ())? = nil) {
@@ -35,6 +36,10 @@ class ATMModal: UIViewController {
         self.orderTransaction = orderTransaction
         self.paymentPresentation = paymentPresentation
         isShowResultUI = isShowResult
+        orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
+                serviceCode: self.orderTransaction.orderId,
+                note: orderTransaction.note == "" ? "Không có nội dung" : self.orderTransaction.note,
+                logoUrl: self.orderTransaction.storeImage)
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -46,14 +51,31 @@ class ATMModal: UIViewController {
         super.viewDidLoad()
         PaymentModalController.isShowCloseModal = true
         view.backgroundColor = .white
+        view.translatesAutoresizingMaskIntoConstraints = false
 
-        view.addSubview(atmView)
-        atmView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scrollView)
+        scrollView.addSubview(orderView)
+        scrollView.addSubview(methodTitle)
+        scrollView.addSubview(atmView)
+//        atmView.translatesAutoresizingMaskIntoConstraints = false
 
-        atmView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        atmView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        atmView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        atmView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+
+        orderView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+        orderView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        orderView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+//        orderView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+
+        methodTitle.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16).isActive = true
+        methodTitle.topAnchor.constraint(equalTo: orderView.bottomAnchor, constant: 12).isActive = true
+
+        atmView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
+        atmView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        atmView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+//        atmView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
 
         atmView.cardInput.textInput.delegate = self
         atmView.dateInput.textInput.delegate = self
@@ -69,7 +91,7 @@ class ATMModal: UIViewController {
             self.atmView.nameInput.textInput.text = ""
             self.atmView.cardInput.updateExtraInfo(data: "")
             self.atmView.cardInput.textInput.text = ""
-            self.atmView.updateContentSize()
+//            self.atmView.updateContentSize()
             self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS))
         }
         atmView.contentView.onPressSearch = {
@@ -83,6 +105,13 @@ class ATMModal: UIViewController {
         }
 
         atmView.cardInput.textInput.addTarget(self, action: #selector(reformatAsCardNumber), for: .editingChanged)
+    }
+
+    override func viewDidLayoutSubviews() {
+        let primaryColor = payMEFunction.configColor[0]
+        let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
+
+        orderView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
     }
 
     @objc func closeAction() {
@@ -286,6 +315,15 @@ class ATMModal: UIViewController {
         }
     }
 
+    func updateContentSize() {
+        view.updateConstraints()
+        view.layoutIfNeeded()
+        let contentRect: CGRect = scrollView.subviews.reduce(into: .zero) { rect, view in
+            rect = rect.union(view.frame)
+        }
+        scrollView.contentSize.height = contentRect.size.height
+    }
+
     private func detectBank(_ string: String) {
         if string != "" && string.count > 5 {
             for bank in listBank {
@@ -314,29 +352,48 @@ class ATMModal: UIViewController {
                     self.atmView.cardInput.updateExtraInfo(data: name)
                     self.atmView.nameInput.isHidden = true
                     self.atmView.nameInput.textInput.text = name
-                    self.atmView.updateContentSize()
+                    self.updateContentSize()
                 } else {
                     self.atmView.nameInput.isHidden = false
                     self.atmView.nameInput.textInput.text = ""
-                    self.atmView.updateContentSize()
+                    self.updateContentSize()
                 }
             }, onError: { error in
                 self.atmView.nameInput.isHidden = false
                 self.atmView.nameInput.textInput.text = ""
-                self.atmView.updateContentSize()
+                self.updateContentSize()
                 print(error)
             })
         } else {
             atmView.nameInput.isHidden = true
             atmView.nameInput.textInput.text = ""
             atmView.cardInput.updateExtraInfo(data: "")
-            atmView.updateContentSize()
+//            atmView.updateContentSize()
         }
 
     }
+    let scrollView: UIScrollView = {
+        let sv = UIScrollView()
+        sv.backgroundColor = .white
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        sv.isScrollEnabled = true
+        sv.isPagingEnabled = false
+        sv.showsVerticalScrollIndicator = false
+        sv.showsHorizontalScrollIndicator = false
+        sv.bounces = false
+        return sv
+    }()
+    let methodTitle: UILabel = {
+        let methodTitle = UILabel()
+        methodTitle.textColor = UIColor(11, 11, 11)
+        methodTitle.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        methodTitle.translatesAutoresizingMaskIntoConstraints = false
+        methodTitle.text = "Nguồn thanh toán"
+        return methodTitle
+    }()
 }
 
-extension ATMModal: UITextFieldDelegate {
+extension ConfirmationModal: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField == atmView.dateInput.textInput {
             let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")//Here change this characters based on your requirement

@@ -73,7 +73,6 @@ class KYCDocumentController: UINavigationController, PanModalPresentable, UITabl
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = .red
         tableView.separatorStyle = .none
         return tableView
     }()
