@@ -28,6 +28,19 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         collectionView.dataSource = self
         collectionView.register(BankItem.self, forCellWithReuseIdentifier: "cell")
 
+        let imageSVG = SVGKImage(for: SearchBankController.self, named: "iconSearch")
+        imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
+        let svgImageView = UIImageView(frame: CGRect(x: 14, y: 11, width: 18, height: 18))
+        svgImageView.contentMode = .scaleAspectFit
+        svgImageView.image = imageSVG?.uiImage
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        paddingView.addSubview(svgImageView)
+        svgImageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        svgImageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        svgImageView.trailingAnchor.constraint(equalTo: paddingView.trailingAnchor, constant: -8).isActive = true
+        searchBar.leftViewMode = .always
+        searchBar.leftView = paddingView
+
         view.backgroundColor = .white
         view.addSubview(headerStack)
         view.addSubview(collectionView)
@@ -152,15 +165,9 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         textField.placeholder = "Tìm kiếm"
         textField.backgroundColor = UIColor(239, 242, 247)
         textField.layer.cornerRadius = 15
-        let imageSVG = SVGKImage(for: SearchBankController.self, named: "iconSearch")
-        imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
-        let svgImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 36, height: 40))
-        svgImageView.contentMode = .scaleAspectFit
-        svgImageView.image = imageSVG?.uiImage
-        textField.leftViewMode = .always
-        textField.leftView = svgImageView
         return textField
     }()
+
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
