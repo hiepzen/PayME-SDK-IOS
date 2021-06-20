@@ -370,7 +370,15 @@ class PaymentPresentation {
                                 } else if bankTranferState == "REQUIRED_TRANSFER" {
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANS_RESULT, bankTransferState: .FAIL))
                                 } else {
-
+                                    let message = payment["message"] as? String
+                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                                    let result = Result(
+                                            type: ResultType.FAIL,
+                                            failReasonLabel: message ?? "Có lỗi xảy ra",
+                                            orderTransaction: orderTransaction,
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
+                                    )
+                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                 }
                             }
                         }
