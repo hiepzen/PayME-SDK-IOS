@@ -22,7 +22,7 @@ class BankItem: UICollectionViewCell {
         layer.borderColor = UIColor(203, 203, 203).cgColor
         layer.borderWidth = 0.5
 
-        heightAnchor.constraint(equalToConstant: 104).isActive = true
+//        heightAnchor.constraint(equalToConstant: 104).isActive = true
 //        widthAnchor.constraint(equalToConstant: 84).isActive = true
 
         imageView.topAnchor.constraint(equalTo: topAnchor).isActive = true
