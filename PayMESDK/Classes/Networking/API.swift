@@ -719,23 +719,25 @@ class API {
     }
 
     func getListBankManual(
+            storeId: Int, orderId: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let variables: [String: Any] = [
-            "depositInput": [
-                "clientId": clientId,
-                "payment": [
-                    "bankTransfer": [
-                        "active": true,
-                        "recheck": false
-                    ]
+        let variables: [String: Any] = ["payInput": [
+            "clientId": clientId,
+            "storeId": storeId,
+            "amount": amount,
+            "orderId": orderId,
+            "payment": [
+                "bankTransfer": [
+                    "active": true,
+                    "recheck": false
                 ]
             ]
-        ]
+        ]]
         let json: [String: Any] = [
             "query": GraphQuery.getListBankManual,
             "variables": variables,

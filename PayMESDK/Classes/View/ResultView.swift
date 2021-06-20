@@ -236,6 +236,19 @@ class ResultView: UIView {
                     ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
                     ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
+            case MethodType.BANK_TRANSFER.rawValue:
+                paymentView = InformationView(data: [
+                    ["key": "Phương thức", "value": "Chuyển khoản ngân hàng"],
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
+                    ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
+                ])
+            case MethodType.CREDIT_CARD.rawValue:
+                paymentView = InformationView(data: [
+                    ["key": "Phương thức", "value": "Thẻ quốc tế"],
+                    ["key": "Số thẻ", "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.cardNumber.suffix(4) ?? ""))"],
+                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
+                    ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
+                ])
             default:
                 paymentView = InformationView(data: [])
                 break

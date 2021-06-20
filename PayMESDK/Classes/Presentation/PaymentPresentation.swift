@@ -336,26 +336,27 @@ class PaymentPresentation {
                 storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
                 note: orderTransaction.note, amount: orderTransaction.amount,
                 onSuccess: { success in
+                    var formatDate = ""
+                    var transactionNumber = ""
                     let paymentInfo = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                     if let payInfo = paymentInfo["Pay"] as? [String: AnyObject] {
                         if let payment = payInfo["payment"] as? [String: AnyObject] {
+                            if let history = payInfo["history"] as? [String: AnyObject] {
+                                if let createdAt = history["createdAt"] as? String {
+                                    if let date = toDate(dateString: createdAt) {
+                                        formatDate = toDateString(date: date)
+                                    }
+                                }
+                                if let payment = history["payment"] as? [String: AnyObject] {
+                                    if let transaction = payment["transaction"] as? String {
+                                        transactionNumber = transaction
+                                    }
+
+                                }
+
+                            }
                             if let bankTranferState = payment["bankTranferState"] as? String {
                                 if bankTranferState == "SUCCEEDED" {
-                                    var formatDate = ""
-                                    var transactionNumber = ""
-                                    if let history = payInfo["history"] as? [String: AnyObject] {
-                                        if let createdAt = history["createdAt"] as? String {
-                                            if let date = toDate(dateString: createdAt) {
-                                                formatDate = toDateString(date: date)
-                                            }
-                                        }
-                                        if let payment = history["payment"] as? [String: AnyObject] {
-                                            if let transaction = payment["transaction"] as? String {
-                                                transactionNumber = transaction
-                                            }
-
-                                        }
-                                    }
                                     let responseSuccess = [
                                         "payment": ["transaction": transactionNumber]
                                     ] as [String: AnyObject]
@@ -366,8 +367,10 @@ class PaymentPresentation {
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
                                     )
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-                                } else if bankTranferState == "FAILED" {
+                                } else if bankTranferState == "REQUIRED_TRANSFER" {
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANS_RESULT, bankTransferState: .FAIL))
+                                } else {
+
                                 }
                             }
                         }
@@ -505,34 +508,35 @@ class PaymentPresentation {
                             }
                         }
                         let succeeded = payInfo["succeeded"] as! Bool
-                        if (succeeded == true) {
-                            let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
-                            let responseSuccess = [
-                                "payment": ["transaction": paymentInfo["transaction"] as? String]
-                            ] as [String: AnyObject]
-                            self.onSuccess(responseSuccess)
-                            let result = Result(
-                                    type: ResultType.SUCCESS,
-                                    orderTransaction: orderTransaction,
-                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                            )
-                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-                        } else {
-                            let statePay = payInfo["payment"] as? [String: AnyObject]
-                            if (statePay == nil) {
-                                let message = payInfo["message"] as? String
-                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
-                                let result = Result(
-                                        type: ResultType.FAIL,
-                                        failReasonLabel: message ?? "Có lỗi xảy ra",
-                                        orderTransaction: orderTransaction,
-                                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                                )
-                                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-                                return
-                            }
-                            let state = statePay!["state"] as! String
+                        let statePay = payInfo["payment"] as? [String: AnyObject]
+                        if (succeeded == true) && statePay != nil {
+                            let state = statePay!["state"] as? String
                             let message = statePay!["message"] as? String
+                            if let transState = state {
+                                if transState == "SUCCEEDED" {
+                                    let paymentInfo = payInfo["history"]!["payment"] as? [String: AnyObject]
+                                     let responseSuccess = [
+                                        "payment": ["transaction": paymentInfo?["transaction"] as? String]
+                                    ] as [String: AnyObject]
+                                    self.onSuccess(responseSuccess)
+                                    let result = Result(
+                                            type: ResultType.SUCCESS,
+                                            orderTransaction: orderTransaction,
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    )
+                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                } else {
+                                    let result = Result(
+                                            type: ResultType.FAIL,
+                                            failReasonLabel: message ?? "Có lỗi xảy ra",
+                                            orderTransaction: orderTransaction,
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    )
+                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                }
+                            }
+                        } else {
+                            let message = payInfo["message"] as? String
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
                             let result = Result(
                                     type: ResultType.FAIL,
@@ -773,12 +777,14 @@ class PaymentPresentation {
 
     func getListBankManual(orderTransaction: OrderTransaction) {
         request.getListBankManual(
+                storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, amount: orderTransaction.amount,
                 onSuccess: { response in
-                    guard let payment = response["Wallet"]!["Deposit"] as? [String: AnyObject] else {
+                    guard let payment = ((response["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["Pay"]
+                            as? [String: AnyObject])?["payment"] as? [String: AnyObject] else {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
                         return
                     }
-                    guard let bankList = payment["payment"]!["bankList"] as? [[String: AnyObject]] else {
+                    guard let bankList = payment["bankList"] as? [[String: AnyObject]] else {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
                         return
                     }

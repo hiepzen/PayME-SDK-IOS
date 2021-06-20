@@ -805,6 +805,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let newATMHeight = min(confirmController.scrollView.contentSize.height, modalHeight! - temp)
             atmHeightConstraint?.constant = newATMHeight
         }
+        else if searchBankController.view.isDescendant(of: view) && searchBankController.view.isHidden == false {
+            let temp = footer.bounds.size.height + keyboardSize.height + (searchBankHeightConstraint?.constant ?? 0)
+            modalHeight = min(temp, screenSize.height)
+            let temp2 = footer.bounds.size.height + keyboardSize.height
+            let searchHeight = min(searchBankController.updateSizeHeight(), modalHeight! - temp2)
+            searchBankHeightConstraint?.constant = searchHeight
+        }
         updateViewConstraints()
         view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
