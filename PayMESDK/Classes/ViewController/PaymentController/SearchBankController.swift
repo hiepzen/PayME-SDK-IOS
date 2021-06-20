@@ -35,8 +35,6 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         svgImageView.image = imageSVG?.uiImage
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
         paddingView.addSubview(svgImageView)
-        svgImageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        svgImageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
         svgImageView.trailingAnchor.constraint(equalTo: paddingView.trailingAnchor, constant: -8).isActive = true
         searchBar.leftViewMode = .always
         searchBar.leftView = paddingView
