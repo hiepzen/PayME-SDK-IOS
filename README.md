@@ -352,6 +352,33 @@ Trong trường hợp app tích hợp cần lấy số dư để tự hiển th�
 - Thông tin tài khoản lấy qua hàm <code>getAccountInfo()</code>
 - Thông tin số dư lấy qua hàm <code>getWalletInfo()</code>
 
+### scanQR() - Mở chức năng quét mã QR để thanh toán
+
+```swift
+public func scanQR(
+            currentVC: UIViewController,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> ()
+) -> ()
+
+```
+Định dạng QR : 
+```swift
+let qrString =  "{$type}|${storeId}|${action}|${amount}|${note}|${orderId}"
+```
+
+Ví dụ  : 
+```swift
+let qrString = "OPENEWALLET|54938607|PAYMENT|20000|Chuyentien|2445562323"
+```
+
+- action: loại giao dịch ( 'PAYMENT' => thanh toán)
+- amount: số tiền thanh toán
+- note: Mô tả giao dịch từ phía đối tác
+- orderId: mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch
+- storeId: ID của store phía hiện giao dịch thanh toán
+- type: <code>OPENEWALLET</code>
+
 ### openKYC() - Mở modal định danh tài khoản
 
 Hàm này được gọi khi từ app tích hợp khi muốn mở modal định danh tài khoản ( yêu cầu tài khoản phải chưa định danh )
