@@ -10,6 +10,7 @@ import Lottie
 
 class BankTransferResultView: UIView {
     var animationView = AnimationView()
+    var onPressBack: () -> () = {}
     let image: UIImageView = {
        let image = UIImageView(image: UIImage(for: BankTransferResultView.self, named: "iconBankTransPending"))
         image.translatesAutoresizingMaskIntoConstraints = false
@@ -34,8 +35,14 @@ class BankTransferResultView: UIView {
         vStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
 
         button.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        button.addTarget(self, action: #selector(onBackTransferBank), for: .touchUpInside)
+
 
         bottomAnchor.constraint(equalTo: vStack.bottomAnchor, constant: 33).isActive = true
+    }
+
+    @objc func onBackTransferBank() {
+        onPressBack()
     }
 
     func updateUI(type: ResultType) {
@@ -44,6 +51,7 @@ class BankTransferResultView: UIView {
         let resourceBundle = Bundle(url: bundleURL!)
         switch type {
         case .PENDING:
+            image.removeFromSuperview()
             button.isHidden = true
             label.text = "Hệ thống đang kiểm tra trạng thái lệnh chuyển tiền của bạn. Vui lòng chờ trong giây lát..."
             vStack.insertArrangedSubview(animationView, at: 0)
@@ -57,7 +65,6 @@ class BankTransferResultView: UIView {
             let keyPathDO = AnimationKeypath(keypath: "D_xanh.Group 3.**.Fill 1.Color")
             animationView.setValueProvider(color, keypath: keyPathLL)
             animationView.setValueProvider(color, keypath: keyPathDO)
-
             animationView.play()
             break
         case .FAIL:
