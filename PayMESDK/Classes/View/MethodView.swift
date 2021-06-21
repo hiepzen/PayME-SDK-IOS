@@ -76,10 +76,9 @@ class MethodView: UIView {
     let button: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
         button.layer.cornerRadius = 12
-        button.layer.borderWidth = 1
         button.layer.borderColor = UIColor(hexString: PayME.configColor[0]).cgColor
+        button.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 14, weight: .regular)
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         return button
@@ -195,12 +194,16 @@ class MethodView: UIView {
         updateUI()
     }
 
-    func updateUI() {
+    func updateUI(isOpenWallet: Bool = false) {
         titleLabel.text = title
         contentLabel.text = content ?? ""
         noteLabel.text = note ?? ""
         methodDescriptionLabel.text = methodDescription ?? ""
-
+        if (isOpenWallet == true) {
+            button.layer.borderWidth = 1
+        } else {
+            button.layer.borderWidth = 0
+        }
 
         if (buttonTitle != nil) {
             imageNext.isHidden = true

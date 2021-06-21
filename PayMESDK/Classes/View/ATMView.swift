@@ -108,7 +108,6 @@ class ATMView: UIView {
             paymentInfo.removeFromSuperview()
             contentView.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")
-            methodView.buttonTitle = nil
             contentView.updateInfo(bank: method.dataBankTransfer, orderTransaction: orderTransaction)
             break
         case MethodType.CREDIT_CARD.rawValue:

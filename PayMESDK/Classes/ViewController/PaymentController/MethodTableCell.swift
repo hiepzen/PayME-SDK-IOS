@@ -112,7 +112,7 @@ class Method: UITableViewCell {
                 break
             }
         }
-        methodView.updateUI()
+        methodView.updateUI(isOpenWallet: true)
     }
 }
 
