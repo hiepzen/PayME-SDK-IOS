@@ -104,7 +104,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             self.removeSpinner()
             if message != "" {
                 self.toastMessError(title: "Lỗi", message: message) { action in
-                    self.dismiss(animated: true, completion: nil)
+//                    self.dismiss(animated: true, completion: nil)
                 }
             }
         }

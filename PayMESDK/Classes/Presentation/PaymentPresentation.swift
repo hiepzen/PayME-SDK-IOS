@@ -787,9 +787,24 @@ class PaymentPresentation {
         request.getListBankManual(
                 storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, amount: orderTransaction.amount,
                 onSuccess: { response in
-                    guard let payment = ((response["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["Pay"]
-                            as? [String: AnyObject])?["payment"] as? [String: AnyObject] else {
+                    guard let payInfo = (response["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["Pay"]
+                            as? [String: AnyObject] else {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        return
+                    }
+                    guard let isSucceed = payInfo["succeeded"] as? Bool else {
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        return
+                    }
+                    guard let payment = payInfo["payment"] as? [String: AnyObject] else {
+                        if (isSucceed == false) {
+                            if let message = payInfo["message"] as? String {
+                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
+                                self.onPaymeError(message)
+                            } else {
+                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                            }
+                        }
                         return
                     }
                     guard let bankList = payment["bankList"] as? [[String: AnyObject]] else {
