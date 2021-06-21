@@ -359,6 +359,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         getListMethodsAndExecution { methods in
             guard let method = methods.first(where: { $0.methodId == self.paymentMethodID }) else {
                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": ("Không tìm thấy phương thức") as AnyObject])
+                self.dismiss(animated: true)
                 return
             }
             self.orderTransaction.paymentMethod = method
