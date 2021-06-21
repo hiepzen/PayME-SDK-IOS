@@ -780,7 +780,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if otpView.isDescendant(of: view) && !resultView.isDescendant(of: view) {
             otpView.otpView.becomeFirstResponder()
         }
-        if !confirmController.view.isHidden {
+        if !confirmController.view.isHidden && !confirmController.atmView.cardInput.isHidden {
             confirmController.atmView.cardInput.textInput.becomeFirstResponder()
         }
     }
