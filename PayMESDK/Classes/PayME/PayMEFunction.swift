@@ -225,25 +225,27 @@ class PayMEFunction {
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        if checkPayCondition(onError) {
-            PayME.currentVC = currentVC
-            request.setExtraData(storeId: storeId)
-            if (amount < PaymentModalController.minAmount) {
-                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.minAmount))" as AnyObject])
-                return
-            }
-            if (amount > PaymentModalController.maxAmount) {
-                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.maxAmount))" as AnyObject])
-                return
-            }
-            let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: storeName, storeImage: storeImage, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
-            let paymentModalController = PaymentModalController(
-                    payMEFunction: self, orderTransaction: orderTransaction,
-                    paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
-                    onSuccess: onSuccess, onError: onError
-            )
-            currentVC.presentPanModal(paymentModalController)
+        PayME.currentVC = currentVC
+        request.setExtraData(storeId: storeId)
+        if !(Reachability.isConnectedToNetwork()) {
+            onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
+            return
         }
+        if (amount < PaymentModalController.minAmount) {
+            onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.minAmount))" as AnyObject])
+            return
+        }
+        if (amount > PaymentModalController.maxAmount) {
+            onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.maxAmount))" as AnyObject])
+            return
+        }
+        let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: storeName, storeImage: storeImage, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
+        let paymentModalController = PaymentModalController(
+                payMEFunction: self, orderTransaction: orderTransaction,
+                paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
+                onSuccess: onSuccess, onError: onError
+        )
+        currentVC.presentPanModal(paymentModalController)
     }
 
     func getPaymentMethods(
@@ -362,7 +364,7 @@ class PayMEFunction {
                             let key = (config["key"] as? String) ?? ""
                             return key == "kyc.mode.enable"
                         }) {
-                            if let kycMode = configKYCMode["value"] as? [String : Bool] {
+                            if let kycMode = configKYCMode["value"] as? [String: Bool] {
                                 self.kycMode = kycMode
                             } else {
                                 self.kycMode = [
@@ -394,7 +396,7 @@ class PayMEFunction {
             return
         }
         if kycState == "PENDING" {
-            openWallet(false, currentVC, PayME.Action.OPEN, nil, "", "", "", false, { dictionary in  }, onError)
+            openWallet(false, currentVC, PayME.Action.OPEN, nil, "", "", "", false, { dictionary in }, onError)
             return
         }
         if kycMode == nil {
