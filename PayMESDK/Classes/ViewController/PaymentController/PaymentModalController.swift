@@ -668,7 +668,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         bankTransResultView.translatesAutoresizingMaskIntoConstraints = false
         bankTransResultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
         bankTransResultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        bankTransResultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+//        bankTransResultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
+        bankTransResultView.button.addTarget(self, action: #selector(setupBankTransfer), for: .touchUpInside)
         bankTransResultView.updateUI(type: type)
         footerTopConstraint?.isActive = false
         footerTopConstraint = footer.topAnchor.constraint(equalTo: bankTransResultView.bottomAnchor)
@@ -703,13 +704,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         dismiss(animated: true, completion: nil)
     }
 
-//    @objc func goBack() {
-//        if (orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue) {
-//            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM))
-//        } else {
-//            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS))
-//        }
-//    }
+    @objc func setupBankTransfer() {
+        payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, orderTransaction: orderTransaction))
+    }
 
     private func openWallet(action: PayME.Action, amount: Int? = nil, payMEFunction: PayMEFunction, orderTransaction: OrderTransaction) {
         PayME.currentVC!.dismiss(animated: true)
