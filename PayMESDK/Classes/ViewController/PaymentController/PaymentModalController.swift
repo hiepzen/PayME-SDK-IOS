@@ -124,6 +124,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         } else {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         }
+
+        if #available(iOS 13.0, *) {
+            NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIScene.willDeactivateNotification, object: nil)
+        } else {
+            NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
+        }
+
         setupSubscription()
     }
 
@@ -423,6 +430,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupUIConfirm(banks: [Bank], order: OrderTransaction?) {
+        removeSpinner()
         view.endEditing(false)
         confirmController.atmView.methodView.buttonTitle = paymentMethodID != nil ? nil : "Thay đổi"
 
@@ -759,6 +767,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             paymentPresentation.getFee(orderTransaction: orderTransaction)
             break
         case MethodType.BANK_TRANSFER.rawValue:
+            showSpinner(onView: view)
             paymentPresentation.getFee(orderTransaction: orderTransaction)
             break
         case MethodType.CREDIT_CARD.rawValue:
@@ -823,6 +832,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.layoutIfNeeded()
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
+    }
+
+    @objc func onAppEnterBackground(notification: NSNotification) {
+        view.endEditing(false)
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {

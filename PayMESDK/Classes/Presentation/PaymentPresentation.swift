@@ -15,6 +15,7 @@ enum ResponseErrorCode {
     case REQUIRED_VERIFY
     case INVALID_OTP
     case OVER_QUOTA
+    case SERVER_ERROR
 }
 
 struct ResponseError {
@@ -789,10 +790,12 @@ class PaymentPresentation {
                 onSuccess: { response in
                     guard let payInfo = (response["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["Pay"]
                             as? [String: AnyObject] else {
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
                         return
                     }
                     guard let isSucceed = payInfo["succeeded"] as? Bool else {
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
                         return
                     }
@@ -802,6 +805,7 @@ class PaymentPresentation {
                                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                                 self.onPaymeError(message)
                             } else {
+                                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
                             }
                         }
