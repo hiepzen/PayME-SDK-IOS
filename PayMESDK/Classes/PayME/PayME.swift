@@ -160,6 +160,14 @@ public class PayME {
         payMEFunction.payAction(currentVC, storeId, orderId, amount, note, paymentMethodID, extraData, isShowResultUI, onSuccess, onError)
     }
 
+    public func scanQR(
+            currentVC: UIViewController,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    ) {
+        payMEFunction.openQRCode(currentVC: currentVC, onSuccess: onSuccess, onError: onError)
+    }
+
     public func getPaymentMethods(
             storeId: Int,
             onSuccess: @escaping ([Dictionary<String, Any>]) -> (),
