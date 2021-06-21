@@ -73,6 +73,7 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
     }
 
     @objc func onPressBack(){
+        searchBar.text = ""
         payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANSFER, orderTransaction: orderTransaction))
     }
 
@@ -104,6 +105,7 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         orderTransaction.paymentMethod?.dataBankTransfer = collectionListBank[indexPath.row]
+        searchBar.text = ""
         payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANSFER, orderTransaction: orderTransaction))
     }
 

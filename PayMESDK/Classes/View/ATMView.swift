@@ -104,10 +104,11 @@ class ATMView: UIView {
             methodView.image.image = UIImage(for: MethodView.self, named: "iconQRBank")
             break
         case MethodType.BANK_TRANSFER.rawValue:
-//            button.setTitle("Xác nhận đã chuyển", for: .normal)
+            button.setTitle("Xác nhận đã chuyển", for: .normal)
             paymentInfo.removeFromSuperview()
             contentView.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")
+            methodView.buttonTitle = nil
             contentView.updateInfo(bank: method.dataBankTransfer, orderTransaction: orderTransaction)
             break
         case MethodType.CREDIT_CARD.rawValue:
