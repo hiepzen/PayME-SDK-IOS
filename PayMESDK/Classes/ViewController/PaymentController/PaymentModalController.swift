@@ -162,7 +162,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.setupUISearchBank(orderTransaction: paymentState.orderTransaction)
                     }
                     if (paymentState.state == State.BANK_TRANS_RESULT) {
-                        self.setupUIBankTransResult(type: paymentState.bankTransferState ?? .PENDING)
+                        self.setupUIBankTransResult(type: paymentState.bankTransferState ?? .PENDING, orderTransaction: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.ERROR {
                         self.removeSpinner()
@@ -292,6 +292,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.addSubview(methodsView)
         view.addSubview(confirmController.view)
         view.addSubview(searchBankController.view)
+        view.addSubview(bankTransResultView)
+
 
         view.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
 
@@ -339,6 +341,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         searchBankController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         searchBankController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
 
+        bankTransResultView.translatesAutoresizingMaskIntoConstraints = false
+        bankTransResultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        bankTransResultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        bankTransResultView.isHidden = true
 
         activityIndicator.color = UIColor(hexString: PayME.configColor[0])
         activityIndicator.startAnimating()
@@ -441,6 +447,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         confirmController.setListBank(listBank: banks)
         searchBankController.view.isHidden = true
         methodsView.isHidden = true
+        bankTransResultView.isHidden = true
         UIScrollView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
             self.confirmController.view.isHidden = false
         })
@@ -661,18 +668,17 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
     }
 
-    func setupUIBankTransResult(type: ResultType) {
+    func setupUIBankTransResult(type: ResultType, orderTransaction: OrderTransaction?) {
+        guard let orderTrans = orderTransaction else { return }
         methodsView.isHidden = true
         confirmController.view.isHidden = true
         searchBankController.view.isHidden = true
         otpView.isHidden = true
         securityCode.isHidden = true
-        view.addSubview(bankTransResultView)
-        bankTransResultView.translatesAutoresizingMaskIntoConstraints = false
-        bankTransResultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-        bankTransResultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-//        bankTransResultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        bankTransResultView.button.addTarget(self, action: #selector(setupBankTransfer), for: .touchUpInside)
+        bankTransResultView.isHidden = false
+        bankTransResultView.onPressBack = {
+            self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANSFER, orderTransaction: orderTrans))
+        }
         bankTransResultView.updateUI(type: type)
         footerTopConstraint?.isActive = false
         footerTopConstraint = footer.topAnchor.constraint(equalTo: bankTransResultView.bottomAnchor)
@@ -707,9 +713,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         dismiss(animated: true, completion: nil)
     }
 
-    @objc func setupBankTransfer() {
-        payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, orderTransaction: orderTransaction))
-    }
+//    @objc func goBack() {
+//        if (orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue) {
+//            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM))
+//        } else {
+//            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS))
+//        }
+//    }
 
     private func openWallet(action: PayME.Action, amount: Int? = nil, payMEFunction: PayMEFunction, orderTransaction: OrderTransaction) {
         PayME.currentVC!.dismiss(animated: true)
