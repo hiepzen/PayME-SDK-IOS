@@ -474,4 +474,18 @@ class GraphQuery {
                                     }
                                   }
                                   """
+    static let getMerchantInformation = """
+                                     mutation getMerchantInformation($infoInput: OpenEWalletGetInfoMerchantInput!) {
+                                       OpenEWallet {
+                                         GetInfoMerchant(input: $infoInput) {
+                                           succeeded
+                                           message
+                                           merchantName
+                                           brandName
+                                           backgroundColor
+                                           storeImage
+                                         }
+                                       }
+                                     }
+                                     """
 }

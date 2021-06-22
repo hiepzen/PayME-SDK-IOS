@@ -239,13 +239,32 @@ class PayMEFunction {
             onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.maxAmount))" as AnyObject])
             return
         }
-        let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: storeName, storeImage: storeImage, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
-        let paymentModalController = PaymentModalController(
-                payMEFunction: self, orderTransaction: orderTransaction,
-                paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
-                onSuccess: onSuccess, onError: onError
-        )
-        currentVC.presentPanModal(paymentModalController)
+        if loggedIn == false || dataInit == nil {
+            request.getMerchantInformation(appId: appId, storeId: storeId, onSuccess: { response in
+                let result = response["OpenEWallet"]!["GetInfoMerchant"] as! Dictionary<String, AnyObject>
+                if let storeName = result["merchantName"] as? String {
+                    self.storeName = storeName
+                }
+                if let storeImage = result["storeImage"] as? String {
+                    self.storeImage = storeImage
+                }
+                let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: self.storeName, storeImage: self.storeImage, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
+                let paymentModalController = PaymentModalController(
+                        payMEFunction: self, orderTransaction: orderTransaction,
+                        paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
+                        onSuccess: onSuccess, onError: onError
+                )
+                currentVC.presentPanModal(paymentModalController)
+            }, onError: onError)
+        } else {
+            let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: storeName, storeImage: storeImage, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
+            let paymentModalController = PaymentModalController(
+                    payMEFunction: self, orderTransaction: orderTransaction,
+                    paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
+                    onSuccess: onSuccess, onError: onError
+            )
+            currentVC.presentPanModal(paymentModalController)
+        }
     }
 
     func getPaymentMethods(
