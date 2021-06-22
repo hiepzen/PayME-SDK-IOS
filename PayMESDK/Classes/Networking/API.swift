@@ -628,6 +628,26 @@ class API {
         onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
+    func getMerchantInformation(
+            appId: String, storeId: Int,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> (),
+            onPaymeError: @escaping (String) -> () = { s in }
+    ) {
+        let url = urlGraphQL(env: env)
+        let path = "/graphql"
+        let variables: [String: Any] = ["infoInput": [
+            "appId": appId,
+            "storeId": storeId,
+        ]]
+        let json: [String: Any] = [
+            "query": GraphQuery.getMerchantInformation,
+            "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
+    }
+
     func initAccount(
             clientID: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
