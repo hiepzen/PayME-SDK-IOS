@@ -312,7 +312,7 @@ class API {
         }
         let variables: [String: Any] = ["payInput": payInput]
         let json: [String: Any] = [
-            "query": GraphQuery.transferATMQuery,
+            "query": GraphQuery.transferCreditCardQuery,
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)

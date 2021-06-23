@@ -221,6 +221,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
             if let transInfo = transactionInfo {
                 self.count += 1
+                print("\(self.count)")
                 if self.count < 7 {
                     self.showSpinner(onView: PayME.currentVC!.view)
                     if self.count < 6 {
@@ -238,6 +239,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 //    var callApiWhenSocketFail: DispatchWorkItem!
     var transactionInfo: TransactionInformation!
     private func setupWebview(_ responseError: ResponseError) {
+        removeSpinner()
         let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
         webViewController.form = responseError.html
         if ((orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "") {
@@ -665,9 +667,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             resultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
             resultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
             resultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-
-            resultContentConstraint = resultView.containerView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
-            resultContentConstraint?.isActive = true
+            if resultContentConstraint == nil {
+                resultContentConstraint = resultView.containerView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
+                resultContentConstraint?.isActive = true
+            }
+            removeSpinner()
             resultView.adaptView(result: result)
 
             let temp = resultView.topView.bounds.size.height
