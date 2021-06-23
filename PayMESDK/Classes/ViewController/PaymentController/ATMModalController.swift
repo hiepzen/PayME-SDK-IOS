@@ -164,7 +164,7 @@ class ConfirmationModal: UIViewController {
 //        let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
         orderTransaction.paymentMethod?.dataCreditCard = CreditCardInfomation(cardNumber: cardNumber!, expiredAt: expiredAt!, cvv: cvv!)
         showSpinner(onView: view)
-        paymentPresentation.payCreditCard(orderTransaction: orderTransaction)
+        paymentPresentation.authenCreditCard(orderTransaction: orderTransaction)
     }
 
     func payATM() {

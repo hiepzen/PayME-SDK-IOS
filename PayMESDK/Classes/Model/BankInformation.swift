@@ -37,6 +37,7 @@ class CreditCardInfomation {
     var expiredAt: String = ""
     var cvv: String = ""
     var issuer: String = ""
+    var referenceId: String = ""
 
     init(cardNumber: String = "", expiredAt: String = "", cvv: String = "") {
         self.cardNumber = cardNumber

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 enum ResponseErrorCode {
     case EXPIRED
@@ -13,6 +14,7 @@ enum ResponseErrorCode {
     case PASSWORD_INVALID
     case REQUIRED_OTP
     case REQUIRED_VERIFY
+    case REQUIRED_AUTHEN_CARD
     case INVALID_OTP
     case OVER_QUOTA
     case SERVER_ERROR
@@ -193,9 +195,65 @@ class PaymentPresentation {
                 onPaymeError: onPaymeError)
     }
 
+    func authenCreditCard(orderTransaction: OrderTransaction) {
+        var cardNum = ""
+        var exp: String = ""
+        var linkedId: Int? = nil
+        if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+            cardNum = orderTransaction.paymentMethod?.dataCreditCard?.cardNumber ?? ""
+            linkedId = nil
+            exp = orderTransaction.paymentMethod?.dataCreditCard?.expiredAt ?? ""
+        } else if orderTransaction.paymentMethod?.type == MethodType.LINKED.rawValue {
+            cardNum = orderTransaction.paymentMethod?.dataLinked?.cardNumber ?? ""
+            linkedId = orderTransaction.paymentMethod?.dataLinked?.linkedId
+            exp = ""
+        }
+        request.authenCreditCard(cardNumber: cardNum, expiredAt: exp, linkedId: linkedId,
+                onSuccess: { response in
+                    let data = JSON(response)
+                    if let isSucceeded = data["CreditCardLink"]["AuthCreditCard"]["succeeded"].bool,
+                    let refId = data["CreditCardLink"]["AuthCreditCard"]["referenceId"].string,
+                    let html = data["CreditCardLink"]["AuthCreditCard"]["html"].string,
+                    let isAuth = data["CreditCardLink"]["AuthCreditCard"]["isAuth"].bool {
+                        if isSucceeded == true {
+                            if isAuth == true {
+                                if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+                                    orderTransaction.paymentMethod?.dataCreditCard?.referenceId = refId
+                                } else if orderTransaction.paymentMethod?.type == MethodType.LINKED.rawValue {
+                                    orderTransaction.paymentMethod?.dataLinked?.referenceId = refId
+                                }
+                                let realHtml = "<html><body onload=\"document.forms[0].submit();\">\(html)</body></html>"
+                                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, orderTransaction: orderTransaction,
+                                        error: ResponseError(code: ResponseErrorCode.REQUIRED_AUTHEN_CARD, html: realHtml))
+                                )
+                            } else {
+                                if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+                                    self.payCreditCard(orderTransaction: orderTransaction)
+                                } else {
+                                    self.paymentLinkedMethod(orderTransaction: orderTransaction)
+                                }
+                            }
+                        } else {
+                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message":
+                            (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "Có lỗi xảy ra") as AnyObject])
+                        }
+                    } else {
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                    }
+                }, onError: { error in
+                    self.onError(error)
+                    if let code = error["code"] as? Int {
+                        if (code == 401) {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                        }
+                    }
+                }, onPaymeError: onPaymeError)
+    }
+
     func paymentLinkedMethod(orderTransaction: OrderTransaction) {
         request.checkFlowLinkedBank(
                 storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, linkedId: (orderTransaction.paymentMethod?.dataLinked!.linkedId)!,
+                refId: orderTransaction.paymentMethod?.dataLinked?.referenceId ?? "",
                 extraData: orderTransaction.extraData, note: orderTransaction.note, amount: orderTransaction.amount,
                 onSuccess: { flow in
                     let pay = flow["OpenEWallet"]!["Payment"] as! [String: AnyObject]
@@ -241,7 +299,7 @@ class PaymentPresentation {
                                     )
                                 } else if (state == "REQUIRED_VERIFY") {
                                     if let html = payment["html"] as? String {
-                                        let realHtml = (orderTransaction.paymentMethod?.dataLinked?.swiftCode != nil ? html : "<html><body onload=\"document.forms[0].submit();\">\(html)</html>")
+                                        let realHtml = (orderTransaction.paymentMethod?.dataLinked?.swiftCode != nil ? html : "<html><body onload=\"document.forms[0].submit();\">\(html)</body></html>")
                                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
                                                 code: ResponseErrorCode.REQUIRED_VERIFY,
                                                 html: realHtml,
@@ -301,7 +359,11 @@ class PaymentPresentation {
                     self.paymentPayMEMethod(securityCode: securityCode, orderTransaction: orderTransaction)
                 }
                 if methodType == "LINKED" {
-                    self.paymentLinkedMethod(orderTransaction: orderTransaction)
+                    if (orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "" {
+                        self.authenCreditCard(orderTransaction: orderTransaction)
+                    } else {
+                        self.paymentLinkedMethod(orderTransaction: orderTransaction)
+                    }
                 }
             } else {
                 let message = securityResponse["message"] as! String
@@ -494,7 +556,7 @@ class PaymentPresentation {
         request.transferCreditCard(storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
                 note: orderTransaction.note, cardNumber: orderTransaction.paymentMethod!.dataCreditCard!.cardNumber,
                 expiredAt: orderTransaction.paymentMethod!.dataCreditCard!.expiredAt, cvv: orderTransaction.paymentMethod!.dataCreditCard!.cvv,
-                amount: orderTransaction.amount,
+                refId: orderTransaction.paymentMethod!.dataCreditCard?.referenceId ?? "" ,amount: orderTransaction.amount,
                 onSuccess: { success in
                     let payment = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                     if let payInfo = payment["Pay"] as? [String: AnyObject] {

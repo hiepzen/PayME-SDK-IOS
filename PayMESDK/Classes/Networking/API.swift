@@ -265,26 +265,45 @@ class API {
 
     func transferCreditCard(
             storeId: Int, orderId: String, extraData: String, note: String,
-            cardNumber: String, expiredAt: String, cvv: String, amount: Int,
+            cardNumber: String, expiredAt: String, cvv: String, refId: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        var payInput: [String: Any] = [
-            "clientId": clientId,
-            "storeId": storeId,
-            "amount": amount,
-            "orderId": orderId,
-            "payment": [
-                "creditCard": [
-                    "cardNumber": cardNumber,
-                    "expiredAt": expiredAt,
-                    "cvv": cvv
+        var payInput: [String: Any] = {
+            if refId != "" {
+                return [
+                    "clientId": clientId,
+                    "storeId": storeId,
+                    "amount": amount,
+                    "orderId": orderId,
+                    "payment": [
+                        "creditCard": [
+                            "cardNumber": cardNumber,
+                            "expiredAt": expiredAt,
+                            "cvv": cvv,
+                            "referenceId": refId
+                        ]
+                    ]
                 ]
-            ]
-        ]
+            } else {
+                return [
+                    "clientId": clientId,
+                    "storeId": storeId,
+                    "amount": amount,
+                    "orderId": orderId,
+                    "payment": [
+                        "creditCard": [
+                            "cardNumber": cardNumber,
+                            "expiredAt": expiredAt,
+                            "cvv": cvv
+                        ]
+                    ]
+                ]
+            }
+        }()
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -419,28 +438,74 @@ class API {
         onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
-    func checkFlowLinkedBank(
-            storeId: Int, orderId: String, linkedId: Int, extraData: String, note: String, amount: Int,
+    func authenCreditCard(
+            cardNumber: String, expiredAt: String, linkedId: Int?,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        var payInput: [String: Any] = [
-            "referExtraData": extraData,
-            "note": note,
-            "clientId": clientId,
-            "storeId": storeId,
-            "amount": amount,
-            "orderId": orderId,
-            "payment": [
-                "linked": [
-                    "linkedId": linkedId,
-                    "envName": "MobileApp"
-                ]
-            ]
+        var authCreditCardInput: [String: Any] = [
+            "cardNumber": cardNumber
         ]
+        if expiredAt != "" {
+            authCreditCardInput.updateValue(expiredAt, forKey: "expiredAt")
+        }
+        if linkedId != nil {
+            authCreditCardInput.updateValue(linkedId!, forKey: "linkedId")
+        }
+        let variables: [String: Any] = ["authCreditCardInput": authCreditCardInput]
+        let json: [String: Any] = [
+            "query": GraphQuery.mutationAuthenCredit,
+            "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
+    }
+
+    func checkFlowLinkedBank(
+            storeId: Int, orderId: String, linkedId: Int, refId: String, extraData: String, note: String, amount: Int,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> (),
+            onPaymeError: @escaping (String) -> () = { s in }
+    ) {
+        let url = urlGraphQL(env: env)
+        let path = "/graphql"
+        var payInput: [String: Any] = {
+            if refId != "" {
+                return [
+                    "referExtraData": extraData,
+                    "note": note,
+                    "clientId": clientId,
+                    "storeId": storeId,
+                    "amount": amount,
+                    "orderId": orderId,
+                    "payment": [
+                        "linked": [
+                            "linkedId": linkedId,
+                            "envName": "MobileApp",
+                            "referenceId": refId
+                        ]
+                    ]
+                ]
+            } else {
+                return [
+                    "referExtraData": extraData,
+                    "note": note,
+                    "clientId": clientId,
+                    "storeId": storeId,
+                    "amount": amount,
+                    "orderId": orderId,
+                    "payment": [
+                        "linked": [
+                            "linkedId": linkedId,
+                            "envName": "MobileApp"
+                        ]
+                    ]
+                ]
+            }
+        }()
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
