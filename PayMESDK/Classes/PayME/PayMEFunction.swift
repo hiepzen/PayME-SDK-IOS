@@ -342,7 +342,7 @@ class PayMEFunction {
                     self.storeName = storeName ?? ""
                     self.storeImage = storeImage ?? ""
 
-                    self.request.setAccessData(kycState == "APPROVED" ? self.accessToken : "", self.accessToken, self.clientId)
+                    self.request.setAccessData(self.accessToken, self.accessToken, self.clientId)
 
                     self.request.getSetting(onSuccess: { success in
                         let configs = success["Setting"]!["configs"] as! [Dictionary<String, AnyObject>]
