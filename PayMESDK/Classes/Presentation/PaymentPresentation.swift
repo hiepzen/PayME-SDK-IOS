@@ -799,8 +799,17 @@ class PaymentPresentation {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
                         return
                     }
+                    if (isSucceed == false) {
+                        if let message = payInfo["message"] as? String {
+                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
+                            self.onPaymeError(message)
+                        } else {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
+                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        }
+                        return
+                    }
                     guard let payment = payInfo["payment"] as? [String: AnyObject] else {
-                        if (isSucceed == false) {
                             if let message = payInfo["message"] as? String {
                                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                                 self.onPaymeError(message)
@@ -808,7 +817,6 @@ class PaymentPresentation {
                                 self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
                             }
-                        }
                         return
                     }
                     guard let bankList = payment["bankList"] as? [[String: AnyObject]] else {
@@ -827,6 +835,9 @@ class PaymentPresentation {
                                 swiftCode: bank["swiftCode"] as? String ?? ""
                         ))
                     }
+//                    if (listBank.count <= 0) {
+//                        onPaymeError("")
+//                    }
                     orderTransaction.paymentMethod?.dataBankTransfer = listBank[0]
                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, listBankManual: listBank, orderTransaction: orderTransaction))
                 },
