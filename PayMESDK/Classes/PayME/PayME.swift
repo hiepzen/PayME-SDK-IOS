@@ -38,8 +38,9 @@ public class PayME {
         case STAGING = "staging"
     }
 
-    public enum Language: String {
-        case VIETNAM = "vi"
+    public struct Language {
+        public static let VIETNAM = "vi"
+        public static let ENGLISH = "en"
     }
 
     public enum KYCState {
@@ -63,7 +64,7 @@ public class PayME {
         public static let BALANCE_ERROR: Int = -10
     }
 
-    public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, language: Language? = PayME.Language.VIETNAM, env: Env, configColor: [String], showLog: Int = 0) {
+    public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, language: String? = PayME.Language.VIETNAM, env: Env, configColor: [String], showLog: Int = 0) {
         PayME.configColor = configColor
         payMEFunction = PayMEFunction(appToken, publicKey, connectToken, appPrivateKey, language, env, configColor, showLog, PayME.getAppId(appToken))
     }

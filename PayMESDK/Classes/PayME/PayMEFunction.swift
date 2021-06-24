@@ -16,7 +16,6 @@ class PayMEFunction {
     private let disposeBag = DisposeBag()
     private var configService = Array<ServiceConfig>()
     private var connectToken = ""
-    var appId = ""
     private var publicKey = ""
     private var privateKey = ""
     private var appToken = ""
@@ -25,11 +24,12 @@ class PayMEFunction {
     private var storeName = ""
     private var storeImage: String = ""
     private var kycMode: [String: Bool]? = nil
+    static var language = PayME.Language.VIETNAM
 
     var request: API
     var appEnv = ""
+    var appId = ""
     var env: PayME.Env
-    var language = PayME.Language.VIETNAM
     var configColor: [String]
     var clientId = ""
     var accessToken = ""
@@ -40,7 +40,7 @@ class PayMEFunction {
 
     init(
             _ appToken: String, _ publicKey: String, _ connectToken: String, _ privateKey: String,
-            _ language: PayME.Language? = PayME.Language.VIETNAM, _ env: PayME.Env, _ configColor: [String],
+            _ language: String? = PayME.Language.VIETNAM, _ env: PayME.Env, _ configColor: [String],
             _ isShowLog: Int = 0, _ appId: String) {
         self.appToken = appToken
         self.publicKey = publicKey
@@ -49,7 +49,7 @@ class PayMEFunction {
         self.isShowLog = isShowLog
         self.appId = appId
         self.env = env
-        self.language = language ?? PayME.Language.VIETNAM
+        PayMEFunction.language = language ?? PayME.Language.VIETNAM
         self.configColor = configColor
 
         let deviceId = UIDevice.current.identifierForVendor!.uuidString

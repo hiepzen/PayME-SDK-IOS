@@ -379,6 +379,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 publicKey: EnvironmentSettings.standard.publicKey,
                 connectToken: connectToken,
                 appPrivateKey: EnvironmentSettings.standard.privateKey,
+                language: "vi",
                 env: currentEnv,
                 configColor: ["#6756d6", "#4430b3"],
                 showLog: 1

@@ -340,7 +340,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         orderView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
         orderView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor).isActive = true
 
-        methodTitle.text = "Nguồn thanh toán"
+        methodTitle.text = "paymentSource".localize()
         methodTitle.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
         methodTitle.topAnchor.constraint(equalTo: orderView.bottomAnchor, constant: 12).isActive = true
 

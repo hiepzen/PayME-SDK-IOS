@@ -1,0 +1,9 @@
+/* 
+  Localizable.strings
+  Pods
+
+  Created by Minh Khoa on 24/06/2021.
+  
+*/
+
+"paymentSource" = "Mode of payment";

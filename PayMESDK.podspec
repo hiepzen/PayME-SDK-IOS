@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'PayMESDK'
-  s.version          = '0.1.37'
+  s.version          = '0.1.51'
   s.summary          = 'PayME SDK là bộ thư viện để các app có thể tương tác với PayME Platform. PayME SDK bao gồm các chức năng chính như sau.'
   s.swift_versions   = '5.0'
 
@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
   PayME SDK là bộ thư viện để các app có thể tương tác với PayME Platform. PayME SDK bao gồm các chức năng chính như sau:
   + Hệ thống đăng ký, đăng nhập, eKYC thông qua tài khoản ví PayME
-  + Chức năng nạp rút chuyển tiền từ ví PayME.
+  + Chức năng nạp rút chuyển tiền từ ví PayME.cd ..
   + Tích hợp các dịch vụ của PayME Platform.
                        DESC
 
@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
   s.source_files = 'PayMESDK/Classes/**/*'
 
   s.resource_bundles = {
-        'PayMESDK' => ['PayMESDK/Resource/*.png','PayMESDK/Resource/*.json', 'PayMESDK/Resource/*.svg']
+        'PayMESDK' => ['PayMESDK/Resource/*.png','PayMESDK/Resource/*.json', 'PayMESDK/Resource/*.svg', 'PayMESDK/Resource/*.lproj']
   }
 
   # s.public_header_files = 'Pod/**/*.h'
