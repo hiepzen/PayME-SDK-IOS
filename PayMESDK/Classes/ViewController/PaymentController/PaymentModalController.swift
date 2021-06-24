@@ -84,9 +84,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction, isShowResult: self.isShowResultUI,
                 paymentPresentation: paymentPresentation, onSuccess: self.onSuccess, onError: self.onError
         )
-        print("minh khoa")
-        print(self.orderTransaction.storeName + "hihi")
-        print(self.orderTransaction.storeImage)
+
         orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
                 serviceCode: self.orderTransaction.orderId,
                 note: orderTransaction.note == "" ? "Không có nội dung" : self.orderTransaction.note,
@@ -196,6 +194,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         if responseError.code == ResponseErrorCode.REQUIRED_VERIFY {
                             self.setupWebview(responseError)
                         }
+                        if responseError.code == ResponseErrorCode.REQUIRED_AUTHEN_CARD {
+                            self.onAuthenCard(orderTransaction: paymentState.orderTransaction, html: responseError.html)
+                        }
                         if responseError.code == ResponseErrorCode.OVER_QUOTA {
                             self.toastMessError(title: "Thông báo", message: responseError.message) { [self] alertAction in
                                 if paymentMethodID != nil {
@@ -220,6 +221,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
             if let transInfo = transactionInfo {
                 self.count += 1
+                print("\(self.count)")
                 if self.count < 7 {
                     self.showSpinner(onView: PayME.currentVC!.view)
                     if self.count < 6 {
@@ -234,15 +236,16 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
     }
 
-    var callApiWhenSocketFail: DispatchWorkItem!
+//    var callApiWhenSocketFail: DispatchWorkItem!
     var transactionInfo: TransactionInformation!
     private func setupWebview(_ responseError: ResponseError) {
+        removeSpinner()
         let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
         webViewController.form = responseError.html
         if ((orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "") {
             transactionInfo = responseError.transactionInformation
-            webViewController.setOnNavigateToPayme { isAccess in
-                if isAccess == true {
+            webViewController.setOnNavigateToHost { host in
+                if host.contains("payme.vn") == true {
                     webViewController.dismiss(animated: true) {
                         self.callCreditHistory(transactionInfo: responseError.transactionInformation)
                     }
@@ -285,6 +288,31 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             })
         }
         presentPanModal(webViewController)
+    }
+
+    func onAuthenCard(orderTransaction: OrderTransaction?, html: String) {
+        guard let order = orderTransaction else { return }
+        let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
+        webViewController.form = html
+        webViewController.loadView()
+        timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { [self] _ in
+            onPayCredit(order)
+            timer?.invalidate()
+        }
+        webViewController.setOnNavigateToHost { [self] host in
+            if host == "authenticated" && timer?.isValid == true{
+                onPayCredit(order)
+                timer?.invalidate()
+            }
+        }
+    }
+
+    func onPayCredit(_ orderTransaction: OrderTransaction) {
+        if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+            paymentPresentation.payCreditCard(orderTransaction: orderTransaction)
+        } else {
+            paymentPresentation.paymentLinkedMethod(orderTransaction: orderTransaction)
+        }
     }
 
     func setupUI() {
@@ -639,9 +667,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             resultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
             resultView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
             resultView.button.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-
-            resultContentConstraint = resultView.containerView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
-            resultContentConstraint?.isActive = true
+            if resultContentConstraint == nil {
+                resultContentConstraint = resultView.containerView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
+                resultContentConstraint?.isActive = true
+            }
+            removeSpinner()
             resultView.adaptView(result: result)
 
             let temp = resultView.topView.bounds.size.height

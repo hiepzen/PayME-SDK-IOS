@@ -162,9 +162,10 @@ class ConfirmationModal: UIViewController {
             return
         }
 //        let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
-        orderTransaction.paymentMethod?.dataCreditCard = CreditCardInfomation(cardNumber: cardNumber!, expiredAt: expiredAt!, cvv: cvv!)
+        orderTransaction.paymentMethod?.dataCreditCard = CreditCardInfomation(cardNumber: cardNumber!, expiredAt: expiredAt!, cvv: cvv!,
+                issuer: issuerCreditDetect ?? "")
         showSpinner(onView: view)
-        paymentPresentation.payCreditCard(orderTransaction: orderTransaction)
+        paymentPresentation.authenCreditCard(orderTransaction: orderTransaction)
     }
 
     func payATM() {
@@ -297,14 +298,14 @@ class ConfirmationModal: UIViewController {
             if issuerCreditDetect == nil {
                 let patterns = [
                     "VISA": ["4"],
-                    "MASTERCARD": ["51", "55", "2221", "2229", "223", "229", "23", "26", "270", "271", "2720"],
-                    "JCB": ["2131", "1800", "3528", "3589"]
+                    "MASTERCARD": ["51", "52", "53", "54", "55", "2221", "2229", "223", "229", "23", "26", "270", "271", "2720"],
+                    "JCB": ["2131", "1800", "35"]
                 ]
                 for (issuer, cardPattern) in patterns {
                     for cardPrefix in cardPattern {
                         if card.hasPrefix(cardPrefix) {
                             issuerCreditDetect = issuer
-                            orderTransaction.paymentMethod?.dataCreditCard?.issuer = issuer
+//                            orderTransaction.paymentMethod?.dataCreditCard?.issuer = issuer
                             atmView.cardInput.updateExtraInfo(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(issuer).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
                         }
                     }

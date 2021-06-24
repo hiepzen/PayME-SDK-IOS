@@ -199,6 +199,19 @@ class GraphQuery {
                                             }
                                           }
                                           """
+    static let mutationAuthenCredit = """
+                                      mutation AuthCreditCardMutation($authCreditCardInput: CreditCardAuthInput) {
+                                        CreditCardLink {
+                                          AuthCreditCard(input: $authCreditCardInput) {
+                                            succeeded
+                                            message
+                                            referenceId
+                                            html
+                                            isAuth
+                                          }
+                                        }
+                                      }
+                                      """
     static let transferWalletQuery = """
                                      mutation transferWalletQuery($payInput: OpenEWalletPaymentPayInput!) {
                                        OpenEWallet {

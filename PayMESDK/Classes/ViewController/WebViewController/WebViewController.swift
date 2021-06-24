@@ -65,7 +65,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     private var onFailWebView: ((String) -> ())? = nil
     private var onSuccess: ((Dictionary<String, AnyObject>) -> ())? = nil
     private var onError: (([String: AnyObject]) -> ())? = nil
-    private var onNavigateToPayme: ((Bool) -> ())? = nil
+    private var onNavigateToHost: ((String) -> ())? = nil
 
     let closeButton: UIButton = {
         let button = UIButton()
@@ -245,9 +245,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         if (form != "") {
             if (navigationAction.request.url != nil) {
                 let host = navigationAction.request.url!.host ?? ""
-                if ((navigationAction.request.url?.absoluteString.contains("https://payme.vn/web")) == true) {
-                    onNavigateToPayme?(true)
-                }
+//                if host.contains("payme.vn") == true || host.contains("centinelapistag.cardinalcommerce.com") {
+                onNavigateToHost?(host)
                 if (host == "payme.vn") {
                     let params = navigationAction.request.url!.queryParameters ?? ["": ""]
                     if (params["success"] == "true") {
@@ -265,7 +264,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                     decisionHandler(.allow)
 
                 } else {
-                    onNavigateToPayme?(false)
                     decisionHandler(.allow)
                 }
 
@@ -277,6 +275,15 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         }
     }
 
+    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse,
+                 decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        if let response = navigationResponse.response as? HTTPURLResponse {
+            if response.statusCode == 200 {
+                onNavigateToHost?("authenticated")
+            }
+        }
+        decisionHandler(.allow)
+    }
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == onDeposit || message.name == onWithdraw || message.name == onTransfer {
             onCloseWebview()
@@ -404,8 +411,8 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         self.onFailWebView = onFailWebView
     }
 
-    public func setOnNavigateToPayme(onNavigateToPayme: @escaping (Bool) -> ()){
-        self.onNavigateToPayme = onNavigateToPayme
+    public func setOnNavigateToHost(onNavigateToHost: @escaping (String) -> ()){
+        self.onNavigateToHost = onNavigateToHost
     }
 
     public func setOnErrorCallback(onError: @escaping ([String: AnyObject]) -> ()) {

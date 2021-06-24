@@ -143,16 +143,16 @@ class MethodView: UIView {
     }
 
     func setUpUI() {
-        self.layer.cornerRadius = 15
-        self.backgroundColor = UIColor(239, 242, 247)
-        self.translatesAutoresizingMaskIntoConstraints = false
+        layer.cornerRadius = 15
+        backgroundColor = UIColor(239, 242, 247)
+        translatesAutoresizingMaskIntoConstraints = false
 
-        self.addSubview(vStack)
+        addSubview(vStack)
 
-        vStack.topAnchor.constraint(equalTo: self.topAnchor, constant: 12).isActive = true
-        vStack.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
-        vStack.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
-        vStack.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12).isActive = true
+        vStack.topAnchor.constraint(equalTo: topAnchor, constant: 12).isActive = true
+        vStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        vStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        vStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12).isActive = true
 
         vStack.addArrangedSubview(containerInfo)
         containerInfo.heightAnchor.constraint(equalToConstant: 34).isActive = true
