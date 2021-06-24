@@ -451,16 +451,17 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             searchBankHeightConstraint?.isActive = true
         }
         searchBankController.view.layoutIfNeeded()
-        let temp = footer.bounds.size.height + (safeAreaInset?.bottom ?? 0)
+//        let temp = footer.bounds.size.height + (safeAreaInset?.bottom ?? 0)
+        let temp = (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + 34
         let searchHeight = min(searchBankController.updateSizeHeight(), screenSize.height - temp)
         searchBankHeightConstraint?.constant = searchHeight
         footerTopConstraint?.isActive = false
-        footerTopConstraint = footer.topAnchor.constraint(equalTo: searchBankController.view.bottomAnchor)
-        footerTopConstraint?.isActive = true
+//        footerTopConstraint = footer.topAnchor.constraint(equalTo: searchBankController.view.bottomAnchor)
+//        footerTopConstraint?.isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
-        let viewHeight = searchBankController.view.bounds.size.height
-                + footer.bounds.size.height
+        let viewHeight = searchHeight
+//                + footer.bounds.size.height
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
@@ -489,7 +490,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         confirmController.updateContentSize()
         confirmController.view.layoutIfNeeded()
         let temp = footer.bounds.size.height
-                + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0)
+                + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + 34
         let atmHeight = min(confirmController.scrollView.contentSize.height, screenSize.height - temp)
         atmHeightConstraint?.constant = atmHeight
 
@@ -519,7 +520,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let temp = orderView.bounds.size.height + 12
                     + methodTitle.bounds.size.height
                     + footer.bounds.size.height
-                    + (safeAreaInset?.bottom ?? 0)
+                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + 34
             let tableViewHeight = min(tableView.contentSize.height, screenSize.height - temp)
             tableHeightConstraint?.constant = tableViewHeight
         }
@@ -563,7 +564,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             confirmController.view.layoutIfNeeded()
             confirmController.updateContentSize()
             let temp = footer.bounds.size.height
-                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0)
+                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + 34
             let atmHeight = min(confirmController.scrollView.contentSize.height, screenSize.height - temp)
             atmHeightConstraint?.constant = atmHeight
             updateViewConstraints()
@@ -677,9 +678,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let temp = resultView.topView.bounds.size.height
                     + footer.bounds.size.height
                     + resultView.button.bounds.size.height
-                    + (safeAreaInset?.bottom ?? 0)
-                    + (safeAreaInset?.top ?? 0)
-            let resultContainerHeight = min(resultView.containerView.contentSize.height, screenSize.height - temp - 34)
+                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + 34
+            let resultContainerHeight = min(resultView.containerView.contentSize.height, screenSize.height - temp)
             resultContentConstraint?.constant = resultContainerHeight
 
             footerTopConstraint?.isActive = false
@@ -857,14 +857,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             atmHeightConstraint?.constant = newATMHeight
         }
         else if searchBankController.view.isDescendant(of: view) && searchBankController.view.isHidden == false {
-            let temp = footer.bounds.size.height + keyboardSize.height + (searchBankHeightConstraint?.constant ?? 0)
+            let temp = keyboardSize.height + (searchBankHeightConstraint?.constant ?? 0)
             if #available(iOS 11.0, *) {
                 modalHeight = min(temp,
                         view.safeAreaLayoutGuide.layoutFrame.height)
             } else {
                 modalHeight = min(temp, screenSize.height)
             }
-            let temp2 = footer.bounds.size.height + keyboardSize.height
+            let temp2 = keyboardSize.height
             let searchHeight = min(searchBankController.updateSizeHeight(), modalHeight! - temp2)
             searchBankHeightConstraint?.constant = searchHeight
         }
