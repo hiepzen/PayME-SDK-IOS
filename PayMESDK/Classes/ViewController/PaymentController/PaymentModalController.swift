@@ -453,7 +453,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
         searchBankController.view.layoutIfNeeded()
 //        let temp = footer.bounds.size.height + (safeAreaInset?.bottom ?? 0)
-        let temp = (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + 34
+        let temp = (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
         let searchHeight = min(searchBankController.updateSizeHeight(), screenSize.height - temp)
         searchBankHeightConstraint?.constant = searchHeight
         footerTopConstraint?.isActive = false
@@ -491,7 +491,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         confirmController.updateContentSize()
         confirmController.view.layoutIfNeeded()
         let temp = footer.bounds.size.height
-                + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + 34
+                + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
         let atmHeight = min(confirmController.scrollView.contentSize.height, screenSize.height - temp)
         atmHeightConstraint?.constant = atmHeight
 
@@ -521,7 +521,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let temp = orderView.bounds.size.height + 12
                     + methodTitle.bounds.size.height
                     + footer.bounds.size.height
-                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + 34
+                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
             let tableViewHeight = min(tableView.contentSize.height, screenSize.height - temp)
             tableHeightConstraint?.constant = tableViewHeight
         }
@@ -565,7 +565,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             confirmController.view.layoutIfNeeded()
             confirmController.updateContentSize()
             let temp = footer.bounds.size.height
-                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + 34
+                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
             let atmHeight = min(confirmController.scrollView.contentSize.height, screenSize.height - temp)
             atmHeightConstraint?.constant = atmHeight
             updateViewConstraints()
@@ -679,7 +679,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let temp = resultView.topView.bounds.size.height
                     + footer.bounds.size.height
                     + resultView.button.bounds.size.height
-                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + 34
+                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
             let resultContainerHeight = min(resultView.containerView.contentSize.height, screenSize.height - temp)
             resultContentConstraint?.constant = resultContainerHeight
 
