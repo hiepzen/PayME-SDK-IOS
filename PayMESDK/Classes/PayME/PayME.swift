@@ -166,7 +166,7 @@ public class PayME {
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        payMEFunction.openQRCode(currentVC: currentVC, onSuccess: onSuccess, onError: onError)
+        payMEFunction.openQRCode(currentVC: currentVC, onSuccess: onSuccess, onError: onError, isStartDirectFromUser: true)
     }
 
     public func getPaymentMethods(

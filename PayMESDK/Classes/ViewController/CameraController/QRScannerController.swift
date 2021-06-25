@@ -235,15 +235,23 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
     }
 
     @objc func back() {
-        self.captureSession.stopRunning()
-        self.navigationController?.popViewController(animated: true)
+        captureSession.stopRunning()
+        if PayME.isRecreateNavigationController {
+            dismiss(animated: true)
+        } else {
+            navigationController?.popViewController(animated: true)
+        }
     }
 
     // MARK: - Helper methods
     func launchApp(decodedURL: String) {
-        self.captureSession.stopRunning()
-        self.onScanSuccess!(decodedURL)
-        self.navigationController?.popViewController(animated: true)
+        captureSession.stopRunning()
+        onScanSuccess!(decodedURL)
+        if PayME.isRecreateNavigationController {
+            dismiss(animated: true)
+        } else {
+            navigationController?.popViewController(animated: true)
+        }
     }
 
     private func updatePreviewLayer(layer: AVCaptureConnection, orientation: AVCaptureVideoOrientation) {

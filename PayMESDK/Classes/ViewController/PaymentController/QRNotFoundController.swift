@@ -9,6 +9,8 @@
 import UIKit
 
 class QRNotFound: UIViewController, PanModalPresentable {
+    private var onPress: () -> Void
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -67,7 +69,9 @@ class QRNotFound: UIViewController, PanModalPresentable {
 
     @objc
     func buttonAction(button: UIButton) {
-        self.dismiss(animated: true, completion: nil)
+        dismiss(animated: true) {
+            self.onPress()
+        }
     }
 
     let closeButton: UIButton = {
@@ -113,7 +117,8 @@ class QRNotFound: UIViewController, PanModalPresentable {
         button.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
     }
 
-    init() {
+    init(onPress: @escaping () -> Void = {}) {
+        self.onPress = onPress
         super.init(nibName: nil, bundle: nil)
     }
 

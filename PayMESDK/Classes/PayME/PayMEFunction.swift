@@ -284,7 +284,8 @@ class PayMEFunction {
     func openQRCode(
             currentVC: UIViewController,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
-            onError: @escaping (Dictionary<String, AnyObject>) -> Void
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void,
+            isStartDirectFromUser: Bool = false
     ) {
         if checkPayCondition(onError) {
             let qrScan = QRScannerController()
@@ -299,7 +300,8 @@ class PayMEFunction {
                             let orderId = (detect["orderId"] as? String) ?? ""
                             let amount = (detect["amount"] as? Int) ?? 0
                             let note = (detect["note"] as? String) ?? ""
-                            self.payAction(currentVC, storeId, orderId, amount, note, nil, nil, true, onSuccess, onError)
+                            let onSuccessPay = isStartDirectFromUser ? { dictionary in } : onSuccess
+                            self.payAction(currentVC, storeId, orderId, amount, note, nil, nil, true, onSuccessPay, onError)
                         }
                     } else {
                         currentVC.presentPanModal(QRNotFound())
@@ -314,7 +316,25 @@ class PayMEFunction {
             })
             currentVC.navigationItem.hidesBackButton = true
             currentVC.navigationController?.isNavigationBarHidden = true
-            currentVC.navigationController?.pushViewController(qrScan, animated: false)
+
+            if currentVC.navigationController != nil {
+                PayME.currentVC = currentVC
+                PayME.rootVC = currentVC
+                currentVC.navigationController?.pushViewController(qrScan, animated: true)
+            } else {
+                let navigationController = UINavigationController(rootViewController: qrScan)
+                PayME.currentVC = qrScan
+                PayME.rootVC = currentVC
+                PayME.isRecreateNavigationController = true
+                if #available(iOS 13.0, *) {
+                    PayME.currentVC?.isModalInPresentation = false
+                }
+                currentVC.present(navigationController, animated: true)
+            }
+
+            if isStartDirectFromUser {
+                onSuccess([:])
+            }
         }
     }
 
