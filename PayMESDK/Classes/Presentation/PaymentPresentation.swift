@@ -64,8 +64,8 @@ class PaymentPresentation {
         self.kycState = kycState
         self.onSuccess = onSuccess
         self.onError = { dictionary in
-            guard let code = dictionary["code"] as? Int else { return }
             onError(dictionary)
+            guard let code = dictionary["code"] as? Int else { return }
             if code == PayME.ResponseCode.SYSTEM {
                 paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
             }
