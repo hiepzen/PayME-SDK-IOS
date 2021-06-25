@@ -204,6 +204,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                                 }
                             }
                         }
+                        if responseError.code == ResponseErrorCode.SERVER_ERROR {
+                            self.dismiss(animated: true)
+                        }
                     }
                 }).disposed(by: disposeBag)
     }

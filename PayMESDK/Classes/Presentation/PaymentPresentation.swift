@@ -63,7 +63,13 @@ class PaymentPresentation {
         self.accessToken = accessToken
         self.kycState = kycState
         self.onSuccess = onSuccess
-        self.onError = onError
+        self.onError = { dictionary in
+            guard let code = dictionary["code"] as? Int else { return }
+            onError(dictionary)
+            if code == PayME.ResponseCode.SYSTEM {
+                paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
+            }
+        }
         self.onPaymeError = onPaymeError
     }
 
@@ -100,7 +106,7 @@ class PaymentPresentation {
 
                     } else {
                         self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
-
+                        self.onPaymeError(message as? String ?? "hasError".localize())
                     }
 
                     let result = Result(
@@ -234,12 +240,11 @@ class PaymentPresentation {
                                 }
                             }
                         } else {
-                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message":
                             (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject])
+                            self.onPaymeError(data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize())
                         }
                     } else {
-                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                     }
                 }, onError: { error in
@@ -641,7 +646,6 @@ class PaymentPresentation {
                         }
                     } else {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
-                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                     }
                 }, onError: { error in
                     self.onError(error)
@@ -875,12 +879,10 @@ class PaymentPresentation {
                 onSuccess: { response in
                     guard let payInfo = (response["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["Pay"]
                             as? [String: AnyObject] else {
-                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                         return
                     }
                     guard let isSucceed = payInfo["succeeded"] as? Bool else {
-                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                         return
                     }
@@ -889,8 +891,8 @@ class PaymentPresentation {
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                             self.onPaymeError(message)
                         } else {
-                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "hasError".localize() as AnyObject])
+                            self.onPaymeError("hasError".localize())
                         }
                         return
                     }
@@ -899,8 +901,8 @@ class PaymentPresentation {
                                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                                 self.onPaymeError(message)
                             } else {
-                                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "hasError".localize() as AnyObject])
+                                self.onPaymeError("hasError".localize())
                             }
                         return
                     }
