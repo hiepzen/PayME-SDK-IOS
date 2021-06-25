@@ -242,7 +242,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         removeSpinner()
         let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
         webViewController.form = responseError.html
-        if ((orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "") {
+        if ((orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "" ||
+                (orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? "") != "") {
             transactionInfo = responseError.transactionInformation
             webViewController.setOnNavigateToHost { host in
                 if host.contains("payme.vn") == true {

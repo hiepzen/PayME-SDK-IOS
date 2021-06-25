@@ -480,6 +480,7 @@ class GraphQuery {
                                               state
                                               message
                                               transaction
+                                              html
                                             }
                                           }
                                         }

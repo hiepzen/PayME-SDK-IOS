@@ -596,17 +596,37 @@ class PaymentPresentation {
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-                                } else {
-                                    let result = Result(
-                                            type: ResultType.FAIL,
-                                            failReasonLabel: message ?? "Có lỗi xảy ra",
-                                            orderTransaction: orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
-                                    )
-                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                 }
                             }
                         } else {
+                            if statePay != nil {
+                                let state = statePay!["state"] as? String
+                                let message = statePay!["message"] as? String
+                                if let transState = state {
+                                    if (transState == "REQUIRED_VERIFY") {
+                                        if let html = statePay!["html"] as? String {
+                                            let realHtml = "<html><body onload=\"document.forms[0].submit();\">\(html)</body></html>"
+                                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
+                                                    code: ResponseErrorCode.REQUIRED_VERIFY,
+                                                    html: realHtml,
+                                                    transactionInformation: TransactionInformation(
+                                                            transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber
+                                                    ),
+                                                    paymentInformation: payInfo
+                                            )))
+                                        }
+                                    } else {
+                                        let result = Result(
+                                                type: ResultType.FAIL,
+                                                failReasonLabel: message ?? "Có lỗi xảy ra",
+                                                orderTransaction: orderTransaction,
+                                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                        )
+                                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                    }
+                                    return
+                                }
+                            }
                             let message = payInfo["message"] as? String
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
                             let result = Result(
