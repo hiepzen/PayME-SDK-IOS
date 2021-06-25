@@ -120,7 +120,7 @@ internal class ATMViewName: UIView {
         textField.layer.borderColor = UIColor.init(hexString: "#cbcbcb").cgColor
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Nhập số thẻ"
+        textField.placeholder = "fillCardNumber".localize()
         textField.setLeftPaddingPoints(20)
         textField.keyboardType = .numberPad
         textField.layer.cornerRadius = 15
@@ -132,7 +132,7 @@ internal class ATMViewName: UIView {
         textField.layer.borderColor = UIColor.init(hexString: "#cbcbcb").cgColor
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Ngày phát hành (MM/YY)"
+        textField.placeholder = "releaseDate".localize()
         textField.setLeftPaddingPoints(20)
         textField.keyboardType = .numberPad
         textField.layer.cornerRadius = 15
@@ -144,7 +144,7 @@ internal class ATMViewName: UIView {
         textField.layer.borderColor = UIColor.init(hexString: "#cbcbcb").cgColor
         textField.layer.borderWidth = 0.5
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Họ tên chủ thẻ"
+        textField.placeholder = "fullnameCardHolder".localize()
         textField.setLeftPaddingPoints(20)
         textField.keyboardType = .numberPad
         textField.layer.cornerRadius = 15
@@ -166,8 +166,8 @@ internal class ATMViewName: UIView {
         self.addSubview(dateField)
         self.addSubview(nameField)
 
-        button.setTitle("THANH TOÁN", for: .normal)
-        bankNameLabel.text = "Thẻ ATM nội địa"
+        button.setTitle("payment".localize(), for: .normal)
+        bankNameLabel.text = "bankCard".localize()
 
         containerView.addSubview(walletMethodImage)
         containerView.addSubview(bankNameLabel)
@@ -178,15 +178,15 @@ internal class ATMViewName: UIView {
         detailView.backgroundColor = UIColor(8, 148, 31)
         detailView.addSubview(contentLabel)
         detailView.addSubview(memoLabel)
-        txtLabel.text = "Xác nhận thanh toán"
+        txtLabel.text = "paymentConfirm".localize()
         price.text = "\(formatMoney(input: PayME.amount)) đ"
-        contentLabel.text = "Nội dung"
+        contentLabel.text = "content".localize()
         if (PayME.description == "") {
-            memoLabel.text = "Không có nội dung"
+            memoLabel.text = "noContent".localize()
         } else {
             memoLabel.text = PayME.description
         }
-        methodTitle.text = "Nguồn thanh toán"
+        methodTitle.text = "paymentSource".localize()
 
         detailView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
         detailView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true

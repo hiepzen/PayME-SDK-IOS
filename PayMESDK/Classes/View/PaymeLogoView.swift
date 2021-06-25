@@ -51,7 +51,7 @@ class PaymeLogoView: UIView {
         label.font = .systemFont(ofSize: 11, weight: .light)
         label.textColor = UIColor(100, 112, 129)
         label.textAlignment = .right
-        label.text = "Bảo mật với chứng chỉ "
+        label.text = "secureWithCertificate".localize()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

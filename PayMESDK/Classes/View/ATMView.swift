@@ -62,7 +62,7 @@ class ATMView: UIView {
 
 
     func updateUIByMethod(orderTransaction: OrderTransaction) {
-        button.setTitle("Xác nhận", for: .normal)
+        button.setTitle("confirm".localize(), for: .normal)
         let method = orderTransaction.paymentMethod!
         cardInput.isHidden = true
         dateInput.isHidden = true
@@ -75,7 +75,7 @@ class ATMView: UIView {
         methodView.methodDescription = method.feeDescription
         switch method.type {
         case MethodType.WALLET.rawValue:
-            methodView.title = "Số dư ví"
+            methodView.title = "walletBalance".localize()
             methodView.image.image = UIImage(for: PaymentModalController.self, named: "iconWallet")
             let balance = method.dataWallet?.balance ?? 0
             methodView.content = "(\(formatMoney(input: balance))đ)"
@@ -98,13 +98,13 @@ class ATMView: UIView {
             cardInput.isHidden = false
             dateInput.isHidden = false
             methodView.image.image = UIImage(for: MethodView.self, named: "iconAtm")
-            dateInput.titleLabel.text = "NGÀY PHÁT HÀNH"
+            dateInput.titleLabel.text = "releaseDateUpperCase".localize()
             break
         case MethodType.BANK_QR_CODE.rawValue:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconQRBank")
             break
         case MethodType.BANK_TRANSFER.rawValue:
-            button.setTitle("Xác nhận đã chuyển", for: .normal)
+            button.setTitle("confirmBankTransfer".localize(), for: .normal)
             paymentInfo.removeFromSuperview()
             contentView.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")
@@ -115,7 +115,7 @@ class ATMView: UIView {
             dateInput.isHidden = false
             cvvInput.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconCreditCard")
-            dateInput.titleLabel.text = "NGÀY HẾT HẠN"
+            dateInput.titleLabel.text = "expiredDate".localize()
         default:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconWallet")
             break
@@ -160,11 +160,11 @@ class ATMView: UIView {
         return button
     }()
 
-    let cardInput = InputView(title: "NHẬP SỐ THẺ", placeholder: "Số thẻ", keyboardType: .numberPad)
-    let nameInput = InputView(title: "NHẬP HỌ TÊN CHỦ THẺ", placeholder: "Họ tên chủ thẻ")
-    let dateInput = InputView(title: "NGÀY PHÁT HÀNH", placeholder: "MM/YY", keyboardType: .numberPad)
-    let cvvInput = InputView(title: "MÃ BẢO MẬT", placeholder: "CVV/CVC", keyboardType: .numberPad)
-    let methodView: MethodView = MethodView(buttonTitle: "Thay đổi")
+    let cardInput = InputView(title: "fillCardNumberUpper".localize(), placeholder: "cardNumber".localize(), keyboardType: .numberPad)
+    let nameInput = InputView(title: "fillFullNameCardHolderUpper".localize(), placeholder: "fullnameCardHolder".localize())
+    let dateInput = InputView(title: "releaseDateUpperCase".localize(), placeholder: "MM/YY", keyboardType: .numberPad)
+    let cvvInput = InputView(title: "cvvUppercase".localize(), placeholder: "CVV/CVC", keyboardType: .numberPad)
+    let methodView: MethodView = MethodView(buttonTitle: "change".localize())
 
     var paymentInfo = InformationView(data: [])
     var contentView = BankTransferView()

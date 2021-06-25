@@ -38,7 +38,7 @@ class ConfirmationModal: UIViewController {
         isShowResultUI = isShowResult
         orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
                 serviceCode: self.orderTransaction.orderId,
-                note: orderTransaction.note == "" ? "Không có nội dung" : self.orderTransaction.note,
+                note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
                 logoUrl: self.orderTransaction.storeImage)
         super.init(nibName: nil, bundle: nil)
     }
@@ -139,12 +139,12 @@ class ConfirmationModal: UIViewController {
         let expiredAt = atmView.dateInput.textInput.text
         let cvv = atmView.cvvInput.textInput.text
         if cardNumber == nil || (cardNumber?.count ?? 0) < 7 {
-            atmView.cardInput.errorMessage = "Vui lòng nhập mã thẻ đúng định dạng"
+            atmView.cardInput.errorMessage = "wrongCardNumberContent".localize()
             atmView.cardInput.updateState(state: .error)
             return
         }
         if (expiredAt?.count ?? 0) != 5 {
-            atmView.dateInput.errorMessage = "Vui lòng nhập ngày hết hạn thẻ"
+            atmView.dateInput.errorMessage = "emptyExpiredDateCardContent".localize()
             atmView.dateInput.updateState(state: .error)
             return
         }
@@ -152,12 +152,12 @@ class ConfirmationModal: UIViewController {
         let month = Int(dateArr[0]) ?? 0
         let year = Int(dateArr[1]) ?? 0
         if (month == 0 || year == 0 || month > 12 || month <= 0) {
-            atmView.dateInput.errorMessage = "Vui lòng nhập ngày hết hạn thẻ hợp lệ"
+            atmView.dateInput.errorMessage = "wrongExpiredDateCardContent".localize()
             atmView.dateInput.updateState(state: .error)
             return
         }
         if (cvv?.count ?? 0) != 3 {
-            atmView.cvvInput.errorMessage = "Vui lòng nhập mã bảo mật"
+            atmView.cvvInput.errorMessage = "emptyCVVContent".localize()
             atmView.cvvInput.updateState(state: .error)
             return
         }
@@ -173,17 +173,17 @@ class ConfirmationModal: UIViewController {
         let cardHolder = atmView.nameInput.textInput.text
         let issuedAt = atmView.dateInput.textInput.text
         if bankDetect == nil || cardNumber!.count != bankDetect?.cardNumberLength {
-            atmView.cardInput.errorMessage = "Vui lòng nhập mã thẻ đúng định dạng"
+            atmView.cardInput.errorMessage = "wrongCardNumberContent".localize()
             atmView.cardInput.updateState(state: .error)
             return
         }
         if cardHolder == nil || cardHolder!.count == 0 {
-            atmView.nameInput.errorMessage = "Vui lòng nhập họ tên chủ thẻ"
+            atmView.nameInput.errorMessage = "emptyFullNameCardHolder".localize()
             atmView.nameInput.updateState(state: .error)
             return
         }
         if (issuedAt!.count != 5) {
-            atmView.dateInput.errorMessage = "Vui lòng nhập ngày phát hành thẻ"
+            atmView.dateInput.errorMessage = "emptyReleaseDateCardContent".localize()
             atmView.dateInput.updateState(state: .error)
             return
         } else {
@@ -191,7 +191,7 @@ class ConfirmationModal: UIViewController {
             let month = Int(dateArr[0]) ?? 0
             let year = Int(dateArr[1]) ?? 0
             if (month == 0 || year == 0 || month > 12 || month <= 0) {
-                atmView.dateInput.errorMessage = "Vui lòng nhập ngày phát hành thẻ hợp lệ"
+                atmView.dateInput.errorMessage = "wrongReleaseDateCardContent".localize()
                 atmView.dateInput.updateState(state: .error)
                 return
             }
@@ -336,7 +336,7 @@ class ConfirmationModal: UIViewController {
                 }
             }
             if (bankDetect == nil) {
-                atmView.cardInput.errorMessage = "Số thẻ không đúng định dạng"
+                atmView.cardInput.errorMessage = "wrongCardNumberContentNoti".localize()
                 atmView.cardInput.updateState(state: .error)
                 atmView.cardInput.updateExtraInfo(data: "")
             }
@@ -390,7 +390,7 @@ class ConfirmationModal: UIViewController {
         methodTitle.textColor = UIColor(11, 11, 11)
         methodTitle.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         methodTitle.translatesAutoresizingMaskIntoConstraints = false
-        methodTitle.text = "Nguồn thanh toán"
+        methodTitle.text = "paymentSource".localize()
         return methodTitle
     }()
 }

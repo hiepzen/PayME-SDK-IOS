@@ -48,18 +48,18 @@ class Method: UITableViewCell {
 
     func configure(with presentable: PaymentMethod, payMEFunction: PayMEFunction, orderTransaction: OrderTransaction) {
         if (presentable.type == MethodType.WALLET.rawValue) {
-            methodView.title = "Số dư ví"
+            methodView.title = "walletBalance".localize()
             methodView.image.image = UIImage(for: PaymentModalController.self, named: "iconWallet")
             methodView.methodDescription = presentable.feeDescription
             if payMEFunction.accessToken == "" {
-                methodView.buttonTitle = "Kích hoạt ngay"
-                methodView.note = "(*) Vui lòng kích hoạt tài khoản ví trước khi sử dụng"
+                methodView.buttonTitle = "activeNow".localize()
+                methodView.note = "activeNowContent".localize()
                 methodView.onPress = {
                     self.openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
                 }
             } else if payMEFunction.kycState != "APPROVED" {
-                methodView.buttonTitle = "Định danh ngay"
-                methodView.note = "(*) Vui lòng định danh tài khoản ví trước khi sử dụng"
+                methodView.buttonTitle = "kycNow".localize()
+                methodView.note = "kycNowContent".localize()
                 methodView.onPress = {
                     PayME.currentVC?.dismiss(animated: true) { payMEFunction.KYC(PayME.currentVC!, { }, { dictionary in}) }
                 }
@@ -67,8 +67,8 @@ class Method: UITableViewCell {
                 let balance = presentable.dataWallet?.balance ?? 0
                 methodView.content = "(\(formatMoney(input: balance))đ)"
                 if balance < orderTransaction.amount {
-                    methodView.buttonTitle = "Nạp tiền"
-                    methodView.note = "(*) Chọn phương thức khác hoặc nạp thêm để thanh toán"
+                    methodView.buttonTitle = "deposit".localize()
+                    methodView.note = "depositContent".localize()
                     methodView.onPress = {
                         self.openWallet(action: PayME.Action.DEPOSIT, amount: orderTransaction.amount - balance, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
                     }

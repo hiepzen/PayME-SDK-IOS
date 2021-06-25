@@ -72,7 +72,7 @@ class SecurityCode: UIView {
     let forgotPassButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setAttributedTitle(NSAttributedString(string: "Quên mật khẩu",
+        button.setAttributedTitle(NSAttributedString(string: "forgotPassword".localize(),
         attributes: [
             .font: UIFont.systemFont(ofSize: 16, weight: .semibold),
             .foregroundColor: UIColor(hexString: PayME.configColor[0]),
@@ -99,9 +99,9 @@ class SecurityCode: UIView {
         addSubview(txtErrorMessage)
         addSubview(forgotPassButton)
 
-        txtLabel.text = "Xác thực giao dịch"
-        roleLabel.text = "Nhập mật khẩu ví PayME  để xác thực"
-        txtErrorMessage.text = "Mật khẩu không chính xác"
+        txtLabel.text = "confirmTransaction".localize()
+        roleLabel.text = "securityCodeContent".localize()
+        txtErrorMessage.text = "wrongPassword".localize()
         txtErrorMessage.isHidden = true
         txtErrorMessage.lineBreakMode = .byWordWrapping
         txtErrorMessage.numberOfLines = 0

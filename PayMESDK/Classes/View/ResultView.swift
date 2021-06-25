@@ -173,7 +173,7 @@ class ResultView: UIView {
             animationView.setValueProvider(color, keypath: keyPathLL)
             animationView.setValueProvider(color, keypath: keyPathDO)
 
-            button.setTitle("Hoàn tất", for: .normal)
+            button.setTitle("finishLowerCase".localize(), for: .normal)
             break
         case ResultType.PENDING:
             roleLabel.textColor =  UIColor(0, 0, 0)
@@ -182,7 +182,7 @@ class ResultView: UIView {
             animationView.animation = animation
             animationView.contentMode = .scaleAspectFit
             animationView.loopMode = .loop
-            button.setTitle("Đã hiểu", for: .normal)
+            button.setTitle("understood".localize(), for: .normal)
             break
         default:
             roleLabel.textColor =  UIColor(0, 0, 0)
@@ -191,7 +191,7 @@ class ResultView: UIView {
                 animationView.animation = animation
                 animationView.contentMode = .scaleAspectFit
                 animationView.loopMode = .loop
-                button.setTitle("Đã hiểu", for: .normal)
+                button.setTitle("understood".localize(), for: .normal)
         }
         let transactionView = TransactionInformationView(id: result.transactionInfo.transaction, time: result.transactionInfo.transactionTime)
         detailView.addSubview(transactionView)
@@ -202,9 +202,9 @@ class ResultView: UIView {
 
         if result.type == ResultType.SUCCESS || result.type == ResultType.PENDING {
             let serviceView = InformationView(data: [
-                ["key": "Người nhận", "value": "\(result.orderTransaction.storeName)"],
-                ["key": "Mã dịch vụ", "value": "\(result.orderTransaction.orderId)"],
-                ["key": "Nội dung", "value": result.orderTransaction.note]
+                ["key": "receiveName".localize(), "value": "\(result.orderTransaction.storeName)"],
+                ["key": "serviceCode".localize(), "value": "\(result.orderTransaction.orderId)"],
+                ["key": "content", "value": result.orderTransaction.note]
             ])
             detailView.addSubview(serviceView)
             serviceView.topAnchor.constraint(equalTo: transactionView.bottomAnchor, constant: 12).isActive = true
@@ -215,38 +215,38 @@ class ResultView: UIView {
             switch result.orderTransaction.paymentMethod?.type {
             case MethodType.WALLET.rawValue:
                 paymentView = InformationView(data: [
-                    ["key": "Phương thức", "value": "Số dư ví"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
-                   ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
+                    ["key": "method".localize(), "value": "walletBalance".localize()],
+                    ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
+                   ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
                 break
             case MethodType.LINKED.rawValue:
                 paymentView = InformationView(data: [
-                    ["key": "Phương thức", "value": "Tài khoản liên kết"],
-                    ["key": "Số tài khoản", "value": "\(String(describing: result.orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: result.orderTransaction.paymentMethod!.label.suffix(4)))"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
-                    ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
+                    ["key": "method".localize(), "value": "linkedAccount".localize()],
+                    ["key": "accountNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: result.orderTransaction.paymentMethod!.label.suffix(4)))"],
+                    ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
+                    ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
                 break
             case MethodType.BANK_CARD.rawValue:
                 paymentView = InformationView(data: [
-                    ["key": "Phương thức", "value": "Thẻ ATM nội địa"],
-                    ["key": "Số thẻ", "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.cardNumber.suffix(4) ?? ""))"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
-                    ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
+                    ["key": "method".localize(), "value": "bankCard".localize()],
+                    ["key": "cardNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.cardNumber.suffix(4) ?? ""))"],
+                    ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
+                    ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
             case MethodType.BANK_TRANSFER.rawValue:
                 paymentView = InformationView(data: [
-                    ["key": "Phương thức", "value": "Chuyển khoản ngân hàng"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
-                    ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
+                    ["key": "method".localize(), "value": "bankTransfer".localize()],
+                    ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
+                    ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
             case MethodType.CREDIT_CARD.rawValue:
                 paymentView = InformationView(data: [
-                    ["key": "Phương thức", "value": "Thẻ quốc tế"],
-                    ["key": "Số thẻ", "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.cardNumber.suffix(4) ?? ""))"],
-                    ["key": "Phí", "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
-                    ["key": "Tổng thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
+                    ["key": " method".localize(), "value": "creditCard".localize()],
+                    ["key": "cardNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.cardNumber.suffix(4) ?? ""))"],
+                    ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
+                    ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
             default:
                 paymentView = InformationView(data: [])
@@ -260,9 +260,9 @@ class ResultView: UIView {
         } else {
 //            button.applyGradient(colors: [UIColor(236, 42, 42).cgColor], radius: 20)
             let serviceView = InformationView(data: [
-                ["key": "Dịch vụ", "value": "\(result.orderTransaction.storeName)"],
-                ["key": "Số tiền thanh toán", "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(hexString: PayME.configColor[0])],
-                ["key": "Nội dung", "value": result.orderTransaction.note]
+                ["key": "service".localize(), "value": "\(result.orderTransaction.storeName)"],
+                ["key": "paymentAmount".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(hexString: PayME.configColor[0])],
+                ["key": "content".localize(), "value": result.orderTransaction.note]
             ])
             detailView.addSubview(serviceView)
             serviceView.topAnchor.constraint(equalTo: transactionView.bottomAnchor, constant: 12).isActive = true

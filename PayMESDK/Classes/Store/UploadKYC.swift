@@ -91,13 +91,13 @@ public class UploadKYC {
                                 print("minh khoa 4")
                                 print(result)
                                 PayME.currentVC?.removeSpinner()
-                                self.toastMess(title: "Lỗi", message: result["message"] as? String ?? "Something went wrong")
+                                self.toastMess(title: "error".localize(), message: result["message"] as? String ?? "Something went wrong")
                             }
                         } else {
                             print("minh khoa 3")
                             print(result)
                             PayME.currentVC?.removeSpinner()
-                            self.toastMess(title: "Lỗi", message: result["message"] as? String ?? "Something went wrong")
+                            self.toastMess(title: "error".localize(), message: result["message"] as? String ?? "Something went wrong")
                         }
                     }
                 },
@@ -116,12 +116,12 @@ public class UploadKYC {
                         }
                         print("minh khoa 1")
                         print(error)
-                        self.toastMess(title: "Lỗi", message: error["message"] as? String ?? "Something went wrong")
+                        self.toastMess(title: "error".localize(), message: error["message"] as? String ?? "Something went wrong")
                         PayME.currentVC?.removeSpinner()
                     } else {
                         print("minh khoa 2")
                         print(error)
-                        self.toastMess(title: "Lỗi", message: "Something went wrong")
+                        self.toastMess(title: "error".localize(), message: "Something went wrong")
                         PayME.currentVC?.removeSpinner()
                     }
                 })
@@ -138,11 +138,11 @@ public class UploadKYC {
                     self.verifyKYC()
                 } else {
                     PayME.currentVC?.removeSpinner()
-                    self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
+                    self.toastMess(title: "error".localize(), message: response["data"]!["message"] as? String ?? "Something went wrong")
                 }
             }, onError: { error in
                 PayME.currentVC?.removeSpinner()
-                self.toastMess(title: "Lỗi", message: (error["message"] as? String) ?? "Something went wrong")
+                self.toastMess(title: "error".localize(), message: (error["message"] as? String) ?? "Something went wrong")
             })
         } else {
             verifyKYC()
@@ -161,11 +161,11 @@ public class UploadKYC {
                             self.uploadVideo()
                         } else {
                             PayME.currentVC?.removeSpinner()
-                            self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
+                            self.toastMess(title: "error".localize(), message: response["data"]!["message"] as? String ?? "Something went wrong")
                         }
                     }, onError: { error in
                 PayME.currentVC?.removeSpinner()
-                self.toastMess(title: "Lỗi", message: (error["message"] as? String) ?? "Something went wrong")
+                self.toastMess(title: "error".localize(), message: (error["message"] as? String) ?? "Something went wrong")
             })
         } else {
             uploadVideo()
@@ -185,12 +185,12 @@ public class UploadKYC {
                                 self.uploadAvatar()
                             } else {
                                 PayME.currentVC?.removeSpinner()
-                                self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
+                                self.toastMess(title: "error".localize(), message: response["data"]!["message"] as? String ?? "Something went wrong")
                             }
 
                         }, onError: { error in
                     PayME.currentVC?.removeSpinner()
-                    self.toastMess(title: "Lỗi", message: (error["message"] as? String) ?? "Something went wrong")
+                    self.toastMess(title: "error".localize(), message: (error["message"] as? String) ?? "Something went wrong")
                 })
             } else {
                 payMEFunction.request.uploadImageKYC(imageFront: imageDocument![0], imageBack: imageDocument![1], onSuccess: { response in
@@ -202,12 +202,12 @@ public class UploadKYC {
                         self.uploadAvatar()
                     } else {
                         PayME.currentVC?.removeSpinner()
-                        self.toastMess(title: "Lỗi", message: response["data"]!["message"] as? String ?? "Something went wrong")
+                        self.toastMess(title: "error".localize(), message: response["data"]!["message"] as? String ?? "Something went wrong")
                     }
 
                 }, onError: { error in
                     PayME.currentVC?.removeSpinner()
-                    self.toastMess(title: "Lỗi", message: (error["message"] as? String) ?? "Something went wrong")
+                    self.toastMess(title: "error".localize(), message: (error["message"] as? String) ?? "Something went wrong")
                 })
             }
         } else {

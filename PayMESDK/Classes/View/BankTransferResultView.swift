@@ -53,7 +53,7 @@ class BankTransferResultView: UIView {
         case .PENDING:
             image.removeFromSuperview()
             button.isHidden = true
-            label.text = "Hệ thống đang kiểm tra trạng thái lệnh chuyển tiền của bạn. Vui lòng chờ trong giây lát..."
+            label.text = "bankTransferContent5".localize()
             vStack.insertArrangedSubview(animationView, at: 0)
             animationView.heightAnchor.constraint(equalToConstant: 140).isActive = true
             let animation = Animation.named("Kiemtralenhchuyentien", bundle: resourceBundle!)
@@ -70,7 +70,7 @@ class BankTransferResultView: UIView {
         case .FAIL:
             animationView.removeFromSuperview()
             button.isHidden = false
-            label.text = "Hệ thống vẫn chưa ghi nhận lệnh chuyển tiền của bạn. Giao dịch sẽ được hoàn tất ngay khi hệ thống ghi nhận thành công."
+            label.text = "bankTransferContent4".localize()
             vStack.insertArrangedSubview(image, at: 0)
             image.heightAnchor.constraint(equalToConstant: 140).isActive = true
             break
@@ -106,7 +106,7 @@ class BankTransferResultView: UIView {
         button.backgroundColor = .clear
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 20
-        button.setTitle("Đã hiểu", for: .normal)
+        button.setTitle("understood".localize(), for: .normal)
         return button
     }()
 

@@ -80,8 +80,8 @@ class PermissionCamera: UIViewController {
         containerView.addSubview(contentLabel)
         containerView.addSubview(confirm)
 
-        titleLabel.text = "Cho phép truy cập máy ảnh của bạn"
-        contentLabel.text = "Bạn hãy cho phép truy cập máy ảnh trong phần Cài Đặt của hệ thống để tiếp tục"
+        titleLabel.text = "permissionContent".localize()
+        contentLabel.text = "permissionContent1".localize()
 
         if #available(iOS 11, *) {
             let guide = view.safeAreaLayoutGuide

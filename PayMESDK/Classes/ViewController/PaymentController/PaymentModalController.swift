@@ -87,7 +87,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
         orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
                 serviceCode: self.orderTransaction.orderId,
-                note: orderTransaction.note == "" ? "Không có nội dung" : self.orderTransaction.note,
+                note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
                 logoUrl: self.orderTransaction.storeImage)
         searchBankController = SearchBankController(payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction)
         disposeBag = DisposeBag()
@@ -104,7 +104,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         paymentPresentation.onPaymeError = { message in
             self.removeSpinner()
             if message != "" {
-                self.toastMessError(title: "Lỗi", message: message) { action in
+                self.toastMessError(title: "error".localize(), message: message) { action in
 //                    self.dismiss(animated: true, completion: nil)
                 }
             }
@@ -198,7 +198,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             self.onAuthenCard(orderTransaction: paymentState.orderTransaction, html: responseError.html)
                         }
                         if responseError.code == ResponseErrorCode.OVER_QUOTA {
-                            self.toastMessError(title: "Thông báo", message: responseError.message) { [self] alertAction in
+                            self.toastMessError(title: "notification".localize(), message: responseError.message) { [self] alertAction in
                                 if paymentMethodID != nil {
                                     dismiss(animated: true)
                                 }
@@ -403,7 +403,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func setupTargetMethod() {
         getListMethodsAndExecution { methods in
             guard let method = methods.first(where: { $0.methodId == self.paymentMethodID }) else {
-                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": ("Không tìm thấy phương thức") as AnyObject])
+                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": ("methodNotFound".localize()) as AnyObject])
                 self.dismiss(animated: true)
                 return
             }
@@ -471,7 +471,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     func setupUIConfirm(banks: [Bank], order: OrderTransaction?) {
         removeSpinner()
         view.endEditing(false)
-        confirmController.atmView.methodView.buttonTitle = paymentMethodID != nil ? nil : "Thay đổi"
+        confirmController.atmView.methodView.buttonTitle = paymentMethodID != nil ? nil : "change".localize()
 
         listBank = banks
         confirmController.setListBank(listBank: banks)
@@ -547,14 +547,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.endEditing(false)
         if let orderTrans = order {
             confirmController.atmView.updatePaymentInfo([
-                ["key": "Phí",
-                 "value": (orderTrans.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTrans.paymentMethod?.fee ?? 0))) đ" : "Miễn phí",
+                ["key": "fee".localize(),
+                 "value": (orderTrans.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTrans.paymentMethod?.fee ?? 0))) đ" : "free".localize(),
                 "keyColor": UIColor(3, 3, 3),
                  "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
                  "color": UIColor(3, 3, 3),
                  "font": UIFont.systemFont(ofSize: 15, weight: .regular)
                 ],
-                ["key": "Tổng thanh toán",
+                ["key": "totalPayment".localize(),
                  "value": "\(String(describing: formatMoney(input: orderTrans.total ?? 0))) đ",
                  "font": UIFont.systemFont(ofSize: 20, weight: .bold),
                  "color": UIColor.black,
@@ -587,7 +587,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     if (self.payMEFunction.appEnv.isEqual("SANDBOX")) {
                         PaymentModalController.isShowCloseModal = false
                         self.dismiss(animated: true) {
-                            self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+                            self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "onlyProduction".localize() as AnyObject])
                         }
                         return
                     }
@@ -766,14 +766,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         case MethodType.WALLET.rawValue:
             if payMEFunction.accessToken == "" {
                 if isTarget == true {
-                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "notActivated".localize() as AnyObject])
                     dismiss(animated: true, completion: nil)
                     return
                 }
                 openWallet(action: PayME.Action.OPEN, payMEFunction: payMEFunction, orderTransaction: orderTransaction)
             } else if payMEFunction.kycState != "APPROVED" {
                 if isTarget == true {
-                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
+                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "notKYC".localize() as AnyObject])
                     dismiss(animated: true, completion: nil)
                     return
                 }
@@ -784,7 +784,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 let balance = method.dataWallet?.balance ?? 0
                 if balance < orderTransaction.amount {
                     if isTarget == true {
-                        onError(["code": PayME.ResponseCode.BALANCE_ERROR as AnyObject, "message": "Số dư tài khoản không đủ. Vui lòng kiểm tra lại" as AnyObject])
+                        onError(["code": PayME.ResponseCode.BALANCE_ERROR as AnyObject, "message": "notEnoughBalance".localize() as AnyObject])
                         dismiss(animated: true, completion: nil)
                         return
                     }
@@ -801,7 +801,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             break
         case MethodType.BANK_CARD.rawValue:
             if (payMEFunction.appEnv.isEqual("SANDBOX")) {
-                onError(["message": "Chức năng chỉ có thể thao tác môi trường production" as AnyObject])
+                onError(["message": "onlyProduction".localize() as AnyObject])
                 return
             }
             paymentPresentation.getLinkBank(orderTransaction: orderTransaction)
@@ -900,7 +900,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func toastMessError(title: String, message: String, handler: ((UIAlertAction) -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: handler))
+        alert.addAction(UIAlertAction(title: "understood".localize(), style: UIAlertAction.Style.default, handler: handler))
         present(alert, animated: true, completion: nil)
     }
 

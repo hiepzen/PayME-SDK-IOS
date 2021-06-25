@@ -60,7 +60,7 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         animationButton.widthAnchor.constraint(equalToConstant: 160).isActive = true
         animationButton.heightAnchor.constraint(equalToConstant: 160).isActive = true
 
-        guideLabel.text = "Giữ gương mặt và mặt trước giấy tờ tuỳ thân trước ống kính máy quay"
+        guideLabel.text = "kycContent1".localize()
         guideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         guideLabel.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 10).isActive = true
         guideLabel.widthAnchor.constraint(equalToConstant: self.view.frame.width).isActive = true

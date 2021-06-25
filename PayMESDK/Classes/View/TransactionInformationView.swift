@@ -101,8 +101,8 @@ class TransactionInformationView: UIView {
         hStack.topAnchor.constraint(equalTo: self.topAnchor, constant: 16).isActive = true
         hStack.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -16).isActive = true
 
-        let vStackId = InformationColumn(key: "Mã giao dịch", value: id ?? "N/A", textAlign: .left)
-        let vStackTime = InformationColumn(key: "Thời gian giao dịch", value: timeStamp ?? "N/A", textAlign: .right)
+        let vStackId = InformationColumn(key: "transactionCode".localize(), value: id ?? "N/A", textAlign: .left)
+        let vStackTime = InformationColumn(key: "transactionTime", value: timeStamp ?? "N/A", textAlign: .right)
 
         hStack.addArrangedSubview(vStackId)
         hStack.addArrangedSubview(vStackTime)

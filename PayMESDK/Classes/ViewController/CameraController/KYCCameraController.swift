@@ -32,9 +32,9 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     let kycDocumentController = KYCDocumentController()
 
     public var data: [KYCDocument] = [
-        KYCDocument(id: "0", name: "Chứng minh nhân dân", active: true),
-        KYCDocument(id: "1", name: "Căn cước công dân", active: false),
-        KYCDocument(id: "2", name: "Hộ chiếu", active: false)
+        KYCDocument(id: "0", name: "identifyCard".localize(), active: true),
+        KYCDocument(id: "1", name: "identifyCitizen".localize(), active: false),
+        KYCDocument(id: "2", name: "passport".localize(), active: false)
     ]
     public var active = 0
 
@@ -112,20 +112,20 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         pressCamera.widthAnchor.constraint(equalToConstant: 80).isActive = true
         pressCamera.heightAnchor.constraint(equalToConstant: 80).isActive = true
 
-        titleLabel.text = "Chụp ảnh giấy tờ"
+        titleLabel.text = "captureDocument".localize()
         titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
 
         if (imageFront != nil) {
-            txtFront = "Mặt sau"
+            txtFront = "backDocument".localize()
             choiceDocumentType.isHidden = true
         } else {
-            txtFront = "Mặt trước"
+            txtFront = "frontDocument".localize()
         }
         frontSide.text = self.txtFront
         frontSide.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 44).isActive = true
         frontSide.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
 
-        guideLabel.text = "Vui lòng cân chỉnh giấy tờ tùy thân vào giữa khung"
+        guideLabel.text = "kycContent4".localize()
         guideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         guideLabel.topAnchor.constraint(equalTo: choiceDocumentType.bottomAnchor, constant: (self.cameraPreviewLayer?.bounds.height ?? (screenSize.width - 32) * 0.67) + 60).isActive = true
         guideLabel.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
@@ -137,7 +137,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         pressCamera.addTarget(self, action: #selector(takePicture), for: .touchUpInside)
         if KYCController.isUpdateIdentify ?? false {
             active = 1
-            choiceDocumentType.setTitle("Căn cước công dân", for: .normal)
+            choiceDocumentType.setTitle("identifyCitizen".localize(), for: .normal)
             choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top: 0, left: 185, bottom: 0, right: 0)
         } else {
             choiceDocumentType.addTarget(self, action: #selector(choiceDocument), for: .touchUpInside)
@@ -166,12 +166,12 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         kycDocumentController.setOnSuccessChoiceKYC(onSuccessChoiceKYC: { response in
             DispatchQueue.main.async {
                 if (response == 0) {
-                    self.choiceDocumentType.setTitle("Chứng minh nhân dân", for: .normal)
+                    self.choiceDocumentType.setTitle("identifyCard".localize(), for: .normal)
                     self.choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top: 0, left: 185, bottom: 0, right: 0) //adjust these to have fit right
                     self.active = response
                 }
                 if (response == 1) {
-                    self.choiceDocumentType.setTitle("Căn cước công dân", for: .normal)
+                    self.choiceDocumentType.setTitle("identifyCitizen".localize(), for: .normal)
                     self.choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top: 0, left: 160, bottom: 0, right: 0) //adjust these to have fit right
                     self.active = response
                 }
@@ -191,7 +191,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     }
 
     @objc func acceptOptionPassport() {
-        choiceDocumentType.setTitle("Hộ chiếu", for: .normal)
+        choiceDocumentType.setTitle("passport".localize(), for: .normal)
         choiceDocumentType.imageEdgeInsets = UIEdgeInsets(top: 0, left: 80, bottom: 0, right: 0) //adjust these to have fit right
         active = 2
         popupPassport.isHidden = true

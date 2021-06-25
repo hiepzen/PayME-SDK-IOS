@@ -31,7 +31,7 @@ class VideoConfirm: UIViewController {
         confirmTitle.textAlignment = .center
         confirmTitle.lineBreakMode = .byWordWrapping
         confirmTitle.numberOfLines = 0
-        confirmTitle.text = "Vui lòng xác nhận video đã rõ nét, gương mặt và giấy tờ tùy thân của bạn đã có trong khung hình."
+        confirmTitle.text = "kycContent2".localize()
         return confirmTitle
     }()
 
@@ -41,7 +41,7 @@ class VideoConfirm: UIViewController {
         titleLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textAlignment = .center
-        titleLabel.text = "Xác nhận video"
+        titleLabel.text = "confirmVideo".localize()
         return titleLabel
     }()
 
@@ -56,7 +56,7 @@ class VideoConfirm: UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
-        button.setTitle("LÀM LẠI", for: .normal)
+        button.setTitle("makeAgain".localize(), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         button.setTitleColor(UIColor(10, 146, 32), for: .normal)
         return button
@@ -66,7 +66,7 @@ class VideoConfirm: UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
-        button.setTitle("HOÀN TẤT", for: .normal)
+        button.setTitle("finish".localize(), for: .normal)
         return button
     }()
 

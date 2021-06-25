@@ -162,7 +162,7 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
     let searchBar: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Tìm kiếm"
+        textField.placeholder = "search".localize()
         textField.backgroundColor = UIColor(239, 242, 247)
         textField.layer.cornerRadius = 15
         return textField

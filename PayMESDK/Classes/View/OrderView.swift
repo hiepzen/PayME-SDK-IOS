@@ -60,7 +60,7 @@ class OrderView: UIView {
         label.textColor = .white
         label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Số tiền thanh toán"
+        label.text = "paymentAmount".localize()
         return label
     }()
 
@@ -77,11 +77,11 @@ class OrderView: UIView {
         vStack.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
         vStack.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
 
-        let storeNameRow = InformationRow(key: "Người nhận", value: storeName, color: .white, font: .systemFont(ofSize: 14, weight: .bold),
+        let storeNameRow = InformationRow(key: "receiveName".localize(), value: storeName, color: .white, font: .systemFont(ofSize: 14, weight: .bold),
                 keyColor: .white, keyFont: .systemFont(ofSize: 14, weight: .regular))
-        let serviceRow = InformationRow(key: "Mã dịch vụ", value: serviceCode, color: .white, font: .systemFont(ofSize: 14, weight: .regular),
+        let serviceRow = InformationRow(key: "serviceCode".localize(), value: serviceCode, color: .white, font: .systemFont(ofSize: 14, weight: .regular),
                 keyColor: .white, keyFont: .systemFont(ofSize: 14, weight: .regular))
-        let noteRow = InformationRow(key: "Nội dung", value: note, color: .white, font: .systemFont(ofSize: 14, weight: .regular),
+        let noteRow = InformationRow(key: "content".localize(), value: note, color: .white, font: .systemFont(ofSize: 14, weight: .regular),
                 keyColor: .white, keyFont: .systemFont(ofSize: 14, weight: .regular))
         if logoUrl != nil && logoUrl != "" {
             logoView.load(url: logoUrl!)

@@ -25,9 +25,9 @@ class OTP: UIViewController, PanModalPresentable {
         view.addSubview(txtField)
         view.addSubview(otpView)
 
-        txtLabel.text = "Xác thực OTP"
+        txtLabel.text = "confirmOTP".localize()
         roleLabel.text = "Vui lòng nhập mã OTP được gửi tới số 09833411111"
-        button.setTitle("Xác nhận", for: .normal)
+        button.setTitle("confirm".localize(), for: .normal)
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center

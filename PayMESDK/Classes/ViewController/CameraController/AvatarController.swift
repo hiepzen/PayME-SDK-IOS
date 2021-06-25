@@ -52,7 +52,7 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
         pressCamera.widthAnchor.constraint(equalToConstant: 80).isActive = true
         pressCamera.heightAnchor.constraint(equalToConstant: 80).isActive = true
 
-        guideLabel.text = "Vui lòng giữ gương mặt trong khung tròn"
+        guideLabel.text = "kycContent5".localize()
         guideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         guideLabel.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 10).isActive = true
         guideLabel.widthAnchor.constraint(equalToConstant: self.view.frame.width).isActive = true

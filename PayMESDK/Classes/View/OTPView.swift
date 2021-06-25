@@ -73,7 +73,7 @@ internal class OTPView: UIView {
     let sendOtpButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Gửi lại OTP", for: .normal)
+        button.setTitle("resendOTP".localize(), for: .normal)
         button.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
         return button
     }()
@@ -96,14 +96,14 @@ internal class OTPView: UIView {
         addSubview(txtErrorMessage)
         addSubview(sendOtpButton)
 
-        txtErrorMessage.text = "OTP không chính xác"
+        txtErrorMessage.text = "wrongOTP".localize()
         txtErrorMessage.isHidden = true
         txtErrorMessage.lineBreakMode = .byWordWrapping
         txtErrorMessage.numberOfLines = 0
         txtErrorMessage.textAlignment = .center
 
-        txtLabel.text = "Xác thực OTP"
-        roleLabel.text = "Nhập mã OTP đã được gửi qua số điện thoại đăng ký thẻ"
+        txtLabel.text = "confirmOTP".localize()
+        roleLabel.text = "OTPContent".localize()
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center
@@ -147,15 +147,15 @@ internal class OTPView: UIView {
     func startCountDown(from: Int = 0) {
         if (countdownValue == 0) {
             countdownValue = from
-            sendOtpButton.setTitle("Gửi lại OTP (\(String(format: "%02d", countdownValue / 60)):\(String(format: "%02d", countdownValue % 60)))", for: .disabled)
+            sendOtpButton.setTitle("\("resendOTP".localize()) (\(String(format: "%02d", countdownValue / 60)):\(String(format: "%02d", countdownValue % 60)))", for: .disabled)
             sendOtpButton.isEnabled = false
             Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
                 if (self.countdownValue > 0) {
-                    self.sendOtpButton.setTitle("Gửi lại OTP (\(String(format: "%02d", self.countdownValue / 60)):\(String(format: "%02d", self.countdownValue % 60)))", for: .disabled)
+                    self.sendOtpButton.setTitle("\("resendOTP".localize()) (\(String(format: "%02d", self.countdownValue / 60)):\(String(format: "%02d", self.countdownValue % 60)))", for: .disabled)
                     self.sendOtpButton.setTitleColor(UIColor(130, 130, 130), for: .disabled)
                     self.countdownValue -= 1
                 } else {
-                    self.sendOtpButton.setTitle("Gửi lại OTP", for: .normal)
+                    self.sendOtpButton.setTitle("resendOTP".localize(), for: .normal)
                     self.sendOtpButton.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
                     self.sendOtpButton.isEnabled = true
                     timer.invalidate()
@@ -169,7 +169,6 @@ internal class OTPView: UIView {
     }
 
     func updateBankName(name: String) {
-
         roleLabel.text = "Nhập mã OTP \(name) đã được gửi qua số điện thoại đăng ký thẻ"
     }
 

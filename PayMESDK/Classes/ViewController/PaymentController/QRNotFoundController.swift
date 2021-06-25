@@ -19,9 +19,9 @@ class QRNotFound: UIViewController, PanModalPresentable {
         view.addSubview(button)
         view.addSubview(image)
         view.addSubview(closeButton)
-        nameLabel.text = "Không tìm thấy"
-        roleLabel.text = "QRCode không đúng định dạng hoặc không tồn tại. Vui lòng kiểm tra và quét lại"
-        button.setTitle("Đóng", for: .normal)
+        nameLabel.text = "notFound".localize()
+        roleLabel.text = "notFoundQRContent".localize()
+        button.setTitle("close".localize(), for: .normal)
         roleLabel.lineBreakMode = .byWordWrapping
         roleLabel.numberOfLines = 0
         roleLabel.textAlignment = .center

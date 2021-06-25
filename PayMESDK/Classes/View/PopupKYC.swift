@@ -153,7 +153,7 @@ private class PopupDocument: UIView {
         label.textColor = UIColor(24, 26, 65)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Chụp hình giấy tờ tuỳ thân"
+        label.text = "kycContent7".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -167,7 +167,7 @@ private class PopupDocument: UIView {
         label.textColor = UIColor(148, 148, 148)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Theo quy định của NHNN, tài khoản Ví điện tử phải được định danh trước khi sử dụng. Bạn vui lòng cung cấp thông tin giấy tờ tuỳ thân để hoàn tất việc kích hoạt ví."
+        label.text = "kycContent8".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -182,7 +182,7 @@ private class PopupDocument: UIView {
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Sử dụng giấy tờ tuỳ thân hợp lệ của chính bạn"
+        label.text = "kycContent9".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         return label
@@ -194,7 +194,7 @@ private class PopupDocument: UIView {
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Phải đặt thẻ bên trong khung camera"
+        label.text = "kycContent10".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         return label
@@ -206,7 +206,7 @@ private class PopupDocument: UIView {
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Không sử dụng bản sao của giấy tờ tuỳ thân"
+        label.text = "kycContent11".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         return label
@@ -216,7 +216,7 @@ private class PopupDocument: UIView {
     let continueButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = UIColor(hexString: PayME.configColor[0])
-        button.setTitle("TIẾP TỤC", for: .normal)
+        button.setTitle("continue".localize(), for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)
@@ -411,7 +411,7 @@ private class PopupFace: UIView {
         label.textColor = UIColor(24, 26, 65)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Chụp ảnh xác thực khuôn mặt"
+        label.text = "kycContent12".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -425,7 +425,7 @@ private class PopupFace: UIView {
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Vui lòng giữ gương mặt ở trong khung tròn"
+        label.text = "kycContent13".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
 
@@ -438,7 +438,7 @@ private class PopupFace: UIView {
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Giữ cho ảnh sắc nét không bị nhoè"
+        label.text = "kycContent14".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         return label
@@ -448,7 +448,7 @@ private class PopupFace: UIView {
     let continueButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = UIColor(hexString: PayME.configColor[0])
-        button.setTitle("TIẾP TỤC", for: .normal)
+        button.setTitle("continue".localize(), for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)
@@ -608,7 +608,7 @@ private class PopupVideo: UIView {
         label.textColor = UIColor(24, 26, 65)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Quay video xác thực khuôn mặt và giấy tờ tuỳ thân"
+        label.text = "kycContent15".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -622,7 +622,7 @@ private class PopupVideo: UIView {
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Video sẽ có độ dài 5 giây"
+        label.text = "kycContent16".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         return label
@@ -634,7 +634,7 @@ private class PopupVideo: UIView {
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Vui lòng giữ gương mặt và mặt trước giấy tờ tùy thân của bạn trước máy quay"
+        label.text = "kycContent17".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         return label
@@ -644,7 +644,7 @@ private class PopupVideo: UIView {
     let continueButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = UIColor(hexString: PayME.configColor[0])
-        button.setTitle("TIẾP TỤC", for: .normal)
+        button.setTitle("continue".localize(), for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)

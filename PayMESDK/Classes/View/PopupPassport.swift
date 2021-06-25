@@ -25,7 +25,7 @@ class PopupPassport: UIView {
         label.textColor = UIColor(24, 26, 65)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Hộ chiếu chỉ dùng để cung cấp định danh cho người nước ngoài"
+        label.text = "passportContent".localize()
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -36,7 +36,7 @@ class PopupPassport: UIView {
     let continueButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = UIColor(hexString: PayME.configColor[0])
-        button.setTitle("Đồng ý", for: .normal)
+        button.setTitle("agree".localize(), for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)
@@ -47,7 +47,7 @@ class PopupPassport: UIView {
     let cancelButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = UIColor(hexString: PayME.configColor[0])
-        button.setTitle("Thay đổi", for: .normal)
+        button.setTitle("change".localize(), for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)

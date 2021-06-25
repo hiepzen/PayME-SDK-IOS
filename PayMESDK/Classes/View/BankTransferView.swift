@@ -74,7 +74,7 @@ class BankTransferView: UIView {
         contentLabel.text = paymeBank.bankName
         paymeInfo.removeFromSuperview()
         paymeInfo = InformationView(data: [
-            ["key": "Số tài khoản",
+            ["key": "accountNumber".localize(),
              "value": paymeBank.bankAccountNumber,
              "keyColor": UIColor(100, 112, 129),
              "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
@@ -82,14 +82,14 @@ class BankTransferView: UIView {
              "font": UIFont.systemFont(ofSize: 14, weight: .regular),
              "allowCopy": true
             ],
-            ["key": "Chủ tài khoản",
+            ["key": "cardHolder".localize(),
              "value": paymeBank.bankAccountName,
              "keyColor": UIColor(100, 112, 129),
              "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
              "color": UIColor(0, 0, 0),
              "font": UIFont.systemFont(ofSize: 14, weight: .regular)
             ],
-            ["key": "Nội dung",
+            ["key": "content".localize(),
              "value": paymeBank.content,
              "keyColor": UIColor(100, 112, 129),
              "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
@@ -99,11 +99,11 @@ class BankTransferView: UIView {
             ],
         ])
 
-        let normalText1 = NSMutableAttributedString(string: "Vui lòng chuyển khoản ", attributes: [
+        let normalText1 = NSMutableAttributedString(string: "bankTransferContent1".localize(), attributes: [
             .font: UIFont.systemFont(ofSize: 14, weight: .regular),
             .foregroundColor: UIColor(0, 0, 0)
         ])
-        let normalText2 = NSMutableAttributedString(string: "tới thông tin tài khoản bên dưới:", attributes: [
+        let normalText2 = NSMutableAttributedString(string: "bankTransferContent2".localize(), attributes: [
             .font: UIFont.systemFont(ofSize: 14, weight: .regular),
             .foregroundColor: UIColor(0, 0, 0)
         ])
@@ -138,7 +138,7 @@ class BankTransferView: UIView {
         label.textColor = UIColor(165, 174, 184)
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.text = "NGÂN HÀNG"
+        label.text = "bank".localize()
         return label
     }()
 
@@ -146,7 +146,7 @@ class BankTransferView: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
-        button.setTitle("Thay đổi", for: .normal)
+        button.setTitle("change".localize(), for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 14, weight: .regular)
         return button
     }()
@@ -192,7 +192,7 @@ class BankTransferView: UIView {
         label.lineBreakMode = .byWordWrapping
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.text = "(*) Giao dịch sẽ được thực hiện ngay sau khi xác nhận chuyển khoản"
+        label.text = "bankTransferContent3".localize()
         return label
     }()
 

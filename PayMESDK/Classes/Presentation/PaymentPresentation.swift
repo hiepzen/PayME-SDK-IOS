@@ -164,15 +164,15 @@ class PaymentPresentation {
                             if let state = payInfo["payment"]!["state"] as? String {
                                 if state == "INVALID_OTP" {
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
-                                            code: ResponseErrorCode.INVALID_OTP, message: payInfo["message"] as? String ?? "Có lỗi xảy ra"
+                                            code: ResponseErrorCode.INVALID_OTP, message: payInfo["message"] as? String ?? "hasError".localize()
                                     )))
                                 }
                                 if state == "FAILED" {
                                     let message = payInfo["message"] as? String
-                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
-                                            failReasonLabel: payInfo["message"] as? String ?? "Có lỗi xảy ra",
+                                            failReasonLabel: payInfo["message"] as? String ?? "hasError".localize(),
                                             orderTransaction: orderTransaction,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
@@ -181,7 +181,7 @@ class PaymentPresentation {
                             }
                         }
                     } else {
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                     }
                 },
                 onError: { error in
@@ -235,10 +235,10 @@ class PaymentPresentation {
                             }
                         } else {
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message":
-                            (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "Có lỗi xảy ra") as AnyObject])
+                            (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject])
                         }
                     } else {
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                     }
                 }, onError: { error in
                     self.onError(error)
@@ -311,10 +311,10 @@ class PaymentPresentation {
                                     }
                                 } else {
                                     let message = payment["message"] as? String
-                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
-                                            failReasonLabel: message ?? "Có lỗi xảy ra",
+                                            failReasonLabel: message ?? "hasError".localize(),
                                             orderTransaction: orderTransaction,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                     )
@@ -322,10 +322,10 @@ class PaymentPresentation {
                                 }
                             } else {
                                 let message = payInfo["message"] as? String
-                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                 let result = Result(
                                         type: ResultType.FAIL,
-                                        failReasonLabel: message ?? "Có lỗi xảy ra",
+                                        failReasonLabel: message ?? "hasError".localize(),
                                         orderTransaction: orderTransaction,
                                         transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                 )
@@ -333,7 +333,7 @@ class PaymentPresentation {
                             }
                         }
                     } else {
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                     }
                 },
                 onError: { flowError in
@@ -434,10 +434,10 @@ class PaymentPresentation {
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANS_RESULT, orderTransaction: orderTransaction, bankTransferState: .FAIL))
                                 } else {
                                     let message = payment["message"] as? String
-                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
-                                            failReasonLabel: message ?? "Có lỗi xảy ra",
+                                            failReasonLabel: message ?? "hasError".localize(),
                                             orderTransaction: orderTransaction,
                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
                                     )
@@ -503,10 +503,10 @@ class PaymentPresentation {
                             let statePay = payInfo["payment"] as? [String: AnyObject]
                             if (statePay == nil) {
                                 let message = payInfo["message"] as? String
-                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                 let result = Result(
                                         type: ResultType.FAIL,
-                                        failReasonLabel: message ?? "Có lỗi xảy ra",
+                                        failReasonLabel: message ?? "hasError".localize(),
                                         orderTransaction: orderTransaction,
                                         transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                 )
@@ -527,10 +527,10 @@ class PaymentPresentation {
                                 }
                             } else {
                                 let message = statePay!["message"] as? String
-                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                 let result = Result(
                                         type: ResultType.FAIL,
-                                        failReasonLabel: message ?? "Có lỗi xảy ra",
+                                        failReasonLabel: message ?? "hasError".localize(),
                                         orderTransaction: orderTransaction,
                                         transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                 )
@@ -538,7 +538,7 @@ class PaymentPresentation {
                             }
                         }
                     } else {
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                     }
                 },
                 onError: { error in
@@ -618,7 +618,7 @@ class PaymentPresentation {
                                     } else {
                                         let result = Result(
                                                 type: ResultType.FAIL,
-                                                failReasonLabel: message ?? "Có lỗi xảy ra",
+                                                failReasonLabel: message ?? "hasError".localize(),
                                                 orderTransaction: orderTransaction,
                                                 transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                                         )
@@ -628,17 +628,17 @@ class PaymentPresentation {
                                 }
                             }
                             let message = payInfo["message"] as? String
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "Có lỗi xảy ra") as AnyObject])
+                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                             let result = Result(
                                     type: ResultType.FAIL,
-                                    failReasonLabel: message ?? "Có lỗi xảy ra",
+                                    failReasonLabel: message ?? "hasError".localize(),
                                     orderTransaction: orderTransaction,
                                     transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
                             )
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                         }
                     } else {
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                     }
                 }, onError: { error in
                     self.onError(error)
@@ -873,12 +873,12 @@ class PaymentPresentation {
                     guard let payInfo = (response["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["Pay"]
                             as? [String: AnyObject] else {
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                         return
                     }
                     guard let isSucceed = payInfo["succeeded"] as? Bool else {
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                         return
                     }
                     if (isSucceed == false) {
@@ -887,7 +887,7 @@ class PaymentPresentation {
                             self.onPaymeError(message)
                         } else {
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "hasError".localize() as AnyObject])
                         }
                         return
                     }
@@ -897,12 +897,12 @@ class PaymentPresentation {
                                 self.onPaymeError(message)
                             } else {
                                 self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
-                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "hasError".localize() as AnyObject])
                             }
                         return
                     }
                     guard let bankList = payment["bankList"] as? [[String: AnyObject]] else {
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra" as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                         return
                     }
                     var listBank: [BankManual] = []

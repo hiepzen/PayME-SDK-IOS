@@ -30,7 +30,7 @@ class AvatarConfirm: UIViewController {
         confirmTitle.textAlignment = .center
         confirmTitle.lineBreakMode = .byWordWrapping
         confirmTitle.numberOfLines = 0
-        confirmTitle.text = "Vui lòng xác nhận ảnh đã rõ nét, gương mặt của bạn đã có trong khung hình."
+        confirmTitle.text = "kycContent6".localize()
         return confirmTitle
     }()
 
@@ -40,7 +40,7 @@ class AvatarConfirm: UIViewController {
         titleLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textAlignment = .center
-        titleLabel.text = "Xác nhận ảnh"
+        titleLabel.text = "confirmImage".localize()
         return titleLabel
     }()
 

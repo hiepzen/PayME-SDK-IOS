@@ -27,7 +27,7 @@ class KYCBackController: UIViewController {
         titleLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textAlignment = .center
-        titleLabel.text = "Xác nhận hình chụp"
+        titleLabel.text = "confirmImage".localize()
         return titleLabel
     }()
 
@@ -39,7 +39,7 @@ class KYCBackController: UIViewController {
         confirmTitle.textAlignment = .center
         confirmTitle.lineBreakMode = .byWordWrapping
         confirmTitle.numberOfLines = 0
-        confirmTitle.text = "Vui lòng xác nhận hình ảnh rõ ràng và dễ đọc, trước khi tiếp tục"
+        confirmTitle.text = "kycContent3".localize()
         return confirmTitle
     }()
 
@@ -55,7 +55,7 @@ class KYCBackController: UIViewController {
         button.backgroundColor = UIColor(8, 148, 31).withAlphaComponent(0.3)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
-        button.setTitle("CHỤP LẠI", for: .normal)
+        button.setTitle("captureAgain".localize(), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         button.setTitleColor(UIColor(10, 146, 32), for: .normal)
         return button
@@ -66,7 +66,7 @@ class KYCBackController: UIViewController {
         button.backgroundColor = UIColor(8, 148, 31)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
-        button.setTitle("TIẾP TỤC", for: .normal)
+        button.setTitle("continue".localize(), for: .normal)
         return button
     }()
 
