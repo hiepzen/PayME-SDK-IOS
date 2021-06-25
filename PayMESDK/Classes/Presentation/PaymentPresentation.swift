@@ -806,9 +806,6 @@ class PaymentPresentation {
                             orderTransaction.paymentMethod?.fee = fee
                         }
 
-                        print("minh khoa credit")
-                        print(transInfo)
-
                         let result: Result? = {
                             if state == "PENDING" {
                                 if isAcceptPending {

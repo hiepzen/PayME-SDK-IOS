@@ -228,11 +228,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     private func callCreditHistory(transactionInfo: TransactionInformation?) {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
+            print("vào nè")
             if let transInfo = transactionInfo {
                 self.count += 1
                 print("\(self.count)")
                 if self.count < 7 {
-                    self.showSpinner(onView: PayME.currentVC!.view)
+                    self.showSpinner(onView: self.view)
                     if self.count < 6 {
                         self.paymentPresentation.getTransactionInfo(transactionInfo: transInfo, orderTransaction: self.orderTransaction)
                     } else {
@@ -243,6 +244,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 }
             }
         }
+        timer?.fire()
     }
 
 //    var callApiWhenSocketFail: DispatchWorkItem!
@@ -256,9 +258,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             transactionInfo = responseError.transactionInformation
             webViewController.setOnNavigateToHost { host in
                 if host.contains("payme.vn") == true {
-                    webViewController.dismiss(animated: true) {
-                        self.callCreditHistory(transactionInfo: responseError.transactionInformation)
-                    }
+                    webViewController.dismiss(animated: true)
+                    self.callCreditHistory(transactionInfo: responseError.transactionInformation)
                 }
             }
         } else {
