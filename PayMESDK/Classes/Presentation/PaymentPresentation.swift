@@ -234,10 +234,12 @@ class PaymentPresentation {
                                 }
                             }
                         } else {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message":
                             (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject])
                         }
                     } else {
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                     }
                 }, onError: { error in
@@ -639,6 +641,7 @@ class PaymentPresentation {
                         }
                     } else {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
                     }
                 }, onError: { error in
                     self.onError(error)
