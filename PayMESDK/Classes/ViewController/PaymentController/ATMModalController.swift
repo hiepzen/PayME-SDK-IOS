@@ -25,7 +25,8 @@ class ConfirmationModal: UIViewController {
     let isShowResultUI: Bool
     let paymentPresentation: PaymentPresentation
 
-    var payActionByMethod = {}
+    var payActionByMethod = {
+    }
     let orderView: OrderView
 
     init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool, paymentPresentation: PaymentPresentation,
@@ -161,7 +162,6 @@ class ConfirmationModal: UIViewController {
             atmView.cvvInput.updateState(state: .error)
             return
         }
-//        let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
         orderTransaction.paymentMethod?.dataCreditCard = CreditCardInfomation(cardNumber: cardNumber!, expiredAt: expiredAt!, cvv: cvv!,
                 issuer: issuerCreditDetect ?? "")
         showSpinner(onView: view)
@@ -374,6 +374,7 @@ class ConfirmationModal: UIViewController {
         }
 
     }
+
     let scrollView: UIScrollView = {
         let sv = UIScrollView()
         sv.backgroundColor = .white

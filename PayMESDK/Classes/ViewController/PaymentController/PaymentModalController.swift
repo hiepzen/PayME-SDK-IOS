@@ -163,8 +163,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.setupUIBankTransResult(type: paymentState.bankTransferState ?? .PENDING, orderTransaction: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.ERROR {
-                        self.removeSpinner()
+                        print("minh khoa")
+                        print(paymentState.state)
+                        print(paymentState.error?.code)
+
                         let responseError = paymentState.error!
+                        if responseError.code != ResponseErrorCode.REQUIRED_AUTHEN_CARD {
+                            self.removeSpinner()
+                        }
                         if responseError.code == ResponseErrorCode.EXPIRED {
                             self.payMEFunction.resetInitState()
                             PaymentModalController.isShowCloseModal = false
