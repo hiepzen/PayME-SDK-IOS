@@ -765,13 +765,15 @@ class API {
                     "clientId": clientId,
                     "serviceType": "OPEN_EWALLET_PAYMENT",
                     "payment": paymentArg,
-                    "amount": amount
+                    "amount": amount,
+                    "storeId": storeId
                 ]]
             }
             return ["getFeeInput": [
                 "clientId": clientId,
                 "serviceType": "OPEN_EWALLET_PAYMENT",
-                "amount": amount
+                "amount": amount,
+                "storeId": storeId
             ]]
         }()
         let json: [String: Any] = [
