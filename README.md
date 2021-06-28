@@ -379,6 +379,21 @@ let qrString = "OPENEWALLET|54938607|PAYMENT|20000|Chuyentien|2445562323"
 - storeId: ID của store phía hiện giao dịch thanh toán
 - type: <code>OPENEWALLET</code>
 
+### payQRCode() - thanh toán mã QR code
+
+```swift
+public func payQRCode(
+	currentVC: UIViewController, 
+	qr: String,
+	isShowResultUI: Bool,
+    	onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+	onError: @escaping (Dictionary<String, AnyObject>) -> ()
+) -> ()
+```
+
+- qr: Mã QR để thanh toán  ( Định dạng QR như hàm <code>scanQR()</code> )
+- isShowResultUI: Có muốn hiển thị UI kết quả giao dịch hay không
+
 ### openKYC() - Mở modal định danh tài khoản
 
 Hàm này được gọi khi từ app tích hợp khi muốn mở modal định danh tài khoản ( yêu cầu tài khoản phải chưa định danh )
