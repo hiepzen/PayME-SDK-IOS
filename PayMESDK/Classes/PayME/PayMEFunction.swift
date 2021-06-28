@@ -225,38 +225,17 @@ class PayMEFunction {
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        PayME.currentVC = currentVC
-        request.setExtraData(storeId: storeId)
-        if !(Reachability.isConnectedToNetwork()) {
-            onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
-            return
-        }
-        if (amount < PaymentModalController.minAmount) {
-            onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.minAmount))" as AnyObject])
-            return
-        }
-        if (amount > PaymentModalController.maxAmount) {
-            onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.maxAmount))" as AnyObject])
-            return
-        }
-        if loggedIn == false || dataInit == nil {
-            request.getMerchantInformation(appId: appId, storeId: storeId, onSuccess: { response in
-                let result = response["OpenEWallet"]!["GetInfoMerchant"] as! Dictionary<String, AnyObject>
-                if let storeName = result["merchantName"] as? String {
-                    self.storeName = storeName
-                }
-                if let storeImage = result["storeImage"] as? String {
-                    self.storeImage = storeImage
-                }
-                let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: self.storeName, storeImage: self.storeImage, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
-                let paymentModalController = PaymentModalController(
-                        payMEFunction: self, orderTransaction: orderTransaction,
-                        paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
-                        onSuccess: onSuccess, onError: onError
-                )
-                currentVC.presentPanModal(paymentModalController)
-            }, onError: onError)
-        } else {
+        if checkPayCondition(onError) {
+            PayME.currentVC = currentVC
+            request.setExtraData(storeId: storeId)
+            if (amount < PaymentModalController.minAmount) {
+                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền lớn hơn \(formatMoney(input: PaymentModalController.minAmount))" as AnyObject])
+                return
+            }
+            if (amount > PaymentModalController.maxAmount) {
+                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.maxAmount))" as AnyObject])
+                return
+            }
             let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: storeName, storeImage: storeImage, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
             let paymentModalController = PaymentModalController(
                     payMEFunction: self, orderTransaction: orderTransaction,
