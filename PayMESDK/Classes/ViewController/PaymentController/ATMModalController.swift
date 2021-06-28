@@ -130,9 +130,9 @@ class ConfirmationModal: UIViewController {
         }
         if (orderTransaction.paymentMethod?.type == MethodType.BANK_TRANSFER.rawValue) {
             paymentPresentation.payBankTransfer(orderTransaction: orderTransaction)
+            return
         }
         payActionByMethod()
-
     }
 
     func payCreditCard() {

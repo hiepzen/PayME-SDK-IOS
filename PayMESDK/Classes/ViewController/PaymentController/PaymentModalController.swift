@@ -139,7 +139,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         subscription = payMEFunction.paymentViewModel.paymentSubject
                 .observe(on: MainScheduler.asyncInstance)
                 .subscribe(onNext: { paymentState in
-                    print("subscription \(paymentState)")
                     if paymentState.state == State.RESULT {
                         self.timer?.invalidate()
                         self.setupResult(paymentState.result!)
@@ -245,6 +244,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         timer?.fire()
     }
 
+//    var callApiWhenSocketFail: DispatchWorkItem!
     var transactionInfo: TransactionInformation!
     private func setupWebview(_ responseError: ResponseError) {
         removeSpinner()
@@ -303,23 +303,24 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
         webViewController.form = html
         webViewController.loadView()
-        timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { [self] _ in
+        var payTimer: Timer? = Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { [self] tmr in
             onPayCredit(order)
-            timer?.invalidate()
+            tmr.invalidate()
         }
         webViewController.setOnNavigateToHost { [self] host in
-            if host == "authenticated" && timer?.isValid == true {
+            if host == "authenticated" && payTimer?.isValid == true {
+                payTimer?.invalidate()
+                payTimer = nil
                 onPayCredit(order)
-                timer?.invalidate()
             }
         }
     }
 
-    func onPayCredit(_ orderTransaction: OrderTransaction) {
-        if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
-            paymentPresentation.payCreditCard(orderTransaction: orderTransaction)
+    func onPayCredit(_ orderTrans: OrderTransaction) {
+        if orderTrans.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+            paymentPresentation.payCreditCard(orderTransaction: orderTrans)
         } else {
-            paymentPresentation.paymentLinkedMethod(orderTransaction: orderTransaction)
+            paymentPresentation.paymentLinkedMethod(orderTransaction: orderTrans)
         }
     }
 
