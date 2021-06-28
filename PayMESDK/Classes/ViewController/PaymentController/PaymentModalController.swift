@@ -50,7 +50,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let payMEFunction: PayMEFunction
     let orderTransaction: OrderTransaction
     let paymentPresentation: PaymentPresentation
-    private let disposeBag: DisposeBag
     private var modalHeight: CGFloat? = UIScreen.main.bounds.height
 
     private var atmHeightConstraint: NSLayoutConstraint?
@@ -90,7 +89,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
                 logoUrl: self.orderTransaction.storeImage)
         searchBankController = SearchBankController(payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction)
-        disposeBag = DisposeBag()
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -135,10 +133,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         setupSubscription()
     }
 
+    private var subscription: Disposable?
+
     private func setupSubscription() {
-        payMEFunction.paymentViewModel.paymentSubject
+        subscription = payMEFunction.paymentViewModel.paymentSubject
                 .observe(on: MainScheduler.asyncInstance)
                 .subscribe(onNext: { paymentState in
+                    print("subscription \(paymentState)")
                     if paymentState.state == State.RESULT {
                         self.timer?.invalidate()
                         self.setupResult(paymentState.result!)
@@ -213,7 +214,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             }
                         }
                     }
-                }).disposed(by: disposeBag)
+                })
     }
 
     private func setupResult(_ result: Result) {
@@ -244,7 +245,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         timer?.fire()
     }
 
-//    var callApiWhenSocketFail: DispatchWorkItem!
     var transactionInfo: TransactionInformation!
     private func setupWebview(_ responseError: ResponseError) {
         removeSpinner()
@@ -308,7 +308,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             timer?.invalidate()
         }
         webViewController.setOnNavigateToHost { [self] host in
-            if host == "authenticated" && timer?.isValid == true{
+            if host == "authenticated" && timer?.isValid == true {
                 onPayCredit(order)
                 timer?.invalidate()
             }
@@ -742,6 +742,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func panModalDidDismiss() {
+        subscription?.dispose()
         if (PaymentModalController.isShowCloseModal == true) {
             onError(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "" as AnyObject])
         }
