@@ -275,7 +275,7 @@ class PayMEFunction {
                     let succeeded = detect["succeeded"] as! Bool
                     if (succeeded == true) {
                         if (self.accessToken != "" && self.loggedIn == true) {
-                            let storeId = (detect["stordeId"] as? Int) ?? 0
+                            let storeId = (detect["storeId"] as? Int) ?? 0
                             let orderId = (detect["orderId"] as? String) ?? ""
                             let amount = (detect["amount"] as? Int) ?? 0
                             let note = (detect["note"] as? String) ?? ""
@@ -330,21 +330,23 @@ class PayMEFunction {
             let payment = response["OpenEWallet"]!["Payment"] as! Dictionary<String, AnyObject>
             let detect = payment["Detect"] as! Dictionary<String, AnyObject>
             let succeeded = detect["succeeded"] as! Bool
+            let message = detect["message"] as? String ?? "hasError".localize()
             if (succeeded == true) {
                 if (self.accessToken != "" && self.loggedIn == true) {
-                    let storeId = (detect["stordeId"] as? Int) ?? 0
+                    let storeId = (detect["storeId"] as? Int) ?? 0
                     let orderId = (detect["orderId"] as? String) ?? ""
                     let amount = (detect["amount"] as? Int) ?? 0
                     let note = (detect["note"] as? String) ?? ""
                     self.payAction(currentVC, storeId, orderId, amount, note, nil, nil, isShowResultUI, onSuccess, onError)
                 } else {
-
+                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
                 }
             } else {
-                currentVC.presentPanModal(QRNotFound())
+                onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
             }
         }, onError: { error in
-            currentVC.presentPanModal(QRNotFound())
+            let message = error["message"] as? String ?? "hasError".localize()
+            onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
         })
     }
 

@@ -149,6 +149,7 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .black
 
         view.addSubview(backButton)
         view.addSubview(logoPayME)

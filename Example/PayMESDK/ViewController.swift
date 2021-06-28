@@ -266,6 +266,19 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return button
     }()
 
+    let scanQRButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
+        button.setTitle("Quét QR", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
     let getServiceButton: UIButton = {
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
@@ -278,7 +291,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-
 
     let kycButton: UIButton = {
         let button = UIButton()
@@ -526,6 +538,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         })
     }
 
+    @objc func scanQR() {
+        payME!.scanQR(currentVC: self, onSuccess: { response in
+            self.toastMess(title: "Thông báo", value: "Mở QR scanner thành công")
+        }, onError: { error in
+            let message = error["message"] as? String
+            self.toastMess(title: "Lỗi", value: message)
+        })
+    }
+
     @objc func onKYC() {
         payME!.openKYC(currentVC: self, onSuccess: {
 
@@ -714,6 +735,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(transferButton)
         sdkContainer.addSubview(moneyTransfer)
         sdkContainer.addSubview(getServiceButton)
+        sdkContainer.addSubview(scanQRButton)
         sdkContainer.addSubview(getMethodButton)
         sdkContainer.addSubview(kycButton)
 
@@ -859,7 +881,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         getMethodButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         getMethodButton.addTarget(self, action: #selector(getListMethod), for: .touchUpInside)
 
-        kycButton.topAnchor.constraint(equalTo: getMethodButton.bottomAnchor, constant: 10).isActive = true
+        scanQRButton.topAnchor.constraint(equalTo: getMethodButton.bottomAnchor, constant: 10).isActive = true
+        scanQRButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        scanQRButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        scanQRButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        scanQRButton.addTarget(self, action: #selector(scanQR), for: .touchUpInside)
+
+        kycButton.topAnchor.constraint(equalTo: scanQRButton.bottomAnchor, constant: 10).isActive = true
         kycButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         kycButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         kycButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
