@@ -361,31 +361,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
     }
 
-    private func initPayME() {
-        let newConnectToken = genConnectToken(userId: "", phone: "")
-        Log.custom.push(title: "Connect Token Generator", message: newConnectToken)
-        connectToken = newConnectToken
-        Log.custom.push(title: "Environment variables", message: """
-                                                                 {
-                                                                 appToken: \(EnvironmentSettings.standard.appToken),
-                                                                 publicKey: \(EnvironmentSettings.standard.publicKey),
-                                                                 connectToken: \(connectToken),
-                                                                 appPrivateKey: \(EnvironmentSettings.standard.privateKey),
-                                                                 env: \(currentEnv)
-                                                                 }
-                                                                 """)
-        payME = PayME(
-                appToken: EnvironmentSettings.standard.appToken,
-                publicKey: EnvironmentSettings.standard.publicKey,
-                connectToken: connectToken,
-                appPrivateKey: EnvironmentSettings.standard.privateKey,
-                language: "vi",
-                env: currentEnv,
-                configColor: ["#6756d6", "#4430b3"],
-                showLog: 1
-        )
-    }
-
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
@@ -561,33 +536,40 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
 
     @objc func payAction(sender: UIButton!) {
-        if (moneyPay.text != "") {
-            let amount = Int(moneyPay.text!)
-            if (amount! >= 10000) {
-                let amountPay = amount!
-                var storeId = 9
-                if (self.currentEnv == PayME.Env.SANDBOX) {
-                    storeId = 37048160
-                }
-                if (self.currentEnv == PayME.Env.PRODUCTION) {
-                    storeId = 57956431
-                }
-                payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note: "Nội dung đơn hàng", paymentMethodID: nil, extraData: nil, onSuccess: { success in
-                    Log.custom.push(title: "pay", message: success)
-                }, onError: { error in
-                    Log.custom.push(title: "pay", message: error)
-                    if let code = error["code"] as? Int {
-                        if (code != PayME.ResponseCode.USER_CANCELLED) {
-                            let message = error["message"] as? String
-                            self.toastMess(title: "Lỗi", value: message)
-                        }
+        if (self.connectToken != "") {
+            if (moneyPay.text != "") {
+                let amount = Int(moneyPay.text!)
+                if (amount! >= 10000) {
+                    let amountPay = amount!
+                    var storeId = 9
+                    if (self.currentEnv == PayME.Env.SANDBOX) {
+                        storeId = 37048160
                     }
-                })
+                    if (self.currentEnv == PayME.Env.PRODUCTION) {
+                        storeId = 57956431
+                    }
+                    payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note: "Nội dung đơn hàng", paymentMethodID: nil, extraData: nil, onSuccess: { success in
+                        Log.custom.push(title: "pay", message: success)
+                    }, onError: { error in
+                        Log.custom.push(title: "pay", message: error)
+                        if let code = error["code"] as? Int {
+                            if (code != PayME.ResponseCode.USER_CANCELLED) {
+                                let message = error["message"] as? String
+                                self.toastMess(title: "Lỗi", value: message)
+                            }
+                        }
+                    })
+                } else {
+                    toastMess(title: "Lỗi", value: "Vui lòng thanh toán hơn 10.000VND")
+                }
             } else {
                 toastMess(title: "Lỗi", value: "Vui lòng thanh toán hơn 10.000VND")
             }
+
+
         } else {
-            toastMess(title: "Lỗi", value: "Vui lòng thanh toán hơn 10.000VND")
+            toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
+
         }
     }
 
@@ -713,8 +695,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         view.addSubview(userIDTextField)
         view.addSubview(phoneLabel)
         view.addSubview(phoneTextField)
-        view.addSubview(payButton)
-        view.addSubview(moneyPay)
         view.addSubview(loginButton)
         view.addSubview(logoutButton)
         view.addSubview(scrollView)
@@ -729,6 +709,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(moneyDeposit)
         sdkContainer.addSubview(withDrawButton)
         sdkContainer.addSubview(moneyWithDraw)
+        sdkContainer.addSubview(payButton)
+        sdkContainer.addSubview(moneyPay)
         sdkContainer.addSubview(transferButton)
         sdkContainer.addSubview(moneyTransfer)
         sdkContainer.addSubview(getServiceButton)
@@ -781,24 +763,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         phoneTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
         phoneTextField.text = UserDefaults.standard.string(forKey: "phone") ?? ""
 
-        payButton.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 10).isActive = true
-        payButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
-        payButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        payButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        payButton.addTarget(self, action: #selector(payAction), for: .touchUpInside)
-
-        moneyPay.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 10).isActive = true
-        moneyPay.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
-        moneyPay.leadingAnchor.constraint(equalTo: payButton.trailingAnchor, constant: 10).isActive = true
-        moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
-
-        loginButton.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 20).isActive = true
+        loginButton.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 20).isActive = true
         loginButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
         loginButton.trailingAnchor.constraint(equalTo: self.view.centerXAnchor, constant: -5).isActive = true
         loginButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         loginButton.addTarget(self, action: #selector(submit), for: .touchUpInside)
 
-        logoutButton.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 20).isActive = true
+        logoutButton.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 20).isActive = true
         logoutButton.leadingAnchor.constraint(equalTo: self.view.centerXAnchor, constant: 5).isActive = true
         logoutButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -30).isActive = true
         logoutButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
@@ -854,13 +825,24 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyWithDraw.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyWithDraw.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
-        transferButton.topAnchor.constraint(equalTo: depositButton.bottomAnchor, constant: 10).isActive = true
+        payButton.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
+        payButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        payButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        payButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        payButton.addTarget(self, action: #selector(payAction), for: .touchUpInside)
+
+        moneyPay.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
+        moneyPay.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true
+        moneyPay.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
+        transferButton.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 10).isActive = true
         transferButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         transferButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
         transferButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         transferButton.addTarget(self, action: #selector(transferAction), for: .touchUpInside)
 
-        moneyTransfer.topAnchor.constraint(equalTo: depositButton.bottomAnchor, constant: 10).isActive = true
+        moneyTransfer.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 10).isActive = true
         moneyTransfer.leadingAnchor.constraint(equalTo: transferButton.trailingAnchor, constant: 10).isActive = true
         moneyTransfer.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyTransfer.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -886,6 +868,16 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         updateViewConstraints()
         view.layoutIfNeeded()
 
+        //them view o day
+//        let a = UIView(frame: CGRect.zero)
+//        a.backgroundColor = .red
+//        sdkContainer.addSubview(a)
+//        a.translatesAutoresizingMaskIntoConstraints = false
+//        a.topAnchor.constraint(equalTo: getMethodButton.bottomAnchor).isActive = true
+//        a.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+//        a.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+//        a.heightAnchor.constraint(equalToConstant: 200).isActive = true
+
         sdkContainer.bottomAnchor.constraint(equalTo: sdkContainer.subviews[sdkContainer.subviews.count - 1].bottomAnchor, constant: 8).isActive = true
 
         updateViewConstraints()
@@ -899,8 +891,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
             setEnv(env: envData[env], text: env)
         }
-
-        initPayME()
     }
 
 }
