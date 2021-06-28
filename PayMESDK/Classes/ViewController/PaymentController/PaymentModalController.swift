@@ -163,10 +163,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.setupUIBankTransResult(type: paymentState.bankTransferState ?? .PENDING, orderTransaction: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.ERROR {
-                        print("minh khoa")
-                        print(paymentState.state)
-                        print(paymentState.error?.code)
-
                         let responseError = paymentState.error!
                         if responseError.code != ResponseErrorCode.REQUIRED_AUTHEN_CARD {
                             self.removeSpinner()
@@ -231,10 +227,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     private func callCreditHistory(transactionInfo: TransactionInformation?) {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
-            print("vào nè")
             if let transInfo = transactionInfo {
                 self.count += 1
-                print("\(self.count)")
                 if self.count < 7 {
                     self.showSpinner(onView: self.view)
                     if self.count < 6 {

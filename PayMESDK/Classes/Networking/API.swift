@@ -447,6 +447,7 @@ class API {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
         var authCreditCardInput: [String: Any] = [
+            "storeId": storeId,
             "cardNumber": cardNumber
         ]
         if expiredAt != "" {
