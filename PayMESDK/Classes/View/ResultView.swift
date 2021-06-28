@@ -204,7 +204,7 @@ class ResultView: UIView {
             let serviceView = InformationView(data: [
                 ["key": "receiveName".localize(), "value": "\(result.orderTransaction.storeName)"],
                 ["key": "serviceCode".localize(), "value": "\(result.orderTransaction.orderId)"],
-                ["key": "content", "value": result.orderTransaction.note]
+                ["key": "content".localize(), "value": result.orderTransaction.note]
             ])
             detailView.addSubview(serviceView)
             serviceView.topAnchor.constraint(equalTo: transactionView.bottomAnchor, constant: 12).isActive = true
@@ -243,7 +243,7 @@ class ResultView: UIView {
                 ])
             case MethodType.CREDIT_CARD.rawValue:
                 paymentView = InformationView(data: [
-                    ["key": " method".localize(), "value": "creditCard".localize()],
+                    ["key": "method".localize(), "value": "creditCard".localize()],
                     ["key": "cardNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.cardNumber.suffix(4) ?? ""))"],
                     ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
                     ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]

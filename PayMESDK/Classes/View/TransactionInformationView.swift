@@ -102,7 +102,7 @@ class TransactionInformationView: UIView {
         hStack.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -16).isActive = true
 
         let vStackId = InformationColumn(key: "transactionCode".localize(), value: id ?? "N/A", textAlign: .left)
-        let vStackTime = InformationColumn(key: "transactionTime", value: timeStamp ?? "N/A", textAlign: .right)
+        let vStackTime = InformationColumn(key: "transactionTime".localize(), value: timeStamp ?? "N/A", textAlign: .right)
 
         hStack.addArrangedSubview(vStackId)
         hStack.addArrangedSubview(vStackTime)
