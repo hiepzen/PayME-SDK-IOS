@@ -295,13 +295,15 @@ class PayMEFunction {
                     let detect = payment["Detect"] as! Dictionary<String, AnyObject>
                     let succeeded = detect["succeeded"] as! Bool
                     if (succeeded == true) {
-                        if (self.accessToken != "" && self.kycState == "APPROVED") {
+                        if (self.accessToken != "" && self.loggedIn == true) {
                             let storeId = (detect["stordeId"] as? Int) ?? 0
                             let orderId = (detect["orderId"] as? String) ?? ""
                             let amount = (detect["amount"] as? Int) ?? 0
                             let note = (detect["note"] as? String) ?? ""
                             let onSuccessPay = isStartDirectFromUser ? { dictionary in } : onSuccess
                             self.payAction(currentVC, storeId, orderId, amount, note, nil, nil, true, onSuccessPay, onError)
+                        } else {
+                            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
                         }
                     } else {
                         currentVC.presentPanModal(QRNotFound())
@@ -336,6 +338,35 @@ class PayMEFunction {
                 onSuccess([:])
             }
         }
+    }
+
+    func payQRCode(
+            currentVC: UIViewController,
+            qr: String,
+            isShowResultUI: Bool = true,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void
+    ) {
+        request.readQRContent(qrContent: qr, onSuccess: { response in
+            let payment = response["OpenEWallet"]!["Payment"] as! Dictionary<String, AnyObject>
+            let detect = payment["Detect"] as! Dictionary<String, AnyObject>
+            let succeeded = detect["succeeded"] as! Bool
+            if (succeeded == true) {
+                if (self.accessToken != "" && self.loggedIn == true) {
+                    let storeId = (detect["stordeId"] as? Int) ?? 0
+                    let orderId = (detect["orderId"] as? String) ?? ""
+                    let amount = (detect["amount"] as? Int) ?? 0
+                    let note = (detect["note"] as? String) ?? ""
+                    self.payAction(currentVC, storeId, orderId, amount, note, nil, nil, isShowResultUI, onSuccess, onError)
+                } else {
+
+                }
+            } else {
+                currentVC.presentPanModal(QRNotFound())
+            }
+        }, onError: { error in
+            currentVC.presentPanModal(QRNotFound())
+        })
     }
 
     private func initAccount(
