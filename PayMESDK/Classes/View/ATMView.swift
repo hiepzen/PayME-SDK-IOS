@@ -45,7 +45,7 @@ class ATMView: UIView {
         button.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
         button.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
 
-        button.setImage(UIImage(for: ATMView.self, named: "iconLock"), for: .normal)
+//        button.setImage(UIImage(for: ATMView.self, named: "iconLock"), for: .normal)
 
         cardInput.isHidden = true
         dateInput.isHidden = true
