@@ -280,7 +280,7 @@ class PayMEFunction {
                             let amount = (detect["amount"] as? Int) ?? 0
                             let note = (detect["note"] as? String) ?? ""
                             let onSuccessPay = isStartDirectFromUser ? { dictionary in } : onSuccess
-                            self.payAction(currentVC, storeId, orderId, amount, note, nil, nil, true, onSuccessPay, onError)
+                            self.payAction(PayME.currentVC ?? currentVC, storeId, orderId, amount, note, nil, nil, true, onSuccessPay, onError)
                         } else {
                             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
                         }
@@ -295,8 +295,10 @@ class PayMEFunction {
                 onError(["message": error as AnyObject])
                 currentVC.presentPanModal(QRNotFound())
             })
+
             currentVC.navigationItem.hidesBackButton = true
             currentVC.navigationController?.isNavigationBarHidden = true
+            PayME.currentVC = currentVC
 
             if currentVC.navigationController != nil {
                 PayME.currentVC = currentVC

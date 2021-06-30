@@ -142,11 +142,15 @@ class PermissionCamera: UIViewController {
     @objc func back() {
         let authStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
         if authStatus == AVAuthorizationStatus.denied {
-            var navigationArray = self.navigationController!.viewControllers
-            navigationArray.remove(at: navigationArray.count - 2)
-            self.navigationController?.viewControllers = navigationArray
+            if PayME.isRecreateNavigationController {
+                PayME.currentVC?.dismiss(animated: true)
+            } else {
+                var navigationArray = navigationController!.viewControllers
+                navigationArray.remove(at: navigationArray.count - 2)
+                navigationController?.viewControllers = navigationArray
+            }
         }
-        self.navigationController?.popViewController(animated: true)
+        navigationController?.popViewController(animated: true)
     }
 
     @objc func proceedWithCameraAccess() {
