@@ -98,6 +98,9 @@ class ConfirmationModal: UIViewController {
         atmView.contentView.onPressSearch = {
             self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_SEARCH, orderTransaction: self.orderTransaction))
         }
+        atmView.contentView.onPressOpenVietQRBanks = {
+            self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_VIETQR, banks: self.listBank, orderTransaction: self.orderTransaction))
+        }
 
         if #available(iOS 13.0, *) {
             NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIScene.willDeactivateNotification, object: nil)

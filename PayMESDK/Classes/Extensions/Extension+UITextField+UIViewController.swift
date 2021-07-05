@@ -231,6 +231,13 @@ extension UIView {
             }
         }
     }
+    func removeDashedLines() {
+        for subLayer in (layer.sublayers ?? []) {
+            if subLayer is CAShapeLayer {
+                subLayer.removeFromSuperlayer()
+            }
+        }
+    }
 }
 extension UIImage {
     // Crops an input image (self) to a specified rect

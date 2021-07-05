@@ -15,6 +15,7 @@ class BankManual {
     var bankName: String = ""
     var content: String = ""
     var swiftCode: String = ""
+    var qrCode: String = ""
 
     init(
             bankAccountName: String = "",
@@ -23,7 +24,8 @@ class BankManual {
             bankCity: String = "",
             bankName: String = "",
             content: String = "",
-            swiftCode: String = ""
+            swiftCode: String = "",
+            qrCode: String = ""
     ) {
         self.bankAccountName = bankAccountName
         self.bankAccountNumber = bankAccountNumber
@@ -32,5 +34,6 @@ class BankManual {
         self.bankName = bankName
         self.content = content
         self.swiftCode = swiftCode
+        self.qrCode = qrCode
     }
 }

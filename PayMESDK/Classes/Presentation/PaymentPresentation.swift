@@ -713,11 +713,22 @@ class PaymentPresentation {
             var listBank: [Bank] = []
             for bank in banks {
                 if bank["depositable"] as? Bool ?? false && ((bank["cardNumberLength"] as? Int) != nil) && ((bank["cardPrefix"] as? String) != nil) {
-                    let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int, cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String, shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String)
+                    let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int,
+                            cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String,
+                            shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String,
+                            isVietQr: bank["vietQRAccepted"] as? Bool ?? false
+                    )
                     listBank.append(temp)
                 }
             }
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: listBank, orderTransaction: orderTransaction))
+            if orderTransaction.paymentMethod?.type == MethodType.BANK_TRANSFER.rawValue {
+                let vietQRBank: [Bank] = listBank.filter {
+                    $0.isVietQr == true
+                }
+                self.getListBankManual(orderTransaction: orderTransaction, listSettingBank: vietQRBank)
+            } else {
+                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: listBank, orderTransaction: orderTransaction))
+            }
         }, onError: { bankListError in
             self.onError(bankListError)
         }, onPaymeError: onPaymeError)
@@ -779,13 +790,7 @@ class PaymentPresentation {
             if let fee = ((response["Utility"]!["GetFee"] as? [String: AnyObject])?["fee"] as? [String: AnyObject])?["fee"] as? Int {
                 orderTransaction.paymentMethod?.fee = fee
                 orderTransaction.total = orderTransaction.amount + fee
-                if orderTransaction.paymentMethod?.type == MethodType.BANK_TRANSFER.rawValue {
-                    // get list bank transfer -> setup UI Bank Transfer
-                    self.getListBankManual(orderTransaction: orderTransaction)
-                } else {
-                    // setup UI fee
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
-                }
+                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
             }
         }, onError: { error in
             print(error)
@@ -870,7 +875,7 @@ class PaymentPresentation {
         )
     }
 
-    func getListBankManual(orderTransaction: OrderTransaction) {
+    func getListBankManual(orderTransaction: OrderTransaction, listSettingBank: [Bank]) {
         request.getListBankManual(
                 storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, amount: orderTransaction.amount,
                 onSuccess: { response in
@@ -916,14 +921,15 @@ class PaymentPresentation {
                                 bankCity: bank["bankCity"] as? String ?? "",
                                 bankName: bank["bankName"] as? String ?? "",
                                 content: bank["content"] as? String ?? "",
-                                swiftCode: bank["swiftCode"] as? String ?? ""
+                                swiftCode: bank["swiftCode"] as? String ?? "",
+                                qrCode: bank["qrContent"] as? String ?? ""
                         ))
                     }
 //                    if (listBank.count <= 0) {
 //                        onPaymeError("")
 //                    }
                     orderTransaction.paymentMethod?.dataBankTransfer = listBank[0]
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, listBankManual: listBank, orderTransaction: orderTransaction))
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, banks: listSettingBank, listBankManual: listBank, orderTransaction: orderTransaction))
                 },
                 onError: { error in
                     print(error)

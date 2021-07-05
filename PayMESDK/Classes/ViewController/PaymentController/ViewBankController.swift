@@ -1,20 +1,20 @@
 //
-//  SearchBankController.swift
+//  ViewBankController.swift
 //  PayMESDK
 //
-//  Created by Nam Phan Thanh on 16/06/2021.
+//  Created by Nam Phan Thanh on 05/07/2021.
 //
 
 import Foundation
 import SVGKit
 
-class SearchBankController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+class ViewBankController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     var orderTransaction: OrderTransaction
-    var listBank: [BankManual]
-    private var collectionListBank: [BankManual]
+    var listBank: [Bank]
+    private var collectionListBank: [Bank]
     let payMEFunction: PayMEFunction
 
-    init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, listBank: [BankManual] = []) {
+    init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, listBank: [Bank] = []) {
         self.payMEFunction = payMEFunction
         self.orderTransaction = orderTransaction
         self.listBank = listBank
@@ -28,7 +28,7 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         collectionView.dataSource = self
         collectionView.register(BankItem.self, forCellWithReuseIdentifier: "cell")
 
-        let imageSVG = SVGKImage(for: SearchBankController.self, named: "iconSearch")
+        let imageSVG = SVGKImage(for: ViewBankController.self, named: "iconSearch")
         imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
         let svgImageView = UIImageView(frame: CGRect(x: 14, y: 11, width: 18, height: 18))
         svgImageView.contentMode = .scaleAspectFit
@@ -86,7 +86,10 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         if (searchContent == "") {
             collectionListBank = listBank
         } else {
-            collectionListBank = listBank.filter{ $0.bankName.localizedCaseInsensitiveContains(searchContent) }
+            collectionListBank = listBank.filter{ $0.viName.localizedCaseInsensitiveContains(searchContent) ||
+                    $0.enName.localizedCaseInsensitiveContains(searchContent) ||
+                    $0.shortName.localizedCaseInsensitiveContains(searchContent)
+            }
         }
         collectionView.reloadData()
     }
@@ -103,13 +106,13 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         return cell
     }
 
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        orderTransaction.paymentMethod?.dataBankTransfer = collectionListBank[indexPath.row]
-        searchBar.text = ""
-        payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANSFER, orderTransaction: orderTransaction))
-    }
+//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//        orderTransaction.paymentMethod?.dataBankTransfer = collectionListBank[indexPath.row]
+//        searchBar.text = ""
+//        payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANSFER, orderTransaction: orderTransaction))
+//    }
 
-    func updateListBank(_ list: [BankManual]) {
+    func updateListBank(_ list: [Bank]) {
         listBank = list
         collectionListBank = list
         collectionView.reloadData()
@@ -130,19 +133,19 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "selectBank".localize()
+        label.text = "supportedBanks".localize()
         label.textAlignment = .center
         return label
     }()
     let backButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(for: SearchBankController.self, named: "32Px"), for: .normal)
+        button.setImage(UIImage(for: ViewBankController.self, named: "32Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     let closeButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(for: SearchBankController.self, named: "16Px"), for: .normal)
+        button.setImage(UIImage(for: ViewBankController.self, named: "16Px"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -167,7 +170,6 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         textField.layer.cornerRadius = 15
         return textField
     }()
-
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

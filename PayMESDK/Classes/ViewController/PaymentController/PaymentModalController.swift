@@ -39,6 +39,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let confirmController: ConfirmationModal
     let resultView = ResultView()
     let searchBankController: SearchBankController
+    let viewVietQRListBank: ViewBankController
     var keyBoardHeight: CGFloat = 0
     let screenSize: CGRect = UIScreen.main.bounds
     static var isShowCloseModal: Bool = true
@@ -58,6 +59,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     private var footerTopConstraint: NSLayoutConstraint?
     private var resultContentConstraint: NSLayoutConstraint?
     private var searchBankHeightConstraint: NSLayoutConstraint?
+    private var viewVietQRHeightConstraint: NSLayoutConstraint?
 
     var safeAreaInset: UIEdgeInsets? = nil
 
@@ -89,6 +91,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
                 logoUrl: self.orderTransaction.storeImage)
         searchBankController = SearchBankController(payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction)
+        viewVietQRListBank = ViewBankController(payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction)
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -158,6 +161,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     }
                     if paymentState.state == State.BANK_SEARCH {
                         self.setupUISearchBank(orderTransaction: paymentState.orderTransaction)
+                    }
+                    if paymentState.state == State.BANK_VIETQR {
+                        self.setupUIViewBank(orderTransaction: paymentState.orderTransaction, banks: paymentState.banks ?? [])
                     }
                     if (paymentState.state == State.BANK_TRANS_RESULT) {
                         self.setupUIBankTransResult(type: paymentState.bankTransferState ?? .PENDING, orderTransaction: paymentState.orderTransaction)
@@ -329,6 +335,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.addSubview(methodsView)
         view.addSubview(confirmController.view)
         view.addSubview(searchBankController.view)
+        view.addSubview(viewVietQRListBank.view)
         view.addSubview(bankTransResultView)
 
 
@@ -361,6 +368,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             confirmController.view.isHidden = true
         }
         searchBankController.view.isHidden = true
+        viewVietQRListBank.view.isHidden = true
         UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
             self.tableView.isHidden = false
         })
@@ -377,6 +385,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         searchBankController.view.topAnchor.constraint(equalTo:view.topAnchor).isActive = true
         searchBankController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         searchBankController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+
+        viewVietQRListBank.view.translatesAutoresizingMaskIntoConstraints = false
+        viewVietQRListBank.view.topAnchor.constraint(equalTo:view.topAnchor).isActive = true
+        viewVietQRListBank.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        viewVietQRListBank.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
 
         bankTransResultView.translatesAutoresizingMaskIntoConstraints = false
         bankTransResultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
@@ -476,6 +489,31 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         panModalTransition(to: .longForm)
     }
 
+    func setupUIViewBank(orderTransaction: OrderTransaction?, banks: [Bank]) {
+        guard let orderTrans = orderTransaction else { return }
+        confirmController.view.isHidden = true
+        methodsView.isHidden = true
+        securityCode.isHidden = true
+        viewVietQRListBank.view.isHidden = false
+        otpView.isHidden = true
+        viewVietQRListBank.updateListBank(banks)
+        if (viewVietQRHeightConstraint?.constant == nil) {
+            viewVietQRHeightConstraint = viewVietQRListBank.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
+            viewVietQRHeightConstraint?.isActive = true
+        }
+        viewVietQRListBank.view.layoutIfNeeded()
+        let temp = (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
+        let searchHeight = min(viewVietQRListBank.updateSizeHeight(), screenSize.height - temp)
+        viewVietQRHeightConstraint?.constant = searchHeight
+        footerTopConstraint?.isActive = false
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        let viewHeight = searchHeight
+        modalHeight = viewHeight
+        panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .longForm)
+    }
+
     func setupUIConfirm(banks: [Bank], order: OrderTransaction?) {
         removeSpinner()
         view.endEditing(false)
@@ -484,6 +522,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         listBank = banks
         confirmController.setListBank(listBank: banks)
         searchBankController.view.isHidden = true
+        viewVietQRListBank.view.isHidden = true
         methodsView.isHidden = true
         bankTransResultView.isHidden = true
         UIScrollView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
@@ -612,6 +651,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         confirmController.view.isHidden = true
         securityCode.isHidden = true
         searchBankController.view.isHidden = true
+        viewVietQRListBank.view.isHidden = true
         otpView.isHidden = false
         view.addSubview(otpView)
         otpView.updateBankName(name: orderTransaction.paymentMethod?.title ?? "")
@@ -638,6 +678,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.isHidden = true
         confirmController.view.isHidden = true
         searchBankController.view.isHidden = true
+        viewVietQRListBank.view.isHidden = true
         otpView.isHidden = true
         view.addSubview(securityCode)
         securityCode.isHidden = false
@@ -668,6 +709,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.isHidden = true
         confirmController.view.isHidden = true
         searchBankController.view.isHidden = true
+        viewVietQRListBank.view.isHidden = true
         otpView.isHidden = true
         securityCode.isHidden = true
         PaymentModalController.isShowCloseModal = false
@@ -712,6 +754,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.isHidden = true
         confirmController.view.isHidden = true
         searchBankController.view.isHidden = true
+        viewVietQRListBank.view.isHidden = true
         otpView.isHidden = true
         securityCode.isHidden = true
         bankTransResultView.isHidden = false
@@ -818,6 +861,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             break
         case MethodType.BANK_TRANSFER.rawValue:
             showSpinner(onView: view)
+            paymentPresentation.getLinkBank(orderTransaction: orderTransaction)
             paymentPresentation.getFee(orderTransaction: orderTransaction)
             break
         case MethodType.CREDIT_CARD.rawValue:
@@ -877,6 +921,17 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             let temp2 = keyboardSize.height
             let searchHeight = min(searchBankController.updateSizeHeight(), modalHeight! - temp2)
             searchBankHeightConstraint?.constant = searchHeight
+        } else if viewVietQRListBank.view.isDescendant(of: view) && viewVietQRListBank.view.isHidden == false {
+            let temp = keyboardSize.height + (viewVietQRHeightConstraint?.constant ?? 0)
+            if #available(iOS 11.0, *) {
+                modalHeight = min(temp,
+                        view.safeAreaLayoutGuide.layoutFrame.height)
+            } else {
+                modalHeight = min(temp, screenSize.height)
+            }
+            let temp2 = keyboardSize.height
+            let searchHeight = min(viewVietQRListBank.updateSizeHeight(), modalHeight! - temp2)
+            viewVietQRHeightConstraint?.constant = searchHeight
         }
         updateViewConstraints()
         view.layoutIfNeeded()

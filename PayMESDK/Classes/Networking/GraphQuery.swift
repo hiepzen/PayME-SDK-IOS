@@ -294,6 +294,7 @@ class GraphQuery {
                                         cardNumberLength
                                         cardPrefix
                                         depositable
+                                        vietQRAccepted
                                       }
                                     }
                                   }
@@ -417,6 +418,7 @@ class GraphQuery {
                                                          bankAccountNumber
                                                          content
                                                          swiftCode
+                                                         qrContent
                                                        }
                                                      }
                                                    }

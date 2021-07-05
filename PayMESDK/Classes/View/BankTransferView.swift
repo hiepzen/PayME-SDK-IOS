@@ -8,8 +8,9 @@
 import Foundation
 
 class BankTransferView: UIView {
-    var paymeInfo = InformationView(data: [])
+    var paymeInfo: BankQrView!
     var onPressSearch: () -> () = {}
+    var onPressOpenVietQRBanks: () -> () = {}
 
     init () {
         super.init(frame: .zero)
@@ -19,7 +20,7 @@ class BankTransferView: UIView {
     func setupUI() {
         addSubview(bankContainer)
         addSubview(transferInfo)
-        addSubview(note)
+        addSubview(openVietQRBanksButton)
 
         bankContainer.addSubview(titleLabel)
         bankContainer.addSubview(contentLabel)
@@ -62,42 +63,20 @@ class BankTransferView: UIView {
 
         transferInfo.bottomAnchor.constraint(equalTo: vStack.bottomAnchor, constant: 6).isActive = true
 
-        note.topAnchor.constraint(equalTo: transferInfo.bottomAnchor, constant: 10).isActive = true
-        note.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        note.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        openVietQRBanksButton.topAnchor.constraint(equalTo: transferInfo.bottomAnchor, constant: 10).isActive = true
+        openVietQRBanksButton.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        openVietQRBanksButton.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        openVietQRBanksButton.addTarget(self, action: #selector(onPressVietQR), for: .touchUpInside)
 
-        bottomAnchor.constraint(equalTo: note.bottomAnchor).isActive = true
+        bottomAnchor.constraint(equalTo: openVietQRBanksButton.bottomAnchor).isActive = true
     }
 
     func updateInfo(bank: BankManual?, orderTransaction: OrderTransaction) {
         guard let paymeBank = bank else { return }
         contentLabel.text = paymeBank.bankName
-        paymeInfo.removeFromSuperview()
-        paymeInfo = InformationView(data: [
-            ["key": "accountNumber".localize(),
-             "value": paymeBank.bankAccountNumber,
-             "keyColor": UIColor(100, 112, 129),
-             "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
-             "color": UIColor(0, 0, 0),
-             "font": UIFont.systemFont(ofSize: 14, weight: .regular),
-             "allowCopy": true
-            ],
-            ["key": "cardHolder".localize(),
-             "value": paymeBank.bankAccountName,
-             "keyColor": UIColor(100, 112, 129),
-             "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
-             "color": UIColor(0, 0, 0),
-             "font": UIFont.systemFont(ofSize: 14, weight: .regular)
-            ],
-            ["key": "content".localize(),
-             "value": paymeBank.content,
-             "keyColor": UIColor(100, 112, 129),
-             "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
-             "color": UIColor(0, 0, 0),
-             "font": UIFont.systemFont(ofSize: 14, weight: .regular),
-             "allowCopy": true
-            ],
-        ])
+        paymeInfo?.removeFromSuperview()
+        transferInfo.removeDashedLines()
+        paymeInfo = BankQrView(qrString: paymeBank.qrCode, bank: paymeBank)
 
         let normalText1 = NSMutableAttributedString(string: "bankTransferContent1".localize(), attributes: [
             .font: UIFont.systemFont(ofSize: 14, weight: .regular),
@@ -123,6 +102,9 @@ class BankTransferView: UIView {
 
     @objc func onPressChange() {
         onPressSearch()
+    }
+    @objc func onPressVietQR() {
+        onPressOpenVietQRBanks()
     }
 
     let bankContainer: UIView = {
@@ -184,16 +166,18 @@ class BankTransferView: UIView {
 
     let seperator = UIView()
 
-    let note: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = UIColor(100, 112, 129)
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.text = "bankTransferContent3".localize()
-        return label
+    let openVietQRBanksButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(for: BankTransferView.self, named: "bannerVietQr"), for: .normal)
+        button.setAttributedTitle(NSAttributedString(string: "openVietQRBankList".localize() + " ",
+                attributes: [
+                    .font: UIFont.systemFont(ofSize: 14, weight: .regular),
+                    .foregroundColor: UIColor(hexString: PayME.configColor[0]),
+                    .underlineStyle: NSUnderlineStyle.single.rawValue
+                ]), for: .normal)
+        button.semanticContentAttribute = .forceRightToLeft
+        return button
     }()
 
     required init?(coder aDecoder: NSCoder) {
