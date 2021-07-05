@@ -485,3 +485,9 @@ public func openService(
 ) -> ()
 ```
 
+## Ghi chú
+
+### Làm việc với use_framework!
+
+- react-native-permission: https://github.com/zoontek/react-native-permissions#workaround-for-use_frameworks-issues
+- Google Map iOS Util: https://github.com/googlemaps/google-maps-ios-utils/blob/b721e95a500d0c9a4fd93738e83fc86c2a57ac89/Swift.md
