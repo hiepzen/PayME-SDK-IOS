@@ -11,7 +11,11 @@ import SVGKit
 class ViewBankController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     var orderTransaction: OrderTransaction
     var listBank: [Bank]
-    private var collectionListBank: [Bank]
+    private var collectionListBank: [Bank] {
+        didSet {
+            collectionView.backgroundView?.isHidden = collectionListBank.count > 0 ? true : false
+        }
+    }
     let payMEFunction: PayMEFunction
 
     init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, listBank: [Bank] = []) {
@@ -27,6 +31,8 @@ class ViewBankController: UIViewController, UICollectionViewDelegate, UICollecti
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(BankItem.self, forCellWithReuseIdentifier: "cell")
+        collectionView.backgroundView = emptyView
+
 
         let imageSVG = SVGKImage(for: ViewBankController.self, named: "iconSearch")
         imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
@@ -39,10 +45,19 @@ class ViewBankController: UIViewController, UICollectionViewDelegate, UICollecti
         searchBar.leftViewMode = .always
         searchBar.leftView = paddingView
 
+        let emptySVG = SVGKImage(for: SearchBankController.self, named: "iconNoticeNotFoundBank")
+        emptySVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
+        let emptyImageView = UIImageView()
+        emptyImageView.translatesAutoresizingMaskIntoConstraints = false
+        emptyImageView.contentMode = .scaleAspectFit
+        emptyImageView.image = emptySVG?.uiImage
+
         view.backgroundColor = .white
         view.addSubview(headerStack)
         view.addSubview(collectionView)
         view.addSubview(searchBar)
+        emptyView.addSubview(emptyImageView)
+        emptyView.addSubview(emptyLabel)
 
         headerStack.addArrangedSubview(backButton)
         headerStack.addArrangedSubview(titleLabel)
@@ -61,6 +76,13 @@ class ViewBankController: UIViewController, UICollectionViewDelegate, UICollecti
         collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+
+        emptyView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        emptyImageView.topAnchor.constraint(equalTo: emptyView.topAnchor).isActive = true
+        emptyImageView.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor).isActive = true
+        emptyLabel.topAnchor.constraint(equalTo: emptyImageView.bottomAnchor, constant: 16).isActive = true
+        emptyLabel.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor).isActive = true
+        emptyView.bottomAnchor.constraint(equalTo: emptyLabel.bottomAnchor).isActive = true
 
         backButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         closeButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
@@ -119,7 +141,7 @@ class ViewBankController: UIViewController, UICollectionViewDelegate, UICollecti
     }
 
     func updateSizeHeight() -> CGFloat {
-        CGFloat(50) + headerStack.frame.size.height + searchBar.frame.size.height + collectionView.contentSize.height
+        CGFloat(50) + headerStack.frame.size.height + searchBar.frame.size.height + max(collectionView.contentSize.height, CGFloat(160))
     }
 
     let headerStack: UIStackView = {
@@ -170,6 +192,23 @@ class ViewBankController: UIViewController, UICollectionViewDelegate, UICollecti
         textField.layer.cornerRadius = 15
         return textField
     }()
+    let emptyView: UIView = {
+        let containerView = UIView()
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        return containerView
+    }()
+    let emptyLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(129, 130, 131)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.text = "notFoundBank".localize()
+        return label
+    }()
+
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

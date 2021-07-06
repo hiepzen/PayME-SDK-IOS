@@ -11,7 +11,11 @@ import SVGKit
 class SearchBankController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     var orderTransaction: OrderTransaction
     var listBank: [BankManual]
-    private var collectionListBank: [BankManual]
+    private var collectionListBank: [BankManual] {
+        didSet {
+            collectionView.backgroundView?.isHidden = collectionListBank.count > 0 ? true : false
+        }
+    }
     let payMEFunction: PayMEFunction
 
     init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, listBank: [BankManual] = []) {
@@ -27,6 +31,7 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(BankItem.self, forCellWithReuseIdentifier: "cell")
+        collectionView.backgroundView = emptyView
 
         let imageSVG = SVGKImage(for: SearchBankController.self, named: "iconSearch")
         imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
@@ -39,10 +44,19 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         searchBar.leftViewMode = .always
         searchBar.leftView = paddingView
 
+        let emptySVG = SVGKImage(for: SearchBankController.self, named: "iconNoticeNotFoundBank")
+        emptySVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
+        let emptyImageView = UIImageView()
+        emptyImageView.translatesAutoresizingMaskIntoConstraints = false
+        emptyImageView.contentMode = .scaleAspectFit
+        emptyImageView.image = emptySVG?.uiImage
+
         view.backgroundColor = .white
         view.addSubview(headerStack)
         view.addSubview(collectionView)
         view.addSubview(searchBar)
+        emptyView.addSubview(emptyImageView)
+        emptyView.addSubview(emptyLabel)
 
         headerStack.addArrangedSubview(backButton)
         headerStack.addArrangedSubview(titleLabel)
@@ -66,6 +80,13 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         closeButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        emptyView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        emptyImageView.topAnchor.constraint(equalTo: emptyView.topAnchor).isActive = true
+        emptyImageView.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor).isActive = true
+        emptyLabel.topAnchor.constraint(equalTo: emptyImageView.bottomAnchor, constant: 16).isActive = true
+        emptyLabel.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor).isActive = true
+        emptyView.bottomAnchor.constraint(equalTo: emptyLabel.bottomAnchor).isActive = true
 
         backButton.addTarget(self, action: #selector(onPressBack), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(onPressClose), for: .touchUpInside)
@@ -116,7 +137,7 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
     }
 
     func updateSizeHeight() -> CGFloat {
-        CGFloat(50) + headerStack.frame.size.height + searchBar.frame.size.height + collectionView.contentSize.height
+        CGFloat(50) + headerStack.frame.size.height + searchBar.frame.size.height + max(collectionView.contentSize.height, CGFloat(160))
     }
 
     let headerStack: UIStackView = {
@@ -166,6 +187,22 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         textField.backgroundColor = UIColor(239, 242, 247)
         textField.layer.cornerRadius = 15
         return textField
+    }()
+    let emptyView: UIView = {
+        let containerView = UIView()
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        return containerView
+    }()
+    let emptyLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(129, 130, 131)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.text = "notFoundBank".localize()
+        return label
     }()
 
 
