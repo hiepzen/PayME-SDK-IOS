@@ -39,7 +39,7 @@ public class PayME {
     }
 
     public struct Language {
-        public static let VIETNAM = "vi"
+        public static let VIETNAMESE = "vi"
         public static let ENGLISH = "en"
     }
 
@@ -64,7 +64,7 @@ public class PayME {
         public static let BALANCE_ERROR: Int = -10
     }
 
-    public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, language: String? = PayME.Language.VIETNAM, env: Env, configColor: [String], showLog: Int = 0) {
+    public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, language: String? = PayME.Language.VIETNAMESE, env: Env, configColor: [String], showLog: Int = 0) {
         PayME.configColor = configColor
         payMEFunction = PayMEFunction(appToken, publicKey, connectToken, appPrivateKey, language, env, configColor, showLog, PayME.getAppId(appToken))
     }
@@ -191,6 +191,10 @@ public class PayME {
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         payMEFunction.KYC(currentVC, onSuccess, onError)
+    }
+
+    public func setLanguage(language: String) {
+        PayMEFunction.language = language
     }
 
     static private func getAppId(_ appToken: String) -> String {

@@ -49,7 +49,7 @@ let payme = PayME(appToken : "AppToken",
                   publicKey: "PublicKey", 
                   connectToken : "ConnectToken",
                   appPrivateKey : "AppPrivateKey", 
-                  language: PayME.Language.VIETNAM,
+                  language: PayME.Language.VIETNAMESE,
                   configColor : ["#07A922"],
                   env: PayME.Env.SANDBOX
 )

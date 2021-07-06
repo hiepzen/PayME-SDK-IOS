@@ -35,12 +35,12 @@ public class NetworkRequestGraphQL {
         let request = NSMutableURLRequest(url: url! as URL)
         request.httpMethod = "POST"
         request.addValue(self.token, forHTTPHeaderField: "Authorization")
+        request.addValue(PayMEFunction.language, forHTTPHeaderField: "language")
         if (self.url == "https://sbx-static.payme.vn/Upload" || self.url == "https://static.payme.vn/Upload") {
             request.addValue("multipart/form-data", forHTTPHeaderField: "Content-Type")
         } else {
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             request.addValue("application/json", forHTTPHeaderField: "Accept")
-
         }
         request.httpBody = self.params
         let sessionConfig = URLSessionConfiguration.default
@@ -148,6 +148,7 @@ public class NetworkRequestGraphQL {
         request.addValue(xAPIKey, forHTTPHeaderField: "x-api-key")
         request.addValue(xAPIAction, forHTTPHeaderField: "x-api-action")
         request.addValue(xAPIValidate, forHTTPHeaderField: "x-api-validate")
+        request.addValue(PayMEFunction.language, forHTTPHeaderField: "language")
         let jsonBody = ["x-api-message": xAPIMessage]
         let dataBody = try? JSONSerialization.data(withJSONObject: jsonBody)
         request.httpBody = dataBody!

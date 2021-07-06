@@ -24,7 +24,7 @@ class PayMEFunction {
     private var storeName = ""
     private var storeImage: String = ""
     private var kycMode: [String: Bool]? = nil
-    static var language = PayME.Language.VIETNAM
+    static var language = PayME.Language.VIETNAMESE
 
     var request: API
     var appEnv = ""
@@ -40,7 +40,7 @@ class PayMEFunction {
 
     init(
             _ appToken: String, _ publicKey: String, _ connectToken: String, _ privateKey: String,
-            _ language: String? = PayME.Language.VIETNAM, _ env: PayME.Env, _ configColor: [String],
+            _ language: String? = PayME.Language.VIETNAMESE, _ env: PayME.Env, _ configColor: [String],
             _ isShowLog: Int = 0, _ appId: String) {
         self.appToken = appToken
         self.publicKey = publicKey
@@ -49,7 +49,7 @@ class PayMEFunction {
         self.isShowLog = isShowLog
         self.appId = appId
         self.env = env
-        PayMEFunction.language = language ?? PayME.Language.VIETNAM
+        PayMEFunction.language = language ?? PayME.Language.VIETNAMESE
         self.configColor = configColor
 
         let deviceId = UIDevice.current.identifierForVendor!.uuidString

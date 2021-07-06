@@ -8,6 +8,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var payME: PayME?
     var activeTextField: UITextField? = nil
     let envData: Dictionary = ["dev": PayME.Env.DEV, "sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION, "staging": PayME.Env.STAGING]
+    let langData = [PayME.Language.VIETNAMESE, PayME.Language.ENGLISH]
 
     let environment: UILabel = {
         let label = UILabel()
@@ -27,6 +28,31 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return button
     }()
     let envList: UIPickerView = {
+        let list = UIPickerView()
+        list.layer.borderColor = UIColor.black.cgColor
+        list.layer.borderWidth = 0.5
+        list.backgroundColor = .white
+        list.translatesAutoresizingMaskIntoConstraints = false
+        return list
+    }()
+    let langLabel: UILabel = {
+        let label = UILabel()
+        label.font = label.font.withSize(16)
+        label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Language"
+        return label
+    }()
+    let langDropDown: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.contentEdgeInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    let langList: UIPickerView = {
         let list = UIPickerView()
         list.layer.borderColor = UIColor.black.cgColor
         list.layer.borderWidth = 0.5
@@ -226,6 +252,30 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         textField.keyboardType = .numberPad
         return textField
     }()
+    let qrPayString: UITextField = {
+        let textField = UITextField()
+        textField.layer.borderColor = UIColor.black.cgColor
+        textField.layer.borderWidth = 0.5
+        textField.backgroundColor = UIColor.white
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.placeholder = "Nhập QR"
+        textField.text = "OPENEWALLET|54938607|PAYMENT|20000|Chuyentien|2445562323"
+        textField.setLeftPaddingPoints(10)
+        return textField
+    }()
+    let qrPayButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
+        button.setTitle("Pay QR", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
 
     let transferButton: UIButton = {
         let button = UIButton()
@@ -308,6 +358,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
     private var connectToken: String = ""
     private var currentEnv: PayME.Env = PayME.Env.SANDBOX
+    private var curLanguage: String = PayME.Language.VIETNAMESE
 
     func genConnectToken(userId: String, phone: String) -> String {
         let secretKey = EnvironmentSettings.standard.secretKey
@@ -346,6 +397,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     publicKey: EnvironmentSettings.standard.publicKey,
                     connectToken: self.connectToken,
                     appPrivateKey: EnvironmentSettings.standard.privateKey,
+                    language: curLanguage,
                     env: currentEnv,
                     configColor: ["#6756d6", "#4430b3"],
                     showLog: 1
@@ -378,15 +430,25 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
 
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return envData.count
+        if pickerView == envList {
+            return envData.count
+        }
+        return langData.count
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return Array(envData.keys)[row]
+        if pickerView == envList {
+            return Array(envData.keys)[row]
+        }
+        return langData[row]
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        setEnv(env: envData[Array(envData.keys)[row]], text: Array(envData.keys)[row])
+        if pickerView == envList {
+            setEnv(env: envData[Array(envData.keys)[row]], text: Array(envData.keys)[row])
+        } else {
+            setLang(lang: langData[row])
+        }
         pickerView.isHidden = true
     }
 
@@ -502,6 +564,31 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 }
             } else {
                 toastMess(title: "Lỗi", value: "Vui lòng chuyển hơn 10.000VND")
+            }
+        } else {
+            toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
+        }
+
+    }
+
+    @objc func onPayQR(sender: UIButton!) {
+        if (connectToken != "") {
+            if (qrPayString.text != "") {
+               payME!.payQRCode(currentVC: self, qr: qrPayString.text!,
+                       onSuccess: { success in
+                            Log.custom.push(title: "payQRCode", message: success)
+                       },
+                       onError: { error in
+                        Log.custom.push(title: "payQRCode", message: error)
+                        if let code = error["code"] as? Int {
+                            if (code != PayME.ResponseCode.USER_CANCELLED) {
+                                let message = error["message"] as? String
+                                self.toastMess(title: "Lỗi", value: message)
+                            }
+                        }
+                    })
+            } else {
+                toastMess(title: "Lỗi", value: "Vui lòng nhập mã QR")
             }
         } else {
             toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
@@ -675,12 +762,22 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         self.envList.isHidden = !self.envList.isHidden
     }
 
+    @objc func onPressLangDropDown() {
+        langList.isHidden = !langList.isHidden
+    }
+
     func setEnv(env: PayME.Env!, text: String!) {
         EnvironmentSettings.standard.changeEnvironment(env: text)
         UserDefaults.standard.set(text, forKey: "env")
         self.dropDown.setTitle(text, for: .normal)
         self.currentEnv = env
         self.logout(sender: logoutButton)
+    }
+
+    func setLang(lang: String) {
+        payME?.setLanguage(language: lang)
+        curLanguage = lang
+        langDropDown.setTitle(lang, for: .normal)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -711,6 +808,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         view.addSubview(environment)
         view.addSubview(dropDown)
         view.addSubview(envList)
+        view.addSubview(langLabel)
+        view.addSubview(langDropDown)
+        view.addSubview(langList)
         view.addSubview(settingButton)
         view.addSubview(userIDLabel)
         view.addSubview(userIDTextField)
@@ -738,14 +838,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(scanQRButton)
         sdkContainer.addSubview(getMethodButton)
         sdkContainer.addSubview(kycButton)
+        sdkContainer.addSubview(qrPayButton)
+        sdkContainer.addSubview(qrPayString)
 
         view.bringSubview(toFront: envList)
+        view.bringSubview(toFront: langList)
 
         phoneTextField.delegate = self
         moneyDeposit.delegate = self
         moneyWithDraw.delegate = self
         moneyPay.delegate = self
         envList.delegate = self
+        langList.delegate = self
 
         environment.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10).isActive = true
         environment.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
@@ -761,13 +865,27 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         envList.centerXAnchor.constraint(equalTo: dropDown.centerXAnchor).isActive = true
         envList.heightAnchor.constraint(equalToConstant: 100).isActive = true
 
+        langLabel.topAnchor.constraint(equalTo: dropDown.bottomAnchor, constant: 10).isActive = true
+        langLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+
+        langDropDown.topAnchor.constraint(equalTo: dropDown.bottomAnchor, constant: 10).isActive = true
+        langDropDown.leadingAnchor.constraint(equalTo: langLabel.trailingAnchor, constant: 30).isActive = true
+        langDropDown.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        langDropDown.widthAnchor.constraint(equalToConstant: 150).isActive = true
+        langDropDown.addTarget(self, action: #selector(onPressLangDropDown), for: .touchUpInside)
+
+        langList.isHidden = true
+        langList.topAnchor.constraint(equalTo: langDropDown.bottomAnchor).isActive = true
+        langList.centerXAnchor.constraint(equalTo: langDropDown.centerXAnchor).isActive = true
+        langList.heightAnchor.constraint(equalToConstant: 100).isActive = true
+
         settingButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10).isActive = true
         settingButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
         settingButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         settingButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
         settingButton.addTarget(self, action: #selector(onPressSetting(_:)), for: .touchUpInside)
 
-        userIDLabel.topAnchor.constraint(equalTo: environment.bottomAnchor, constant: 20).isActive = true
+        userIDLabel.topAnchor.constraint(equalTo: langLabel.bottomAnchor, constant: 20).isActive = true
         userIDLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 30).isActive = true
 
         userIDTextField.topAnchor.constraint(equalTo: userIDLabel.bottomAnchor, constant: 5).isActive = true
@@ -887,6 +1005,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         scanQRButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         scanQRButton.addTarget(self, action: #selector(scanQR), for: .touchUpInside)
 
+        qrPayButton.topAnchor.constraint(equalTo: scanQRButton.bottomAnchor, constant: 10).isActive = true
+        qrPayButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        qrPayButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        qrPayButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        qrPayButton.addTarget(self, action: #selector(onPayQR), for: .touchUpInside)
+
+        qrPayString.topAnchor.constraint(equalTo: scanQRButton.bottomAnchor, constant: 10).isActive = true
+        qrPayString.leadingAnchor.constraint(equalTo: qrPayButton.trailingAnchor, constant: 10).isActive = true
+        qrPayString.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        qrPayString.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
         kycButton.topAnchor.constraint(equalTo: scanQRButton.bottomAnchor, constant: 10).isActive = true
         kycButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         kycButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
@@ -919,6 +1048,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             envList.selectRow(Array(envData.keys).index(of: env)!, inComponent: 0, animated: true)
             setEnv(env: envData[env], text: env)
         }
+        langList.selectRow(0, inComponent: 0, animated: true)
+        setLang(lang: langData[0])
     }
 
 }
