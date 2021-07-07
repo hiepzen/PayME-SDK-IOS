@@ -171,6 +171,7 @@ class PayMEFunction {
                       "connectToken": "\(connectToken)",
                       "publicKey": "\(publicKey.replacingOccurrences(of: "\n", with: ""))",
                       "privateKey": "\(privateKey.replacingOccurrences(of: "\n", with: ""))",
+                      "language": "\(PayMEFunction.language)",
                       "xApi": "\(appId)",
                       "appToken": "\(appToken)",
                       "clientId": "\(clientId)",
