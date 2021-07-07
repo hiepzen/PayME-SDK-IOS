@@ -18,9 +18,10 @@ class BankTransferView: UIView {
     }
 
     func setupUI() {
-        addSubview(bankContainer)
-        addSubview(transferInfo)
-        addSubview(openVietQRBanksButton)
+        addSubview(vStackContainer)
+        vStackContainer.addArrangedSubview(bankContainer)
+        vStackContainer.addArrangedSubview(transferInfo)
+        vStackContainer.addArrangedSubview(openVietQRBanksButton)
 
         bankContainer.addSubview(titleLabel)
         bankContainer.addSubview(contentLabel)
@@ -33,9 +34,9 @@ class BankTransferView: UIView {
         vStack.addArrangedSubview(divider)
         vStack.addArrangedSubview(seperator)
 
-        bankContainer.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        bankContainer.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        bankContainer.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        vStackContainer.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        vStackContainer.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        vStackContainer.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
 
         titleLabel.topAnchor.constraint(equalTo: bankContainer.topAnchor, constant: 8).isActive = true
         titleLabel.leadingAnchor.constraint(equalTo: bankContainer.leadingAnchor, constant: 16).isActive = true
@@ -51,10 +52,6 @@ class BankTransferView: UIView {
 
         bankContainer.bottomAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 8).isActive = true
 
-        transferInfo.topAnchor.constraint(equalTo: bankContainer.bottomAnchor, constant: 8).isActive = true
-        transferInfo.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        transferInfo.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-
         vStack.topAnchor.constraint(equalTo: transferInfo.topAnchor, constant: 10).isActive = true
         vStack.leadingAnchor.constraint(equalTo: transferInfo.leadingAnchor, constant: 16).isActive = true
         vStack.trailingAnchor.constraint(equalTo: transferInfo.trailingAnchor, constant: -16).isActive = true
@@ -63,12 +60,9 @@ class BankTransferView: UIView {
 
         transferInfo.bottomAnchor.constraint(equalTo: vStack.bottomAnchor, constant: 6).isActive = true
 
-        openVietQRBanksButton.topAnchor.constraint(equalTo: transferInfo.bottomAnchor, constant: 10).isActive = true
-        openVietQRBanksButton.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        openVietQRBanksButton.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         openVietQRBanksButton.addTarget(self, action: #selector(onPressVietQR), for: .touchUpInside)
 
-        bottomAnchor.constraint(equalTo: openVietQRBanksButton.bottomAnchor).isActive = true
+        bottomAnchor.constraint(equalTo: vStackContainer.bottomAnchor).isActive = true
     }
 
     func updateInfo(bank: BankManual?, orderTransaction: OrderTransaction) {
@@ -100,12 +94,29 @@ class BankTransferView: UIView {
         transferInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
     }
 
+    func canChangeBank(_ value: Bool = true) {
+        if (value == true) {
+            bankContainer.isHidden = false
+        } else {
+            bankContainer.isHidden = true
+        }
+    }
+
     @objc func onPressChange() {
         onPressSearch()
     }
     @objc func onPressVietQR() {
         onPressOpenVietQRBanks()
     }
+
+    let vStackContainer: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.distribution = .equalSpacing
+        stack.spacing = 8
+        return stack
+    }()
 
     let bankContainer: UIView = {
         let container = UIView()

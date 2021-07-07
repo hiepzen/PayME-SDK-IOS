@@ -156,8 +156,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.setupUIConfirm(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.BANK_TRANSFER {
-                        self.setupUIConfirm(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
                         self.listBankManual = paymentState.listBankManual ?? self.listBankManual
+                        self.setupUIConfirm(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.BANK_SEARCH {
                         self.setupUISearchBank(orderTransaction: paymentState.orderTransaction)
@@ -533,6 +533,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             atmHeightConstraint?.isActive = true
         }
         if let orderTransaction = order {
+            confirmController.atmView.contentView.canChangeBank(listBankManual.count > 1)
             confirmController.atmView.updateUIByMethod(orderTransaction: orderTransaction)
         }
         confirmController.updateContentSize()
