@@ -485,6 +485,14 @@ public func openService(
 ) -> ()
 ```
 
+### setLanguage()
+
+Chuyển đổi ngôn ngữ của sdk
+
+```swift
+public func setLanguage(language: PayME.Language) -> ()
+```
+
 ## Ghi chú
 
 ### Làm việc với use_framework!
