@@ -500,6 +500,8 @@ class GraphQuery {
                                            brandName
                                            backgroundColor
                                            storeImage
+                                           storeName
+                                           isVisibleHeader
                                          }
                                        }
                                      }

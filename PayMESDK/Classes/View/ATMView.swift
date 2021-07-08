@@ -132,6 +132,7 @@ class ATMView: UIView {
         vStack.addArrangedSubview(paymentInfo)
         layoutIfNeeded()
         paymentInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
+
 //        updateContentSize()
     }
     let vStack: UIStackView = {

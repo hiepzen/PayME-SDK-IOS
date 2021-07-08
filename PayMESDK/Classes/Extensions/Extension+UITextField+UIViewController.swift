@@ -238,6 +238,34 @@ extension UIView {
             }
         }
     }
+
+    func startLoading() {
+        let activityIndicator: UIActivityIndicatorView = {
+            let indicator = UIActivityIndicatorView(style: .white)
+            indicator.color = UIColor(hexString: PayME.configColor[0])
+            indicator.translatesAutoresizingMaskIntoConstraints = false
+            indicator.backgroundColor = .white
+            return indicator
+        }()
+        addSubview(activityIndicator)
+        activityIndicator.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        activityIndicator.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        activityIndicator.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        activityIndicator.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        bringSubviewToFront(activityIndicator)
+        updateConstraints()
+        layoutIfNeeded()
+        activityIndicator.startAnimating()
+    }
+
+    func endLoading(indicator: UIActivityIndicatorView) {
+        for subview in subviews {
+            if subview is UIActivityIndicatorView {
+                (subview as! UIActivityIndicatorView).stopAnimating()
+                subview.removeFromSuperview()
+            }
+        }
+    }
 }
 extension UIImage {
     // Crops an input image (self) to a specified rect

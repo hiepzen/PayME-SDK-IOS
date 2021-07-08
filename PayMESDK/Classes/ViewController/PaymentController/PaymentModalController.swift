@@ -85,11 +85,18 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction, isShowResult: self.isShowResultUI,
                 paymentPresentation: paymentPresentation, onSuccess: self.onSuccess, onError: self.onError
         )
+        if orderTransaction.isShowHeader {
+            orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
+                    serviceCode: self.orderTransaction.orderId,
+                    note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
+                    logoUrl: self.orderTransaction.storeImage, isFullInfo: true)
+        } else {
+            orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
+                    serviceCode: self.orderTransaction.orderId,
+                    note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
+                    logoUrl: nil, isFullInfo: false)
+        }
 
-        orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
-                serviceCode: self.orderTransaction.orderId,
-                note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
-                logoUrl: self.orderTransaction.storeImage)
         searchBankController = SearchBankController(payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction)
         viewVietQRListBank = ViewBankController(payMEFunction: self.payMEFunction, orderTransaction: self.orderTransaction)
         super.init(nibName: nil, bundle: nil)

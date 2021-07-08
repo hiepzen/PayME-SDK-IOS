@@ -9,6 +9,7 @@ import Foundation
 import CryptoSwift
 import RxSwift
 import RxCocoa
+import SwiftyJSON
 
 class PayMEFunction {
     let paymentViewModel = PaymentViewModel()
@@ -237,7 +238,23 @@ class PayMEFunction {
                 onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "Vui lòng thanh toán số tiền nhỏ hơn \(formatMoney(input: PaymentModalController.maxAmount))" as AnyObject])
                 return
             }
-            let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: storeName, storeImage: storeImage, orderId: orderId, note: note ?? "", extraData: extraData ?? "")
+
+            var curStoreName: String = storeName
+            var curStoreImage: String = storeImage
+            var isShowHeader: Bool = false
+            request.getMerchantInformation(storeId: storeId, onSuccess: { response in
+                let data = JSON(response)
+                if data["OpenEWallet"]["GetInfoMerchant"]["succeeded"].boolValue == true {
+                    curStoreName = data["OpenEWallet"]["GetInfoMerchant"]["storeName"].string ?? self.storeName
+                    curStoreImage = data["OpenEWallet"]["GetInfoMerchant"]["storeImage"].string ?? self.storeImage
+                    isShowHeader = data["OpenEWallet"]["GetInfoMerchant"]["isVisibleHeader"].boolValue
+                }
+            }, onError: { error in
+
+            })
+
+            let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
+                    orderId: orderId, note: note ?? "", extraData: extraData ?? "", isShowHeader: isShowHeader)
             let paymentModalController = PaymentModalController(
                     payMEFunction: self, orderTransaction: orderTransaction,
                     paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,

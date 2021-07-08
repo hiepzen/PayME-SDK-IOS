@@ -17,6 +17,7 @@ class OrderTransaction {
     var note: String
     var paymentMethod: PaymentMethod?
     var total: Int?
+    var isShowHeader: Bool
 
     init(
             amount: Int = 10000,
@@ -27,7 +28,8 @@ class OrderTransaction {
             note: String,
             extraData: String,
             paymentMethod: PaymentMethod? = nil,
-            total: Int? = 0
+            total: Int? = 0,
+            isShowHeader: Bool = false
     ) {
         self.amount = amount
         self.storeId = storeId
@@ -38,5 +40,6 @@ class OrderTransaction {
         self.extraData = extraData
         self.paymentMethod = paymentMethod
         self.total = total
+        self.isShowHeader = isShowHeader
     }
 }

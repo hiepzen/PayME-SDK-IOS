@@ -695,7 +695,7 @@ class API {
     }
 
     func getMerchantInformation(
-            appId: String, storeId: Int,
+            storeId: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in }
@@ -704,7 +704,7 @@ class API {
         let path = "/graphql"
         let variables: [String: Any] = ["infoInput": [
             "appId": appId,
-            "storeId": storeId,
+            "storeId": storeId
         ]]
         let json: [String: Any] = [
             "query": GraphQuery.getMerchantInformation,

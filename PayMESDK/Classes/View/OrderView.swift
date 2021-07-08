@@ -65,8 +65,11 @@ class OrderView: UIView {
     }()
 
     let seperator = UIView()
+    var storeNameRow: InformationRow!
+    var serviceRow: InformationRow!
+    var noteRow: InformationRow!
 
-    init(amount: Int = 0, storeName: String = "", serviceCode: String = "", note: String = "", logoUrl: String? = nil) {
+    init(amount: Int = 0, storeName: String = "", serviceCode: String = "", note: String = "", logoUrl: String? = nil, isFullInfo: Bool = false) {
         super.init(frame: CGRect.zero)
         translatesAutoresizingMaskIntoConstraints = false
         amountLabel.text = "\(formatMoney(input: amount)) đ"
@@ -77,11 +80,11 @@ class OrderView: UIView {
         vStack.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
         vStack.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
 
-        let storeNameRow = InformationRow(key: "receiveName".localize(), value: storeName, color: .white, font: .systemFont(ofSize: 14, weight: .bold),
+        storeNameRow = InformationRow(key: "receiveName".localize(), value: storeName, color: .white, font: .systemFont(ofSize: 14, weight: .bold),
                 keyColor: .white, keyFont: .systemFont(ofSize: 14, weight: .regular))
-        let serviceRow = InformationRow(key: "serviceCode".localize(), value: serviceCode, color: .white, font: .systemFont(ofSize: 14, weight: .regular),
+        serviceRow = InformationRow(key: "serviceCode".localize(), value: serviceCode, color: .white, font: .systemFont(ofSize: 14, weight: .regular),
                 keyColor: .white, keyFont: .systemFont(ofSize: 14, weight: .regular))
-        let noteRow = InformationRow(key: "content".localize(), value: note, color: .white, font: .systemFont(ofSize: 14, weight: .regular),
+        noteRow = InformationRow(key: "content".localize(), value: note, color: .white, font: .systemFont(ofSize: 14, weight: .regular),
                 keyColor: .white, keyFont: .systemFont(ofSize: 14, weight: .regular))
         if logoUrl != nil && logoUrl != "" {
             logoView.load(url: logoUrl!)
@@ -102,6 +105,12 @@ class OrderView: UIView {
         vStack.addArrangedSubview(noteRow)
 
         bottomAnchor.constraint(equalTo: vStack.bottomAnchor, constant: 16).isActive = true
+        if (isFullInfo == false) {
+            seperator.isHidden = true
+            storeNameRow.isHidden = true
+            serviceRow.isHidden = true
+            noteRow.isHidden = true
+        }
     }
 
     override func layoutSubviews() {
