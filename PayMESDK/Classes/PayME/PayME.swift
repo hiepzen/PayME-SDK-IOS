@@ -155,10 +155,10 @@ public class PayME {
 
     public func pay(
             currentVC: UIViewController, storeId: Int, orderId: String, amount: Int,
-            note: String?, paymentMethodID: Int?, extraData: String?, isShowResultUI: Bool = true,
+            note: String?, payCode: String, extraData: String?, isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()) {
-        payMEFunction.payAction(currentVC, storeId, orderId, amount, note, paymentMethodID, extraData, isShowResultUI, onSuccess, onError)
+        payMEFunction.payAction(currentVC, storeId, orderId, amount, note, payCode, extraData, isShowResultUI, onSuccess, onError)
     }
 
     public func scanQR(

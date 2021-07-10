@@ -216,37 +216,27 @@ class ResultView: UIView {
             case MethodType.WALLET.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "method".localize(), "value": "walletBalance".localize()],
-                    ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
-                   ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
                 break
             case MethodType.LINKED.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "method".localize(), "value": "linkedAccount".localize()],
                     ["key": "accountNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: result.orderTransaction.paymentMethod!.label.suffix(4)))"],
-                    ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
-                    ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
                 break
             case MethodType.BANK_CARD.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "method".localize(), "value": "bankCard".localize()],
                     ["key": "cardNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.cardNumber.suffix(4) ?? ""))"],
-                    ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
-                    ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
             case MethodType.BANK_TRANSFER.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "method".localize(), "value": "bankTransfer".localize()],
-                    ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
-                    ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
             case MethodType.CREDIT_CARD.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "method".localize(), "value": "creditCard".localize()],
                     ["key": "cardNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.cardNumber.suffix(4) ?? ""))"],
-                    ["key": "fee".localize(), "value": result.orderTransaction.paymentMethod?.fee ?? 0 > 0 ? "\(String(describing: formatMoney(input: result.orderTransaction.paymentMethod?.fee ?? 0))) đ" : nil ?? nil],
-                    ["key": "totalPayment".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(236, 42, 42)]
                 ])
             default:
                 paymentView = InformationView(data: [])

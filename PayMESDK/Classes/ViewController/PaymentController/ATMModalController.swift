@@ -37,10 +37,17 @@ class ConfirmationModal: UIViewController {
         self.orderTransaction = orderTransaction
         self.paymentPresentation = paymentPresentation
         isShowResultUI = isShowResult
-        orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
-                serviceCode: self.orderTransaction.orderId,
-                note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
-                logoUrl: self.orderTransaction.storeImage)
+        if orderTransaction.isShowHeader {
+            orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
+                    serviceCode: self.orderTransaction.orderId,
+                    note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
+                    logoUrl: self.orderTransaction.storeImage, isFullInfo: true)
+        } else {
+            orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
+                    serviceCode: self.orderTransaction.orderId,
+                    note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
+                    logoUrl: nil, isFullInfo: false)
+        }
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -56,7 +63,6 @@ class ConfirmationModal: UIViewController {
 
         view.addSubview(scrollView)
         scrollView.addSubview(orderView)
-        scrollView.addSubview(methodTitle)
         scrollView.addSubview(atmView)
 //        atmView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -70,10 +76,7 @@ class ConfirmationModal: UIViewController {
         orderView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
 //        orderView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
 
-        methodTitle.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16).isActive = true
-        methodTitle.topAnchor.constraint(equalTo: orderView.bottomAnchor, constant: 12).isActive = true
-
-        atmView.topAnchor.constraint(equalTo: methodTitle.bottomAnchor).isActive = true
+        atmView.topAnchor.constraint(equalTo: orderView.bottomAnchor).isActive = true
         atmView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
         atmView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
 //        atmView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
@@ -83,18 +86,8 @@ class ConfirmationModal: UIViewController {
         atmView.nameInput.textInput.delegate = self
         atmView.cvvInput.textInput.delegate = self
 
-        atmView.methodView.button.setTitleColor(UIColor(hexString: payMEFunction.configColor[0]), for: .normal)
-        atmView.methodView.button.layer.borderColor = UIColor(hexString: payMEFunction.configColor[0]).cgColor
-
         atmView.button.addTarget(self, action: #selector(payAction), for: .touchUpInside)
-        atmView.methodView.onPress = {
-            self.atmView.nameInput.isHidden = true
-            self.atmView.nameInput.textInput.text = ""
-            self.atmView.cardInput.updateExtraInfo(data: "")
-            self.atmView.cardInput.textInput.text = ""
-//            self.atmView.updateContentSize()
-            self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS))
-        }
+        atmView.methodView.onPress = {}
         atmView.contentView.onPressSearch = {
             self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_SEARCH, orderTransaction: self.orderTransaction))
         }
@@ -388,14 +381,6 @@ class ConfirmationModal: UIViewController {
         sv.showsHorizontalScrollIndicator = false
         sv.bounces = false
         return sv
-    }()
-    let methodTitle: UILabel = {
-        let methodTitle = UILabel()
-        methodTitle.textColor = UIColor(11, 11, 11)
-        methodTitle.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        methodTitle.translatesAutoresizingMaskIntoConstraints = false
-        methodTitle.text = "paymentSource".localize()
-        return methodTitle
     }()
 }
 

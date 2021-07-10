@@ -92,6 +92,7 @@
 "linkedAccount" = "Tài khoản liên kết";
 "bankCard" = "Thẻ ATM nội địa";
 "cardNumber" = "Số thẻ";
+"inputCardNumber" = "Nhập số thẻ ở mặt trước thẻ";
 "bankTransfer" = "Chuyển khoản ngân hàng";
 "creditCard" = "Thẻ quốc tế";
 "service" = "Dịch vụ";
@@ -125,6 +126,8 @@
 "selectBank" = "Chọn ngân hàng";
 "supportedBanks" = "Danh sách ngân hàng hỗ trợ";
 "notFoundBank" = "Không tìm thấy ngân hàng nào";
+"notFoundPayCode" = "Phương thức thanh toán không được hỗ trợ. Vui lòng kiểm tra lại!";
+
 
 
 

@@ -4,24 +4,8 @@
 //
 //  Created by Nam Phan Thanh on 14/05/2021.
 //
-
-enum MethodType: String {
-    case WALLET = "WALLET"
-    case BANK_CARD = "BANK_CARD"
-    case BANK_ACCOUNT = "BANK_ACCOUNT"
-    case BANK_QR_CODE = "BANK_QR_CODE"
-    case BANK_TRANSFER = "BANK_TRANSFER"
-    case CREDIT_CARD = "CREDIT_CARD"
-    case LINKED = "LINKED"
-    case PAYME_CREDIT = "PAYME_CREDIT"
-    case BANK_CARD_PG = "BANK_CARD_PG"
-    case MOMO_PG = "MOMO_PG"
-    case CREDIT_CARD_PG = "CREDIT_CARD_PG"
-    case BANK_QR_CODE_PG = "BANK_QR_CODE_PG"
-    case ZALOPAY_PG = "ZALOPAY_PG"
-}
-
 import Foundation
+import SVGKit
 class MethodView: UIView {
     var content: String?
     var title: String = ""
@@ -102,7 +86,7 @@ class MethodView: UIView {
     }()
 
     let imageNext: UIImageView = {
-        var bgImage = UIImageView(image: UIImage(for: MethodView.self, named: "nextIcoCopy3"))
+        var bgImage = UIImageView()
         bgImage.translatesAutoresizingMaskIntoConstraints = false
         return bgImage
     }()
@@ -114,15 +98,15 @@ class MethodView: UIView {
         return stack
     }()
 
-    let methodDescriptionLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = UIColor(100, 112, 129)
-        label.backgroundColor = .clear
-        label.font = .systemFont(ofSize: 11, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .left
-        return label
-    }()
+//    let methodDescriptionLabel: UILabel = {
+//        let label = UILabel()
+//        label.textColor = UIColor(100, 112, 129)
+//        label.backgroundColor = .clear
+//        label.font = .systemFont(ofSize: 11, weight: .regular)
+//        label.translatesAutoresizingMaskIntoConstraints = false
+//        label.textAlignment = .left
+//        return label
+//    }()
 
     let infoHStack: UIStackView = {
     let stack = UIStackView()
@@ -132,7 +116,8 @@ class MethodView: UIView {
     return stack
     }()
 
-    init (title: String = "", content: String? = nil, buttonTitle: String? = nil, note: String? = nil, methodDescription: String? = nil){
+    init (title: String = "", content: String? = nil, buttonTitle: String? = nil, note: String? = nil, methodDescription: String? = nil,
+          isSelectable: Bool = true) {
         self.title = title
         self.content = content ?? nil
         self.buttonTitle = buttonTitle ?? nil
@@ -140,11 +125,15 @@ class MethodView: UIView {
         self.methodDescription = methodDescription ?? nil
         super.init(frame: CGRect.zero)
         setUpUI()
+        if isSelectable == true {
+            imageNext.isHidden = false
+            updateSelectState(isSelected: false)
+        } else {
+            imageNext.isHidden = true
+        }
     }
 
     func setUpUI() {
-        layer.cornerRadius = 15
-        backgroundColor = UIColor(239, 242, 247)
         translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(vStack)
@@ -169,22 +158,15 @@ class MethodView: UIView {
         infoVStack.addArrangedSubview(infoHStack)
         infoHStack.addArrangedSubview(titleLabel)
         infoHStack.addArrangedSubview(contentLabel)
-//        titleLabel.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 8).isActive = true
-//        titleLabel.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
-        infoVStack.addArrangedSubview(methodDescriptionLabel)
-
-//        contentLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5).isActive = true
-//        contentLabel.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
 
         containerInfo.addSubview(button)
         button.trailingAnchor.constraint(equalTo: containerInfo.trailingAnchor).isActive = true
         button.heightAnchor.constraint(equalTo: containerInfo.heightAnchor).isActive = true
         button.addTarget(self, action: #selector(onPressFunction), for: .touchUpInside)
 
-
         containerInfo.addSubview(imageNext)
-        imageNext.heightAnchor.constraint(equalToConstant: 12).isActive = true
-        imageNext.widthAnchor.constraint(equalToConstant: 6).isActive = true
+        imageNext.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        imageNext.widthAnchor.constraint(equalToConstant: 20).isActive = true
         imageNext.trailingAnchor.constraint(equalTo: containerInfo.trailingAnchor).isActive = true
         imageNext.centerYAnchor.constraint(equalTo: containerInfo.centerYAnchor).isActive = true
 
@@ -198,7 +180,7 @@ class MethodView: UIView {
         titleLabel.text = title
         contentLabel.text = content ?? ""
         noteLabel.text = note ?? ""
-        methodDescriptionLabel.text = methodDescription ?? ""
+//        methodDescriptionLabel.text = methodDescription ?? ""
         if (isOpenWallet == true) {
             button.layer.borderWidth = 1
         } else {
@@ -206,8 +188,8 @@ class MethodView: UIView {
         }
 
         if (buttonTitle != nil) {
-            imageNext.isHidden = true
             button.isHidden = false
+            imageNext.isHidden = true
             button.setTitle(buttonTitle, for: .normal)
         } else {
             button.isHidden = true
@@ -222,10 +204,21 @@ class MethodView: UIView {
             noteLabel.isHidden = true
         }
 
-        if (methodDescription != nil && methodDescription != "") {
-            methodDescriptionLabel.isHidden = false
+//        if (methodDescription != nil && methodDescription != "") {
+//            methodDescriptionLabel.isHidden = false
+//        } else {
+//            methodDescriptionLabel.isHidden = true
+//        }
+    }
+
+    func updateSelectState(isSelected: Bool = false) {
+        if isSelected == true {
+            let imageSVG = SVGKImage(for: MethodView.self, named: "iconCheck")
+            imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
+            imageNext.image = imageSVG?.uiImage
         } else {
-            methodDescriptionLabel.isHidden = true
+            let imageSVG = SVGKImage(for: MethodView.self, named: "iconUncheck")
+            imageNext.image = imageSVG?.uiImage
         }
     }
 

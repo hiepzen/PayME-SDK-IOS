@@ -3,12 +3,12 @@ import PayMESDK
 import CryptoSwift
 
 class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
-
     var floatingButtonController: FloatingButtonController = FloatingButtonController()
     var payME: PayME?
     var activeTextField: UITextField? = nil
     let envData: Dictionary = ["dev": PayME.Env.DEV, "sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION, "staging": PayME.Env.STAGING]
     let langData = [PayME.Language.VIETNAMESE, PayME.Language.ENGLISH]
+    let payCodeData = ["PAYME", "ATM", "VN_PAY", "CREDIT", "MOMO", "ZALO_PAY", "MANUAL_BANK_OCB"]
 
     let environment: UILabel = {
         let label = UILabel()
@@ -53,6 +53,31 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return button
     }()
     let langList: UIPickerView = {
+        let list = UIPickerView()
+        list.layer.borderColor = UIColor.black.cgColor
+        list.layer.borderWidth = 0.5
+        list.backgroundColor = .white
+        list.translatesAutoresizingMaskIntoConstraints = false
+        return list
+    }()
+    let payCodeLabel: UILabel = {
+        let label = UILabel()
+        label.font = label.font.withSize(14)
+        label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Pay Code"
+        return label
+    }()
+    let payCodeDropDown: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.backgroundColor = .white
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    let payCodeList: UIPickerView = {
         let list = UIPickerView()
         list.layer.borderColor = UIColor.black.cgColor
         list.layer.borderWidth = 0.5
@@ -359,6 +384,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     private var connectToken: String = ""
     private var currentEnv: PayME.Env = PayME.Env.SANDBOX
     private var curLanguage: String = PayME.Language.VIETNAMESE
+    private var curPayCode: String = "PAYME"
 
     func genConnectToken(userId: String, phone: String) -> String {
         let secretKey = EnvironmentSettings.standard.secretKey
@@ -433,6 +459,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         if pickerView == envList {
             return envData.count
         }
+        if pickerView == payCodeList {
+            return payCodeData.count
+        }
         return langData.count
     }
 
@@ -440,12 +469,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         if pickerView == envList {
             return Array(envData.keys)[row]
         }
+        if pickerView == payCodeList {
+            return payCodeData[row]
+        }
         return langData[row]
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == envList {
             setEnv(env: envData[Array(envData.keys)[row]], text: Array(envData.keys)[row])
+        } else if pickerView == payCodeList {
+            setPayCode(payCodeData[row])
         } else {
             setLang(lang: langData[row])
         }
@@ -656,7 +690,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     if (self.currentEnv == PayME.Env.PRODUCTION) {
                         storeId = 57956431
                     }
-                    payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note: "Nội dung đơn hàng", paymentMethodID: nil, extraData: nil, onSuccess: { success in
+                    payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note: "Nội dung đơn hàng", payCode: curPayCode, extraData: nil, onSuccess: { success in
                         Log.custom.push(title: "pay", message: success)
                     }, onError: { error in
                         Log.custom.push(title: "pay", message: error)
@@ -765,6 +799,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @objc func onPressLangDropDown() {
         langList.isHidden = !langList.isHidden
     }
+    @objc func onPressPayCodeDropDown() {
+        payCodeList.isHidden = !payCodeList.isHidden
+    }
 
     func setEnv(env: PayME.Env!, text: String!) {
         EnvironmentSettings.standard.changeEnvironment(env: text)
@@ -778,6 +815,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         payME?.setLanguage(language: lang)
         curLanguage = lang
         langDropDown.setTitle(lang, for: .normal)
+    }
+    func setPayCode(_ payCode: String) {
+        curPayCode = payCode
+        payCodeDropDown.setTitle(payCode, for: .normal)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -826,6 +867,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(priceLabel)
         sdkContainer.addSubview(refreshButton)
         sdkContainer.addSubview(openWalletButton)
+        sdkContainer.addSubview(payCodeLabel)
+        sdkContainer.addSubview(payCodeDropDown)
+        sdkContainer.addSubview(payCodeList)
+        sdkContainer.addSubview(qrPayButton)
+        sdkContainer.addSubview(qrPayString)
         sdkContainer.addSubview(depositButton)
         sdkContainer.addSubview(moneyDeposit)
         sdkContainer.addSubview(withDrawButton)
@@ -836,13 +882,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(moneyTransfer)
         sdkContainer.addSubview(getServiceButton)
         sdkContainer.addSubview(scanQRButton)
-        sdkContainer.addSubview(getMethodButton)
         sdkContainer.addSubview(kycButton)
-        sdkContainer.addSubview(qrPayButton)
-        sdkContainer.addSubview(qrPayString)
+
 
         view.bringSubview(toFront: envList)
         view.bringSubview(toFront: langList)
+        sdkContainer.bringSubview(toFront: payCodeList)
 
         phoneTextField.delegate = self
         moneyDeposit.delegate = self
@@ -850,6 +895,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyPay.delegate = self
         envList.delegate = self
         langList.delegate = self
+        payCodeList.delegate = self
 
         environment.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10).isActive = true
         environment.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
@@ -943,13 +989,47 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         openWalletButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         openWalletButton.addTarget(self, action: #selector(openWalletAction), for: .touchUpInside)
 
-        depositButton.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 20).isActive = true
+        payCodeLabel.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 10).isActive = true
+        payCodeLabel.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        payCodeDropDown.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 10).isActive = true
+        payCodeDropDown.leadingAnchor.constraint(equalTo: payCodeLabel.trailingAnchor, constant: 10).isActive = true
+        payCodeDropDown.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        payCodeDropDown.widthAnchor.constraint(equalToConstant: 200).isActive = true
+        payCodeDropDown.addTarget(self, action: #selector(onPressPayCodeDropDown), for: .touchUpInside)
+        payCodeList.isHidden = true
+        payCodeList.topAnchor.constraint(equalTo: payCodeDropDown.bottomAnchor).isActive = true
+        payCodeList.centerXAnchor.constraint(equalTo: payCodeDropDown.centerXAnchor).isActive = true
+        payCodeList.heightAnchor.constraint(equalToConstant: 100).isActive = true
+
+        payButton.topAnchor.constraint(equalTo: payCodeDropDown.bottomAnchor, constant: 10).isActive = true
+        payButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        payButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        payButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        payButton.addTarget(self, action: #selector(payAction), for: .touchUpInside)
+
+        moneyPay.topAnchor.constraint(equalTo: payCodeDropDown.bottomAnchor, constant: 10).isActive = true
+        moneyPay.leadingAnchor.constraint(equalTo: payButton.trailingAnchor, constant: 10).isActive = true
+        moneyPay.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
+        qrPayButton.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 10).isActive = true
+        qrPayButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        qrPayButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        qrPayButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        qrPayButton.addTarget(self, action: #selector(onPayQR), for: .touchUpInside)
+
+        qrPayString.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 10).isActive = true
+        qrPayString.leadingAnchor.constraint(equalTo: qrPayButton.trailingAnchor, constant: 10).isActive = true
+        qrPayString.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        qrPayString.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
+        depositButton.topAnchor.constraint(equalTo: qrPayButton.bottomAnchor, constant: 20).isActive = true
         depositButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         depositButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
         depositButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         depositButton.addTarget(self, action: #selector(depositAction), for: .touchUpInside)
 
-        moneyDeposit.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 20).isActive = true
+        moneyDeposit.topAnchor.constraint(equalTo: qrPayButton.bottomAnchor, constant: 20).isActive = true
         moneyDeposit.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true
         moneyDeposit.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyDeposit.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -961,28 +1041,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         withDrawButton.addTarget(self, action: #selector(withDrawAction), for: .touchUpInside)
 
         moneyWithDraw.topAnchor.constraint(equalTo: depositButton.bottomAnchor, constant: 10).isActive = true
-        moneyWithDraw.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true
+        moneyWithDraw.leadingAnchor.constraint(equalTo: withDrawButton.trailingAnchor, constant: 10).isActive = true
         moneyWithDraw.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyWithDraw.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
-        payButton.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
-        payButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
-        payButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        payButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        payButton.addTarget(self, action: #selector(payAction), for: .touchUpInside)
-
-        moneyPay.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
-        moneyPay.leadingAnchor.constraint(equalTo: depositButton.trailingAnchor, constant: 10).isActive = true
-        moneyPay.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
-        moneyPay.heightAnchor.constraint(equalToConstant: 30).isActive = true
-
-        transferButton.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 10).isActive = true
+        transferButton.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
         transferButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         transferButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
         transferButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         transferButton.addTarget(self, action: #selector(transferAction), for: .touchUpInside)
 
-        moneyTransfer.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: 10).isActive = true
+        moneyTransfer.topAnchor.constraint(equalTo: withDrawButton.bottomAnchor, constant: 10).isActive = true
         moneyTransfer.leadingAnchor.constraint(equalTo: transferButton.trailingAnchor, constant: 10).isActive = true
         moneyTransfer.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyTransfer.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -993,28 +1062,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         getServiceButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         getServiceButton.addTarget(self, action: #selector(getListService), for: .touchUpInside)
 
-        getMethodButton.topAnchor.constraint(equalTo: getServiceButton.bottomAnchor, constant: 10).isActive = true
-        getMethodButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
-        getMethodButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
-        getMethodButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        getMethodButton.addTarget(self, action: #selector(getListMethod), for: .touchUpInside)
-
-        scanQRButton.topAnchor.constraint(equalTo: getMethodButton.bottomAnchor, constant: 10).isActive = true
+        scanQRButton.topAnchor.constraint(equalTo: getServiceButton.bottomAnchor, constant: 10).isActive = true
         scanQRButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         scanQRButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         scanQRButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         scanQRButton.addTarget(self, action: #selector(scanQR), for: .touchUpInside)
-
-        qrPayButton.topAnchor.constraint(equalTo: scanQRButton.bottomAnchor, constant: 10).isActive = true
-        qrPayButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
-        qrPayButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        qrPayButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        qrPayButton.addTarget(self, action: #selector(onPayQR), for: .touchUpInside)
-
-        qrPayString.topAnchor.constraint(equalTo: scanQRButton.bottomAnchor, constant: 10).isActive = true
-        qrPayString.leadingAnchor.constraint(equalTo: qrPayButton.trailingAnchor, constant: 10).isActive = true
-        qrPayString.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
-        qrPayString.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
         kycButton.topAnchor.constraint(equalTo: scanQRButton.bottomAnchor, constant: 10).isActive = true
         kycButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
@@ -1025,17 +1077,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         updateViewConstraints()
         view.layoutIfNeeded()
 
-        //them view o day
-//        let a = UIView(frame: CGRect.zero)
-//        a.backgroundColor = .red
-//        sdkContainer.addSubview(a)
-//        a.translatesAutoresizingMaskIntoConstraints = false
-//        a.topAnchor.constraint(equalTo: getMethodButton.bottomAnchor).isActive = true
-//        a.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
-//        a.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
-//        a.heightAnchor.constraint(equalToConstant: 200).isActive = true
-
-        sdkContainer.bottomAnchor.constraint(equalTo: sdkContainer.subviews[sdkContainer.subviews.count - 1].bottomAnchor, constant: 8).isActive = true
+        sdkContainer.bottomAnchor.constraint(equalTo: kycButton.bottomAnchor, constant: 8).isActive = true
 
         updateViewConstraints()
         view.layoutIfNeeded()
@@ -1050,6 +1092,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
         langList.selectRow(0, inComponent: 0, animated: true)
         setLang(lang: langData[0])
+        payCodeList.selectRow(0, inComponent: 0, animated: true)
+        setPayCode(payCodeData[0])
     }
 
 }

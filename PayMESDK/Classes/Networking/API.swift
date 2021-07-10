@@ -559,19 +559,24 @@ class API {
     }
 
     func getTransferMethods(
+            payCode: String = "",
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
+        var input = [
+            "serviceType": "OPEN_EWALLET_PAYMENT",
+             "extraData": [
+                 "storeId": storeId
+             ]
+        ] as [String: Any]
+        if payCode != "" {
+            input.updateValue(payCode, forKey: "payCode")
+        }
         let variables: [String: Any] = [
-            "getPaymentMethodInput": [
-                "serviceType": "OPEN_EWALLET_PAYMENT",
-                "extraData": [
-                    "storeId": storeId
-                ]
-            ]
+            "getPaymentMethodInput": input
         ]
         let json: [String: Any] = [
             "query": GraphQuery.getTranferMethodsQuery,

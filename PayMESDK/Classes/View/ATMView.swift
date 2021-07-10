@@ -27,11 +27,11 @@ class ATMView: UIView {
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 12)
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 0)
 
-        methodView.topAnchor.constraint(equalTo: topAnchor, constant: 14).isActive = true
-        methodView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
-        methodView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        methodView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        methodView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        methodView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
 
-        vStack.topAnchor.constraint(equalTo: methodView.bottomAnchor, constant: 14).isActive = true
+        vStack.topAnchor.constraint(equalTo: methodView.bottomAnchor).isActive = true
         vStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         vStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
 
@@ -63,7 +63,7 @@ class ATMView: UIView {
 
     func updateUIByMethod(orderTransaction: OrderTransaction) {
         button.setTitle("confirm".localize(), for: .normal)
-        let method = orderTransaction.paymentMethod!
+        guard let method = orderTransaction.paymentMethod else { return }
         cardInput.isHidden = true
         dateInput.isHidden = true
         nameInput.isHidden = true
@@ -123,18 +123,15 @@ class ATMView: UIView {
         methodView.updateUI()
         updateConstraints()
         layoutIfNeeded()
-//        updateContentSize()
     }
 
-    func updatePaymentInfo(_ data: [Dictionary<String, Any>]) {
-        paymentInfo.removeFromSuperview()
-        paymentInfo = InformationView(data: data)
-        vStack.addArrangedSubview(paymentInfo)
-        layoutIfNeeded()
-        paymentInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
-
-//        updateContentSize()
-    }
+//    func updatePaymentInfo(_ data: [Dictionary<String, Any>]) {
+//        paymentInfo.removeFromSuperview()
+//        paymentInfo = InformationView(data: data)
+//        vStack.addArrangedSubview(paymentInfo)
+//        layoutIfNeeded()
+//        paymentInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
+//    }
     let vStack: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -161,11 +158,11 @@ class ATMView: UIView {
         return button
     }()
 
-    let cardInput = InputView(title: "fillCardNumberUpper".localize(), placeholder: "cardNumber".localize(), keyboardType: .numberPad)
+    let cardInput = InputView(title: "fillCardNumberUpper".localize(), placeholder: "inputCardNumber".localize(), keyboardType: .numberPad)
     let nameInput = InputView(title: "fillFullNameCardHolderUpper".localize(), placeholder: "fullnameCardHolder".localize())
     let dateInput = InputView(title: "releaseDateUpperCase".localize(), placeholder: "MM/YY", keyboardType: .numberPad)
     let cvvInput = InputView(title: "cvvUppercase".localize(), placeholder: "CVV/CVC", keyboardType: .numberPad)
-    let methodView: MethodView = MethodView(buttonTitle: "change".localize())
+    let methodView: MethodView = MethodView(isSelectable: false)
 
     var paymentInfo = InformationView(data: [])
     var contentView = BankTransferView()

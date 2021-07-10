@@ -223,7 +223,7 @@ class PayMEFunction {
 
     func payAction(
             _ currentVC: UIViewController, _ storeId: Int, _ orderId: String, _ amount: Int, _ note: String?,
-            _ paymentMethodID: Int? = nil, _ extraData: String?, _ isShowResultUI: Bool = true,
+            _ payCode: String = "PAYME", _ extraData: String?, _ isShowResultUI: Bool = true,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
@@ -254,10 +254,10 @@ class PayMEFunction {
             })
 
             let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
-                    orderId: orderId, note: note ?? "", extraData: extraData ?? "", isShowHeader: isShowHeader)
+                    orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader)
             let paymentModalController = PaymentModalController(
                     payMEFunction: self, orderTransaction: orderTransaction,
-                    paymentMethodID: paymentMethodID, isShowResultUI: isShowResultUI,
+                    payCode: payCode, isShowResultUI: isShowResultUI,
                     onSuccess: onSuccess, onError: onError
             )
             currentVC.presentPanModal(paymentModalController)
@@ -280,6 +280,7 @@ class PayMEFunction {
 
     func openQRCode(
             currentVC: UIViewController,
+            payCode: String = "PAYME",
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void,
             isStartDirectFromUser: Bool = false
@@ -298,7 +299,7 @@ class PayMEFunction {
                             let amount = (detect["amount"] as? Int) ?? 0
                             let note = (detect["note"] as? String) ?? ""
                             let onSuccessPay = isStartDirectFromUser ? { dictionary in } : onSuccess
-                            self.payAction(PayME.currentVC ?? currentVC, storeId, orderId, amount, note, nil, nil, true, onSuccessPay, onError)
+                            self.payAction(PayME.currentVC ?? currentVC, storeId, orderId, amount, note, payCode, nil, true, onSuccessPay, onError)
                         } else {
                             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
                         }
@@ -341,7 +342,7 @@ class PayMEFunction {
 
     func payQRCode(
             currentVC: UIViewController,
-            qr: String,
+            qr: String, payCode: String = "PAYME",
             isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
@@ -357,7 +358,7 @@ class PayMEFunction {
                     let orderId = (detect["orderId"] as? String) ?? ""
                     let amount = (detect["amount"] as? Int) ?? 0
                     let note = (detect["note"] as? String) ?? ""
-                    self.payAction(currentVC, storeId, orderId, amount, note, nil, nil, isShowResultUI, onSuccess, onError)
+                    self.payAction(currentVC, storeId, orderId, amount, note, payCode, nil, isShowResultUI, onSuccess, onError)
                 } else {
                     onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
                 }

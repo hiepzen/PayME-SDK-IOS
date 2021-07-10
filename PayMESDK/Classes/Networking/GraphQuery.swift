@@ -352,11 +352,6 @@ class GraphQuery {
                                                   succeeded
                                                   state
                                                   message
-                                                  fee {
-                                                    ... on GeneralFee {
-                                                      fee
-                                                    }
-                                                  }
                                                 }
                                               }
                                             }

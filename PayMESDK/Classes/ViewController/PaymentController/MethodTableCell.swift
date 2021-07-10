@@ -13,15 +13,19 @@ class Method: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         isAccessibilityElement = true
-        backgroundColor = .white
+        backgroundColor = UIColor(239, 242, 247)
+        layer.cornerRadius = 15
         addSubview(methodView)
-        methodView.topAnchor.constraint(equalTo: topAnchor, constant: 12).isActive = true
+        methodView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         methodView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         methodView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         methodView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
 
         let backgroundView = UIView()
-        backgroundView.backgroundColor = #colorLiteral(red: 0.8196078431, green: 0.8235294118, blue: 0.8274509804, alpha: 1).withAlphaComponent(0.11)
+        backgroundView.backgroundColor = .white
+        backgroundView.layer.borderColor = UIColor(hexString: PayME.configColor[0]).cgColor
+        backgroundView.layer.borderWidth = 1
+        backgroundView.layer.cornerRadius = 15
         selectedBackgroundView = backgroundView
     }
 

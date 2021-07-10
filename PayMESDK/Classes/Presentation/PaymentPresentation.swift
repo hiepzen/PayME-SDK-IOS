@@ -659,10 +659,11 @@ class PaymentPresentation {
     }
 
     func getListMethods(
+            payCode: String = "",
             onSuccess: @escaping ([PaymentMethod]) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        request.getTransferMethods(onSuccess: { response in
+        request.getTransferMethods(payCode: payCode, onSuccess: { response in
             let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
             var methods: [PaymentMethod] = []
             for (index, item) in items.enumerated() {
@@ -670,11 +671,7 @@ class PaymentPresentation {
                     continue
                 }
                 let methodInformation = PaymentMethod(
-                        methodId: (item["methodId"] as! Int), type: item["type"] as! String,
-                        title: item["title"] as! String, label: item["label"] as! String,
-                        minFee: item["minFee"] as! Int,
-                        feeDescription: item["feeDescription"] as? String ?? "",
-                        active: index == 0 ? true : false
+                        type: methodType, title: item["title"] as! String, label: item["label"] as! String
                 )
                 if methodType == "WALLET" {
                     methodInformation.dataWallet = WalletInformation(balance: 0)
@@ -694,7 +691,7 @@ class PaymentPresentation {
             }
             if self.accessToken != "" && self.kycState == "APPROVED" {
                 self.request.getWalletInfo(onSuccess: { response in
-                    let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as! Int
+                    let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as? Int ?? 0
                     method.dataWallet?.balance = balance
                     onSuccess(methods)
                 }, onError: { error in onError(error) })
@@ -743,34 +740,12 @@ class PaymentPresentation {
                         "active": true
                     ]
                 ]
-            case MethodType.BANK_CARD.rawValue:
-                return [
-                    "bankCard": [
-                        "cardNumber": "cardNumber",
-                        "cardHolder": orderTransaction.paymentMethod?.dataBank?.cardHolder ?? "",
-                        "issuedAt": "2000-01-01T00:00:00.000Z"
-                    ]
-                ]
+
             case MethodType.LINKED.rawValue:
                 return [
                     "linked": [
                         "linkedId": orderTransaction.paymentMethod?.dataLinked?.linkedId ?? 0,
                         "envName": "MobileApp"
-                    ]
-                ]
-            case MethodType.BANK_TRANSFER.rawValue:
-                return [
-                    "bankTransfer": [
-                        "active": true,
-                        "recheck": false
-                    ]
-                ]
-            case MethodType.CREDIT_CARD.rawValue:
-                return [
-                    "creditCard": [
-                        "cardNumber": "temp",
-                        "expiredAt": "temp",
-                        "cvv": "temp"
                     ]
                 ]
             default: return nil
@@ -784,13 +759,7 @@ class PaymentPresentation {
                                     message: (response["Utility"]!["GetFee"] as? [String: AnyObject])?["message"] as? String ??
                                             "Vượt qua giới hạn giao dịch. Vui lòng chọn phương thức khác để thực hiện giao dịch hoặc thử lại sau."
                             )))
-                    return
                 }
-            }
-            if let fee = ((response["Utility"]!["GetFee"] as? [String: AnyObject])?["fee"] as? [String: AnyObject])?["fee"] as? Int {
-                orderTransaction.paymentMethod?.fee = fee
-                orderTransaction.total = orderTransaction.amount + fee
-                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
             }
         }, onError: { error in
             print(error)
