@@ -15,7 +15,7 @@ public enum PayCode: String {
     case CREDIT = "CREDIT"
     case MOMO = "MOMO"
     case ZALO_PAY = "ZALO_PAY"
-    case MANUAL_BANK = "MANUAL_BANK_OCB"
+    case MANUAL_BANK = "MANUAL_BANK"
 }
 
 enum MethodType: String {
