@@ -103,9 +103,9 @@
 "resendOTP" = "Gửi lại OTP";
 "wrongOTP" = "OTP không chính xác";
 "OTPContent" = "Nhập mã OTP đã được gửi qua số điện thoại đăng ký thẻ";
-"bankTransferContent1" = "Vui lòng chuyển khoản ";
-"bankTransferContent2" = "tới thông tin tài khoản bên dưới:";
-"bankTransferContent3" = "(*) Giao dịch sẽ được thực hiện ngay sau khi xác nhận chuyển khoản";
+"bankTransferContent1" = "Vui lòng chuyển ";
+"bankTransferContent2" = "tới:";
+"bankTransferContent3" = "(*) Hoặc dùng ứng dụng ngân hàng quét VietQR để chuyển tiền.";
 "bankTransferContent4" = "Hệ thống vẫn chưa ghi nhận lệnh chuyển tiền của bạn. Giao dịch sẽ được hoàn tất ngay khi hệ thống ghi nhận thành công.";
 "bankTransferContent5" = "Hệ thống đang kiểm tra trạng thái lệnh chuyển tiền của bạn. Vui lòng chờ trong giây lát...";
 "bank" = "NGÂN HÀNG";

@@ -58,7 +58,7 @@ class BankTransferView: UIView {
 
         divider.heightAnchor.constraint(equalToConstant: 12).isActive = true
 
-        transferInfo.bottomAnchor.constraint(equalTo: vStack.bottomAnchor, constant: 6).isActive = true
+        transferInfo.bottomAnchor.constraint(equalTo: vStack.bottomAnchor, constant: 12).isActive = true
 
         openVietQRBanksButton.addTarget(self, action: #selector(onPressVietQR), for: .touchUpInside)
 
@@ -69,6 +69,7 @@ class BankTransferView: UIView {
         guard let paymeBank = bank else { return }
         contentLabel.text = paymeBank.bankName
         paymeInfo?.removeFromSuperview()
+        note.removeFromSuperview()
         transferInfo.removeDashedLines()
         paymeInfo = BankQrView(qrString: paymeBank.qrCode, bank: paymeBank)
 
@@ -81,13 +82,14 @@ class BankTransferView: UIView {
             .foregroundColor: UIColor(0, 0, 0)
         ])
         normalText1.append(NSMutableAttributedString(string: "\(formatMoney(input: orderTransaction.total ?? 0)) đ ", attributes: [
-            .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+            .font: UIFont.systemFont(ofSize: 18, weight: .bold),
             .foregroundColor: UIColor(236, 42, 42)
         ]))
         normalText1.append(normalText2)
         info.attributedText = normalText1
 
         vStack.addArrangedSubview(paymeInfo)
+        vStack.addArrangedSubview(note)
         paymeInfo.leadingAnchor.constraint(equalTo: vStack.leadingAnchor).isActive = true
         layoutIfNeeded()
         seperator.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: seperator.frame.size.width, y: 0), color: UIColor(142, 142, 142), strokeLength: 4, gapLength: 4, width: 1)
@@ -189,6 +191,18 @@ class BankTransferView: UIView {
                 ]), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         return button
+    }()
+
+    let note: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = UIColor(0, 0, 0)
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 10, weight: .regular)
+        label.text = "bankTransferContent3".localize()
+        return label
     }()
 
     required init?(coder aDecoder: NSCoder) {
