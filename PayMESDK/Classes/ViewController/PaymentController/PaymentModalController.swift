@@ -211,8 +211,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             self.onAuthenCard(orderTransaction: paymentState.orderTransaction, html: responseError.html)
                         }
                         if responseError.code == ResponseErrorCode.OVER_QUOTA {
-                            self.toastMessError(title: "notification".localize(), message: responseError.message) { [self] alertAction in
-                                    dismiss(animated: true)
+                            self.toastMessError(title: "notification".localize(), message: responseError.message) { alertAction in
                             }
                         }
                         if responseError.code == ResponseErrorCode.SERVER_ERROR {

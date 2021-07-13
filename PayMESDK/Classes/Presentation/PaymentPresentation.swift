@@ -245,7 +245,9 @@ class PaymentPresentation {
                             self.onPaymeError(data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize())
                         }
                     } else {
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message":
+                        (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject])
+                        self.onPaymeError(data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize())
                     }
                 }, onError: { error in
                     self.onError(error)
@@ -757,7 +759,7 @@ class PaymentPresentation {
                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR,
                             error: ResponseError(code: ResponseErrorCode.OVER_QUOTA,
                                     message: (response["Utility"]!["GetFee"] as? [String: AnyObject])?["message"] as? String ??
-                                            "Vượt qua giới hạn giao dịch. Vui lòng chọn phương thức khác để thực hiện giao dịch hoặc thử lại sau."
+                                            "overQuota".localize()
                             )))
                 }
             }

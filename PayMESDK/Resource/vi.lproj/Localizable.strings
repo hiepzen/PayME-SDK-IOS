@@ -37,11 +37,11 @@
 "choseDocument" = "Chọn loại giấy tờ";
 "wrongCardNumberContent" = "Vui lòng nhập mã thẻ đúng định dạng";
 "emptyExpiredDateCardContent" = "Vui lòng nhập ngày hết hạn thẻ";
-"wrongExpiredDateCardContent" = "Vui lòng nhập ngày hết hạn thẻ hợp lệ";
+"wrongExpiredDateCardContent" = "Định dạng ngày không hợp lệ";
 "emptyCVVContent" = "Vui lòng nhập mã bảo mật";
 "emptyFullNameCardHolder" = "Vui lòng nhập họ tên chủ thẻ";
 "emptyReleaseDateCardContent" = "Vui lòng nhập ngày phát hành thẻ";
-"wrongReleaseDateCardContent" = "Vui lòng nhập ngày phát hành thẻ hợp lệ";
+"wrongReleaseDateCardContent" = "Định dạng ngày không hợp lệ";
 "wrongCardNumberContentNoti" = "Số thẻ không đúng định dạng";
 "confirmVideo" = "Xác nhận video";
 "confirmImage" = "Xác nhận hình chụp";
@@ -127,6 +127,7 @@
 "supportedBanks" = "Danh sách ngân hàng hỗ trợ";
 "notFoundBank" = "Không tìm thấy ngân hàng nào";
 "notFoundPayCode" = "Phương thức thanh toán không được hỗ trợ. Vui lòng kiểm tra lại!";
+"overQuota" = "Vượt qua giới hạn giao dịch. Vui lòng chọn phương thức khác để thực hiện giao dịch hoặc thử lại sau.";
 
 
 
