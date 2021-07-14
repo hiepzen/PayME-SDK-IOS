@@ -754,14 +754,26 @@ class PaymentPresentation {
             }
         }()
         request.getFee(amount: orderTransaction.amount, payment: payment, onSuccess: { response in
-            if let state = (response["Utility"]!["GetFee"] as? [String: AnyObject])?["state"] as? String {
-                if state == "OVER_DAY_QUOTA" || state == "OVER_MONTH_QUOTA" {
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR,
-                            error: ResponseError(code: ResponseErrorCode.OVER_QUOTA,
-                                    message: (response["Utility"]!["GetFee"] as? [String: AnyObject])?["message"] as? String ??
-                                            "overQuota".localize()
-                            )))
+            let data = JSON(response)
+            if data["Utility"]["GetFee"]["succeeded"].boolValue {
+                if let fee = ((response["Utility"]!["GetFee"] as? [String: AnyObject])?["fee"] as? [String: AnyObject])?["fee"] as? Int {
+                    orderTransaction.paymentMethod?.fee = fee
+                    orderTransaction.total = orderTransaction.amount + fee
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.FEE, orderTransaction: orderTransaction))
                 }
+                if let state = (response["Utility"]!["GetFee"] as? [String: AnyObject])?["state"] as? String {
+                    if state == "OVER_DAY_QUOTA" || state == "OVER_MONTH_QUOTA" {
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR,
+                                error: ResponseError(code: ResponseErrorCode.OVER_QUOTA,
+                                        message: (response["Utility"]!["GetFee"] as? [String: AnyObject])?["message"] as? String ??
+                                                "overQuota".localize()
+                                )))
+                    }
+                }
+            } else {
+                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject,
+                              "message": (data["Utility"]["GetFee"]["message"].string ?? "hasError".localize()) as AnyObject])
+                self.onPaymeError(data["Utility"]["GetFee"]["message"].string ?? "hasError".localize())
             }
         }, onError: { error in
             print(error)

@@ -214,13 +214,13 @@ extension UIView {
 
     func applyGradient(colors: [CGColor], radius : CGFloat)
     {
+        removeGradient()
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = colors
         gradientLayer.startPoint = CGPoint(x: 0, y: 0)
         gradientLayer.endPoint = CGPoint(x: 1, y: 0)
         gradientLayer.frame = self.bounds
         gradientLayer.cornerRadius = radius
-        self.layer.insertSublayer(gradientLayer, at: 0)
         self.layer.insertSublayer(gradientLayer, at: 0)
     }
 
@@ -258,7 +258,7 @@ extension UIView {
         activityIndicator.startAnimating()
     }
 
-    func endLoading(indicator: UIActivityIndicatorView) {
+    func endLoading() {
         for subview in subviews {
             if subview is UIActivityIndicatorView {
                 (subview as! UIActivityIndicatorView).stopAnimating()

@@ -25,8 +25,7 @@ class ConfirmationModal: UIViewController {
     let isShowResultUI: Bool
     let paymentPresentation: PaymentPresentation
 
-    var payActionByMethod = {
-    }
+    var payActionByMethod = {}
     let orderView: OrderView
 
     init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool, paymentPresentation: PaymentPresentation,

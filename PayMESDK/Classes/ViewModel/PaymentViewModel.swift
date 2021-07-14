@@ -12,7 +12,7 @@ enum State {
     case METHODS
     case ATM
     case BANK_TRANSFER
-    case CONFIRMATION
+    case FEE
     case VALIDATION
     case RESULT
     case ERROR

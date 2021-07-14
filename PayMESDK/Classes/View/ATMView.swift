@@ -22,7 +22,6 @@ class ATMView: UIView {
         hStack.addArrangedSubview(dateInput)
         hStack.addArrangedSubview(cvvInput)
         cvvInput.textInput.isSecureTextEntry = true
-//        self.addSubview(nameField)
 
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 12)
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 0)
@@ -106,7 +105,6 @@ class ATMView: UIView {
             break
         case MethodType.BANK_TRANSFER.rawValue:
             button.setTitle("confirmBankTransfer".localize(), for: .normal)
-            paymentInfo.removeFromSuperview()
             contentView.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")
             contentView.updateInfo(bank: method.dataBankTransfer, orderTransaction: orderTransaction)
@@ -127,13 +125,6 @@ class ATMView: UIView {
         layoutIfNeeded()
     }
 
-//    func updatePaymentInfo(_ data: [Dictionary<String, Any>]) {
-//        paymentInfo.removeFromSuperview()
-//        paymentInfo = InformationView(data: data)
-//        vStack.addArrangedSubview(paymentInfo)
-//        layoutIfNeeded()
-//        paymentInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
-//    }
     let vStack: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -166,7 +157,6 @@ class ATMView: UIView {
     let cvvInput = InputView(title: "cvvUppercase".localize(), placeholder: "CVV/CVC", keyboardType: .numberPad)
     let methodView: MethodView = MethodView(isSelectable: false)
 
-    var paymentInfo = InformationView(data: [])
     var contentView = BankTransferView()
 }
 

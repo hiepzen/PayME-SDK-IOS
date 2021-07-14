@@ -139,6 +139,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
 
         setupSubscription()
+        let primaryColor = payMEFunction.configColor[0]
+        let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
+        orderView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
+        button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+        resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+        confirmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+        bankTransResultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
     }
 
     private var subscription: Disposable?
@@ -151,7 +158,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.timer?.invalidate()
                         self.setupResult(paymentState.result!)
                     }
-                    if paymentState.state == State.CONFIRMATION {
+                    if paymentState.state == State.FEE {
                         self.setupUIFee(order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.METHODS {
@@ -211,8 +218,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                             self.onAuthenCard(orderTransaction: paymentState.orderTransaction, html: responseError.html)
                         }
                         if responseError.code == ResponseErrorCode.OVER_QUOTA {
-                            self.toastMessError(title: "notification".localize(), message: responseError.message) { alertAction in
-                            }
+                            self.setupUIOverQuota(responseError.message)
                         }
                         if responseError.code == ResponseErrorCode.SERVER_ERROR {
                             PaymentModalController.isShowCloseModal = false
@@ -353,6 +359,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.addSubview(orderView)
         methodsView.addSubview(methodTitle)
         methodsView.addSubview(tableView)
+        methodsView.addSubview(feeInfo)
+        methodsView.addSubview(quotaNote)
         methodsView.addSubview(button)
 
         orderView.topAnchor.constraint(equalTo: methodsView.topAnchor).isActive = true
@@ -379,6 +387,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
         tableView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
         tableView.alwaysBounceVertical = false
+
+        feeInfo.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 8).isActive = true
+        feeInfo.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
+        feeInfo.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
+
+        quotaNote.topAnchor.constraint(equalTo: feeInfo.bottomAnchor, constant: 8).isActive = true
+        quotaNote.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
+        quotaNote.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
 
         confirmController.view.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         confirmController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -438,6 +454,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             if paymentMethods.count > 0 {
                 switch payCode {
                 case PayCode.PAYME.rawValue:
+                    button.isEnabled = false
+                    button.removeGradient()
                     payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS, methods: paymentMethods))
                     break
                 case PayCode.ATM.rawValue:
@@ -619,6 +637,58 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func setupUIFee(order: OrderTransaction?) {
         view.endEditing(false)
+        button.isEnabled = true
+        let primaryColor = payMEFunction.configColor[0]
+        let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
+        button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+        if let orderTrans = order {
+            let data = [
+                ["key": "fee".localize(),
+                 "value": (orderTrans.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTrans.paymentMethod?.fee ?? 0))) đ" : "free".localize(),
+                 "keyColor": UIColor(3, 3, 3),
+                 "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
+                 "color": UIColor(3, 3, 3),
+                 "font": UIFont.systemFont(ofSize: 15, weight: .regular)
+                ],
+                ["key": "totalPayment".localize(),
+                 "value": "\(String(describing: formatMoney(input: orderTrans.total ?? 0))) đ",
+                 "font": UIFont.systemFont(ofSize: 20, weight: .bold),
+                 "color": UIColor(236, 42, 42),
+                 "keyColor": UIColor(3, 3, 3),
+                 "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
+                ]
+            ]
+            feeInfo.update(data: data)
+            feeInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
+
+            methodsBottomConstraint?.isActive = false
+            methodsBottomConstraint = button.topAnchor.constraint(equalTo: feeInfo.bottomAnchor, constant: 16)
+            methodsBottomConstraint?.isActive = true
+
+            updateViewConstraints()
+            view.layoutIfNeeded()
+            let viewHeight = methodsView.bounds.size.height
+                    + footer.bounds.size.height
+            modalHeight = viewHeight
+            panModalSetNeedsLayoutUpdate()
+            panModalTransition(to: .longForm)
+        }
+    }
+    func setupUIOverQuota(_ message: String) {
+        button.isEnabled = false
+        quotaNote.text = message
+        button.removeGradient()
+        methodsBottomConstraint?.isActive = false
+        methodsBottomConstraint = button.topAnchor.constraint(equalTo: quotaNote.bottomAnchor, constant: 16)
+        methodsBottomConstraint?.isActive = true
+
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        let viewHeight = methodsView.bounds.size.height
+                + footer.bounds.size.height
+        modalHeight = viewHeight
+        panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .longForm)
     }
 
     func setupOTP() {
@@ -749,16 +819,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         panModalTransition(to: .longForm)
     }
 
-    override func viewDidLayoutSubviews() {
-        let primaryColor = payMEFunction.configColor[0]
-        let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
-
-        orderView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
-        button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-        resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-        confirmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-        bankTransResultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-    }
+//    override func viewDidLayoutSubviews() {
+//
+//    }
 
     func panModalDidDismiss() {
         subscription?.dispose()
@@ -790,7 +853,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     @objc func onPressSubmitMethod() {
         guard let method = selectedMethod else { return }
-        orderTransaction.paymentMethod = method
         onSubmitMethod(method)
     }
 
@@ -945,6 +1007,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 20
+        button.backgroundColor = UIColor(130, 130, 130)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 12)
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 0)
         button.setTitle("confirm".localize(), for: .normal)
@@ -952,7 +1015,17 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         return button
     }()
 
+    let quotaNote: UILabel = {
+        let methodTitle = UILabel()
+        methodTitle.textColor = UIColor(236, 42, 42)
+        methodTitle.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        methodTitle.translatesAutoresizingMaskIntoConstraints = false
+        methodTitle.numberOfLines = 0
+        return methodTitle
+    }()
+
     let footer = PaymeLogoView()
+    var feeInfo = InformationView(data: [])
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -1035,6 +1108,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedMethod = data[indexPath.section]
+        orderTransaction.paymentMethod = selectedMethod
+        paymentPresentation.getFee(orderTransaction: orderTransaction)
         guard let cell = tableView.cellForRow(at: indexPath) as? Method else { return }
         cell.methodView.updateSelectState(isSelected: true)
     }

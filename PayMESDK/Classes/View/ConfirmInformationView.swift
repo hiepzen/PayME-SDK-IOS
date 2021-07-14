@@ -124,10 +124,17 @@ class InformationView: UIView{
         stackView.topAnchor.constraint(equalTo: topAnchor, constant: 16).isActive = true
         stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16).isActive = true
     }
+
+    func update(data: [Dictionary<String, Any>]) {
+        self.data = data
+        layoutSubviews()
+        updateConstraints()
+        layoutIfNeeded()
+    }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        if stackView.isDescendant(of: self) && stackView.subviews.count == 0 {
+        if data.count > 0 && stackView.isDescendant(of: self) && stackView.subviews.count == 0 {
             for (idx, info) in data.enumerated() {
                 guard let key = info["key"] as? String else {
                     continue
