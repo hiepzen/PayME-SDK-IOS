@@ -67,14 +67,13 @@ class InputView: UIView {
         textInput.heightAnchor.constraint(equalToConstant: 30).isActive = true
         textInput.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         textInput.topAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
-        textInput.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
-        textInput.clearButtonMode = .whileEditing
+        textInput.trailingAnchor.constraint(equalTo: extraImage.trailingAnchor, constant: -8).isActive = true
 
         extraLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
         extraLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 4).isActive = true
         extraLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
 
-        extraImage.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
+        extraImage.topAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
         extraImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         extraImage.heightAnchor.constraint(equalToConstant: 20).isActive = true
         extraImage.widthAnchor.constraint(equalToConstant: 30).isActive = true

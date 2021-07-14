@@ -90,11 +90,11 @@
 "cardHolder" = "Chủ tài khoản";
 "acroCardHolder" = "Chủ TK";
 "linkedAccount" = "Tài khoản liên kết";
-"bankCard" = "Thẻ ATM nội địa";
+"bankCard" = "Thẻ ATM";
 "cardNumber" = "Số thẻ";
 "inputCardNumber" = "Nhập số thẻ ở mặt trước thẻ";
 "bankTransfer" = "Chuyển khoản ngân hàng";
-"creditCard" = "Thẻ quốc tế";
+"creditCard" = "Thẻ Visa/Master/JCB";
 "service" = "Dịch vụ";
 "paymentAmount" = "Số tiền thanh toán";
 "passportContent" = "Hộ chiếu chỉ dùng để cung cấp định danh cho người nước ngoài";

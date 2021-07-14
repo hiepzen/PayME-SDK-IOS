@@ -90,11 +90,11 @@
 "cardHolder" = "Chủ tài khoản";
 "acroCardHolder" = "Chủ TK";
 "linkedAccount" = "Tài khoản liên kết";
-"bankCard" = "Thẻ ATM nội địa";
+"bankCard" = "Thẻ ATM";
 "cardNumber" = "Số thẻ";
 "inputCardNumber" = "Nhập số thẻ ở mặt trước thẻ";
 "bankTransfer" = "Chuyển khoản ngân hàng";
-"creditCard" = "Thẻ quốc tế";
+"creditCard" = "Thẻ Visa/Master/JCB";
 "service" = "Dịch vụ";
 "paymentAmount" = "Số tiền thanh toán";
 "passportContent" = "Hộ chiếu chỉ dùng để cung cấp định danh cho người nước ngoài";
@@ -128,6 +128,7 @@
 "notFoundBank" = "Không tìm thấy ngân hàng nào";
 "notFoundPayCode" = "Phương thức thanh toán không được hỗ trợ. Vui lòng kiểm tra lại!";
 "overQuota" = "Vượt qua giới hạn giao dịch. Vui lòng chọn phương thức khác để thực hiện giao dịch hoặc thử lại sau.";
+
 
 
 

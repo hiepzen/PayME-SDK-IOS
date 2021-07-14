@@ -324,22 +324,23 @@ class ConfirmationModal: UIViewController {
 
     private func detectBank(_ string: String) {
         if string != "" && string.count > 5 {
-            for bank in listBank {
-                bankDetect = nil
-                if (string.contains(bank.cardPrefix)) {
-                    bankDetect = bank
-                    break
+            if bankDetect == nil {
+                for bank in listBank {
+                    if (string.contains(bank.cardPrefix)) {
+                        bankDetect = bank
+                        atmView.cardInput.updateExtraInfo(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(bank.swiftCode).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
+                        break
+                    }
                 }
-            }
-            if (bankDetect == nil) {
-                atmView.cardInput.errorMessage = "wrongCardNumberContentNoti".localize()
-                atmView.cardInput.updateState(state: .error)
-                atmView.cardInput.updateExtraInfo(data: "")
+                if bankDetect == nil {
+                    atmView.cardInput.errorMessage = "wrongCardNumberContentNoti".localize()
+                    atmView.cardInput.updateState(state: .error)
+                }
             }
         } else {
             bankDetect = nil
-            atmView.cardInput.updateState(state: .focus)
             atmView.cardInput.updateExtraInfo(data: "")
+            atmView.cardInput.updateState(state: .focus)
         }
         if (bankDetect != nil) && (string.count == bankDetect!.cardNumberLength) {
             payMEFunction.request.getBankName(swiftCode: bankDetect!.swiftCode, cardNumber: string, onSuccess: { response in
@@ -347,26 +348,19 @@ class ConfirmationModal: UIViewController {
                 let succeeded = bankNameRes["succeeded"] as! Bool
                 if (succeeded == true) {
                     let name = bankNameRes["accountName"] as! String
-                    self.atmView.cardInput.updateExtraInfo(data: name)
-                    self.atmView.nameInput.isHidden = true
                     self.atmView.nameInput.textInput.text = name
                     self.updateContentSize()
                 } else {
-                    self.atmView.nameInput.isHidden = false
                     self.atmView.nameInput.textInput.text = ""
                     self.updateContentSize()
                 }
             }, onError: { error in
-                self.atmView.nameInput.isHidden = false
                 self.atmView.nameInput.textInput.text = ""
                 self.updateContentSize()
                 print(error)
             })
         } else {
-            atmView.nameInput.isHidden = true
             atmView.nameInput.textInput.text = ""
-            atmView.cardInput.updateExtraInfo(data: "")
-//            atmView.updateContentSize()
         }
 
     }

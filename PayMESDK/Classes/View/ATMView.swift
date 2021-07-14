@@ -97,6 +97,7 @@ class ATMView: UIView {
         case MethodType.BANK_CARD.rawValue:
             cardInput.isHidden = false
             dateInput.isHidden = false
+            nameInput.isHidden = false
             methodView.image.image = UIImage(for: MethodView.self, named: "iconAtm")
             dateInput.titleLabel.text = "releaseDateUpperCase".localize()
             break
@@ -112,6 +113,7 @@ class ATMView: UIView {
             break
         case MethodType.CREDIT_CARD.rawValue:
             cardInput.isHidden = false
+            nameInput.isHidden = false
             dateInput.isHidden = false
             cvvInput.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconCreditCard")
@@ -136,7 +138,7 @@ class ATMView: UIView {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
-        stack.spacing = 12
+        stack.spacing = 8
         stack.distribution = .equalSpacing
         return stack
     }()
