@@ -661,7 +661,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
     @objc func scanQR() {
         payME!.scanQR(currentVC: self, onSuccess: { response in
-            self.toastMess(title: "Thông báo", value: "Mở QR scanner thành công")
+//            self.toastMess(title: "Thông báo", value: "Mở QR scanner thành công")
         }, onError: { error in
             let message = error["message"] as? String
             self.toastMess(title: "Lỗi", value: message)
