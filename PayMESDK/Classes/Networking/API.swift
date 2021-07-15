@@ -265,7 +265,7 @@ class API {
 
     func transferCreditCard(
             storeId: Int, orderId: String, extraData: String, note: String,
-            cardNumber: String, expiredAt: String, cvv: String, refId: String, amount: Int,
+            cardNumber: String, cardHolder: String, expiredAt: String, cvv: String, refId: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in }
@@ -282,6 +282,7 @@ class API {
                     "payment": [
                         "creditCard": [
                             "cardNumber": cardNumber,
+                            "cardHolder": cardHolder,
                             "expiredAt": expiredAt,
                             "cvv": cvv,
                             "referenceId": refId

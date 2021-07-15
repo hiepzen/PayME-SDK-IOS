@@ -564,6 +564,7 @@ class PaymentPresentation {
     func payCreditCard(orderTransaction: OrderTransaction) {
         request.transferCreditCard(storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
                 note: orderTransaction.note, cardNumber: orderTransaction.paymentMethod!.dataCreditCard!.cardNumber,
+                cardHolder: orderTransaction.paymentMethod!.dataCreditCard!.cardHolder,
                 expiredAt: orderTransaction.paymentMethod!.dataCreditCard!.expiredAt, cvv: orderTransaction.paymentMethod!.dataCreditCard!.cvv,
                 refId: orderTransaction.paymentMethod!.dataCreditCard?.referenceId ?? "" ,amount: orderTransaction.amount,
                 onSuccess: { success in
