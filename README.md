@@ -351,7 +351,7 @@ public func pay(
     orderId: Int,
     amount: Int,
     note: String?,
-    payCode: String?,
+    payCode: String,
     extraData: String?,
     isShowResultUI: Bool = true,
     onSuccess: (Dictionary<String, AnyObject>) -> (),
