@@ -132,11 +132,17 @@ class ConfirmationModal: UIViewController {
 
     func payCreditCard() {
         let cardNumber = atmView.cardInput.textInput.text?.filter("0123456789".contains)
+        let cardHolder = atmView.nameInput.textInput.text
         let expiredAt = atmView.dateInput.textInput.text
         let cvv = atmView.cvvInput.textInput.text
         if cardNumber == nil || (cardNumber?.count ?? 0) < 7 {
             atmView.cardInput.errorMessage = "wrongCardNumberContent".localize()
             atmView.cardInput.updateState(state: .error)
+            return
+        }
+        if cardHolder == nil || cardHolder!.count == 0 {
+            atmView.nameInput.errorMessage = "emptyFullNameCardHolder".localize()
+            atmView.nameInput.updateState(state: .error)
             return
         }
         if (expiredAt?.count ?? 0) != 5 {
@@ -157,7 +163,7 @@ class ConfirmationModal: UIViewController {
             atmView.cvvInput.updateState(state: .error)
             return
         }
-        orderTransaction.paymentMethod?.dataCreditCard = CreditCardInfomation(cardNumber: cardNumber!, expiredAt: expiredAt!, cvv: cvv!,
+        orderTransaction.paymentMethod?.dataCreditCard = CreditCardInfomation(cardNumber: cardNumber!, cardHolder: cardHolder!, expiredAt: expiredAt!, cvv: cvv!,
                 issuer: issuerCreditDetect ?? "")
         showSpinner(onView: view)
         paymentPresentation.authenCreditCard(orderTransaction: orderTransaction)
