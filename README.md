@@ -317,6 +317,8 @@ public func getPaymentMethods(
 
 Hàm này được dùng khi app cần thanh toán 1 khoản tiền từ ví PayME đã được kích hoạt.
 
+version 0.1.65 trở về trước: 
+
 ```swift
 public func pay(
     currentVC : UIViewController,
@@ -351,6 +353,27 @@ Trong trường hợp app tích hợp cần lấy số dư để tự hiển th�
 - Khi thanh toán bằng ví PayME thì yêu cầu tài khoản đã kích hoạt,định danh và số dư trong ví phải lớn hơn số tiền thanh toán
 - Thông tin tài khoản lấy qua hàm <code>getAccountInfo()</code>
 - Thông tin số dư lấy qua hàm <code>getWalletInfo()</code>
+
+:warning: version 0.1.66 trở đi: 
+
+```swift
+public func pay(
+    currentVC : UIViewController,
+    storeId: Int,
+    orderId: Int,
+    amount: Int,
+    note: String?,
+    payCode: String?,
+    extraData: String?,
+    isShowResultUI: Bool = true,
+    onSuccess: (Dictionary<String, AnyObject>) -> (),
+    onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
+```
+| Tham số                                                      | **Bắt buộc** | **Giá trị**                                               | 
+| :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
+| <code>payCode</code> | Yes          | <code>PAYME</code> <code>ATM</code> <code>VN_PAY</code> <code>CREDIT</code> <code>MOMO</code> <code>ZALO_PAY</code> <code>MANUAL_BANK</code>  |
+
 
 ### scanQR() - Mở chức năng quét mã QR để thanh toán
 
