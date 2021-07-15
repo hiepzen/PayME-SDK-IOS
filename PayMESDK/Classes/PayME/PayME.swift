@@ -177,14 +177,6 @@ public class PayME {
         payMEFunction.payQRCode(currentVC: currentVC, qr: qr, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
     }
 
-    public func getPaymentMethods(
-            storeId: Int,
-            onSuccess: @escaping ([Dictionary<String, Any>]) -> (),
-            onError: @escaping (Dictionary<String, AnyObject>) -> ()
-    ) {
-        payMEFunction.getPaymentMethods(storeId, onSuccess, onError)
-    }
-
     public func openKYC(
             currentVC: UIViewController,
             onSuccess: @escaping () -> (),
