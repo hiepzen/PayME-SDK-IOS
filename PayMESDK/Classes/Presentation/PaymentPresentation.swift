@@ -106,7 +106,6 @@ class PaymentPresentation {
 
                     } else {
                         self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
-                        self.onPaymeError(message as? String ?? "hasError".localize())
                     }
 
                     let result = Result(
