@@ -368,6 +368,7 @@ public func pay(
 ```swift
 public func scanQR(
             currentVC: UIViewController,
+	    payCode: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
 ) -> ()
@@ -396,6 +397,7 @@ let qrString = "OPENEWALLET|54938607|PAYMENT|20000|Chuyentien|2445562323"
 public func payQRCode(
 	currentVC: UIViewController, 
 	qr: String,
+	payCode: String,
 	isShowResultUI: Bool,
     	onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
 	onError: @escaping (Dictionary<String, AnyObject>) -> ()
