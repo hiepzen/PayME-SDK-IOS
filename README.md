@@ -305,7 +305,7 @@ Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action 
 
 Hàm này được dùng khi app cần thanh toán 1 khoản tiền từ ví PayME đã được kích hoạt.
 
-version 0.1.65 trở về trước: 
+⚠️ version 0.1.65 trở về trước: 
 
 ```swift
 public func pay(
