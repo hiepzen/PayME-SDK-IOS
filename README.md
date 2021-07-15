@@ -360,7 +360,7 @@ public func pay(
 ```
 | Tham số                                                      | **Bắt buộc** | **Giá trị**                                               | 
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| <code>payCode</code> | Yes          | <code>PAYME</code> <code>ATM</code> <code>VN_PAY</code> <code>CREDIT</code> <code>MOMO</code> <code>ZALO_PAY</code> <code>MANUAL_BANK</code>  |
+| <code>payCode</code> | Yes          | <code>PAYME</code> <code>ATM</code> <code>CREDIT</code> <code>MANUAL_BANK</code>  |
 
 
 ### scanQR() - Mở chức năng quét mã QR để thanh toán
