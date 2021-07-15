@@ -630,22 +630,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
     }
 
-    @objc func getListMethod(sender: UIButton!) {
-        var storeId = 9
-        if (currentEnv == PayME.Env.SANDBOX) {
-            storeId = 37048160
-        }
-        if (currentEnv == PayME.Env.PRODUCTION) {
-            storeId = 57956431
-        }
-        payME!.getPaymentMethods(storeId: storeId, onSuccess: { listMethods in
-            self.toastMess(title: "Lấy danh sách phương thức thanh toán thành công", value: "\(listMethods)")
-        }, onError: { error in
-            let message = error["message"] as? String
-            self.toastMess(title: "Lỗi", value: message)
-        })
-    }
-
     @objc func getListService() {
         payME!.getSupportedServices(onSuccess: { configs in
             var serviceList = ""
