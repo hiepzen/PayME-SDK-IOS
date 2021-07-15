@@ -141,11 +141,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         setupSubscription()
         let primaryColor = payMEFunction.configColor[0]
         let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
-        orderView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-        resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-        confirmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-        bankTransResultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
     }
 
     private var subscription: Disposable?
@@ -819,9 +815,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         panModalTransition(to: .longForm)
     }
 
-//    override func viewDidLayoutSubviews() {
-//
-//    }
+    override func viewDidLayoutSubviews() {
+        let primaryColor = payMEFunction.configColor[0]
+        let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
+        orderView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
+        resultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+        confirmController.atmView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+        bankTransResultView.button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
+    }
 
     func panModalDidDismiss() {
         subscription?.dispose()

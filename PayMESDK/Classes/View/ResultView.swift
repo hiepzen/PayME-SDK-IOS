@@ -153,7 +153,7 @@ class ResultView: UIView {
 
     func adaptView(result: Result) {
         nameLabel.text = result.titleLabel
-        roleLabel.text = "\(formatMoney(input: result.orderTransaction.amount)) đ"
+        roleLabel.text = "\(formatMoney(input: result.orderTransaction.total)) đ"
 
         let bundle = Bundle(for: ResultView.self)
         let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
