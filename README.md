@@ -301,18 +301,6 @@ Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action 
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
 | <code>closeWhenDone</code> | <code>false</code>          | <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
 
-### getPaymentMethods() - Lấy danh sách phương thức thanh toán
-
-Hàm này được gọi khi từ app tích hợp khi muốn lấy danh sách các phương thức thanh toán mà PayME cung cấp vs từng tài khoản sau khi tài khoản đã kích hoạt và định danh thành công, dùng để truyền vào hàm pay() để chọn trực tiếp phương thức thanh toán mà app đối tác muốn
-
-```swift
-public func getPaymentMethods(
-	storeId: Int,
-        onSuccess: ([Dictionary<String, AnyObject>]) -> (),
-        onError: (Dictionary<String, AnyObject>) -> ()
-) -> ()
-```
-
 ### pay() - Thanh toán
 
 Hàm này được dùng khi app cần thanh toán 1 khoản tiền từ ví PayME đã được kích hoạt.
