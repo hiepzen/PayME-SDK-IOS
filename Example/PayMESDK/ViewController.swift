@@ -608,7 +608,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @objc func onPayQR(sender: UIButton!) {
         if (connectToken != "") {
             if (qrPayString.text != "") {
-               payME!.payQRCode(currentVC: self, qr: qrPayString.text!,
+               payME!.payQRCode(currentVC: self, qr: qrPayString.text!, payCode: curPayCode,
                        onSuccess: { success in
                             Log.custom.push(title: "payQRCode", message: success)
                        },
@@ -644,7 +644,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
 
     @objc func scanQR() {
-        payME!.scanQR(currentVC: self, onSuccess: { response in
+        payME!.scanQR(currentVC: self, payCode: curPayCode, onSuccess: { response in
 //            self.toastMess(title: "Thông báo", value: "Mở QR scanner thành công")
         }, onError: { error in
 //            let message = error["message"] as? String

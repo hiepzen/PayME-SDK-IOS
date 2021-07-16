@@ -119,10 +119,12 @@ class BankQrView: UIView {
         qrContainer.heightAnchor.constraint(equalToConstant: 80).isActive = true
         qrContainer.widthAnchor.constraint(equalToConstant: 80).isActive = true
 
-        qrImageView.topAnchor.constraint(equalTo: qrContainer.topAnchor, constant: 6).isActive = true
-        qrImageView.bottomAnchor.constraint(equalTo: qrContainer.bottomAnchor, constant: -6).isActive = true
-        qrImageView.leadingAnchor.constraint(equalTo: qrContainer.leadingAnchor, constant: 6).isActive = true
-        qrImageView.trailingAnchor.constraint(equalTo: qrContainer.trailingAnchor, constant: -6).isActive = true
+        if qrImageView.isDescendant(of: qrContainer) {
+            qrImageView.topAnchor.constraint(equalTo: qrContainer.topAnchor, constant: 6).isActive = true
+            qrImageView.bottomAnchor.constraint(equalTo: qrContainer.bottomAnchor, constant: -6).isActive = true
+            qrImageView.leadingAnchor.constraint(equalTo: qrContainer.leadingAnchor, constant: 6).isActive = true
+            qrImageView.trailingAnchor.constraint(equalTo: qrContainer.trailingAnchor, constant: -6).isActive = true
+        }
 
         bankNameLabel.text = bank.bankName
     }
