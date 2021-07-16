@@ -20,6 +20,7 @@ struct Result {
     var failReasonLabel: String = "" // lí do thất bại
     var orderTransaction: OrderTransaction // thông tin đơn hàng
     var transactionInfo: TransactionInformation // thông tin giao dịch
+    var extraData: Dictionary<String, AnyObject> // data response server trả về
 
     init(
             type: ResultType,
@@ -27,7 +28,8 @@ struct Result {
             titleLabel: String = "",
             failReasonLabel: String = "",
             orderTransaction: OrderTransaction,
-            transactionInfo: TransactionInformation
+            transactionInfo: TransactionInformation,
+            extraData: Dictionary<String, AnyObject> = [:]
         ) {
         self.type = type
         switch type {
@@ -49,5 +51,6 @@ struct Result {
         self.failReasonLabel = failReasonLabel
         self.orderTransaction = orderTransaction
         self.transactionInfo = transactionInfo
+        self.extraData = extraData
     }
 }

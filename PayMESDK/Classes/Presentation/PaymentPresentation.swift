@@ -56,7 +56,8 @@ class PaymentPresentation {
             accessToken: String, kycState: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in  }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         self.request = request
         self.paymentViewModel = paymentViewModel
@@ -65,7 +66,9 @@ class PaymentPresentation {
         self.onSuccess = onSuccess
         self.onError = { dictionary in
             onError(dictionary)
-            guard let code = dictionary["code"] as? Int else { return }
+            guard let code = dictionary["code"] as? Int else {
+                return
+            }
             if code == PayME.ResponseCode.SYSTEM {
                 paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
             }
@@ -102,19 +105,23 @@ class PaymentPresentation {
                         let responseSuccess = [
                             "payment": ["transaction": paymentInfo["transaction"] as? String]
                         ] as [String: AnyObject]
-                        self.onSuccess(responseSuccess)
-
+                        let result = Result(
+                                type: ResultType.SUCCESS,
+                                orderTransaction: orderTransaction,
+                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                                extraData: responseSuccess
+                        )
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                     } else {
-                        self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
+                        let result = Result(
+                                type: ResultType.FAIL,
+                                failReasonLabel: message,
+                                orderTransaction: orderTransaction,
+                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                                extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject]
+                        )
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                     }
-
-                    let result = Result(
-                            type: succeeded ? ResultType.SUCCESS : ResultType.FAIL,
-                            failReasonLabel: message,
-                            orderTransaction: orderTransaction,
-                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
-                    )
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                 },
                 onError: { error in
                     if let code = error["code"] as? Int {
@@ -158,11 +165,11 @@ class PaymentPresentation {
                             let responseSuccess = [
                                 "payment": ["transaction": paymentInfo["transaction"] as? String]
                             ] as [String: AnyObject]
-                            self.onSuccess(responseSuccess)
                             let result = Result(
                                     type: ResultType.SUCCESS,
                                     orderTransaction: orderTransaction,
-                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                    extraData: responseSuccess
                             )
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                         } else {
@@ -174,12 +181,12 @@ class PaymentPresentation {
                                 }
                                 if state == "FAILED" {
                                     let message = payInfo["message"] as? String
-                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
                                             failReasonLabel: payInfo["message"] as? String ?? "hasError".localize(),
                                             orderTransaction: orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                            extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
                                     )
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                 }
@@ -217,9 +224,9 @@ class PaymentPresentation {
                 onSuccess: { response in
                     let data = JSON(response)
                     if let isSucceeded = data["CreditCardLink"]["AuthCreditCard"]["succeeded"].bool,
-                    let refId = data["CreditCardLink"]["AuthCreditCard"]["referenceId"].string,
-                    let html = data["CreditCardLink"]["AuthCreditCard"]["html"].string,
-                    let isAuth = data["CreditCardLink"]["AuthCreditCard"]["isAuth"].bool {
+                       let refId = data["CreditCardLink"]["AuthCreditCard"]["referenceId"].string,
+                       let html = data["CreditCardLink"]["AuthCreditCard"]["html"].string,
+                       let isAuth = data["CreditCardLink"]["AuthCreditCard"]["isAuth"].bool {
                         if isSucceeded == true {
                             if isAuth == true {
                                 if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
@@ -249,13 +256,13 @@ class PaymentPresentation {
                         self.onPaymeError(data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize())
                     }
                 }, onError: { error in
-                    self.onError(error)
-                    if let code = error["code"] as? Int {
-                        if (code == 401) {
-                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-                        }
-                    }
-                }, onPaymeError: onPaymeError)
+            self.onError(error)
+            if let code = error["code"] as? Int {
+                if (code == 401) {
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                }
+            }
+        }, onPaymeError: onPaymeError)
     }
 
     func paymentLinkedMethod(orderTransaction: OrderTransaction) {
@@ -290,11 +297,11 @@ class PaymentPresentation {
                             let responseSuccess = [
                                 "payment": ["transaction": paymentInfo["transaction"] as? String]
                             ] as [String: AnyObject]
-                            self.onSuccess(responseSuccess)
                             let result = Result(
                                     type: ResultType.SUCCESS,
                                     orderTransaction: orderTransaction,
-                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                    extraData: responseSuccess
                             )
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                         } else {
@@ -319,12 +326,12 @@ class PaymentPresentation {
                                     }
                                 } else {
                                     let message = payment["message"] as? String
-                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
                                             failReasonLabel: message ?? "hasError".localize(),
                                             orderTransaction: orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                            extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
                                     )
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                 }
@@ -335,7 +342,8 @@ class PaymentPresentation {
                                         type: ResultType.FAIL,
                                         failReasonLabel: message ?? "hasError".localize(),
                                         orderTransaction: orderTransaction,
-                                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                        extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
                                 )
                                 self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                             }
@@ -381,12 +389,12 @@ class PaymentPresentation {
                             code: ResponseErrorCode.PASSWORD_INVALID, message: message
                     )))
                 } else {
-                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                     let result = Result(
                             type: ResultType.FAIL,
                             failReasonLabel: message,
                             orderTransaction: orderTransaction,
-                            transactionInfo: TransactionInformation()
+                            transactionInfo: TransactionInformation(),
+                            extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject]
                     )
                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                 }
@@ -431,23 +439,23 @@ class PaymentPresentation {
                                     let responseSuccess = [
                                         "payment": ["transaction": transactionNumber]
                                     ] as [String: AnyObject]
-                                    self.onSuccess(responseSuccess)
                                     let result = Result(
                                             type: ResultType.SUCCESS,
                                             orderTransaction: orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                                            extraData: responseSuccess
                                     )
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                 } else if bankTranferState == "REQUIRED_TRANSFER" {
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANS_RESULT, orderTransaction: orderTransaction, bankTransferState: .FAIL))
                                 } else {
                                     let message = payment["message"] as? String
-                                    self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                     let result = Result(
                                             type: ResultType.FAIL,
                                             failReasonLabel: message ?? "hasError".localize(),
                                             orderTransaction: orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate)
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                                            extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
                                     )
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                 }
@@ -500,23 +508,23 @@ class PaymentPresentation {
                             let responseSuccess = [
                                 "payment": ["transaction": paymentInfo["transaction"] as? String]
                             ] as [String: AnyObject]
-                            self.onSuccess(responseSuccess)
                             let result = Result(
                                     type: ResultType.SUCCESS,
                                     orderTransaction: orderTransaction,
-                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                    extraData: responseSuccess
                             )
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                         } else {
                             let statePay = payInfo["payment"] as? [String: AnyObject]
                             if (statePay == nil) {
                                 let message = payInfo["message"] as? String
-                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                 let result = Result(
                                         type: ResultType.FAIL,
                                         failReasonLabel: message ?? "hasError".localize(),
                                         orderTransaction: orderTransaction,
-                                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                        extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
                                 )
                                 self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                 return
@@ -535,12 +543,12 @@ class PaymentPresentation {
                                 }
                             } else {
                                 let message = statePay!["message"] as? String
-                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                                 let result = Result(
                                         type: ResultType.FAIL,
                                         failReasonLabel: message ?? "hasError".localize(),
                                         orderTransaction: orderTransaction,
-                                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                        extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
                                 )
                                 self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                             }
@@ -565,7 +573,7 @@ class PaymentPresentation {
                 note: orderTransaction.note, cardNumber: orderTransaction.paymentMethod!.dataCreditCard!.cardNumber,
                 cardHolder: orderTransaction.paymentMethod!.dataCreditCard!.cardHolder,
                 expiredAt: orderTransaction.paymentMethod!.dataCreditCard!.expiredAt, cvv: orderTransaction.paymentMethod!.dataCreditCard!.cvv,
-                refId: orderTransaction.paymentMethod!.dataCreditCard?.referenceId ?? "" ,amount: orderTransaction.amount,
+                refId: orderTransaction.paymentMethod!.dataCreditCard?.referenceId ?? "", amount: orderTransaction.amount,
                 onSuccess: { success in
                     let payment = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                     if let payInfo = payment["Pay"] as? [String: AnyObject] {
@@ -595,14 +603,14 @@ class PaymentPresentation {
                             if let transState = state {
                                 if transState == "SUCCEEDED" {
                                     let paymentInfo = payInfo["history"]!["payment"] as? [String: AnyObject]
-                                     let responseSuccess = [
+                                    let responseSuccess = [
                                         "payment": ["transaction": paymentInfo?["transaction"] as? String]
                                     ] as [String: AnyObject]
-                                    self.onSuccess(responseSuccess)
                                     let result = Result(
                                             type: ResultType.SUCCESS,
                                             orderTransaction: orderTransaction,
-                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                            extraData: responseSuccess
                                     )
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                 }
@@ -629,7 +637,8 @@ class PaymentPresentation {
                                                 type: ResultType.FAIL,
                                                 failReasonLabel: message ?? "hasError".localize(),
                                                 orderTransaction: orderTransaction,
-                                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                                extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
                                         )
                                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                     }
@@ -637,12 +646,12 @@ class PaymentPresentation {
                                 }
                             }
                             let message = payInfo["message"] as? String
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject])
                             let result = Result(
                                     type: ResultType.FAIL,
                                     failReasonLabel: message ?? "hasError".localize(),
                                     orderTransaction: orderTransaction,
-                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber)
+                                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                    extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
                             )
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                         }
@@ -650,13 +659,13 @@ class PaymentPresentation {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                     }
                 }, onError: { error in
-                    self.onError(error)
-                    if let code = error["code"] as? Int {
-                        if (code == 401) {
-                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-                        }
-                    }
-                }, onPaymeError: onPaymeError
+            self.onError(error)
+            if let code = error["code"] as? Int {
+                if (code == 401) {
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                }
+            }
+        }, onPaymeError: onPaymeError
         )
     }
 
@@ -800,9 +809,8 @@ class PaymentPresentation {
                                     let responseError = [
                                         "state": transInfo["state"] as? String
                                     ] as [String: AnyObject]
-                                    self.onError(responseError)
                                     let textPending = "Cần thời gian thêm để xử lý. Vui lòng không thực hiện lại tránh bị trùng. Liên hệ CSKH để hỗ trợ 1900 88 66 65"
-                                    return Result(type: ResultType.PENDING, failReasonLabel: textPending, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
+                                    return Result(type: ResultType.PENDING, failReasonLabel: textPending, orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
                                 } else {
                                     return nil
                                 }
@@ -810,14 +818,12 @@ class PaymentPresentation {
                                 let responseSuccess = [
                                     "payment": ["transaction": transInfo["transaction"] as? String]
                                 ] as [String: AnyObject]
-                                self.onSuccess(responseSuccess)
-                                return Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
+                                return Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseSuccess)
                             } else {
                                 let responseError = [
                                     "state": transInfo["state"] as? String
                                 ] as [String: AnyObject]
-                                self.onError(responseError)
-                                return Result(type: ResultType.FAIL, failReasonLabel: message ?? "", orderTransaction: orderTransaction, transactionInfo: transactionInfo)
+                                return Result(type: ResultType.FAIL, failReasonLabel: message ?? "", orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
                             }
                         }()
                         if result != nil {
@@ -882,13 +888,13 @@ class PaymentPresentation {
                         return
                     }
                     guard let payment = payInfo["payment"] as? [String: AnyObject] else {
-                            if let message = payInfo["message"] as? String {
-                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
-                                self.onPaymeError(message)
-                            } else {
-                                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "hasError".localize() as AnyObject])
-                                self.onPaymeError("hasError".localize())
-                            }
+                        if let message = payInfo["message"] as? String {
+                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
+                            self.onPaymeError(message)
+                        } else {
+                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "hasError".localize() as AnyObject])
+                            self.onPaymeError("hasError".localize())
+                        }
                         return
                     }
                     guard let bankList = payment["bankList"] as? [[String: AnyObject]] else {
