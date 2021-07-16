@@ -284,7 +284,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         textField.backgroundColor = UIColor.white
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = "Nhập QR"
-        textField.text = "OPENEWALLET|54938607|PAYMENT|20000|Chuyentien|2445562323"
+        textField.text = "OPENEWALLET|37048160|PAYMENT|20000|Chuyentien|2445562323jjkvffvbbbb"
         textField.setLeftPaddingPoints(10)
         return textField
     }()
@@ -440,7 +440,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 self.removeSpinner()
             }, onError: { error in
                 self.scrollView.isHidden = true
-
                 self.removeSpinner()
                 self.toastMess(title: "Lỗi", value: (error["message"] as? String) ?? "Something went wrong")
             })

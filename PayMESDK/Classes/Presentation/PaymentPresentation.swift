@@ -721,10 +721,17 @@ class PaymentPresentation {
             var listBank: [Bank] = []
             for bank in banks {
                 if bank["depositable"] as? Bool ?? false && ((bank["cardNumberLength"] as? Int) != nil) && ((bank["cardPrefix"] as? String) != nil) {
+                   var dateString: String
+                    if (bank["requiredDate"] as? String ?? "") == "EXPIRED_DATE" {
+                       dateString = "expiredDate".localize()
+                    } else {
+                       dateString = "releaseDate".localize()
+                    }
                     let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int,
                             cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String,
                             shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String,
-                            isVietQr: bank["vietQRAccepted"] as? Bool ?? false
+                            isVietQr: bank["vietQRAccepted"] as? Bool ?? false,
+                            requiredDateString: dateString
                     )
                     listBank.append(temp)
                 }

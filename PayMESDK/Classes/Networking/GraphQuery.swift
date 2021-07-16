@@ -295,6 +295,7 @@ class GraphQuery {
                                         cardPrefix
                                         depositable
                                         vietQRAccepted
+                                        requiredDate
                                       }
                                     }
                                   }
