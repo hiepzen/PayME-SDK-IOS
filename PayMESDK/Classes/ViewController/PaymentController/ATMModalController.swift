@@ -146,7 +146,7 @@ class ConfirmationModal: UIViewController {
             return
         }
         if (expiredAt?.count ?? 0) != 5 {
-            atmView.dateInput.errorMessage = "emptyExpiredDateCardContent".localize()
+            atmView.dateInput.errorMessage = "emptyDateCardContent".localize() + "expiredDate".localize().lowercased()
             atmView.dateInput.updateState(state: .error)
             return
         }
@@ -184,7 +184,7 @@ class ConfirmationModal: UIViewController {
             return
         }
         if (issuedAt!.count != 5) {
-            atmView.dateInput.errorMessage = "emptyReleaseDateCardContent".localize()
+            atmView.dateInput.errorMessage = "emptyDateCardContent".localize() + bankDetect!.requiredDateString.lowercased()
             atmView.dateInput.updateState(state: .error)
             return
         } else {
@@ -333,6 +333,7 @@ class ConfirmationModal: UIViewController {
                 for bank in listBank {
                     if (string.contains(bank.cardPrefix)) {
                         bankDetect = bank
+                        atmView.dateInput.updateTitle(bank.requiredDateString.uppercased())
                         atmView.cardInput.updateExtraInfo(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(bank.swiftCode).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
                         break
                     }
@@ -344,6 +345,7 @@ class ConfirmationModal: UIViewController {
             }
         } else {
             bankDetect = nil
+            atmView.dateInput.updateTitle("releaseDate".localize().uppercased())
             atmView.cardInput.updateExtraInfo(data: "")
             atmView.cardInput.updateState(state: .focus)
         }

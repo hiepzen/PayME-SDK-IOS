@@ -126,5 +126,10 @@ class InputView: UIView {
         extraLabel.isHidden = true
         extraImage.isHidden = true
     }
+
+    func updateTitle(_ title: String) {
+        titleLabel.text = title
+        self.title = title
+    }
 }
 

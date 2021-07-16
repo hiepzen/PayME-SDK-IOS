@@ -98,7 +98,7 @@ class ATMView: UIView {
             dateInput.isHidden = false
             nameInput.isHidden = false
             methodView.image.image = UIImage(for: MethodView.self, named: "iconAtm")
-            dateInput.titleLabel.text = "releaseDateUpperCase".localize()
+            dateInput.titleLabel.text = "releaseDate".localize().uppercased()
             break
         case MethodType.BANK_QR_CODE.rawValue:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconQRBank")
@@ -115,7 +115,7 @@ class ATMView: UIView {
             dateInput.isHidden = false
             cvvInput.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconCreditCard")
-            dateInput.titleLabel.text = "expiredDate".localize()
+            dateInput.titleLabel.text = "expiredDate".localize().uppercased()
         default:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconWallet")
             break
@@ -153,7 +153,7 @@ class ATMView: UIView {
 
     let cardInput = InputView(title: "fillCardNumberUpper".localize(), placeholder: "inputCardNumber".localize(), keyboardType: .numberPad)
     let nameInput = InputView(title: "fillFullNameCardHolderUpper".localize(), placeholder: "fullnameCardHolder".localize())
-    let dateInput = InputView(title: "releaseDateUpperCase".localize(), placeholder: "MM/YY", keyboardType: .numberPad)
+    let dateInput = InputView(title: "releaseDate".localize().uppercased(), placeholder: "MM/YY", keyboardType: .numberPad)
     let cvvInput = InputView(title: "cvvUppercase".localize(), placeholder: "CVV/CVC", keyboardType: .numberPad)
     let methodView: MethodView = MethodView(isSelectable: false)
 
