@@ -40,13 +40,17 @@ class InputView: UIView {
         return textField
     }()
 
-    init(title: String, placeholder: String = "", keyboardType: UIKeyboardType = .default, state: InputState = .normal){
+    init(title: String, placeholder: String = "", keyboardType: UIKeyboardType = .default, state: InputState = .normal,
+         isAutoCapitalization: Bool = false){
         self.title = title
         self.placeholder = placeholder
         self.keyboardType = keyboardType
         super.init(frame: CGRect.zero)
         setupUI()
         updateState(state: state)
+        if isAutoCapitalization {
+            textInput.autocapitalizationType = .allCharacters
+        }
     }
 
     func setupUI(){

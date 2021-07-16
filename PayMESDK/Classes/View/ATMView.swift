@@ -152,7 +152,7 @@ class ATMView: UIView {
     }()
 
     let cardInput = InputView(title: "fillCardNumberUpper".localize(), placeholder: "inputCardNumber".localize(), keyboardType: .numberPad)
-    let nameInput = InputView(title: "fillFullNameCardHolderUpper".localize(), placeholder: "fullnameCardHolder".localize())
+    let nameInput = InputView(title: "fillFullNameCardHolderUpper".localize(), placeholder: "fullnameCardHolder".localize(), isAutoCapitalization: true)
     let dateInput = InputView(title: "releaseDate".localize().uppercased(), placeholder: "MM/YY", keyboardType: .numberPad)
     let cvvInput = InputView(title: "cvvUppercase".localize(), placeholder: "CVV/CVC", keyboardType: .numberPad)
     let methodView: MethodView = MethodView(isSelectable: false)
