@@ -260,7 +260,8 @@ class PayMEFunction {
                     payCode: payCode, isShowResultUI: isShowResultUI,
                     onSuccess: onSuccess, onError: onError
             )
-            currentVC.presentPanModal(paymentModalController)
+//            currentVC.presentPanModal(paymentModalController)
+            currentVC.presentModaliPad(paymentModalController, animated: true)
         }
     }
 

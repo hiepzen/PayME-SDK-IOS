@@ -15,6 +15,17 @@ extension UIViewController {
         view.addGestureRecognizer(tap)
     }
 
+    func presentModaliPad(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+            if let presentableController = viewControllerToPresent as? PanModalPresentable, let controller = presentableController as? UIViewController {
+                controller.modalPresentationStyle = .custom
+                controller.modalPresentationCapturesStatusBarAppearance = true
+                controller.transitioningDelegate = PanModalPresentationDelegate.default
+                present(controller, animated: flag, completion: completion)
+                return
+            }
+            present(viewControllerToPresent, animated: flag, completion: completion)
+    }
+
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
