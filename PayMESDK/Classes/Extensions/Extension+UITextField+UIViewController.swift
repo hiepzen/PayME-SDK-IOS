@@ -15,7 +15,7 @@ extension UIViewController {
         view.addGestureRecognizer(tap)
     }
 
-    func presentModal(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+    func presentModal(_ viewControllerToPresent: UIViewController, animated flag: Bool = true, completion: (() -> Void)? = nil) {
             if let presentableController = viewControllerToPresent as? PanModalPresentable, let controller = presentableController as? UIViewController {
                 controller.modalPresentationStyle = .custom
                 controller.modalPresentationCapturesStatusBarAppearance = true
