@@ -289,21 +289,21 @@ class PayMEFunction {
         if checkPayCondition(onError) {
             let qrScan = QRScannerController()
             qrScan.setScanSuccess(onScanSuccess: { response in
+                if self.loggedIn == false || self.dataInit == nil {
+                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+                    return
+                }
                 self.request.readQRContent(qrContent: response, onSuccess: { response in
                     let payment = response["OpenEWallet"]!["Payment"] as! Dictionary<String, AnyObject>
                     let detect = payment["Detect"] as! Dictionary<String, AnyObject>
                     let succeeded = detect["succeeded"] as! Bool
                     if (succeeded == true) {
-                        if (self.accessToken != "" && self.loggedIn == true) {
-                            let storeId = (detect["storeId"] as? Int) ?? 0
-                            let orderId = (detect["orderId"] as? String) ?? ""
-                            let amount = (detect["amount"] as? Int) ?? 0
-                            let note = (detect["note"] as? String) ?? ""
-                            let onSuccessPay = isStartDirectFromUser ? { dictionary in } : onSuccess
-                            self.payAction(PayME.currentVC ?? currentVC, storeId, orderId, amount, note, payCode, nil, true, onSuccessPay, onError)
-                        } else {
-                            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
-                        }
+                        let storeId = (detect["storeId"] as? Int) ?? 0
+                        let orderId = (detect["orderId"] as? String) ?? ""
+                        let amount = (detect["amount"] as? Int) ?? 0
+                        let note = (detect["note"] as? String) ?? ""
+                        let onSuccessPay = isStartDirectFromUser ? { dictionary in} : onSuccess
+                        self.payAction(PayME.currentVC ?? currentVC, storeId, orderId, amount, note, payCode, nil, true, onSuccessPay, onError)
                     } else {
                         currentVC.presentModal(QRNotFound())
                     }

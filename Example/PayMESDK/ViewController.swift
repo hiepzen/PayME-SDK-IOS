@@ -644,10 +644,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
     @objc func scanQR() {
         payME!.scanQR(currentVC: self, payCode: curPayCode, onSuccess: { response in
-//            self.toastMess(title: "Thông báo", value: "Mở QR scanner thành công")
+            Log.custom.push(title: "payQRCode", message: response)
         }, onError: { error in
-//            let message = error["message"] as? String
-//            self.toastMess(title: "Lỗi", value: message)
+            Log.custom.push(title: "payQRCode", message: error)
+            if let code = error["code"] as? Int {
+                if (code != PayME.ResponseCode.USER_CANCELLED) {
+                    let message = error["message"] as? String
+                    self.toastMess(title: "Lỗi", value: message)
+                }
+            }
         })
     }
 
