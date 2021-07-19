@@ -342,7 +342,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         view.addSubview(viewVietQRListBank.view)
         view.addSubview(bankTransResultView)
 
-
         view.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
 
         methodsView.backgroundColor = .white
