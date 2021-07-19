@@ -109,8 +109,8 @@
 "bankTransferContent5" = "Hệ thống đang kiểm tra trạng thái lệnh chuyển tiền của bạn. Vui lòng chờ trong giây lát...";
 "bank" = "NGÂN HÀNG";
 "fillCardNumber" = "Nhập số thẻ";
-"fillCardNumberUpper" = "NHẬP SỐ THẺ";
-"fillFullNameCardHolderUpper" = "NHẬP HỌ TÊN CHỦ THẺ";
+"fillCardNumberUpper" = "SỐ THẺ";
+"fillFullNameCardHolderUpper" = "TÊN CHỦ THẺ";
 "releaseDate" = "Ngày phát hành";
 "expiredDate" = "Ngày hết hạn";
 "cvvUppercase" = "MÃ BẢO MẬT";
