@@ -801,7 +801,7 @@ class PaymentPresentation {
                 onSuccess: { response in
                     let payment = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                     if let transInfo = payment["GetTransactionInfo"] as? [String: AnyObject] {
-                        let state = transInfo["state"] as! String
+                        let state = transInfo["state"] as? String ?? ""
                         let message = transInfo["message"] as? String
                         if let total: Int = transInfo["total"] as? Int {
                             orderTransaction.total = total

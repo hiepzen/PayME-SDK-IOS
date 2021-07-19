@@ -305,7 +305,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 self.setupResult(result)
             })
         }
-        presentPanModal(webViewController)
+        presentModal(webViewController, animated: true)
     }
 
     func onAuthenCard(orderTransaction: OrderTransaction?, html: String) {
