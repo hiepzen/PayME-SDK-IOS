@@ -261,7 +261,7 @@ class PayMEFunction {
                     onSuccess: onSuccess, onError: onError
             )
 //            currentVC.presentPanModal(paymentModalController)
-            currentVC.presentModal(paymentModalController, animated: true)
+            currentVC.presentModal(paymentModalController)
         }
     }
 
@@ -305,15 +305,15 @@ class PayMEFunction {
                             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
                         }
                     } else {
-                        currentVC.presentPanModal(QRNotFound())
+                        currentVC.presentModal(QRNotFound())
                     }
                 }, onError: { error in
-                    currentVC.presentPanModal(QRNotFound())
+                    currentVC.presentModal(QRNotFound())
                 })
             })
             qrScan.setScanFail(onScanFail: { error in
                 onError(["message": error as AnyObject])
-                currentVC.presentPanModal(QRNotFound())
+                currentVC.presentModal(QRNotFound())
             })
 
             currentVC.navigationItem.hidesBackButton = true
