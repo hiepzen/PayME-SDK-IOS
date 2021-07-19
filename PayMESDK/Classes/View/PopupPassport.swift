@@ -46,11 +46,12 @@ class PopupPassport: UIView {
 
     let cancelButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(hexString: PayME.configColor[0])
+        let mainColor = UIColor(hexString: PayME.configColor[0])
+        button.backgroundColor =  mainColor.lighter(by: 40)
         button.setTitle("change".localize(), for: .normal)
         button.setTitleColor(UIColor.black, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitleColor(UIColor(red: 255 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1), for: UIControl.State.normal)
+        button.setTitleColor(mainColor, for: UIControl.State.normal)
         button.layer.cornerRadius = 20
         return button
     }()
