@@ -348,21 +348,21 @@ class PayMEFunction {
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
+        if loggedIn == false || dataInit == nil {
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+            return
+        }
         request.readQRContent(qrContent: qr, onSuccess: { response in
             let payment = response["OpenEWallet"]!["Payment"] as! Dictionary<String, AnyObject>
             let detect = payment["Detect"] as! Dictionary<String, AnyObject>
             let succeeded = detect["succeeded"] as! Bool
             let message = detect["message"] as? String ?? "hasError".localize()
             if (succeeded == true) {
-                if (self.accessToken != "" && self.loggedIn == true) {
-                    let storeId = (detect["storeId"] as? Int) ?? 0
-                    let orderId = (detect["orderId"] as? String) ?? ""
-                    let amount = (detect["amount"] as? Int) ?? 0
-                    let note = (detect["note"] as? String) ?? ""
-                    self.payAction(currentVC, storeId, orderId, amount, note, payCode, nil, isShowResultUI, onSuccess, onError)
-                } else {
-                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
-                }
+                let storeId = (detect["storeId"] as? Int) ?? 0
+                let orderId = (detect["orderId"] as? String) ?? ""
+                let amount = (detect["amount"] as? Int) ?? 0
+                let note = (detect["note"] as? String) ?? ""
+                self.payAction(currentVC, storeId, orderId, amount, note, payCode, nil, isShowResultUI, onSuccess, onError)
             } else {
                 onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
             }
