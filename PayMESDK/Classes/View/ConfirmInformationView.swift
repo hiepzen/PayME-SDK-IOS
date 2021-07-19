@@ -127,6 +127,10 @@ class InformationView: UIView{
 
     func update(data: [Dictionary<String, Any>]) {
         self.data = data
+        for subview in stackView.subviews {
+            subview.removeDashedLines()
+            subview.removeFromSuperview()
+        }
         layoutSubviews()
         updateConstraints()
         layoutIfNeeded()
