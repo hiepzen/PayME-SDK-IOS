@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+import Sentry
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,7 +18,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        FirebaseApp.configure()
+
+        SentrySDK.start { options in
+            options.dsn = "https://6fd9d4fe732e4edfac761cc9a31ea9ba@o405361.ingest.sentry.io/5870689"
+            options.debug = true // Enabled debug when first installing is always helpful
+        }
+
         return true
     }
     

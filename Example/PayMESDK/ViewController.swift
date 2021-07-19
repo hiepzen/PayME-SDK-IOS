@@ -1,6 +1,7 @@
 import UIKit
 import PayMESDK
 import CryptoSwift
+import Sentry
 
 class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     var floatingButtonController: FloatingButtonController = FloatingButtonController()

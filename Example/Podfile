@@ -2,6 +2,5 @@ use_frameworks!
 
 target 'PayMESDK_Example' do
   pod 'PayMESDK', :path => '../'
-  pod 'Firebase/Crashlytics'
-  pod 'Firebase/Analytics'
+  pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '7.1.3'
 end
