@@ -7,6 +7,7 @@
 
 import UIKit
 import AVFoundation
+import SVGKit
 
 class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     var imagePicker = UIImagePickerController()
@@ -200,31 +201,17 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
         backButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         backButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
 
-        // Move the message label and top bar to the front
-        self.shapeLayer?.removeFromSuperlayer()
-        // create whatever path you want
-        let path = UIBezierPath()
-        path.move(to: CGPoint(x: self.view.frame.minX + 30, y: (self.view.frame.maxY / 2) - 100))
-        path.addLine(to: CGPoint(x: self.view.frame.maxX - 30, y: (self.view.frame.maxY / 2) - 100))
-        // create shape layer for that path
-        let shapeLayer = CAShapeLayer()
-        shapeLayer.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
-        shapeLayer.strokeColor = UIColor(8, 148, 31).cgColor
-        shapeLayer.lineWidth = 4
-        shapeLayer.path = path.cgPath
-        view.layer.addSublayer(shapeLayer)
 
-        let animationDown = CABasicAnimation(keyPath: "position")
-        animationDown.fromValue = shapeLayer.position
-        animationDown.toValue = CGPoint(x: shapeLayer.position.x, y: shapeLayer.position.y + 150)
-        animationDown.duration = 2
-        shapeLayer.position = CGPoint(x: shapeLayer.position.x, y: shapeLayer.position.y + 150)
-        animationDown.autoreverses = true
-        animationDown.repeatCount = .infinity
+        let imageSVG = SVGKImage(for: SecurityCode.self, named: "line-code-bo")
+        imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1, defaultColor: "#0DAA27")
+        let svgImageView = UIImageView()
+        svgImageView.image = imageSVG?.uiImage
 
-        shapeLayer.add(animationDown, forKey: "test")
+        view.addSubview(svgImageView)
+        svgImageView.translatesAutoresizingMaskIntoConstraints = false
+        svgImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        svgImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
 
-        self.shapeLayer = shapeLayer
         qrCodeFrameView = UIView()
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
         getPhoto.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)

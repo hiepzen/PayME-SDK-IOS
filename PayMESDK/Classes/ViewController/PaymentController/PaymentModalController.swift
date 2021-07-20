@@ -784,6 +784,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             panModalSetNeedsLayoutUpdate()
             panModalTransition(to: .longForm)
             resultView.animationView.play()
+
+            if result.type == ResultType.SUCCESS {
+                onSuccess(result.extraData)
+            } else {
+                onError(result.extraData)
+            }
         } else {
             dismiss(animated: true) {
                 if result.type == ResultType.SUCCESS {
