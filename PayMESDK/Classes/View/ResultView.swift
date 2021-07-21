@@ -193,48 +193,42 @@ class ResultView: UIView {
                 animationView.loopMode = .loop
                 button.setTitle("understood".localize(), for: .normal)
         }
-        let transactionView = TransactionInformationView(id: result.transactionInfo.transaction, time: result.transactionInfo.transactionTime)
-        detailView.addSubview(transactionView)
-        transactionView.topAnchor.constraint(equalTo: detailView.topAnchor).isActive = true
-        transactionView.leadingAnchor.constraint(equalTo: detailView.leadingAnchor).isActive = true
-        transactionView.trailingAnchor.constraint(equalTo: detailView.trailingAnchor).isActive = true
-        transactionView.bottomAnchor.constraint(equalTo: detailView.bottomAnchor).isActive = true
 
         if result.type == ResultType.SUCCESS || result.type == ResultType.PENDING {
-            let serviceView = InformationView(data: [
-                ["key": "receiveName".localize(), "value": "\(result.orderTransaction.storeName)"],
-                ["key": "serviceCode".localize(), "value": "\(result.orderTransaction.orderId)"],
-                ["key": "content".localize(), "value": result.orderTransaction.note]
-            ])
-            detailView.addSubview(serviceView)
-            serviceView.topAnchor.constraint(equalTo: transactionView.bottomAnchor, constant: 12).isActive = true
-            serviceView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
-            serviceView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
-
             var paymentView: InformationView
             switch result.orderTransaction.paymentMethod?.type {
             case MethodType.WALLET.rawValue:
                 paymentView = InformationView(data: [
-                    ["key": "method".localize(), "value": "walletBalance".localize()],
+                    ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],
+                    ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime],
+                    ["key": "method".localize(), "value": "walletBalance".localize()]
                 ])
                 break
             case MethodType.LINKED.rawValue:
                 paymentView = InformationView(data: [
+                    ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],
+                    ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime],
                     ["key": "method".localize(), "value": "linkedAccount".localize()],
                     ["key": "accountNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: result.orderTransaction.paymentMethod!.label.suffix(4)))"],
                 ])
                 break
             case MethodType.BANK_CARD.rawValue:
                 paymentView = InformationView(data: [
+                    ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],
+                    ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime],
                     ["key": "method".localize(), "value": "bankCard".localize()],
                     ["key": "cardNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.bank?.shortName ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataBank?.cardNumber.suffix(4) ?? ""))"],
                 ])
             case MethodType.BANK_TRANSFER.rawValue:
                 paymentView = InformationView(data: [
+                    ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],
+                    ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime],
                     ["key": "method".localize(), "value": "bankTransfer".localize()],
                 ])
             case MethodType.CREDIT_CARD.rawValue:
                 paymentView = InformationView(data: [
+                    ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],
+                    ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime],
                     ["key": "method".localize(), "value": "creditCard".localize()],
                     ["key": "cardNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.cardNumber.suffix(4) ?? ""))"],
                 ])
@@ -244,22 +238,36 @@ class ResultView: UIView {
             }
 
             detailView.addSubview(paymentView)
-            paymentView.topAnchor.constraint(equalTo: serviceView.bottomAnchor, constant: 12).isActive = true
-            paymentView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
-            paymentView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
-        } else {
-//            button.applyGradient(colors: [UIColor(236, 42, 42).cgColor], radius: 20)
+            paymentView.topAnchor.constraint(equalTo: detailView.topAnchor).isActive = true
+            paymentView.leadingAnchor.constraint(equalTo: detailView.leadingAnchor).isActive = true
+            paymentView.trailingAnchor.constraint(equalTo: detailView.trailingAnchor).isActive = true
+
             let serviceView = InformationView(data: [
-                ["key": "service".localize(), "value": "\(result.orderTransaction.storeName)"],
-                ["key": "paymentAmount".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(hexString: PayME.configColor[0])],
+                ["key": "receiveName".localize(), "value": "\(result.orderTransaction.storeName)"],
                 ["key": "content".localize(), "value": result.orderTransaction.note]
             ])
             detailView.addSubview(serviceView)
-            serviceView.topAnchor.constraint(equalTo: transactionView.bottomAnchor, constant: 12).isActive = true
+            serviceView.topAnchor.constraint(equalTo: paymentView.bottomAnchor, constant: 12).isActive = true
+            serviceView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+            serviceView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        } else {
+            let paymentView = InformationView(data: [
+                ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],
+                ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime]
+            ])
+            detailView.addSubview(paymentView)
+            paymentView.topAnchor.constraint(equalTo: detailView.topAnchor).isActive = true
+            paymentView.leadingAnchor.constraint(equalTo: detailView.leadingAnchor).isActive = true
+            paymentView.trailingAnchor.constraint(equalTo: detailView.trailingAnchor).isActive = true
+            let serviceView = InformationView(data: [
+                ["key": "service".localize(), "value": "\(result.orderTransaction.storeName)"],
+                ["key": "content".localize(), "value": result.orderTransaction.note]
+            ])
+            detailView.addSubview(serviceView)
+            serviceView.topAnchor.constraint(equalTo: paymentView.bottomAnchor, constant: 12).isActive = true
             serviceView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
             serviceView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         }
-
         updateConstraints()
         layoutIfNeeded()
 
