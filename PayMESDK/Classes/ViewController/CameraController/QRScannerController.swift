@@ -201,16 +201,16 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
         backButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         backButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
 
+        shapeLayer?.removeFromSuperlayer()
 
         let imageSVG = SVGKImage(for: SecurityCode.self, named: "line-code-bo")
         imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1, defaultColor: "#0DAA27")
-        let svgImageView = UIImageView()
-        svgImageView.image = imageSVG?.uiImage
 
-        view.addSubview(svgImageView)
-        svgImageView.translatesAutoresizingMaskIntoConstraints = false
-        svgImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        svgImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        let shapeLayer = CALayer()
+        shapeLayer.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 100, height: UIScreen.main.bounds.width - 100)
+        shapeLayer.position = view.center
+        shapeLayer.contents = imageSVG?.uiImage.cgImage
+        view.layer.addSublayer(shapeLayer)
 
         qrCodeFrameView = UIView()
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
