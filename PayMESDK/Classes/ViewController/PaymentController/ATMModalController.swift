@@ -406,6 +406,9 @@ extension ConfirmationModal: UITextFieldDelegate {
             previousTextFieldContent = textField.text
             previousSelection = textField.selectedTextRange
         }
+        if textField == atmView.nameInput.textInput {
+            return textField.text!.count + string.count <= 50
+        }
         return true
     }
 
