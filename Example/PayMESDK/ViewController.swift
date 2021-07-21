@@ -395,9 +395,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         let data: [String: Any] = ["timestamp": isoDate, "userId": "\(userId)", "phone": "\(phone)"]
         let params = try? JSONSerialization.data(withJSONObject: data)
         let aes = try? AES(key: Array(secretKey.utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
-        let dataEncrypted = try? aes!.encrypt(Array(String(data: params!, encoding: .utf8)!.utf8))
-        print(dataEncrypted!.toBase64()!)
-        return dataEncrypted!.toBase64()!
+        let dataEncrypted = try? aes?.encrypt(Array(String(data: params!, encoding: .utf8)!.utf8))
+        print(dataEncrypted??.toBase64() ?? "")
+        return dataEncrypted??.toBase64() ?? ""
     }
 
     // generate token ( demo, don't apply this to your code, generate from your server)
