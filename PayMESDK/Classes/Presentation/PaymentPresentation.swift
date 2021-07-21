@@ -410,7 +410,7 @@ class PaymentPresentation {
     }
 
     func payBankTransfer(orderTransaction: OrderTransaction) {
-        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANS_RESULT, bankTransferState: .PENDING))
+        paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANS_RESULT, orderTransaction: orderTransaction, bankTransferState: .PENDING))
         request.paymentBankTransfer(
                 storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
                 note: orderTransaction.note, amount: orderTransaction.amount,
