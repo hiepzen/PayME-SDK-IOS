@@ -244,7 +244,6 @@ class ResultView: UIView {
 
             let serviceView = InformationView(data: [
                 ["key": "receiveName".localize(), "value": "\(result.orderTransaction.storeName)"],
-                ["key": "serviceCode".localize(), "value": "\(result.orderTransaction.orderId)"],
                 ["key": "content".localize(), "value": result.orderTransaction.note]
             ])
             detailView.addSubview(serviceView)
@@ -262,7 +261,6 @@ class ResultView: UIView {
             paymentView.trailingAnchor.constraint(equalTo: detailView.trailingAnchor).isActive = true
             let serviceView = InformationView(data: [
                 ["key": "service".localize(), "value": "\(result.orderTransaction.storeName)"],
-                ["key": "paymentAmount".localize(), "value": "\(formatMoney(input: result.orderTransaction.total ?? 0)) đ", "color": UIColor(hexString: PayME.configColor[0])],
                 ["key": "content".localize(), "value": result.orderTransaction.note]
             ])
             detailView.addSubview(serviceView)
