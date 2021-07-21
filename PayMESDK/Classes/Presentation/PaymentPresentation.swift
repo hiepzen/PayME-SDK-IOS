@@ -246,14 +246,24 @@ class PaymentPresentation {
                                 }
                             }
                         } else {
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message":
-                            (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject])
-                            self.onPaymeError(data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize())
+                            let result = Result(
+                                    type: ResultType.FAIL,
+                                    failReasonLabel: data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize(),
+                                    orderTransaction: orderTransaction,
+                                    transactionInfo: TransactionInformation(transaction: orderTransaction.orderId, transactionTime: toDateString(date: Date())),
+                                    extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject]
+                            )
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                         }
                     } else {
-                        self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message":
-                        (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject])
-                        self.onPaymeError(data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize())
+                        let result = Result(
+                                type: ResultType.FAIL,
+                                failReasonLabel: data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize(),
+                                orderTransaction: orderTransaction,
+                                transactionInfo: TransactionInformation(transaction: orderTransaction.orderId, transactionTime: toDateString(date: Date())),
+                                extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject]
+                        )
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                     }
                 }, onError: { error in
             self.onError(error)
