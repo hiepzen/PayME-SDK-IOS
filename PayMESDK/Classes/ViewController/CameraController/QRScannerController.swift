@@ -14,7 +14,7 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
     var captureSession = AVCaptureSession()
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     var qrCodeFrameView: UIView?
-    weak var shapeLayer: CAShapeLayer?
+    weak var shapeLayer: CALayer?
     var input: AVCaptureDeviceInput?
 
     let getPhoto: UIButton = {
@@ -211,6 +211,8 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
         shapeLayer.position = view.center
         shapeLayer.contents = imageSVG?.uiImage.cgImage
         view.layer.addSublayer(shapeLayer)
+
+        self.shapeLayer = shapeLayer
 
         qrCodeFrameView = UIView()
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
