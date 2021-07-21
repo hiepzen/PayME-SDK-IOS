@@ -377,7 +377,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         KYCController.isUpdateIdentify = isUpdateIdentify ?? KYCController.isUpdateIdentify
         if let dictionary = dictionary as? [String: Bool] {
             let kycController = KYCController(payMEFunction: payMEFunction!, flowKYC: dictionary)
-            kycController.kyc()
+            kycController.updateIdentify()
         }
     }
 

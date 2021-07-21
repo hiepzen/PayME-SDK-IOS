@@ -51,6 +51,31 @@ class KYCController {
         }
     }
 
+    func updateIdentify() {
+        if KYCController.flowKYC!["faceImg"] == true {
+            let avatarController = AvatarController()
+            if PayME.currentVC?.navigationController != nil {
+                PayME.currentVC?.navigationController?.pushViewController(avatarController, animated: true)
+            } else {
+                PayME.currentVC?.present(avatarController, animated: true, completion: nil)
+            }
+        } else if KYCController.flowKYC!["kycVideo"] == true {
+            let videoController = VideoController()
+            if PayME.currentVC?.navigationController != nil {
+                PayME.currentVC?.navigationController?.pushViewController(videoController, animated: true)
+            } else {
+                PayME.currentVC?.present(videoController, animated: true, completion: nil)
+            }
+        } else {
+            let kycDocument = KYCCameraController()
+            if PayME.currentVC?.navigationController != nil {
+                PayME.currentVC?.navigationController?.pushViewController(kycDocument, animated: true)
+            } else {
+                PayME.currentVC?.present(kycDocument, animated: true, completion: nil)
+            }
+        }
+    }
+
     static func reset() {
         KYCController.imageDocument = nil
         KYCController.imageAvatar = nil
