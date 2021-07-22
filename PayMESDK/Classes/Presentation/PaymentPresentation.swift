@@ -265,14 +265,15 @@ class PaymentPresentation {
                         )
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                     }
-                }, onError: { error in
-            self.onError(error)
-            if let code = error["code"] as? Int {
-                if (code == 401) {
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-                }
-            }
-        }, onPaymeError: onPaymeError)
+                },
+                onError: { error in
+                    self.onError(error)
+                    if let code = error["code"] as? Int {
+                        if (code == 401) {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                        }
+                    }
+                }, onPaymeError: onPaymeError)
     }
 
     func paymentLinkedMethod(orderTransaction: OrderTransaction) {
@@ -374,49 +375,51 @@ class PaymentPresentation {
     }
 
     func createSecurityCode(password: String, orderTransaction: OrderTransaction) {
-        request.createSecurityCode(password: password, onSuccess: { securityInfo in
-            let account = securityInfo["Account"]!["SecurityCode"] as! [String: AnyObject]
-            let securityResponse = account["CreateCodeByPassword"] as! [String: AnyObject]
-            let securitySucceeded = securityResponse["succeeded"] as! Bool
-            if (securitySucceeded == true) {
-                let securityCode = securityResponse["securityCode"] as! String
-                let methodType = orderTransaction.paymentMethod?.type
-                if methodType == "WALLET" {
-                    self.paymentPayMEMethod(securityCode: securityCode, orderTransaction: orderTransaction)
-                }
-                if methodType == "LINKED" {
-                    if (orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "" {
-                        self.authenCreditCard(orderTransaction: orderTransaction)
+        request.createSecurityCode(password: password,
+                onSuccess: { securityInfo in
+                    let account = securityInfo["Account"]!["SecurityCode"] as! [String: AnyObject]
+                    let securityResponse = account["CreateCodeByPassword"] as! [String: AnyObject]
+                    let securitySucceeded = securityResponse["succeeded"] as! Bool
+                    if (securitySucceeded == true) {
+                        let securityCode = securityResponse["securityCode"] as! String
+                        let methodType = orderTransaction.paymentMethod?.type
+                        if methodType == "WALLET" {
+                            self.paymentPayMEMethod(securityCode: securityCode, orderTransaction: orderTransaction)
+                        }
+                        if methodType == "LINKED" {
+                            if (orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "" {
+                                self.authenCreditCard(orderTransaction: orderTransaction)
+                            } else {
+                                self.paymentLinkedMethod(orderTransaction: orderTransaction)
+                            }
+                        }
                     } else {
-                        self.paymentLinkedMethod(orderTransaction: orderTransaction)
+                        let message = securityResponse["message"] as! String
+                        let code = securityResponse["code"] as! String
+                        if (code == "PASSWORD_INVALID" || code == "PASSWORD_RETRY_TIMES_OVER") {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
+                                    code: ResponseErrorCode.PASSWORD_INVALID, message: message
+                            )))
+                        } else {
+                            let result = Result(
+                                    type: ResultType.FAIL,
+                                    failReasonLabel: message,
+                                    orderTransaction: orderTransaction,
+                                    transactionInfo: TransactionInformation(),
+                                    extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject]
+                            )
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                        }
                     }
-                }
-            } else {
-                let message = securityResponse["message"] as! String
-                let code = securityResponse["code"] as! String
-                if (code == "PASSWORD_INVALID" || code == "PASSWORD_RETRY_TIMES_OVER") {
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
-                            code: ResponseErrorCode.PASSWORD_INVALID, message: message
-                    )))
-                } else {
-                    let result = Result(
-                            type: ResultType.FAIL,
-                            failReasonLabel: message,
-                            orderTransaction: orderTransaction,
-                            transactionInfo: TransactionInformation(),
-                            extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject]
-                    )
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-                }
-            }
-        }, onError: { error in
-            if let code = error["code"] as? Int {
-                if (code == 401) {
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-                }
-            }
-            self.onError(error)
-        }, onPaymeError: onPaymeError)
+                },
+                onError: { error in
+                    if let code = error["code"] as? Int {
+                        if (code == 401) {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                        }
+                    }
+                    self.onError(error)
+                }, onPaymeError: onPaymeError)
     }
 
     func payBankTransfer(orderTransaction: OrderTransaction) {
@@ -668,14 +671,15 @@ class PaymentPresentation {
                     } else {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                     }
-                }, onError: { error in
-            self.onError(error)
-            if let code = error["code"] as? Int {
-                if (code == 401) {
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-                }
-            }
-        }, onPaymeError: onPaymeError
+                },
+                onError: { error in
+                    self.onError(error)
+                    if let code = error["code"] as? Int {
+                        if (code == 401) {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                        }
+                    }
+                }, onPaymeError: onPaymeError
         )
     }
 
@@ -684,43 +688,44 @@ class PaymentPresentation {
             onSuccess: @escaping ([PaymentMethod]) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        request.getTransferMethods(payCode: payCode, onSuccess: { response in
-            let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
-            var methods: [PaymentMethod] = []
-            for (index, item) in items.enumerated() {
-                guard let methodType = item["type"] as? String else {
-                    continue
-                }
-                let methodInformation = PaymentMethod(
-                        type: methodType, title: item["title"] as! String, label: item["label"] as! String
-                )
-                if methodType == "WALLET" {
-                    methodInformation.dataWallet = WalletInformation(balance: 0)
-                }
-                if methodType == "LINKED" {
-                    methodInformation.dataLinked = LinkedInformation(
-                            swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as? String,
-                            linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int,
-                            issuer: (item["data"] as! [String: AnyObject])["issuer"] as? String ?? ""
-                    )
-                }
-                methods.append(methodInformation)
-            }
-            guard let method = methods.first(where: { $0.type == "WALLET" }) else {
-                onSuccess(methods)
-                return
-            }
-            if self.accessToken != "" && self.kycState == "APPROVED" {
-                self.request.getWalletInfo(onSuccess: { response in
-                    let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as? Int ?? 0
-                    method.dataWallet?.balance = balance
-                    onSuccess(methods)
-                }, onError: { error in onError(error) })
-            } else {
-                onSuccess(methods)
-            }
+        request.getTransferMethods(payCode: payCode,
+                onSuccess: { response in
+                    let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
+                    var methods: [PaymentMethod] = []
+                    for (index, item) in items.enumerated() {
+                        guard let methodType = item["type"] as? String else {
+                            continue
+                        }
+                        let methodInformation = PaymentMethod(
+                                type: methodType, title: item["title"] as! String, label: item["label"] as! String
+                        )
+                        if methodType == "WALLET" {
+                            methodInformation.dataWallet = WalletInformation(balance: 0)
+                        }
+                        if methodType == "LINKED" {
+                            methodInformation.dataLinked = LinkedInformation(
+                                    swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as? String,
+                                    linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int,
+                                    issuer: (item["data"] as! [String: AnyObject])["issuer"] as? String ?? ""
+                            )
+                        }
+                        methods.append(methodInformation)
+                    }
+                    guard let method = methods.first(where: { $0.type == "WALLET" }) else {
+                        onSuccess(methods)
+                        return
+                    }
+                    if self.accessToken != "" && self.kycState == "APPROVED" {
+                        self.request.getWalletInfo(onSuccess: { response in
+                            let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as? Int ?? 0
+                            method.dataWallet?.balance = balance
+                            onSuccess(methods)
+                        }, onError: { error in onError(error) })
+                    } else {
+                        onSuccess(methods)
+                    }
 
-        },
+                },
                 onError: { error in onError(error) },
                 onPaymeError: onPaymeError)
     }
@@ -731,11 +736,11 @@ class PaymentPresentation {
             var listBank: [Bank] = []
             for bank in banks {
                 if bank["depositable"] as? Bool ?? false && ((bank["cardNumberLength"] as? Int) != nil) && ((bank["cardPrefix"] as? String) != nil) {
-                   var dateString: String
+                    var dateString: String
                     if (bank["requiredDate"] as? String ?? "") == "EXPIRED_DATE" {
-                       dateString = "expiredDate".localize()
+                        dateString = "expiredDate".localize()
                     } else {
-                       dateString = "releaseDate".localize()
+                        dateString = "releaseDate".localize()
                     }
                     let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int,
                             cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String,
@@ -802,7 +807,12 @@ class PaymentPresentation {
                 self.onPaymeError(data["Utility"]["GetFee"]["message"].string ?? "hasError".localize())
             }
         }, onError: { error in
-            print(error)
+            if let code = error["code"] as? Int {
+                if (code == 401) {
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                }
+            }
+            self.onError(error)
         }, onPaymeError: onPaymeError)
     }
 
@@ -848,37 +858,15 @@ class PaymentPresentation {
                         }
                     }
                 },
-                onError: { error in print("\(error)") },
-                onPaymeError: onPaymeError)
-    }
-
-    public func decryptSubscriptionMessage(
-            xAPIMessage: String,
-            xAPIKey: String,
-            transactionInfo: TransactionInformation, orderTransaction: OrderTransaction,
-            onSuccess: @escaping () -> ()
-    ) {
-        request.decryptSubscriptionMessage(xAPIMessageResponse: xAPIMessage, xAPIKeyResponse: xAPIKey,
-                onSuccess: { response in
-                    guard let data = response["CreditCard"] as? [String: Any] else {
-                        return
+                onError: { error in
+                    if let code = error["code"] as? Int {
+                        if (code == 401) {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                        }
                     }
-                    guard let state = data["state"] as? String else {
-                        return
-                    }
-                    if (state == "SUCCEEDED") {
-                        onSuccess()
-                        let result = Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
-                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-                    } else if (state == "FAIL") {
-                        onSuccess()
-                        let result = Result(type: ResultType.FAIL, orderTransaction: orderTransaction, transactionInfo: transactionInfo)
-                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-                    }
+                    self.onError(error)
                 },
-                onError: { error in print("\(error)") },
-                onPaymeError: onPaymeError
-        )
+                onPaymeError: onPaymeError)
     }
 
     func getListBankManual(orderTransaction: OrderTransaction, listSettingBank: [Bank]) {
@@ -931,14 +919,16 @@ class PaymentPresentation {
                                 qrCode: bank["qrContent"] as? String ?? ""
                         ))
                     }
-//                    if (listBank.count <= 0) {
-//                        onPaymeError("")
-//                    }
                     orderTransaction.paymentMethod?.dataBankTransfer = listBank[0]
                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, banks: listSettingBank, listBankManual: listBank, orderTransaction: orderTransaction))
                 },
                 onError: { error in
-                    print(error)
+                    if let code = error["code"] as? Int {
+                        if (code == 401) {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                        }
+                    }
+                    self.onError(error)
                 },
                 onPaymeError: onPaymeError
         )
