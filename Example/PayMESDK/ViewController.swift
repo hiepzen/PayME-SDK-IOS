@@ -673,11 +673,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 if (amount! >= 10000) {
                     let amountPay = amount!
                     var storeId = 9
-                    if (self.currentEnv == PayME.Env.SANDBOX) {
+                    if currentEnv == PayME.Env.SANDBOX {
                         storeId = 37048160
                     }
-                    if (self.currentEnv == PayME.Env.PRODUCTION) {
+                    if currentEnv == PayME.Env.PRODUCTION {
                         storeId = 57956431
+                    }
+                    if currentEnv == PayME.Env.STAGING {
+                        storeId = 223
                     }
                     payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note: "Nội dung đơn hàng", payCode: curPayCode, extraData: nil, isShowResultUI: true, onSuccess: { success in
                         Log.custom.push(title: "pay", message: success)

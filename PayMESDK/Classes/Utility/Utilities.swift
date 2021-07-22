@@ -58,7 +58,7 @@ func urlWebview(env: PayME.Env) -> String {
     } else if (env == PayME.Env.SANDBOX) {
         return "https://sbx-sdk.payme.com.vn/active/"
     } else if env == PayME.Env.STAGING {
-        return "https://staging-sdk.payme.com.vn"
+        return "https://staging-sdk.payme.com.vn/active/"
     }
     return "https://sdk.payme.com.vn/active/"
 }
