@@ -155,6 +155,9 @@ class PayMEFunction {
                 bottomSafeArea = currentVC.bottomLayoutGuide.length
             }
 
+            print("paddingTop: \(topSafeArea)")
+            print("paddingBottom: \(bottomSafeArea)")
+
             let message = dataInit!["message"] as? String
             let accessToken = dataInit!["accessToken"] as? String
             let succeeded = dataInit!["succeeded"] as? Bool
