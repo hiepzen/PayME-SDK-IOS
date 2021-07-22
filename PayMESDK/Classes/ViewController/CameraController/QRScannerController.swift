@@ -302,13 +302,34 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
             view.bringSubviewToFront(titleToggleFlash)
 
             shapeLayer?.removeFromSuperlayer()
+
             let imageSVG = SVGKImage(for: SecurityCode.self, named: "line-code-bo")
             imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1, defaultColor: "#0DAA27")
             let shapeLayer = CALayer()
             shapeLayer.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 100, height: UIScreen.main.bounds.width - 100)
             shapeLayer.position = view.center
             shapeLayer.contents = imageSVG?.uiImage.cgImage
-            view.layer.addSublayer(shapeLayer)
+            videoPreviewLayer?.addSublayer(shapeLayer)
+
+            let path = UIBezierPath()
+            path.move(to: CGPoint(x: shapeLayer.frame.minX + 20, y: shapeLayer.frame.minY + 20))
+            path.addLine(to: CGPoint(x: shapeLayer.frame.maxX - 20, y: shapeLayer.frame.minY + 20))
+            let shapeLayerLine = CAShapeLayer()
+            shapeLayerLine.fillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+            shapeLayerLine.strokeColor = UIColor(hexString: PayME.configColor[0]).cgColor
+            shapeLayerLine.lineWidth = 4
+            shapeLayerLine.path = path.cgPath
+            videoPreviewLayer?.addSublayer(shapeLayerLine)
+
+            let animationDown = CABasicAnimation(keyPath: "position")
+            animationDown.fromValue = shapeLayerLine.position
+            animationDown.toValue = CGPoint(x: shapeLayerLine.position.x, y: shapeLayerLine.position.y + (UIScreen.main.bounds.width - 140))
+            animationDown.duration = 1.5
+            shapeLayerLine.position = CGPoint(x: shapeLayerLine.position.x, y: shapeLayerLine.position.y + (UIScreen.main.bounds.width - 140))
+            animationDown.autoreverses = true
+            animationDown.repeatCount = .infinity
+            shapeLayerLine.add(animationDown, forKey: "test")
+
             self.shapeLayer = shapeLayer
         }
     }
