@@ -201,19 +201,6 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
         backButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         backButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
 
-        shapeLayer?.removeFromSuperlayer()
-
-        let imageSVG = SVGKImage(for: SecurityCode.self, named: "line-code-bo")
-        imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1, defaultColor: "#0DAA27")
-
-        let shapeLayer = CALayer()
-        shapeLayer.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 100, height: UIScreen.main.bounds.width - 100)
-        shapeLayer.position = view.center
-        shapeLayer.contents = imageSVG?.uiImage.cgImage
-        view.layer.addSublayer(shapeLayer)
-
-        self.shapeLayer = shapeLayer
-
         qrCodeFrameView = UIView()
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
         getPhoto.addTarget(self, action: #selector(choiceImage), for: .touchUpInside)
@@ -313,6 +300,16 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
             view.bringSubviewToFront(flash)
             view.bringSubviewToFront(titleChoiceButton)
             view.bringSubviewToFront(titleToggleFlash)
+
+            shapeLayer?.removeFromSuperlayer()
+            let imageSVG = SVGKImage(for: SecurityCode.self, named: "line-code-bo")
+            imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1, defaultColor: "#0DAA27")
+            let shapeLayer = CALayer()
+            shapeLayer.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 100, height: UIScreen.main.bounds.width - 100)
+            shapeLayer.position = view.center
+            shapeLayer.contents = imageSVG?.uiImage.cgImage
+            view.layer.addSublayer(shapeLayer)
+            self.shapeLayer = shapeLayer
         }
     }
 
