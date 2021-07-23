@@ -911,10 +911,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     @objc func onAppEnterForeground(notification: NSNotification) {
-        if securityCode.isDescendant(of: view) && !resultView.isDescendant(of: view) {
+        if securityCode.isDescendant(of: view) && !securityCode.isHidden {
             securityCode.otpView.becomeFirstResponder()
         }
-        if otpView.isDescendant(of: view) && !resultView.isDescendant(of: view) {
+        if otpView.isDescendant(of: view) && !otpView.isHidden {
             otpView.otpView.becomeFirstResponder()
         }
         if !confirmController.view.isHidden && !confirmController.atmView.cardInput.isHidden {
@@ -972,7 +972,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     @objc func onAppEnterBackground(notification: NSNotification) {
-        view.endEditing(false)
+//        view.endEditing(false)
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {

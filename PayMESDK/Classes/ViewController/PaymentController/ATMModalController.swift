@@ -204,7 +204,7 @@ class ConfirmationModal: UIViewController {
     }
 
     @objc func onAppEnterBackground(notification: NSNotification) {
-        view.endEditing(false)
+//        view.endEditing(false)
     }
 
     func toastMessError(title: String, message: String) {
