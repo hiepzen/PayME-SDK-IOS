@@ -906,21 +906,25 @@ class PaymentPresentation {
                         self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                         return
                     }
-                    var listBank: [BankManual] = []
-                    for bank in bankList {
-                        listBank.append(BankManual(
-                                bankAccountName: bank["bankAccountName"] as? String ?? "",
-                                bankAccountNumber: bank["bankAccountNumber"] as? String ?? "",
-                                bankBranch: bank["bankBranch"] as? String ?? "",
-                                bankCity: bank["bankCity"] as? String ?? "",
-                                bankName: bank["bankName"] as? String ?? "",
-                                content: bank["content"] as? String ?? "",
-                                swiftCode: bank["swiftCode"] as? String ?? "",
-                                qrCode: bank["qrContent"] as? String ?? ""
-                        ))
+                    if bankList.count > 0 {
+                        var listBank: [BankManual] = []
+                        for bank in bankList {
+                            listBank.append(BankManual(
+                                    bankAccountName: bank["bankAccountName"] as? String ?? "",
+                                    bankAccountNumber: bank["bankAccountNumber"] as? String ?? "",
+                                    bankBranch: bank["bankBranch"] as? String ?? "",
+                                    bankCity: bank["bankCity"] as? String ?? "",
+                                    bankName: bank["bankName"] as? String ?? "",
+                                    content: bank["content"] as? String ?? "",
+                                    swiftCode: bank["swiftCode"] as? String ?? "",
+                                    qrCode: bank["qrContent"] as? String ?? ""
+                            ))
+                        }
+                        orderTransaction.paymentMethod?.dataBankTransfer = listBank[0]
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, banks: listSettingBank, listBankManual: listBank, orderTransaction: orderTransaction))
+                    } else {
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
                     }
-                    orderTransaction.paymentMethod?.dataBankTransfer = listBank[0]
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, banks: listSettingBank, listBankManual: listBank, orderTransaction: orderTransaction))
                 },
                 onError: { error in
                     if let code = error["code"] as? Int {
