@@ -126,6 +126,7 @@
 "notFoundBank" = "Không tìm thấy ngân hàng nào";
 "notFoundPayCode" = "Phương thức thanh toán không được hỗ trợ. Vui lòng kiểm tra lại!";
 "overQuota" = "Vượt qua giới hạn giao dịch. Vui lòng chọn phương thức khác để thực hiện giao dịch hoặc thử lại sau.";
+"done" = "Xong";
 "manualBankNotFound" = "Không tìm thấy danh sách ngân hàng thụ hưởng";
 
 
