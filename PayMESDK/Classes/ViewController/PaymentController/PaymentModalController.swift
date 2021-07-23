@@ -256,6 +256,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
 //    var callApiWhenSocketFail: DispatchWorkItem!
     var transactionInfo: TransactionInformation!
+
     private func setupWebview(_ responseError: ResponseError) {
         removeSpinner()
         let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
@@ -276,31 +277,24 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 let responseSuccess = [
                     "payment": ["transaction": paymentInfo["transaction"] as? String]
                 ] as [String: AnyObject]
-                self.onSuccess(responseSuccess)
                 let result = Result(
                         type: ResultType.SUCCESS,
                         orderTransaction: self.orderTransaction,
-                        transactionInfo: responseError.transactionInformation!
+                        transactionInfo: responseError.transactionInformation!,
+                        extraData: responseSuccess
                 )
                 self.setupResult(result)
             })
             webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                 webViewController.dismiss(animated: true)
-                let failWebview: [String: AnyObject] = ["OpenEWallet": [
-                    "Payment": [
-                        "Pay": [
-                            "success": true as AnyObject,
-                            "message": responseFromWebView as AnyObject,
-                            "history": responseError.paymentInformation!["history"] as AnyObject
-                        ]
-                    ]
-                ] as AnyObject]
-                self.onError(failWebview)
+                let message = responseFromWebView as AnyObject
+                let failWebview = ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject] as [String : AnyObject]
                 let result = Result(
                         type: ResultType.FAIL,
                         failReasonLabel: responseFromWebView as String,
                         orderTransaction: self.orderTransaction,
-                        transactionInfo: responseError.transactionInformation!
+                        transactionInfo: responseError.transactionInformation!,
+                        extraData: failWebview
                 )
                 self.setupResult(result)
             })
@@ -309,7 +303,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func onAuthenCard(orderTransaction: OrderTransaction?, html: String) {
-        guard let order = orderTransaction else { return }
+        guard let order = orderTransaction else {
+            return
+        }
         let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
         webViewController.form = html
         webViewController.loadView()
@@ -347,7 +343,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.backgroundColor = .white
         methodsView.translatesAutoresizingMaskIntoConstraints = false
 
-        methodsView.topAnchor.constraint(equalTo:view.topAnchor).isActive = true
+        methodsView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         methodsView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         methodsView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
 
@@ -396,12 +392,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         confirmController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
 
         searchBankController.view.translatesAutoresizingMaskIntoConstraints = false
-        searchBankController.view.topAnchor.constraint(equalTo:view.topAnchor).isActive = true
+        searchBankController.view.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         searchBankController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         searchBankController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
 
         viewVietQRListBank.view.translatesAutoresizingMaskIntoConstraints = false
-        viewVietQRListBank.view.topAnchor.constraint(equalTo:view.topAnchor).isActive = true
+        viewVietQRListBank.view.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         viewVietQRListBank.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         viewVietQRListBank.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
 
@@ -485,7 +481,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupUISearchBank(orderTransaction: OrderTransaction?) {
-        guard let orderTrans = orderTransaction else { return }
+        guard let orderTrans = orderTransaction else {
+            return
+        }
         confirmController.view.isHidden = true
         methodsView.isHidden = true
         securityCode.isHidden = true
@@ -514,7 +512,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupUIViewBank(orderTransaction: OrderTransaction?, banks: [Bank]) {
-        guard let orderTrans = orderTransaction else { return }
+        guard let orderTrans = orderTransaction else {
+            return
+        }
         confirmController.view.isHidden = true
         methodsView.isHidden = true
         securityCode.isHidden = true
@@ -669,6 +669,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             panModalTransition(to: .longForm)
         }
     }
+
     func setupUIOverQuota(_ message: String) {
         button.isEnabled = false
         quotaNote.text = message
@@ -802,7 +803,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupUIBankTransResult(type: ResultType, orderTransaction: OrderTransaction?) {
-        guard let orderTrans = orderTransaction else { return }
+        guard let orderTrans = orderTransaction else {
+            return
+        }
         methodsView.isHidden = true
         confirmController.view.isHidden = true
         searchBankController.view.isHidden = true
@@ -864,7 +867,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     @objc func onPressSubmitMethod() {
-        guard let method = selectedMethod else { return }
+        guard let method = selectedMethod else {
+            return
+        }
         onSubmitMethod(method)
     }
 
@@ -923,11 +928,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
         if otpView.isDescendant(of: view) {
             modalHeight = keyboardSize.height + otpView.bounds.size.height + footer.bounds.size.height - (safeAreaInset?.bottom ?? 0)
-        }
-        else if securityCode.isDescendant(of: view) {
+        } else if securityCode.isDescendant(of: view) {
             modalHeight = keyboardSize.height + securityCode.bounds.size.height + footer.bounds.size.height - (safeAreaInset?.bottom ?? 0)
-        }
-        else if confirmController.view.isDescendant(of: view) && confirmController.view.isHidden == false {
+        } else if confirmController.view.isDescendant(of: view) && confirmController.view.isHidden == false {
             if #available(iOS 11.0, *) {
                 modalHeight = min(keyboardSize.height + confirmController.view.bounds.size.height + footer.bounds.size.height,
                         view.safeAreaLayoutGuide.layoutFrame.height)
@@ -939,8 +942,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     + keyboardSize.height
             let controllerViewHeight = min(confirmController.scrollView.contentSize.height, modalHeight! - temp)
             atmHeightConstraint?.constant = controllerViewHeight
-        }
-        else if searchBankController.view.isDescendant(of: view) && searchBankController.view.isHidden == false {
+        } else if searchBankController.view.isDescendant(of: view) && searchBankController.view.isHidden == false {
             let temp = keyboardSize.height + (searchBankHeightConstraint?.constant ?? 0)
             if #available(iOS 11.0, *) {
                 modalHeight = min(temp,
@@ -979,8 +981,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 rect = rect.union(view.frame)
             }
             modalHeight = contentRect.height
-        }
-        else if otpView.isDescendant(of: view) {
+        } else if otpView.isDescendant(of: view) {
             let contentRect: CGRect = otpView.subviews.reduce(into: .zero) { rect, view in
                 rect = rect.union(view.frame)
             }
@@ -1104,7 +1105,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 return nil
             } else if payMEFunction.kycState != "APPROVED" {
                 PayME.currentVC?.dismiss(animated: true) {
-                    self.payMEFunction.KYC(PayME.currentVC!, { }, { dictionary in })
+                    self.payMEFunction.KYC(PayME.currentVC!, {}, { dictionary in })
                 }
                 return nil
             } else {
@@ -1122,12 +1123,16 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         selectedMethod = data[indexPath.section]
         orderTransaction.paymentMethod = selectedMethod
         paymentPresentation.getFee(orderTransaction: orderTransaction)
-        guard let cell = tableView.cellForRow(at: indexPath) as? Method else { return }
+        guard let cell = tableView.cellForRow(at: indexPath) as? Method else {
+            return
+        }
         cell.methodView.updateSelectState(isSelected: true)
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        guard let cell = tableView.cellForRow(at: indexPath) as? Method else { return }
+        guard let cell = tableView.cellForRow(at: indexPath) as? Method else {
+            return
+        }
         cell.methodView.updateSelectState(isSelected: false)
     }
 
