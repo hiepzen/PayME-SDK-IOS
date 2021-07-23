@@ -790,11 +790,11 @@ class PaymentPresentation {
         request.getFee(amount: orderTransaction.amount, payment: payment, onSuccess: { response in
             let data = JSON(response)
             if data["Utility"]["GetFee"]["succeeded"].boolValue {
-                if let fee = ((response["Utility"]!["GetFee"] as? [String: AnyObject])?["fee"] as? [String: AnyObject])?["fee"] as? Int {
-                    orderTransaction.paymentMethod?.fee = fee
-                    orderTransaction.total = orderTransaction.amount + fee
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.FEE, orderTransaction: orderTransaction))
-                }
+//                if let fee = ((response["Utility"]!["GetFee"] as? [String: AnyObject])?["fee"] as? [String: AnyObject])?["fee"] as? Int {
+//                    orderTransaction.paymentMethod?.fee = fee
+//                    orderTransaction.total = orderTransaction.amount + fee
+//                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.FEE, orderTransaction: orderTransaction))
+//                }
                 if let state = (response["Utility"]!["GetFee"] as? [String: AnyObject])?["state"] as? String {
                     if state == "OVER_DAY_QUOTA" || state == "OVER_MONTH_QUOTA" {
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR,
@@ -802,8 +802,10 @@ class PaymentPresentation {
                                         message: (response["Utility"]!["GetFee"] as? [String: AnyObject])?["message"] as? String ??
                                                 "overQuota".localize()
                                 )))
+                        return
                     }
                 }
+                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.FEE, orderTransaction: orderTransaction))
             } else {
                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject,
                               "message": (data["Utility"]["GetFee"]["message"].string ?? "hasError".localize()) as AnyObject])

@@ -43,6 +43,7 @@ class SearchBankController: UIViewController, UICollectionViewDelegate, UICollec
         svgImageView.trailingAnchor.constraint(equalTo: paddingView.trailingAnchor, constant: -8).isActive = true
         searchBar.leftViewMode = .always
         searchBar.leftView = paddingView
+        searchBar.addDoneButtonOnKeyboard()
 
         let emptySVG = SVGKImage(for: SearchBankController.self, named: "iconNoticeNotFoundBank")
         emptySVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)

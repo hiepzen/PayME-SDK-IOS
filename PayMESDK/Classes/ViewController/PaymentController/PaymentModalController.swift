@@ -95,7 +95,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
                     serviceCode: self.orderTransaction.orderId,
                     note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
-                    logoUrl: nil, isFullInfo: false)
+                    logoUrl: "", isFullInfo: false)
         }
         payData = PaymentData(payCode: payCode, methods: [])
 
@@ -350,7 +350,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.addSubview(orderView)
         methodsView.addSubview(methodTitle)
         methodsView.addSubview(tableView)
-        methodsView.addSubview(feeInfo)
+//        methodsView.addSubview(feeInfo)
         methodsView.addSubview(quotaNote)
         methodsView.addSubview(button)
 
@@ -379,11 +379,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
         tableView.alwaysBounceVertical = false
 
-        feeInfo.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 8).isActive = true
-        feeInfo.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
-        feeInfo.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
+//        feeInfo.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 8).isActive = true
+//        feeInfo.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
+//        feeInfo.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
 
-        quotaNote.topAnchor.constraint(equalTo: feeInfo.bottomAnchor, constant: 8).isActive = true
+        quotaNote.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 8).isActive = true
         quotaNote.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
         quotaNote.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
 
@@ -636,38 +636,38 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let primaryColor = payMEFunction.configColor[0]
         let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-        if let orderTrans = order {
-            let data = [
-                ["key": "fee".localize(),
-                 "value": (orderTrans.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTrans.paymentMethod?.fee ?? 0))) đ" : "free".localize(),
-                 "keyColor": UIColor(3, 3, 3),
-                 "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
-                 "color": UIColor(3, 3, 3),
-                 "font": UIFont.systemFont(ofSize: 15, weight: .regular)
-                ],
-                ["key": "totalPayment".localize(),
-                 "value": "\(String(describing: formatMoney(input: orderTrans.total ?? 0))) đ",
-                 "font": UIFont.systemFont(ofSize: 20, weight: .bold),
-                 "color": UIColor(236, 42, 42),
-                 "keyColor": UIColor(3, 3, 3),
-                 "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
-                ]
-            ]
-            feeInfo.update(data: data)
-            feeInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
-
-            methodsBottomConstraint?.isActive = false
-            methodsBottomConstraint = button.topAnchor.constraint(equalTo: feeInfo.bottomAnchor, constant: 16)
-            methodsBottomConstraint?.isActive = true
-
-            updateViewConstraints()
-            view.layoutIfNeeded()
-            let viewHeight = methodsView.bounds.size.height
-                    + footer.bounds.size.height
-            modalHeight = viewHeight
-            panModalSetNeedsLayoutUpdate()
-            panModalTransition(to: .longForm)
-        }
+//        if let orderTrans = order {
+//            let data = [
+//                ["key": "fee".localize(),
+//                 "value": (orderTrans.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTrans.paymentMethod?.fee ?? 0))) đ" : "free".localize(),
+//                 "keyColor": UIColor(3, 3, 3),
+//                 "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
+//                 "color": UIColor(3, 3, 3),
+//                 "font": UIFont.systemFont(ofSize: 15, weight: .regular)
+//                ],
+//                ["key": "totalPayment".localize(),
+//                 "value": "\(String(describing: formatMoney(input: orderTrans.total ?? 0))) đ",
+//                 "font": UIFont.systemFont(ofSize: 20, weight: .bold),
+//                 "color": UIColor(236, 42, 42),
+//                 "keyColor": UIColor(3, 3, 3),
+//                 "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
+//                ]
+//            ]
+//            feeInfo.update(data: data)
+//            feeInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
+//
+//            methodsBottomConstraint?.isActive = false
+//            methodsBottomConstraint = button.topAnchor.constraint(equalTo: feeInfo.bottomAnchor, constant: 16)
+//            methodsBottomConstraint?.isActive = true
+//
+//            updateViewConstraints()
+//            view.layoutIfNeeded()
+//            let viewHeight = methodsView.bounds.size.height
+//                    + footer.bounds.size.height
+//            modalHeight = viewHeight
+//            panModalSetNeedsLayoutUpdate()
+//            panModalTransition(to: .longForm)
+//        }
     }
 
     func setupUIOverQuota(_ message: String) {
@@ -986,6 +986,38 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 rect = rect.union(view.frame)
             }
             modalHeight = contentRect.height
+        } else if confirmController.view.isDescendant(of: view) && confirmController.view.isHidden == false {
+            let temp = footer.bounds.size.height
+                    + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
+            let atmHeight = min(confirmController.scrollView.contentSize.height, screenSize.height - temp)
+            atmHeightConstraint?.constant = atmHeight
+
+            footerTopConstraint?.isActive = false
+            footerTopConstraint = footer.topAnchor.constraint(equalTo: confirmController.view.bottomAnchor)
+            footerTopConstraint?.isActive = true
+            updateViewConstraints()
+            view.layoutIfNeeded()
+            let viewHeight = confirmController.view.bounds.size.height
+                    + footer.bounds.size.height
+            modalHeight = viewHeight
+        } else if searchBankController.view.isDescendant(of: view) && searchBankController.view.isHidden == false {
+            let temp = (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
+            let searchHeight = min(searchBankController.updateSizeHeight(), screenSize.height - temp)
+            searchBankHeightConstraint?.constant = searchHeight
+            footerTopConstraint?.isActive = false
+            updateViewConstraints()
+            view.layoutIfNeeded()
+            let viewHeight = searchHeight
+            modalHeight = viewHeight
+        } else if viewVietQRListBank.view.isDescendant(of: view) && viewVietQRListBank.view.isHidden == false {
+            let temp = (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
+            let searchHeight = min(viewVietQRListBank.updateSizeHeight(), screenSize.height - temp)
+            viewVietQRHeightConstraint?.constant = searchHeight
+            footerTopConstraint?.isActive = false
+            updateViewConstraints()
+            view.layoutIfNeeded()
+            let viewHeight = searchHeight
+            modalHeight = viewHeight
         }
         updateViewConstraints()
         view.layoutIfNeeded()
