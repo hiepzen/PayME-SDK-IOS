@@ -65,12 +65,15 @@ class PaymentPresentation {
         self.kycState = kycState
         self.onSuccess = onSuccess
         self.onError = { dictionary in
-            onError(dictionary)
             guard let code = dictionary["code"] as? Int else {
+                let message = dictionary["message"] as? String ?? "hasError".localize()
+                onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                 return
             }
             if code == PayME.ResponseCode.SYSTEM {
                 paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
+            } else {
+                onError(dictionary)
             }
         }
         self.onPaymeError = onPaymeError
