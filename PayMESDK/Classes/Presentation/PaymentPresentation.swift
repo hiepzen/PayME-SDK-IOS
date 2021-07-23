@@ -926,7 +926,10 @@ class PaymentPresentation {
                         orderTransaction.paymentMethod?.dataBankTransfer = listBank[0]
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, banks: listSettingBank, listBankManual: listBank, orderTransaction: orderTransaction))
                     } else {
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
+                        self.onPaymeError("")
+                        PayME.currentVC!.dismiss(animated: true){
+                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "manualBankNotFound".localize() as AnyObject])
+                        }
                     }
                 },
                 onError: { error in
