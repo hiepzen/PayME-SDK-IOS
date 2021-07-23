@@ -3,6 +3,7 @@ enum InputState {
     case error
     case normal
 }
+
 class InputView: UIView {
     var title: String = ""
     var placeholder: String = ""
@@ -41,7 +42,7 @@ class InputView: UIView {
     }()
 
     init(title: String, placeholder: String = "", keyboardType: UIKeyboardType = .default, state: InputState = .normal,
-         isAutoCapitalization: Bool = false){
+         isAutoCapitalization: Bool = false) {
         self.title = title
         self.placeholder = placeholder
         self.keyboardType = keyboardType
@@ -53,7 +54,7 @@ class InputView: UIView {
         }
     }
 
-    func setupUI(){
+    func setupUI() {
         translatesAutoresizingMaskIntoConstraints = false
         layer.cornerRadius = 13
         layer.borderWidth = 1
@@ -81,6 +82,23 @@ class InputView: UIView {
         extraImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         extraImage.heightAnchor.constraint(equalToConstant: 20).isActive = true
         extraImage.widthAnchor.constraint(equalToConstant: 30).isActive = true
+
+        addDoneButtonOnKeyboard()
+    }
+
+    func addDoneButtonOnKeyboard() {
+        let doneToolbar: UIToolbar = UIToolbar(frame: CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50))
+        doneToolbar.barStyle = .default
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let done: UIBarButtonItem = UIBarButtonItem(title: "done".localize(), style: .done, target: self, action: #selector(doneButtonAction))
+        let items = [flexSpace, done]
+        doneToolbar.items = items
+        doneToolbar.sizeToFit()
+        textInput.inputAccessoryView = doneToolbar
+    }
+
+    @objc func doneButtonAction() {
+        textInput.resignFirstResponder()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -108,11 +126,12 @@ class InputView: UIView {
         }
     }
 
-    func updateExtraInfo(data: String = ""){
+    func updateExtraInfo(data: String = "") {
         extraImage.isHidden = true
         extraLabel.isHidden = false
         extraLabel.text = data
     }
+
     func updateExtraInfo(image: UIImage? = nil, url: String = "") {
         extraLabel.isHidden = true
         extraImage.isHidden = false
@@ -124,6 +143,7 @@ class InputView: UIView {
             extraImage.load(url: url)
         }
     }
+
     func resetExtraInfo() {
         extraLabel.text = ""
         extraImage.image = nil
