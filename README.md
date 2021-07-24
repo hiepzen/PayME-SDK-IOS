@@ -326,7 +326,6 @@ public func pay(
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
 | <code>currentVC</code> | Yes          | ViewController để PayME SDK dựa vào đó tự mở giao diện của PayME lên. |
 | <code>amount</code> | Yes          | Số tiền cần thanh toán bên app truyền qua cho SDK            |
-| <code>description</code> | No           | Mô tả nếu có                                                 |
 | <code>extraData</code> | Yes          | Khi thực hiện thanh toán thì app cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IPN lại hệ thống backend tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết. |
 | <code>storeId</code> | Yes | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
 | <code>orderId</code> | Yes | Mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch |
