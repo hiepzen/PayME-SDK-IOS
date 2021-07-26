@@ -387,7 +387,7 @@ private class PopupDocument: UIView {
         animationView.setValueProvider(color, keypath: keyPath6)
         animationView.setValueProvider(color, keypath: keyPath7)
 
-        print(animationView.logHierarchyKeypaths())
+//        print(animationView.logHierarchyKeypaths())
 
         animationView.contentMode = .scaleAspectFit
         animationView.loopMode = .loop
