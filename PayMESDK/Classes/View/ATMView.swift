@@ -98,7 +98,7 @@ class ATMView: UIView {
             dateInput.isHidden = false
             nameInput.isHidden = false
             methodView.image.image = UIImage(for: MethodView.self, named: "iconAtm")
-            dateInput.titleLabel.text = "releaseDate".localize().uppercased()
+            dateInput.updateTitle("releaseDate".localize().uppercased())
             break
         case MethodType.BANK_QR_CODE.rawValue:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconQRBank")
@@ -115,7 +115,7 @@ class ATMView: UIView {
             dateInput.isHidden = false
             cvvInput.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconCreditCard")
-            dateInput.titleLabel.text = "expiredDate".localize().uppercased()
+            dateInput.updateTitle("expiredDate".localize().uppercased())
         default:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconWallet")
             break
