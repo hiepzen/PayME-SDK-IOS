@@ -43,7 +43,7 @@ struct Result {
             break
         case ResultType.PENDING:
             self.image = "success"
-            self.titleLabel = "Thanh toán đang chờ xử lí"
+            self.titleLabel = "Thanh toán đang chờ xử lý"
         default:
             self.image = image
             self.titleLabel = titleLabel

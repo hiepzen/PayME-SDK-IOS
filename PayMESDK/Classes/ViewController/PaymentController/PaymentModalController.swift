@@ -465,13 +465,15 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     onSubmitMethod(method)
                     break
                 default:
-                    onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "notFoundPayCode".localize() as AnyObject])
-                    dismiss(animated: true)
+                    dismiss(animated: true) {
+                        onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "notFoundPayCode".localize() as AnyObject])
+                    }
                     break
                 }
             } else {
-                onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "notFoundPayCode".localize() as AnyObject])
-                dismiss(animated: true)
+                dismiss(animated: true) {
+                    onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "notFoundPayCode".localize() as AnyObject])
+                }
             }
         }, onError: { error in
             self.removeSpinner()
