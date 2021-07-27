@@ -174,7 +174,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             onCloseWebview()
         } else {
             if (wkError.code != 102) {
-                onFailWebView!(wkError.localizedDescription)
+                onFailWebView?(wkError.localizedDescription)
             }
         }
     }
@@ -269,7 +269,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                         return
                     }
                     if (params["success"] == "false") {
-                        onFailWebView!(params["message"]!)
+                        onFailWebView?(params["message"]!)
                         decisionHandler(.cancel)
                         return
                     }

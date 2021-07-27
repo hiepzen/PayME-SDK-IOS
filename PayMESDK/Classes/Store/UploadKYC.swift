@@ -48,44 +48,45 @@ public class UploadKYC {
                         if (succeeded != nil) {
                             if (succeeded! == true) {
                                 DispatchQueue.main.async {
-                                    PayME.currentVC?.dismiss(animated: false)
-                                    guard let navigationController = PayME.currentVC?.navigationController else {
-                                        return
-                                    }
-                                    var navigationArray = navigationController.viewControllers
-                                    if PayME.isRecreateNavigationController {
-                                        PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
-                                        let rootViewController = navigationArray.first
-                                        if self.isUpdateIdentify ?? false {
-                                            (rootViewController as? WebViewController)?.updateIdentify()
-                                        } else {
-                                            (rootViewController as? WebViewController)?.reload()
+                                    PayME.currentVC?.dismiss(animated: false) {
+                                        guard let navigationController = PayME.currentVC?.navigationController else {
+                                            return
                                         }
-                                    } else {
-                                        if (self.imageDocument != nil) {
-                                            if (self.active == 2) {
-                                                navigationArray.removeLast()
-                                                navigationArray.removeLast()
+                                        var navigationArray = navigationController.viewControllers
+                                        if PayME.isRecreateNavigationController {
+                                            PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
+                                            let rootViewController = navigationArray.first
+                                            if self.isUpdateIdentify ?? false {
+                                                (rootViewController as? WebViewController)?.updateIdentify()
                                             } else {
-                                                navigationArray.removeLast()
-                                                navigationArray.removeLast()
+                                                (rootViewController as? WebViewController)?.reload()
+                                            }
+                                        } else {
+                                            if (self.imageDocument != nil) {
+                                                if (self.active == 2) {
+                                                    navigationArray.removeLast()
+                                                    navigationArray.removeLast()
+                                                } else {
+                                                    navigationArray.removeLast()
+                                                    navigationArray.removeLast()
+                                                    navigationArray.removeLast()
+                                                    navigationArray.removeLast()
+                                                }
+                                            }
+                                            if (self.imageAvatar != nil) {
                                                 navigationArray.removeLast()
                                                 navigationArray.removeLast()
                                             }
-                                        }
-                                        if (self.imageAvatar != nil) {
-                                            navigationArray.removeLast()
-                                            navigationArray.removeLast()
-                                        }
-                                        if (self.videoKYC != nil) {
-                                            navigationArray.removeLast()
-                                            navigationArray.removeLast()
-                                        }
-                                        PayME.currentVC?.navigationController?.viewControllers = navigationArray
-                                        if self.isUpdateIdentify ?? false {
-                                            (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.updateIdentify()
-                                        } else {
-                                            (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.reload()
+                                            if (self.videoKYC != nil) {
+                                                navigationArray.removeLast()
+                                                navigationArray.removeLast()
+                                            }
+                                            PayME.currentVC?.navigationController?.viewControllers = navigationArray
+                                            if self.isUpdateIdentify ?? false {
+                                                (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.updateIdentify()
+                                            } else {
+                                                (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.reload()
+                                            }
                                         }
                                     }
                                 }
