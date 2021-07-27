@@ -249,6 +249,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if (form != "") {
             if (navigationAction.request.url != nil) {
+                if ((payMEFunction?.authenCreditLink ?? "") != "") {
+                    if navigationAction.request.url!.absoluteString.contains(payMEFunction!.authenCreditLink) {
+                        onNavigateToHost?("authenticated")
+                        decisionHandler(.cancel)
+                        return
+                    }
+                }
                 let host = navigationAction.request.url!.host ?? ""
 //                if host.contains("payme.vn") == true || host.contains("centinelapistag.cardinalcommerce.com") {
                 onNavigateToHost?(host)
@@ -280,15 +287,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         }
     }
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse,
-                 decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
-        if let response = navigationResponse.response as? HTTPURLResponse {
-            if response.statusCode == 200 {
-                onNavigateToHost?("authenticated")
-            }
-        }
-        decisionHandler(.allow)
-    }
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == onDeposit || message.name == onWithdraw || message.name == onTransfer {
             onCloseWebview()
