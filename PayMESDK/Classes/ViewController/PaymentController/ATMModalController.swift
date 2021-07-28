@@ -28,6 +28,8 @@ class ConfirmationModal: UIViewController {
     var payActionByMethod = {}
     let orderView: OrderView
 
+    private var cardWithoutSpace: String = ""
+
     init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool, paymentPresentation: PaymentPresentation,
          onSuccess: (([String: AnyObject]) -> ())? = nil, onError: (([String: AnyObject]) -> ())? = nil) {
         self.payMEFunction = payMEFunction
@@ -239,6 +241,7 @@ class ConfirmationModal: UIViewController {
             return
         } else {
             if orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue {
+                cardWithoutSpace = cardNumberWithoutSpaces
                 detectBank(cardNumberWithoutSpaces)
             } else if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
                 detectCreditCard(cardNumberWithoutSpaces)
@@ -358,6 +361,9 @@ class ConfirmationModal: UIViewController {
         }
         if (bankDetect != nil) && ((string.count == 16) || (string.count == 19)) {
             payMEFunction.request.getBankName(swiftCode: bankDetect!.swiftCode, cardNumber: string, onSuccess: { response in
+                if string != self.cardWithoutSpace {
+                    return
+                }
                 let bankNameRes = response["Utility"]!["GetBankName"] as! [String: AnyObject]
                 let succeeded = bankNameRes["succeeded"] as! Bool
                 if (succeeded == true) {
