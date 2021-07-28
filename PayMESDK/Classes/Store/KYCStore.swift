@@ -33,19 +33,19 @@ class KYCController {
         if (KYCController.flowKYC!["identifyImg"] == true) {
             print("flow1")
             popupKYC.active = 0
-            PayME.currentVC?.present(popupKYC, animated: true) {
+            PayME.currentVC?.presentModal(popupKYC) {
                 self.onOpenModalSuccess()
             }
         } else if (KYCController.flowKYC!["faceImg"] == true) {
             print("flow2")
             popupKYC.active = 1
-            PayME.currentVC?.present(popupKYC, animated: true) {
+            PayME.currentVC?.presentModal(popupKYC, animated: true) {
                 self.onOpenModalSuccess()
             }
         } else if (KYCController.flowKYC!["kycVideo"] == true) {
             print("flow3")
             popupKYC.active = 2
-            PayME.currentVC?.present(popupKYC, animated: true) {
+            PayME.currentVC?.presentModal(popupKYC, animated: true) {
                 self.onOpenModalSuccess()
             }
         }

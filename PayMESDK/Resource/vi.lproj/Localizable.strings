@@ -64,14 +64,14 @@
 "kycContent5" = "Vui lòng giữ gương mặt trong khung tròn";
 "kycContent6" = "Vui lòng xác nhận ảnh đã rõ nét, gương mặt của bạn đã có trong khung hình.";
 "kycContent7" = "Chụp hình giấy tờ tuỳ thân";
-"kycContent8" = "Theo quy định của NHNN, tài khoản Ví điện tử phải được định danh trước khi sử dụng. Bạn vui lòng cung cấp thông tin giấy tờ tuỳ thân để hoàn tất việc kích hoạt ví.";
+"kycContent8" = "Theo quy định của NHNN, tài khoản Ví điện tử phải được định danh trước khi sử dụng.";
 "kycContent9" = "Sử dụng giấy tờ tuỳ thân hợp lệ của chính bạn";
 "kycContent10" = "Phải đặt thẻ bên trong khung camera";
 "kycContent11" = "Không sử dụng bản sao của giấy tờ tuỳ thân";
 "kycContent12" = "Chụp ảnh xác thực khuôn mặt";
 "kycContent13" = "Vui lòng giữ gương mặt ở trong khung tròn";
 "kycContent14" = "Giữ cho ảnh sắc nét không bị nhoè";
-"kycContent15" = "Quay video xác thực khuôn mặt và giấy tờ tuỳ thân";
+"kycContent15" = "Quay video xác thực";
 "kycContent16" = "Video sẽ có độ dài 5 giây";
 "kycContent17" = "Vui lòng giữ gương mặt và mặt trước giấy tờ tùy thân của bạn trước máy quay";
 "transactionCode" = "Mã giao dịch";

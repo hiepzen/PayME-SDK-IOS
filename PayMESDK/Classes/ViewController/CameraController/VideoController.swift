@@ -175,6 +175,7 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
     let animationButton = AnimatedButton()
 
     override func viewWillAppear(_ animated: Bool) {
+        navigationController?.setNavigationBarHidden(true, animated: true)
         initializeCaptureSession()
         setupAnimation()
     }

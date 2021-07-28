@@ -266,6 +266,7 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
     }()
 
     override func viewWillAppear(_ animated: Bool) {
+        navigationController?.setNavigationBarHidden(true, animated: true)
         initializeCaptureSession()
     }
 
