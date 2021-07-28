@@ -25,6 +25,7 @@ class PayMEFunction {
     private var storeName = ""
     private var storeImage: String = ""
     private var kycMode: [String: Bool]? = nil
+    var authenCreditLink: String = ""
     static var language = PayME.Language.VIETNAMESE
 
     var request: API
@@ -451,6 +452,15 @@ class PayMEFunction {
                             }
                         } else {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config dịch vụ, vui lòng thử lại sau" as AnyObject])
+                        }
+
+                        if let configCreditAuthenLink = configs.first(where: { config in
+                            let key = (config["key"] as? String) ?? ""
+                            return key == "credit.sacom.auth.link"
+                        }) {
+                            if let authenLink = configCreditAuthenLink["value"] as? String {
+                                self.authenCreditLink = authenLink
+                            }
                         }
 
                         onSuccess(result)

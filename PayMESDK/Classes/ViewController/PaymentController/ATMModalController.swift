@@ -268,9 +268,16 @@ class ConfirmationModal: UIViewController {
 
     func insertCreditCardSpaces(_ string: String, preserveCursorPosition cursorPosition: inout Int) -> String {
         var is883, is4444: Bool
-        if bankDetect != nil {
-            is883 = bankDetect?.cardNumberLength == 19 ? true : false
-            is4444 = bankDetect?.cardNumberLength == 16 ? true : false
+//        if bankDetect != nil {
+//            is883 = bankDetect?.cardNumberLength == 19 ? true : false
+//            is4444 = bankDetect?.cardNumberLength == 16 ? true : false
+//        } else {
+//            is4444 = true
+//            is883 = false
+//        }
+        if string.count > 16 {
+            is4444 = false
+            is883 = true
         } else {
             is4444 = true
             is883 = false
@@ -349,7 +356,7 @@ class ConfirmationModal: UIViewController {
             atmView.cardInput.updateExtraInfo(data: "")
             atmView.cardInput.updateState(state: .focus)
         }
-        if (bankDetect != nil) && (string.count == bankDetect!.cardNumberLength) {
+        if (bankDetect != nil) && ((string.count == 16) || (string.count == 19)) {
             payMEFunction.request.getBankName(swiftCode: bankDetect!.swiftCode, cardNumber: string, onSuccess: { response in
                 let bankNameRes = response["Utility"]!["GetBankName"] as! [String: AnyObject]
                 let succeeded = bankNameRes["succeeded"] as! Bool
