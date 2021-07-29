@@ -146,6 +146,9 @@ class InformationView: UIView{
                 guard let value = info["value"] as? String else {
                     continue
                 }
+                if value.count <= 0 {
+                    continue
+                }
                 if (idx > 0) {
                     let seperator = UIView()
                     stackView.addArrangedSubview(seperator)
