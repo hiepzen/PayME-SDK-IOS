@@ -259,6 +259,11 @@ class ResultView: UIView {
             paymentView.topAnchor.constraint(equalTo: detailView.topAnchor).isActive = true
             paymentView.leadingAnchor.constraint(equalTo: detailView.leadingAnchor).isActive = true
             paymentView.trailingAnchor.constraint(equalTo: detailView.trailingAnchor).isActive = true
+            if result.transactionInfo.transaction.count > 0 && result.transactionInfo.transactionTime.count > 0 {
+                paymentView.isHidden = false
+            } else {
+                paymentView.isHidden = true
+            }
             let serviceView = InformationView(data: [
                 ["key": "service".localize(), "value": "\(result.orderTransaction.storeName)"],
                 ["key": "content".localize(), "value": result.orderTransaction.note]
