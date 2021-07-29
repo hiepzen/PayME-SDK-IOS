@@ -820,12 +820,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
         bankTransResultView.updateUI(type: type)
         footerTopConstraint?.isActive = false
-        footerTopConstraint = footer.topAnchor.constraint(equalTo: bankTransResultView.bottomAnchor)
-        footerTopConstraint?.isActive = true
+//        footerTopConstraint = footer.topAnchor.constraint(equalTo: bankTransResultView.bottomAnchor)
+//        footerTopConstraint?.isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
         let viewHeight = bankTransResultView.bounds.size.height
-                + footer.bounds.size.height
+//                + footer.bounds.size.height
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
