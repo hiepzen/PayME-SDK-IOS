@@ -154,6 +154,8 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
     }
 
     override func viewDidLoad() {
+        print("minh khoa 2")
+        print(PayME.currentVC?.navigationController)
         super.viewDidLoad()
         view.backgroundColor = .black
 
@@ -218,7 +220,7 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
 
     @objc func back() {
         captureSession.stopRunning()
-        if PayME.isRecreateNavigationController {
+        if PayME.currentVC?.navigationController?.viewControllers.count == 1 && PayME.isRecreateNavigationController == true {
             dismiss(animated: true)
         } else {
             navigationController?.popViewController(animated: true)
@@ -229,7 +231,7 @@ class QRScannerController: UIViewController, UIImagePickerControllerDelegate, UI
     func launchApp(decodedURL: String) {
         captureSession.stopRunning()
         onScanSuccess!(decodedURL)
-        if PayME.isRecreateNavigationController {
+        if PayME.currentVC?.navigationController?.viewControllers.count == 1 && PayME.isRecreateNavigationController == true {
             dismiss(animated: true)
         } else {
             navigationController?.popViewController(animated: true)

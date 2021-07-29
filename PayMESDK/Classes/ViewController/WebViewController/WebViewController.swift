@@ -385,7 +385,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     func onCloseWebview() {
         onRemoveMessageHandler()
-        if PayME.isRecreateNavigationController {
+        if PayME.currentVC?.navigationController?.viewControllers.count == 1 && PayME.isRecreateNavigationController == true {
             dismiss(animated: true) {
                 PayME.isWebviewOpening = false
             }
