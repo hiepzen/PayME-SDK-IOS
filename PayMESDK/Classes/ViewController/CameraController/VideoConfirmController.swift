@@ -125,12 +125,14 @@ class VideoConfirm: UIViewController {
         captureAgain.addTarget(self, action: #selector(back), for: .touchUpInside)
         confirm.addTarget(self, action: #selector(capture), for: .touchUpInside)
 
-        player = AVPlayer(url: avatarVideo!)
-        avpController.player = player
-        avpController.view.frame.size.height = videoView.frame.size.height
-        avpController.view.frame.size.width = videoView.frame.size.width
-        avpController.videoGravity = AVLayerVideoGravity.resize
-        videoView.addSubview(avpController.view)
+        if avatarVideo != nil {
+            player = AVPlayer(url: avatarVideo!)
+            avpController.player = player
+            avpController.view.frame.size.height = videoView.frame.size.height
+            avpController.view.frame.size.width = videoView.frame.size.width
+            avpController.videoGravity = AVLayerVideoGravity.resize
+            videoView.addSubview(avpController.view)
+        }
     }
 
     @objc func back() {
@@ -143,9 +145,12 @@ class VideoConfirm: UIViewController {
     }
 
     override func viewDidLayoutSubviews() {
-        captureAgain.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).withAlphaComponent(0.3).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).withAlphaComponent(0.3).cgColor], radius: 10)
+        let colorButton = [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor]
+        captureAgain.layer.borderWidth = 1
+        captureAgain.layer.borderColor = colorButton[0]
         captureAgain.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
-        confirm.applyGradient(colors: [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor], radius: 10)
+        captureAgain.layer.cornerRadius = 22
+        confirm.applyGradient(colors: colorButton, radius: 22)
         confirm.setTitleColor(.white, for: .normal)
     }
 }

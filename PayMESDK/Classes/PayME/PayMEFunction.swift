@@ -125,11 +125,11 @@ class PayMEFunction {
             webViewController.tabBarController?.tabBar.isHidden = true
             webViewController.hidesBottomBarWhenPushed = true
 
-            if currentVC.navigationController != nil {
-                PayME.currentVC = currentVC
-                PayME.rootVC = currentVC
-                currentVC.navigationController?.pushViewController(webViewController, animated: true)
-            } else {
+//            if currentVC.navigationController != nil {
+//                PayME.currentVC = currentVC
+//                PayME.rootVC = currentVC
+//                currentVC.navigationController?.pushViewController(webViewController, animated: true)
+//            } else {
                 let navigationController = UINavigationController(rootViewController: webViewController)
                 PayME.currentVC = webViewController
                 PayME.rootVC = currentVC
@@ -140,7 +140,7 @@ class PayMEFunction {
                 currentVC.present(navigationController, animated: true) {
                     PayME.isWebviewOpening = true
                 }
-            }
+//            }
 
             let topSafeArea: CGFloat
             let bottomSafeArea: CGFloat

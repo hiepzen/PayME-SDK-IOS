@@ -155,11 +155,6 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
         popupPassport.isHidden = true
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        let colorButton = [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor]
-    }
-
     @objc func choiceDocument() {
         kycDocumentController.data = data
         kycDocumentController.active = active

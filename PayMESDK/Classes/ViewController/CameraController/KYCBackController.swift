@@ -52,7 +52,6 @@ class KYCBackController: UIViewController {
 
     let captureAgain: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(8, 148, 31).withAlphaComponent(0.3)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
         button.setTitle("captureAgain".localize(), for: .normal)
@@ -63,7 +62,6 @@ class KYCBackController: UIViewController {
 
     let confirm: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(8, 148, 31)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
         button.setTitle("continue".localize(), for: .normal)
@@ -149,9 +147,11 @@ class KYCBackController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         let colorButton = [UIColor(hexString: PayME.configColor[0]).cgColor, UIColor(hexString: PayME.configColor.count > 1 ? PayME.configColor[1] : PayME.configColor[0]).cgColor]
-        captureAgain.applyGradient(colors: colorButton, radius: 10)
-        captureAgain.setTitleColor(.white, for: .normal)
-        confirm.applyGradient(colors: colorButton, radius: 10)
+        captureAgain.layer.borderWidth = 1
+        captureAgain.layer.borderColor = colorButton[0]
+        captureAgain.setTitleColor(UIColor(hexString: PayME.configColor[0]), for: .normal)
+        captureAgain.layer.cornerRadius = 22
+        confirm.applyGradient(colors: colorButton, radius: 22)
         confirm.setTitleColor(.white, for: .normal)
     }
 }
