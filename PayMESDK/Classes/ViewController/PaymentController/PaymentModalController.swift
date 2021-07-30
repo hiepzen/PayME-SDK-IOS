@@ -633,7 +633,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupUIFee(order: OrderTransaction?) {
-        view.endEditing(false)
+//        view.endEditing(false)
         button.isEnabled = true
         let primaryColor = payMEFunction.configColor[0]
         let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
