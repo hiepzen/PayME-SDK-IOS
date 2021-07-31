@@ -273,17 +273,21 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         } else {
             webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
                 webViewController.dismiss(animated: true)
-                let paymentInfo = responseError.paymentInformation!["history"]!["payment"] as! [String: AnyObject]
-                let responseSuccess = [
-                    "payment": ["transaction": paymentInfo["transaction"] as? String]
-                ] as [String: AnyObject]
-                let result = Result(
-                        type: ResultType.SUCCESS,
-                        orderTransaction: self.orderTransaction,
-                        transactionInfo: responseError.transactionInformation!,
-                        extraData: responseSuccess
-                )
-                self.setupResult(result)
+                if let paymentInfo = responseError.paymentInformation!["history"]?["payment"] as? [String: AnyObject] {
+                    let transaction = paymentInfo["transaction"] as? String ?? ""
+                    let responseSuccess = [
+                        "payment": ["transaction": transaction]
+                    ] as [String: AnyObject]
+                    let result = Result(
+                            type: ResultType.SUCCESS,
+                            orderTransaction: self.orderTransaction,
+                            transactionInfo: responseError.transactionInformation!,
+                            extraData: responseSuccess
+                    )
+                    self.setupResult(result)
+                } else {
+                    self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
+                }
             })
             webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                 webViewController.dismiss(animated: true)

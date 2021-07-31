@@ -263,7 +263,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                     let params = navigationAction.request.url!.queryParameters ?? ["": ""]
                     if (params["success"] == "true") {
                         DispatchQueue.main.async {
-                            self.onSuccessWebView!("success")
+                            self.onSuccessWebView?("success")
                         }
                         decisionHandler(.cancel)
                         return
