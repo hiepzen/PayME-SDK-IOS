@@ -137,11 +137,15 @@ class ConfirmationModal: UIViewController {
         let cardHolder = atmView.nameInput.textInput.text
         let expiredAt = atmView.dateInput.textInput.text
         let cvv = atmView.cvvInput.textInput.text
-        if cardNumber == nil || (cardNumber?.count ?? 0) < 7 {
+        let cardNumberLenght = cardNumber?.count ?? 0
+        if cardNumber == nil
+           || (issuerCreditDetect == "VISA" && cardNumberLenght != 13 && cardNumberLenght != 16)
+           || (issuerCreditDetect != "VISA" && cardNumberLenght != 16) {
             atmView.cardInput.errorMessage = "wrongCardNumberContent".localize()
             atmView.cardInput.updateState(state: .error)
             return
         }
+
         if cardHolder == nil || cardHolder!.count == 0 {
             atmView.nameInput.errorMessage = "emptyFullNameCardHolder".localize()
             atmView.nameInput.updateState(state: .error)
@@ -235,15 +239,21 @@ class ConfirmationModal: UIViewController {
         if let text = textField.text {
             cardNumberWithoutSpaces = removeNonDigits(string: text, andPreserveCursorPosition: &targetCursorPosition)
         }
-        if cardNumberWithoutSpaces.count > bankDetect?.cardNumberLength ?? 19 {
-            textField.text = previousTextFieldContent
-            textField.selectedTextRange = previousSelection
-            return
-        } else {
-            if orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue {
+        if orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue {
+            if cardNumberWithoutSpaces.count > bankDetect?.cardNumberLength ?? 19 {
+                textField.text = previousTextFieldContent
+                textField.selectedTextRange = previousSelection
+                return
+            } else {
                 cardWithoutSpace = cardNumberWithoutSpaces
                 detectBank(cardNumberWithoutSpaces)
-            } else if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+            }
+        } else if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+            if cardNumberWithoutSpaces.count > 16 {
+                textField.text = previousTextFieldContent
+                textField.selectedTextRange = previousSelection
+                return
+            } else {
                 detectCreditCard(cardNumberWithoutSpaces)
             }
         }
