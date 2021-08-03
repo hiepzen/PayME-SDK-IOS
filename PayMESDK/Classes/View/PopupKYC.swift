@@ -169,7 +169,7 @@ private class PopupDocument: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = UIColor(24, 26, 65)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -197,7 +197,7 @@ private class PopupDocument: UIView {
 
     let hint1Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -209,7 +209,7 @@ private class PopupDocument: UIView {
 
     let hint2Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -221,7 +221,7 @@ private class PopupDocument: UIView {
 
     let hint3Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -376,7 +376,7 @@ private class PopupFace: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = UIColor(24, 26, 65)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -390,7 +390,7 @@ private class PopupFace: UIView {
 
     let hint1Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -403,7 +403,7 @@ private class PopupFace: UIView {
 
     let hint2Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -528,7 +528,7 @@ private class PopupVideo: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = UIColor(24, 26, 65)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -541,7 +541,7 @@ private class PopupVideo: UIView {
 
     let hint1Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -553,7 +553,7 @@ private class PopupVideo: UIView {
 
     let hint2Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
