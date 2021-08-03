@@ -73,6 +73,7 @@ class BankTransferView: UIView {
         paymeInfo?.removeFromSuperview()
         note.removeFromSuperview()
         qrView?.removeFromSuperview()
+        qrView?.removeDashedLines()
         transferInfo.removeDashedLines()
         paymeInfo = InformationView(data: [
             ["key": "accountNumber".localize(),
