@@ -54,6 +54,7 @@ class PopupKYC: UIViewController, PanModalPresentable {
         popUpWindowView.translatesAutoresizingMaskIntoConstraints = false
         return popUpWindowView
     }()
+    var safeAreaInset: UIEdgeInsets?
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -65,6 +66,13 @@ class PopupKYC: UIViewController, PanModalPresentable {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        if #available(iOS 11.0, *) {
+            safeAreaInset = UIApplication.shared.keyWindow?.safeAreaInsets
+        } else {
+            safeAreaInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        }
+
         view.backgroundColor = .white
         if (active! == 1) {
             view.addSubview(popupFace)
@@ -83,7 +91,8 @@ class PopupKYC: UIViewController, PanModalPresentable {
         popupDocument.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         popupDocument.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         popupDocument.continueButton.addTarget(self, action: #selector(goToCamera), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: popupDocument.continueButton.bottomAnchor).isActive = true
+        let paddingBottom = ((safeAreaInset?.bottom ?? 0 == 0) ? 16 : 0) as CGFloat
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: popupDocument.continueButton.bottomAnchor, constant: paddingBottom).isActive = true
     }
 
     func setupViewFace() {
@@ -91,7 +100,8 @@ class PopupKYC: UIViewController, PanModalPresentable {
         popupFace.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         popupFace.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         popupFace.continueButton.addTarget(self, action: #selector(goToCamera), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: popupFace.continueButton.bottomAnchor).isActive = true
+        let paddingBottom = ((safeAreaInset?.bottom ?? 0 == 0) ? 16 : 0) as CGFloat
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: popupFace.continueButton.bottomAnchor, constant: paddingBottom).isActive = true
     }
 
     func setupViewVideo() {
@@ -99,7 +109,8 @@ class PopupKYC: UIViewController, PanModalPresentable {
         popupVideo.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         popupVideo.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         popupVideo.continueButton.addTarget(self, action: #selector(goToCamera), for: .touchUpInside)
-        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: popupVideo.continueButton.bottomAnchor).isActive = true
+        let paddingBottom = ((safeAreaInset?.bottom ?? 0 == 0) ? 16 : 0) as CGFloat
+        bottomLayoutGuide.topAnchor.constraint(greaterThanOrEqualTo: popupVideo.continueButton.bottomAnchor, constant: paddingBottom).isActive = true
     }
 
     @objc func goToCamera() {
@@ -169,7 +180,7 @@ private class PopupDocument: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = UIColor(24, 26, 65)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -197,7 +208,7 @@ private class PopupDocument: UIView {
 
     let hint1Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -209,7 +220,7 @@ private class PopupDocument: UIView {
 
     let hint2Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -221,7 +232,7 @@ private class PopupDocument: UIView {
 
     let hint3Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -376,7 +387,7 @@ private class PopupFace: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = UIColor(24, 26, 65)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -390,7 +401,7 @@ private class PopupFace: UIView {
 
     let hint1Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -403,7 +414,7 @@ private class PopupFace: UIView {
 
     let hint2Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -528,7 +539,7 @@ private class PopupVideo: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = UIColor(24, 26, 65)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -541,7 +552,7 @@ private class PopupVideo: UIView {
 
     let hint1Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -553,7 +564,7 @@ private class PopupVideo: UIView {
 
     let hint2Label: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIColor(38, 46, 52)
         label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false

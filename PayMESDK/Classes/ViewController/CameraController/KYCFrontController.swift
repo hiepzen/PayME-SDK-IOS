@@ -141,11 +141,11 @@ class KYCFrontController: UIViewController {
             let popupKYC = PopupKYC()
             if (KYCController.flowKYC!["kycFace"] == true) {
                 popupKYC.active = 1
-                PayME.currentVC?.present(popupKYC, animated: true)
+                PayME.currentVC?.presentModal(popupKYC, animated: true)
 
             } else if (KYCController.flowKYC!["kycVideo"] == true) {
                 popupKYC.active = 2
-                PayME.currentVC?.present(popupKYC, animated: true)
+                PayME.currentVC?.presentModal(popupKYC, animated: true)
             } else {
                 KYCController.uploadKYC()
             }
