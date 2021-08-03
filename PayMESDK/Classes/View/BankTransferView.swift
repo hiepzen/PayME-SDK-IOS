@@ -8,7 +8,7 @@
 import Foundation
 
 class BankTransferView: UIView {
-    var paymeInfo: BankQrView!
+    var paymeInfo: InformationView!
     var onPressSearch: () -> () = {}
     var onPressOpenVietQRBanks: () -> () = {}
 
@@ -20,19 +20,18 @@ class BankTransferView: UIView {
     func setupUI() {
         addSubview(vStackContainer)
         vStackContainer.addArrangedSubview(bankContainer)
+        vStackContainer.addArrangedSubview(seperator)
+        vStackContainer.addArrangedSubview(info)
         vStackContainer.addArrangedSubview(transferInfo)
-        vStackContainer.addArrangedSubview(openVietQRBanksButton)
+//        vStackContainer.addArrangedSubview(openVietQRBanksButton)
 
         bankContainer.addSubview(titleLabel)
         bankContainer.addSubview(contentLabel)
         bankContainer.addSubview(buttonBank)
 
-        transferInfo.addSubview(vStack)
-
-        let divider = UIView()
-        vStack.addArrangedSubview(info)
-        vStack.addArrangedSubview(divider)
-        vStack.addArrangedSubview(seperator)
+        transferInfo.addSubview(hStack)
+        hStack.addArrangedSubview(bankLogo)
+        hStack.addArrangedSubview(bankNameLabel)
 
         vStackContainer.topAnchor.constraint(equalTo: topAnchor).isActive = true
         vStackContainer.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
@@ -52,15 +51,16 @@ class BankTransferView: UIView {
 
         bankContainer.bottomAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 8).isActive = true
 
-        vStack.topAnchor.constraint(equalTo: transferInfo.topAnchor, constant: 10).isActive = true
-        vStack.leadingAnchor.constraint(equalTo: transferInfo.leadingAnchor, constant: 16).isActive = true
-        vStack.trailingAnchor.constraint(equalTo: transferInfo.trailingAnchor, constant: -16).isActive = true
+        hStack.topAnchor.constraint(equalTo: transferInfo.topAnchor, constant: 4).isActive = true
+        hStack.leadingAnchor.constraint(equalTo: transferInfo.leadingAnchor, constant: 16).isActive = true
+        hStack.trailingAnchor.constraint(equalTo: transferInfo.trailingAnchor, constant: -16).isActive = true
 
-        divider.heightAnchor.constraint(equalToConstant: 12).isActive = true
+        bankLogo.heightAnchor.constraint(equalToConstant: 32).isActive = true
+        bankLogo.widthAnchor.constraint(equalToConstant: 64).isActive = true
 
-        transferInfo.bottomAnchor.constraint(equalTo: vStack.bottomAnchor, constant: 12).isActive = true
 
-        openVietQRBanksButton.addTarget(self, action: #selector(onPressVietQR), for: .touchUpInside)
+
+//        openVietQRBanksButton.addTarget(self, action: #selector(onPressVietQR), for: .touchUpInside)
 
         bottomAnchor.constraint(equalTo: vStackContainer.bottomAnchor).isActive = true
     }
@@ -68,10 +68,36 @@ class BankTransferView: UIView {
     func updateInfo(bank: BankManual?, orderTransaction: OrderTransaction) {
         guard let paymeBank = bank else { return }
         contentLabel.text = paymeBank.bankName
+        bankNameLabel.text = paymeBank.bankName
+        bankLogo.load(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Ficon_banks%2Ficon\(paymeBank.swiftCode)%402x.png?alt=media&token=0c6cd79a-9a4f-4ea2-b178-94e0b4731ac2")
         paymeInfo?.removeFromSuperview()
         note.removeFromSuperview()
         transferInfo.removeDashedLines()
-        paymeInfo = BankQrView(qrString: paymeBank.qrCode, bank: paymeBank)
+        paymeInfo = InformationView(data: [
+            ["key": "accountNumber".localize(),
+             "value": paymeBank.bankAccountNumber,
+             "keyColor": UIColor(100, 112, 129),
+             "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
+             "color": UIColor(0, 0, 0),
+             "font": UIFont.systemFont(ofSize: 14, weight: .regular),
+             "allowCopy": true
+            ],
+            ["key": "cardHolder".localize(),
+             "value": paymeBank.bankAccountName,
+             "keyColor": UIColor(100, 112, 129),
+             "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
+             "color": UIColor(0, 0, 0),
+             "font": UIFont.systemFont(ofSize: 14, weight: .regular)
+            ],
+            ["key": "content".localize(),
+             "value": paymeBank.content,
+             "keyColor": UIColor(100, 112, 129),
+             "keyFont": UIFont.systemFont(ofSize: 14, weight: .regular),
+             "color": UIColor(0, 0, 0),
+             "font": UIFont.systemFont(ofSize: 14, weight: .regular),
+             "allowCopy": true
+            ],
+        ])
 
         let normalText1 = NSMutableAttributedString(string: "bankTransferContent1".localize(), attributes: [
             .font: UIFont.systemFont(ofSize: 14, weight: .regular),
@@ -81,19 +107,36 @@ class BankTransferView: UIView {
             .font: UIFont.systemFont(ofSize: 14, weight: .regular),
             .foregroundColor: UIColor(0, 0, 0)
         ])
-        normalText1.append(NSMutableAttributedString(string: "\(formatMoney(input: orderTransaction.total ?? 0)) đ ", attributes: [
+        normalText1.append(NSMutableAttributedString(string: "\(formatMoney(input: orderTransaction.total)) đ ", attributes: [
             .font: UIFont.systemFont(ofSize: 18, weight: .bold),
             .foregroundColor: UIColor(236, 42, 42)
         ]))
         normalText1.append(normalText2)
         info.attributedText = normalText1
 
-        vStack.addArrangedSubview(paymeInfo)
-        vStack.addArrangedSubview(note)
-        paymeInfo.leadingAnchor.constraint(equalTo: vStack.leadingAnchor).isActive = true
+//        let divider = UIView(frame: .zero)
+//        transferInfo.addSubview(divider)
+        transferInfo.addSubview(paymeInfo)
+//        divider.topAnchor.constraint(equalTo: hStack.bottomAnchor, constant: 4).isActive = true
+//        divider.widthAnchor.constraint(equalTo: transferInfo.widthAnchor).isActive = true
+        paymeInfo.topAnchor.constraint(equalTo: hStack.bottomAnchor, constant: 4).isActive = true
+        paymeInfo.leadingAnchor.constraint(equalTo: transferInfo.leadingAnchor).isActive = true
+        paymeInfo.trailingAnchor.constraint(equalTo: transferInfo.trailingAnchor).isActive = true
+        transferInfo.bottomAnchor.constraint(equalTo: paymeInfo.bottomAnchor).isActive = true
+
+        if paymeBank.qrCode != "" {
+            vStackContainer.addArrangedSubview(note)
+            let qrView = BankQrView(qrString: paymeBank.qrCode, bank: paymeBank)
+            vStackContainer.addArrangedSubview(qrView)
+            layoutIfNeeded()
+            qrView.addLineDashedStroke(pattern: [2, 2], radius: 16, color: UIColor(142, 142, 142).cgColor)
+        }
+//        paymeInfo.leadingAnchor.constraint(equalTo: vStack.leadingAnchor).isActive = true
+        updateConstraints()
         layoutIfNeeded()
-        seperator.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: seperator.frame.size.width, y: 0), color: UIColor(142, 142, 142), strokeLength: 4, gapLength: 4, width: 1)
-        transferInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
+//        divider.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: divider.frame.size.width, y: 0), color: UIColor(142, 142, 142), strokeLength: 2, gapLength: 2, width: 1)
+        seperator.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: seperator.frame.size.width, y: 0), color: UIColor(142, 142, 142), strokeLength: 2, gapLength: 2, width: 1)
+        transferInfo.addLineDashedStroke(pattern: [2, 2], radius: 16, color: UIColor(142, 142, 142).cgColor)
     }
 
     func canChangeBank(_ value: Bool = true) {
@@ -162,12 +205,7 @@ class BankTransferView: UIView {
         view.layer.cornerRadius = 15
         return view
     }()
-    let vStack: UIStackView = {
-        let stack = UIStackView()
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.axis = .vertical
-        return stack
-    }()
+
     let info: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -200,9 +238,36 @@ class BankTransferView: UIView {
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 10, weight: .regular)
-        label.text = "bankTransferContent3".localize()
+        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.text = "or".localize()
         return label
+    }()
+
+    let bankNameLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = UIColor(0, 0, 0)
+        label.textAlignment = .right
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.font = .systemFont(ofSize: 14, weight: .bold)
+        return label
+    }()
+
+    let bankLogo: UIImageView = {
+        var image = UIImageView()
+        image.translatesAutoresizingMaskIntoConstraints = false
+        image.contentMode = .scaleAspectFit
+        return image
+    }()
+
+    let hStack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.backgroundColor = .clear
+        stack.alignment = .center
+        stack.axis = .horizontal
+        return stack
     }()
 
     required init?(coder aDecoder: NSCoder) {

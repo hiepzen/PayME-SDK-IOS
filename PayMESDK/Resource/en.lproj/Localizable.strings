@@ -102,7 +102,8 @@
 "resendOTP" = "Gửi lại OTP";
 "wrongOTP" = "OTP không chính xác";
 "OTPContent" = "Nhập mã OTP đã được gửi qua số điện thoại đăng ký thẻ";
-"bankTransferContent1" = "Vui lòng chuyển ";
+"bankTransferContent1" = "Vui lòng chuyển tiền nhanh 24/7
+số tiền ";
 "bankTransferContent2" = "tới:";
 "bankTransferContent3" = "(*) Hoặc dùng ứng dụng ngân hàng quét VietQR để chuyển tiền.";
 "bankTransferContent4" = "Hệ thống vẫn chưa ghi nhận lệnh chuyển tiền của bạn. Giao dịch sẽ được hoàn tất ngay khi hệ thống ghi nhận thành công.";
@@ -119,7 +120,7 @@
 "payment" = "THANH TOÁN";
 "confirmBankTransfer" = "Xác nhận đã chuyển";
 "or" = "Hoặc";
-"qrBankDescription" = "Mở ứng dụng ngân hàng và quét mã VietQR để chuyển khoản";
+"qrBankDescription" = "Sử dụng ứng dụng ngân hàng có hỗ trợ quét VietQR để chuyển tiền.";
 "openVietQRBankList" = "Danh sách ngân hàng hỗ trợ";
 "selectBank" = "Chọn ngân hàng";
 "supportedBanks" = "Danh sách ngân hàng hỗ trợ";

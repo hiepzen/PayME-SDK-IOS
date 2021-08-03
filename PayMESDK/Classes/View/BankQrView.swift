@@ -8,69 +8,6 @@
 import Foundation
 import SVGKit
 
-class BankInfoRow: UIStackView {
-    var key: String
-    var value: String
-    var allowCopy: Bool
-
-    init(key: String, value: String, allowCopy: Bool = false) {
-        self.key = key
-        self.value = value
-        self.allowCopy = allowCopy
-        super.init(frame: CGRect.zero)
-        setUpUI()
-    }
-    func setUpUI() {
-        backgroundColor = .clear
-        axis = .horizontal
-        spacing = 4
-        translatesAutoresizingMaskIntoConstraints = false
-
-        valueLabel.text = key + ": " + value
-
-        addArrangedSubview(valueLabel)
-        if allowCopy == true {
-            let imageSVG = SVGKImage(for: InformationRow.self, named: "iconCopy")
-            imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
-            svgImage.image = imageSVG?.uiImage
-            let singleTap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onPressCopy))
-            singleTap.numberOfTapsRequired = 1
-            svgImage.addGestureRecognizer(singleTap)
-            addArrangedSubview(svgImage)
-        }
-
-        valueLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        svgImage.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        valueLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-    }
-
-    @objc func onPressCopy() {
-        let pasteboard = UIPasteboard.general
-        pasteboard.string = value
-    }
-
-    required init(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    let valueLabel: UILabel = {
-        let keyLabel = UILabel()
-        keyLabel.textColor = UIColor(0, 0, 0)
-        keyLabel.font = UIFont.systemFont(ofSize: 12, weight: .regular)
-        keyLabel.translatesAutoresizingMaskIntoConstraints = false
-        keyLabel.textAlignment = .left
-        keyLabel.numberOfLines = 0
-        keyLabel.lineBreakMode = .byWordWrapping
-        return keyLabel
-    }()
-
-    let svgImage: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.isUserInteractionEnabled = true
-        return imageView
-    }()
-}
-
 class BankQrView: UIView {
     var qrString: String = ""
     var bank: BankManual
@@ -96,37 +33,35 @@ class BankQrView: UIView {
             }
         }
         hStack.addArrangedSubview(vStack)
+        vStack.addArrangedSubview(noteLabel)
+        vStack.addArrangedSubview(logoStack)
 
-        vStack.addArrangedSubview(bankNameLabel)
-        if bank.bankAccountNumber != "" {
-            let accNum = BankInfoRow(key: "acroAccountNum".localize(), value: bank.bankAccountNumber, allowCopy: true)
-            vStack.addArrangedSubview(accNum)
-        }
-        if bank.bankAccountName != "" {
-            let accName = BankInfoRow(key: "acroCardHolder".localize(), value: bank.bankAccountName, allowCopy: false)
-            vStack.addArrangedSubview(accName)
-        }
-        if bank.content != "" {
-            let accNum = BankInfoRow(key: "content".localize(), value: bank.content, allowCopy: true)
-            vStack.addArrangedSubview(accNum)
-        }
-
-        hStack.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        hStack.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        hStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        hStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         hStack.topAnchor.constraint(equalTo: topAnchor, constant: 16).isActive = true
         hStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16).isActive = true
 
-        qrContainer.heightAnchor.constraint(equalToConstant: 80).isActive = true
-        qrContainer.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        qrContainer.heightAnchor.constraint(equalToConstant: 130).isActive = true
+        qrContainer.widthAnchor.constraint(equalToConstant: 130).isActive = true
 
         if qrImageView.isDescendant(of: qrContainer) {
-            qrImageView.topAnchor.constraint(equalTo: qrContainer.topAnchor, constant: 6).isActive = true
-            qrImageView.bottomAnchor.constraint(equalTo: qrContainer.bottomAnchor, constant: -6).isActive = true
-            qrImageView.leadingAnchor.constraint(equalTo: qrContainer.leadingAnchor, constant: 6).isActive = true
-            qrImageView.trailingAnchor.constraint(equalTo: qrContainer.trailingAnchor, constant: -6).isActive = true
+            qrImageView.topAnchor.constraint(equalTo: qrContainer.topAnchor, constant: 4).isActive = true
+            qrImageView.bottomAnchor.constraint(equalTo: qrContainer.bottomAnchor, constant: -4).isActive = true
+            qrImageView.leadingAnchor.constraint(equalTo: qrContainer.leadingAnchor, constant: 4).isActive = true
+            qrImageView.trailingAnchor.constraint(equalTo: qrContainer.trailingAnchor, constant: -4).isActive = true
         }
+        logoStack.addArrangedSubview(napasLogo)
+        logoStack.addArrangedSubview(seperator)
+        logoStack.addArrangedSubview(bankLogo)
 
-        bankNameLabel.text = bank.bankName
+        napasLogo.widthAnchor.constraint(equalToConstant: 74).isActive = true
+        napasLogo.heightAnchor.constraint(equalToConstant: 49).isActive = true
+        seperator.widthAnchor.constraint(equalToConstant: 1).isActive = true
+        seperator.heightAnchor.constraint(equalToConstant: 23).isActive = true
+        bankLogo.heightAnchor.constraint(equalToConstant: 32).isActive = true
+        bankLogo.widthAnchor.constraint(equalToConstant: 64).isActive = true
+
+        bankLogo.load(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Ficon_banks%2Ficon\(bank.swiftCode)%402x.png?alt=media&token=0c6cd79a-9a4f-4ea2-b178-94e0b4731ac2")
     }
 
     required init?(coder: NSCoder) {
@@ -145,13 +80,14 @@ class BankQrView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
         stack.distribution = .equalSpacing
-        stack.spacing = 6
+        stack.spacing = 24
         return stack
     }()
     let qrContainer: UIView = {
         let containerView = UIView()
-        containerView.layer.cornerRadius = 12
         containerView.backgroundColor = UIColor(255, 255, 255)
+        containerView.layer.borderColor = UIColor(36, 76, 127).cgColor
+        containerView.layer.borderWidth = 1
         containerView.layer.shadowColor = UIColor(0, 0, 0).cgColor
         containerView.layer.shadowOpacity = 0.15
         containerView.layer.shadowOffset = .zero
@@ -170,18 +106,35 @@ class BankQrView: UIView {
         label.text = "qrBankDescription".localize()
         label.textColor = UIColor(0, 0, 0)
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        return label
-    }()
-    let bankNameLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = UIColor(0, 0, 0)
-        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
-        label.font = .systemFont(ofSize: 14, weight: .bold)
         return label
     }()
-
+    let logoStack: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 14
+        return stack
+    }()
+    let napasLogo: UIImageView = {
+        var logo = UIImageView(image: UIImage(for: BankQrView.self, named: "napasLogo"))
+        logo.translatesAutoresizingMaskIntoConstraints = false
+        logo.contentMode = .scaleAspectFit
+        return logo
+    }()
+    let seperator: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(164, 174, 184)
+        return view
+    }()
+    let bankLogo: UIImageView = {
+        var image = UIImageView()
+        image.translatesAutoresizingMaskIntoConstraints = false
+        image.contentMode = .scaleAspectFit
+        return image
+    }()
 }
