@@ -72,6 +72,7 @@ class BankTransferView: UIView {
         bankLogo.load(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Ficon_banks%2Ficon\(paymeBank.swiftCode)%402x.png?alt=media&token=0c6cd79a-9a4f-4ea2-b178-94e0b4731ac2")
         paymeInfo?.removeFromSuperview()
         note.removeFromSuperview()
+        qrView?.removeFromSuperview()
         transferInfo.removeDashedLines()
         paymeInfo = InformationView(data: [
             ["key": "accountNumber".localize(),
@@ -125,16 +126,14 @@ class BankTransferView: UIView {
         transferInfo.bottomAnchor.constraint(equalTo: paymeInfo.bottomAnchor).isActive = true
 
         if paymeBank.qrCode != "" {
+            qrView = BankQrView(qrString: paymeBank.qrCode, bank: paymeBank)
+            qrView?.addLineDashedStroke(pattern: [2, 2], radius: 16, color: UIColor(142, 142, 142).cgColor)
             vStackContainer.addArrangedSubview(note)
-            let qrView = BankQrView(qrString: paymeBank.qrCode, bank: paymeBank)
-            vStackContainer.addArrangedSubview(qrView)
+            vStackContainer.addArrangedSubview(qrView ?? UIView())
             layoutIfNeeded()
-            qrView.addLineDashedStroke(pattern: [2, 2], radius: 16, color: UIColor(142, 142, 142).cgColor)
         }
-//        paymeInfo.leadingAnchor.constraint(equalTo: vStack.leadingAnchor).isActive = true
         updateConstraints()
         layoutIfNeeded()
-//        divider.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: divider.frame.size.width, y: 0), color: UIColor(142, 142, 142), strokeLength: 2, gapLength: 2, width: 1)
         seperator.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: seperator.frame.size.width, y: 0), color: UIColor(142, 142, 142), strokeLength: 2, gapLength: 2, width: 1)
         transferInfo.addLineDashedStroke(pattern: [2, 2], radius: 16, color: UIColor(142, 142, 142).cgColor)
     }
@@ -153,6 +152,8 @@ class BankTransferView: UIView {
     @objc func onPressVietQR() {
         onPressOpenVietQRBanks()
     }
+
+    var qrView: BankQrView? = nil
 
     let vStackContainer: UIStackView = {
         let stack = UIStackView()
