@@ -545,7 +545,7 @@ class PaymentPresentation {
                                 self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                                 return
                             }
-                            let state = statePay!["state"] as! String
+                            let state = statePay?["state"] as? String ?? ""
                             if (state == "REQUIRED_VERIFY") {
                                 if let html = statePay!["html"] as? String {
                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
@@ -611,11 +611,10 @@ class PaymentPresentation {
                                 }
                             }
                         }
-                        let succeeded = payInfo["succeeded"] as! Bool
+                        let succeeded = payInfo["succeeded"] as? Bool ?? false
                         let statePay = payInfo["payment"] as? [String: AnyObject]
                         if (succeeded == true) && statePay != nil {
                             let state = statePay!["state"] as? String
-                            let message = statePay!["message"] as? String
                             if let transState = state {
                                 if transState == "SUCCEEDED" {
                                     let paymentInfo = payInfo["history"]!["payment"] as? [String: AnyObject]
