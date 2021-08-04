@@ -128,10 +128,10 @@ class BankTransferView: UIView {
 
         if paymeBank.qrCode != "" {
             qrView = BankQrView(qrString: paymeBank.qrCode, bank: paymeBank)
-            qrView?.addLineDashedStroke(pattern: [2, 2], radius: 16, color: UIColor(142, 142, 142).cgColor)
             vStackContainer.addArrangedSubview(note)
             vStackContainer.addArrangedSubview(qrView ?? UIView())
             layoutIfNeeded()
+            qrView?.addLineDashedStroke(pattern: [2, 2], radius: 16, color: UIColor(142, 142, 142).cgColor)
         }
         updateConstraints()
         layoutIfNeeded()
