@@ -172,6 +172,7 @@ class ConfirmationModal: UIViewController {
         orderTransaction.paymentMethod?.dataCreditCard = CreditCardInfomation(cardNumber: cardNumber!, cardHolder: cardHolder!, expiredAt: expiredAt!, cvv: cvv!,
                 issuer: issuerCreditDetect ?? "")
         showSpinner(onView: view)
+        view.endEditing(true)
         paymentPresentation.authenCreditCard(orderTransaction: orderTransaction)
     }
 
@@ -205,6 +206,7 @@ class ConfirmationModal: UIViewController {
             let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
             orderTransaction.paymentMethod?.dataBank = BankInformation(cardNumber: cardNumber!, cardHolder: cardHolder!, issueDate: date, bank: bankDetect)
             showSpinner(onView: view)
+            view.endEditing(true)
             paymentPresentation.payATM(orderTransaction: orderTransaction)
         }
     }
