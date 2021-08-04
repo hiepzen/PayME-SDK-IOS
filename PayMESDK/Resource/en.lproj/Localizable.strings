@@ -86,7 +86,7 @@
 "method" = "Phương thức";
 "accountNumber" = "Số tài khoản";
 "acroAccountNum" = "STK";
-"cardHolder" = "Chủ tài khoản";
+"cardHolder" = "Tên tài khoản";
 "acroCardHolder" = "Chủ TK";
 "linkedAccount" = "Tài khoản liên kết";
 "bankCard" = "Thẻ ATM";
