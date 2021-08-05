@@ -15,6 +15,13 @@ extension UIImage {
         let resourceBundle = Bundle(url: bundleURL!)
         self.init(named: named, in: resourceBundle, compatibleWith: nil)
     }
+    func resize(newSize: CGSize) -> UIImage {
+        let image = UIGraphicsImageRenderer(size: newSize).image { _ in
+            draw(in: CGRect(origin: .zero, size: newSize))
+        }
+
+        return image.withRenderingMode(renderingMode)
+    }
 }
 
 extension UIImageView {
