@@ -61,7 +61,8 @@ public class PayME {
         public static let ERROR_KEY_ENCODE = -7
         public static let USER_CANCELLED = -8
         public static let ACCOUNT_NOT_LOGIN = -9
-        public static let BALANCE_ERROR: Int = -10
+        public static let BALANCE_ERROR = -10
+        public static let PAYMENT_PENDING = -11
     }
 
     public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, language: String? = PayME.Language.VIETNAMESE, env: Env, configColor: [String], showLog: Int = 0) {
