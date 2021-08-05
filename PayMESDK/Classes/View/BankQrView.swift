@@ -28,7 +28,8 @@ class BankQrView: UIView {
         if bank.qrCode != "" {
             hStack.addArrangedSubview(qrContainer)
             qrContainer.addSubview(qrImageView)
-            if let qrImage = bank.qrCode.generateQRImage(withLogo: UIImage(for: BankQrView.self, named: "logoVietQr")) {
+            let logo = UIImage(for: BankQrView.self, named: "logoVietQr")?.resize(newSize: CGSize(width: 8, height: 8))
+            if let qrImage = bank.qrCode.generateQRImage(withLogo: logo) {
                 qrImageView.image = qrImage
             }
         }
