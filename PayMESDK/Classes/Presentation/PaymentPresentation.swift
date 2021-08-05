@@ -837,9 +837,7 @@ class PaymentPresentation {
                         let result: Result? = {
                             if state == "PENDING" {
                                 if isAcceptPending {
-                                    let responseError = [
-                                        "state": transInfo["state"] as? String
-                                    ] as [String: AnyObject]
+                                    let responseError = ["code": PayME.ResponseCode.PAYMENT_PENDING as AnyObject] as [String: AnyObject]
                                     let textPending = "Cần thời gian thêm để xử lý. Vui lòng không thực hiện lại tránh bị trùng. Liên hệ CSKH để hỗ trợ 1900 88 66 65"
                                     return Result(type: ResultType.PENDING, failReasonLabel: textPending, orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
                                 } else {
@@ -851,9 +849,7 @@ class PaymentPresentation {
                                 ] as [String: AnyObject]
                                 return Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseSuccess)
                             } else {
-                                let responseError = [
-                                    "state": transInfo["state"] as? String
-                                ] as [String: AnyObject]
+                                let responseError = ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject] as [String: AnyObject]
                                 return Result(type: ResultType.FAIL, failReasonLabel: message ?? "", orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
                             }
                         }()
