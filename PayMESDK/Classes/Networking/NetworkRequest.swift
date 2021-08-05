@@ -59,7 +59,7 @@ public class NetworkRequestGraphQL {
                             return
                         }
                     } else {
-                        onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi hệ thống!" as AnyObject])
+                        onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nỗi tới server" as AnyObject])
                         return
                     }
                 }
@@ -76,7 +76,7 @@ public class NetworkRequestGraphQL {
                                 }
                             }
                         }
-                        let message = (errors[0]["message"] as? String) ?? "Có lỗi xảy ra!"
+                        let message = (errors[0]["message"] as? String) ?? "Có lỗi xảy ra khi xử lí dữ liệu!"
                         onError(["code": code as AnyObject, "message": message as AnyObject])
                     }
                     return
@@ -98,7 +98,7 @@ public class NetworkRequestGraphQL {
                     }
                 } else {
                     DispatchQueue.main.async {
-                        onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nỗi tới server" as AnyObject])
+                        onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi xảy ra khi xử lí dữ liệu!" as AnyObject])
                         return
                     }
                 }
@@ -162,18 +162,19 @@ public class NetworkRequestGraphQL {
             if (error != nil) {
                 DispatchQueue.main.async {
                     if (error?.localizedDescription != nil) {
-                        if (error?.localizedDescription == "The Internet connection appears to be offline.") {
-                            onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
+                        if error?.localizedDescription == "The Internet connection appears to be offline."
+                                   || error!.localizedDescription.contains("The request timed out") {
+//                            onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
                             onPaymeError("Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn!")
                             return
                         } else {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": error?.localizedDescription as AnyObject])
-                            onPaymeError("Có lỗi xảy ra!")
+                            onPaymeError("")
                             return
                         }
                     } else {
                         onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Có lỗi hệ thống!" as AnyObject])
-                        onPaymeError("Có lỗi xảy ra!")
+                        onPaymeError("")
                         return
                     }
                 }

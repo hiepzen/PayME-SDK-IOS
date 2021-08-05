@@ -219,7 +219,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         if responseError.code == ResponseErrorCode.SERVER_ERROR {
                             PaymentModalController.isShowCloseModal = false
                             self.dismiss(animated: true) {
-                                self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
+                                self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": responseError.message as AnyObject])
                             }
                         }
                     }

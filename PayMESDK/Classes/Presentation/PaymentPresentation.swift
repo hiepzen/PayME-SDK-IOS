@@ -71,7 +71,8 @@ class PaymentPresentation {
                 return
             }
             if code == PayME.ResponseCode.SYSTEM {
-                paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR, error: ResponseError(code: .SERVER_ERROR)))
+                paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR,
+                        error: ResponseError(code: .SERVER_ERROR, message: dictionary["message"] as? String ?? "hasError".localize())))
             } else {
                 onError(dictionary)
             }
@@ -879,7 +880,7 @@ class PaymentPresentation {
                         return
                     }
                     guard let isSucceed = payInfo["succeeded"] as? Bool else {
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (payInfo["message"] as? String ?? "hasError".localize()) as AnyObject])
                         return
                     }
                     if (isSucceed == false) {
@@ -903,7 +904,8 @@ class PaymentPresentation {
                         return
                     }
                     guard let bankList = payment["bankList"] as? [[String: AnyObject]] else {
-                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
+                        self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject,
+                                      "message": (payment["message"] as? String ?? "hasError".localize()) as AnyObject])
                         return
                     }
                     if bankList.count > 0 {
