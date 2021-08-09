@@ -25,6 +25,20 @@ pod 'PayMESDK'
 
 Sau đó chạy lệnh <code>pod install</code> để hoàn tất cài dặt
 
+**Info.plist**
+
+Update file Info.plist của app với những key như sau (giá trị của string có thể thay đổi, đây là các message hiển thị khi yêu cầu người dùng cấp quyền tương ứng):
+```swift
+<key>NSCameraUsageDescription</key>
+<string>Need to access your camera to capture a photo add and update profile picture.</string>
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>Need to access your library to add a photo or videoo off kyc video</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Need to access your photo library to select a photo add and update profile picture</string>
+<key>NSContactsUsageDescription</key>
+<string>Need to access your contact</string>
+```
+
 ## Cách sử dụng SDK:
 
 Hệ thống PayME sẽ cung cấp cho app tích hợp các thông tin sau:
@@ -125,7 +139,7 @@ Trong đó ***AES*** là hàm mã hóa theo thuật toán AES. Tùy vào ngôn n
 | <code>ERROR_KEY_ENCODE</code>   | <code>-7</code>           | Lỗi mã hóa/giải mã dữ liệu |
 | <code>USER_CANCELLED</code>   | <code>-8</code>          | Người dùng thao tác hủy |
 | <code>ACCOUNT_NOT_LOGIN</code>   | <code>-9</code>           | Lỗi chưa đăng nhập tài khoản |
-| <code>PAYMENT_ERROR</code>   | <code>-11</code>           | Thanh toán chờ xử lý |
+| <code>PAYMENT_PENDING</code>   | <code>-11</code>           | Thanh toán chờ xử lý |
 
 ## Các chức năng của PayME SDK
 

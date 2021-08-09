@@ -53,5 +53,7 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Need to access your contact</string>
 </dict>
 </plist>

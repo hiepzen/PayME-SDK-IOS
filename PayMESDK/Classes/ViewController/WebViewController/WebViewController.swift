@@ -9,6 +9,7 @@
 import UIKit
 import WebKit
 import Reachability
+import ContactsUI
 
 class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler, WKNavigationDelegate, PanModalPresentable {
     var KYCAgain: Bool? = nil
@@ -54,6 +55,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var onWithdraw: String = "onWithdraw"
     var onTransfer: String = "onTransfer"
     var onUpdateIdentify: String = "onUpdateIdentify"
+    var getContacts: String = "getContacts"
     var showButtonCloseNapas: String = "showButtonCloseNapas"
     var form = ""
     var imageFront: UIImage?
@@ -173,6 +175,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onWithdraw)
         userController.add(self, name: onTransfer)
         userController.add(self, name: onUpdateIdentify)
+        userController.add(self, name: getContacts)
         userController.add(self, name: showButtonCloseNapas)
         userController.addUserScript(getZoomDisableScript())
 
@@ -282,6 +285,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 }
             }
         }
+
         if #available(iOS 9.0, *) {
             let websiteDataTypes = NSSet(array: [WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache])
             let date = NSDate(timeIntervalSince1970: 0)
@@ -437,6 +441,9 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         if message.name == onPay {
             payMEFunction?.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
         }
+        if message.name == getContacts {
+            fetchContacts()
+        }
     }
 
 
@@ -474,6 +481,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.removeScriptMessageHandler(forName: onErrorBack)
         userController.removeScriptMessageHandler(forName: onPay)
         userController.removeScriptMessageHandler(forName: onRegisterSuccess)
+        userController.removeScriptMessageHandler(forName: getContacts)
     }
 
     public func setOnSuccessCallback(onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()) {
@@ -498,6 +506,39 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     public func setURLRequest(_ url: String) {
         urlRequest = url
+    }
+
+    private func fetchContacts() {
+        var contactList: [[String: String]] = []
+        let store = CNContactStore()
+        store.requestAccess(for: .contacts) { (granted, error) in
+            if let error = error {
+                print("failed to request access", error)
+                return
+            }
+            if granted {
+                let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
+                let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
+                do {
+                    try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
+                        let fullName = contact.familyName + " " + contact.givenName
+                        let phone = contact.phoneNumbers.first?.value.stringValue.filter("0123456789".contains) ?? ""
+                        contactList.append(["name": fullName, "phone": phone])
+                    })
+                } catch let error {
+                    print("Failed to enumerate contact", error)
+                }
+            } else {
+                print("access denied")
+            }
+        }
+        let injectedJS = "       const script = document.createElement('script');\n" +
+                "          script.type = 'text/javascript';\n" +
+                "          script.async = true;\n" +
+                "          script.text = 'onContacts(${contactList})';\n" +
+                "          document.body.appendChild(script);\n" +
+                "          true; // note: this is required, or you'll sometimes get silent failures\n"
+        webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
     }
 }
 
