@@ -1,6 +1,6 @@
 import SystemConfiguration
 
-public class Reachability {
+public class NetworkReachability {
 
     class func isConnectedToNetwork() -> Bool {
 

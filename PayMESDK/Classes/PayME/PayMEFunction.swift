@@ -63,7 +63,7 @@ class PayMEFunction {
             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
             return false
         }
-        if !Reachability.isConnectedToNetwork() {
+        if !NetworkReachability.isConnectedToNetwork() {
             onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
             return false
         }
@@ -83,7 +83,7 @@ class PayMEFunction {
             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
             return false
         }
-        if !(Reachability.isConnectedToNetwork()) {
+        if !(NetworkReachability.isConnectedToNetwork()) {
             onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Vui lòng kiểm tra lại đường truyền mạng" as AnyObject])
             return false
         }
