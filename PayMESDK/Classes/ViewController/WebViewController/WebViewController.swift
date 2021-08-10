@@ -509,7 +509,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
     private func fetchContacts() {
-        var contactList: [[String: String]] = []
+        var contactList: String = "["
         let store = CNContactStore()
         store.requestAccess(for: .contacts) { (granted, error) in
             if let error = error {
@@ -523,7 +523,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                     try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
                         let fullName = contact.familyName + " " + contact.givenName
                         let phone = contact.phoneNumbers.first?.value.stringValue.filter("0123456789".contains) ?? ""
-                        contactList.append(["name": fullName, "phone": phone])
+                        if let json = try? JSONSerialization.data(withJSONObject: ["name": fullName, "phone": phone] as [String:Any]) {
+                           if let jsonObj = String(data: json, encoding: String.Encoding.ascii) {
+                               contactList += jsonObj + ","
+                           }
+                        }
                     })
                 } catch let error {
                     print("Failed to enumerate contact", error)
@@ -532,10 +536,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 print("access denied")
             }
         }
+        contactList += "]"
         let injectedJS = "       const script = document.createElement('script');\n" +
                 "          script.type = 'text/javascript';\n" +
                 "          script.async = true;\n" +
-                "          script.text = 'onContacts(${contactList})';\n" +
+                "          script.text = 'onContacts(\(contactList))';\n" +
                 "          document.body.appendChild(script);\n" +
                 "          true; // note: this is required, or you'll sometimes get silent failures\n"
         webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
