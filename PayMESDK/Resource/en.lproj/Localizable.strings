@@ -92,7 +92,7 @@
 "bankCard" = "Thẻ ATM";
 "cardNumber" = "Số thẻ";
 "inputCardNumber" = "Nhập số thẻ ở mặt trước thẻ";
-"bankTransfer" = "Chuyển khoản ngân hàng";
+"bankTransfer" = "Chuyển khoản";
 "creditCard" = "Thẻ Visa/Master/JCB";
 "service" = "Dịch vụ";
 "paymentAmount" = "Số tiền thanh toán";
