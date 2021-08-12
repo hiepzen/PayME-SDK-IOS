@@ -56,6 +56,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var onTransfer: String = "onTransfer"
     var onUpdateIdentify: String = "onUpdateIdentify"
     var getContacts: String = "getContacts"
+    var onOpenSetting: String = "onOpenSetting"
     var showButtonCloseNapas: String = "showButtonCloseNapas"
     var form = ""
     var imageFront: UIImage?
@@ -176,6 +177,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: onTransfer)
         userController.add(self, name: onUpdateIdentify)
         userController.add(self, name: getContacts)
+        userController.add(self, name: onOpenSetting)
         userController.add(self, name: showButtonCloseNapas)
         userController.addUserScript(getZoomDisableScript())
 
@@ -444,6 +446,11 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         if message.name == getContacts {
             fetchContacts()
         }
+        if message.name == onOpenSetting {
+            DispatchQueue.main.async {
+                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+            }
+        }
     }
 
 
@@ -482,6 +489,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.removeScriptMessageHandler(forName: onPay)
         userController.removeScriptMessageHandler(forName: onRegisterSuccess)
         userController.removeScriptMessageHandler(forName: getContacts)
+        userController.removeScriptMessageHandler(forName: onOpenSetting)
     }
 
     public func setOnSuccessCallback(onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()) {
@@ -514,9 +522,27 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         store.requestAccess(for: .contacts) { (granted, error) in
             if let error = error {
                 print("failed to request access", error)
-                return
+                if error.localizedDescription == "Access Denied" {
+                    let injectedJS = "       const script = document.createElement('script');\n" +
+                            "          script.type = 'text/javascript';\n" +
+                            "          script.async = true;\n" +
+                            "          script.text = 'onPermission(false)';\n" +
+                            "          document.body.appendChild(script);\n" +
+                            "          true; // note: this is required, or you'll sometimes get silent failures\n"
+                    self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
+                    return
+                } else {
+                    return
+                }
             }
             if granted {
+                let injectedJS = "       const script = document.createElement('script');\n" +
+                        "          script.type = 'text/javascript';\n" +
+                        "          script.async = true;\n" +
+                        "          script.text = 'onPermission(true)';\n" +
+                        "          document.body.appendChild(script);\n" +
+                        "          true; // note: this is required, or you'll sometimes get silent failures\n"
+                self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
                 let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
                 let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
                 do {
@@ -533,7 +559,14 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                     print("Failed to enumerate contact", error)
                 }
             } else {
-                print("access denied")
+                let injectedJS = "       const script = document.createElement('script');\n" +
+                        "          script.type = 'text/javascript';\n" +
+                        "          script.async = true;\n" +
+                        "          script.text = 'onPermission(\(false))';\n" +
+                        "          document.body.appendChild(script);\n" +
+                        "          true; // note: this is required, or you'll sometimes get silent failures\n"
+                self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
+                return
             }
         }
         contactList += "]"

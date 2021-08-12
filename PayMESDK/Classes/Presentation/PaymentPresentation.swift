@@ -912,14 +912,14 @@ class PaymentPresentation {
                         var listBank: [BankManual] = []
                         for bank in bankList {
                             listBank.append(BankManual(
-                                    bankAccountName: bank["bankAccountName"] as? String ?? "",
-                                    bankAccountNumber: bank["bankAccountNumber"] as? String ?? "",
-                                    bankBranch: bank["bankBranch"] as? String ?? "",
-                                    bankCity: bank["bankCity"] as? String ?? "",
-                                    bankName: bank["bankName"] as? String ?? "",
-                                    content: bank["content"] as? String ?? "",
-                                    swiftCode: bank["swiftCode"] as? String ?? "",
-                                    qrCode: bank["qrContent"] as? String ?? ""
+                                bankAccountName: bank["bankAccountName"] as? String ?? "",
+                                bankAccountNumber: bank["bankAccountNumber"] as? String ?? "",
+                                bankBranch: bank["bankBranch"] as? String ?? "",
+                                bankCity: bank["bankCity"] as? String ?? "",
+                                bankName: bank["bankName"] as? String ?? "",
+                                content: bank["content"] as? String ?? "",
+                                swiftCode: bank["swiftCode"] as? String ?? "",
+                                qrCode: bank["qrContent"] as? String ?? ""
                             ))
                         }
                         orderTransaction.paymentMethod?.dataBankTransfer = listBank[0]
