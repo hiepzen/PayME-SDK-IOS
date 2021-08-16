@@ -522,27 +522,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         store.requestAccess(for: .contacts) { (granted, error) in
             if let error = error {
                 print("failed to request access", error)
-                if error.localizedDescription == "Access Denied" {
-                    let injectedJS = "       const script = document.createElement('script');\n" +
-                            "          script.type = 'text/javascript';\n" +
-                            "          script.async = true;\n" +
-                            "          script.text = 'onPermission(false)';\n" +
-                            "          document.body.appendChild(script);\n" +
-                            "          true; // note: this is required, or you'll sometimes get silent failures\n"
-                    self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
-                    return
-                } else {
-                    return
-                }
+                self.onContactNotGranted()
+                return
             }
             if granted {
-                let injectedJS = "       const script = document.createElement('script');\n" +
-                        "          script.type = 'text/javascript';\n" +
-                        "          script.async = true;\n" +
-                        "          script.text = 'onPermission(true)';\n" +
-                        "          document.body.appendChild(script);\n" +
-                        "          true; // note: this is required, or you'll sometimes get silent failures\n"
-                self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
                 let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
                 let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
                 do {
@@ -558,25 +541,34 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 } catch let error {
                     print("Failed to enumerate contact", error)
                 }
+                contactList += "]"
+                self.onContactGranted(contacts: contactList)
             } else {
-                let injectedJS = "       const script = document.createElement('script');\n" +
-                        "          script.type = 'text/javascript';\n" +
-                        "          script.async = true;\n" +
-                        "          script.text = 'onPermission(\(false))';\n" +
-                        "          document.body.appendChild(script);\n" +
-                        "          true; // note: this is required, or you'll sometimes get silent failures\n"
-                self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
+                self.onContactNotGranted()
                 return
             }
         }
-        contactList += "]"
+    }
+    func onContactNotGranted(){
         let injectedJS = "       const script = document.createElement('script');\n" +
                 "          script.type = 'text/javascript';\n" +
                 "          script.async = true;\n" +
-                "          script.text = 'onContacts(\(contactList))';\n" +
+                "          script.text = 'onPermission(false)';\n" +
                 "          document.body.appendChild(script);\n" +
                 "          true; // note: this is required, or you'll sometimes get silent failures\n"
-        webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
+        DispatchQueue.main.async {
+            self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
+        }
+    }
+    func onContactGranted(contacts: String) {
+        let injectedJS = """
+                           window.onPermission(true);
+                           window.onContacts(\(contacts));
+                           true; // note: this is required, or you'll sometimes get silent failures
+                         """
+        DispatchQueue.main.async {
+            self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
+        }
     }
 }
 
