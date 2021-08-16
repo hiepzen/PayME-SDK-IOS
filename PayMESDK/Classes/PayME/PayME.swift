@@ -47,6 +47,8 @@ public class PayME {
         case NOT_ACTIVATED
         case NOT_KYC
         case KYC_APPROVED
+        case KYC_REJECTED
+        case KYC_REVIEW
     }
 
     public struct ResponseCode {

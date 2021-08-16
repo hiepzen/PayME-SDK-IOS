@@ -60,7 +60,7 @@ class PayMEFunction {
 
     func checkCondition(_ onError: @escaping (Dictionary<String, AnyObject>) -> Void) -> Bool {
         if loggedIn == false || dataInit == nil {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "needLogin".localize() as AnyObject])
             return false
         }
         if !NetworkReachability.isConnectedToNetwork() {
@@ -68,11 +68,11 @@ class PayMEFunction {
             return false
         }
         if !isAccountActivated {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "notActivated".localize() as AnyObject])
             return false
         }
         if kycState != "APPROVED" {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_KYC as AnyObject, "message": "notKYC".localize() as AnyObject])
             return false
         }
         return true
@@ -80,7 +80,7 @@ class PayMEFunction {
 
     func checkPayCondition(_ onError: @escaping (Dictionary<String, AnyObject>) -> Void) -> Bool {
         if (loggedIn == false || dataInit == nil) {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "needLogin".localize() as AnyObject])
             return false
         }
         if !(NetworkReachability.isConnectedToNetwork()) {
@@ -294,7 +294,7 @@ class PayMEFunction {
             let qrScan = QRScannerController()
             qrScan.setScanSuccess(onScanSuccess: { response in
                 if self.loggedIn == false || self.dataInit == nil {
-                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+                    onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "needLogin".localize() as AnyObject])
                     return
                 }
                 self.request.readQRContent(qrContent: response, onSuccess: { response in
@@ -353,7 +353,7 @@ class PayMEFunction {
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
         if loggedIn == false || dataInit == nil {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "needLogin".localize() as AnyObject])
             return
         }
         request.readQRContent(qrContent: qr, onSuccess: { response in
@@ -412,7 +412,7 @@ class PayMEFunction {
                             PaymentModalController.minAmount = (configLimitPayment["value"]!["min"] as? Int) ?? 10000
                             PaymentModalController.maxAmount = (configLimitPayment["value"]!["max"] as? Int) ?? 100000000
                         } else {
-                            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config thanh toán, vui lòng thử lại sau" as AnyObject])
+                            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "cantAccessPaymentConfig".localize() as AnyObject])
                         }
 
                         if let configService = configs.first(where: { config in
@@ -434,7 +434,7 @@ class PayMEFunction {
                                 }
                             }
                         } else {
-                            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config dịch vụ, vui lòng thử lại sau" as AnyObject])
+                            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "cantAccessServiceConfig".localize() as AnyObject])
                         }
 
                         if let configKYCMode = configs.first(where: { config in
@@ -474,11 +474,11 @@ class PayMEFunction {
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         if !isAccountActivated {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "notActivated".localize() as AnyObject])
             return
         }
         if kycState == "APPROVED" {
-            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Tài khoản đã định danh" as AnyObject])
+            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "kycApproved".localize() as AnyObject])
             return
         }
         if kycState == "PENDING" {
@@ -518,15 +518,24 @@ class PayMEFunction {
         initSDK(onSuccess: { success in
             self.loggedIn = true
             if !self.isAccountActivated {
-                onSuccess(["code": PayME.KYCState.NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+                onSuccess(["code": PayME.KYCState.NOT_ACTIVATED as AnyObject, "message": "notActivated".localize() as AnyObject])
                 return
             }
-            if self.kycState != "APPROVED" {
-                onSuccess(["code": PayME.KYCState.NOT_KYC as AnyObject, "message": "Tài khoản chưa định danh" as AnyObject])
+            switch self.kycState {
+            case "APPROVED":
+                break
+            case "REJECTED":
+                onSuccess(["code": PayME.KYCState.KYC_REJECTED as AnyObject])
+                return
+            case "PENDING":
+                onSuccess(["code": PayME.KYCState.KYC_REVIEW as AnyObject])
+                return
+            default:
+                onSuccess(["code": PayME.KYCState.NOT_KYC as AnyObject, "message": "notKYC".localize() as AnyObject])
                 return
             }
             if self.accessToken != "" && self.kycState == "APPROVED" {
-                onSuccess(["code": PayME.KYCState.KYC_APPROVED as AnyObject, "message": "Đăng nhập thành công" as AnyObject])
+                onSuccess(["code": PayME.KYCState.KYC_APPROVED as AnyObject, "message": "loginSuccess".localize() as AnyObject])
                 return
             }
         }, onError: { error in
@@ -541,7 +550,7 @@ class PayMEFunction {
     ) {
         if (loggedIn == true) {
             if !isAccountActivated {
-                onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "Tài khoản chưa kích hoạt" as AnyObject])
+                onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "notActivated".localize() as AnyObject])
                 return
             }
             request.getAccountInfo(
@@ -550,7 +559,7 @@ class PayMEFunction {
                     onError: { error in onError(error) })
 
         } else {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "needLogin".localize() as AnyObject])
         }
     }
 
@@ -566,7 +575,7 @@ class PayMEFunction {
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         if loggedIn == false || dataInit == nil {
-            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "Vui lòng đăng nhập để tiếp tục" as AnyObject])
+            onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "needLogin".localize() as AnyObject])
         } else {
             onSuccess(configService)
         }

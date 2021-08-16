@@ -19,7 +19,12 @@
 "onlyProduction" = "hức năng chỉ có thể thao tác môi trường production";
 "notActivated" = "Tài khoản chưa kích hoạt";
 "notKYC" = "Tài khoản chưa định danh";
+"kycApproved" = "Tài khoản đã định danh";
+"loginSuccess" = "Đăng nhập thành công";
+"cantAccessServiceConfig" = "Không lấy được config dịch vụ, vui lòng thử lại sau";
+"cantAccessPaymentConfig" = "Không lấy được config thanh toán, vui lòng thử lại sau";
 "notEnoughBalance" = "Số dư tài khoản không đủ. Vui lòng kiểm tra lại";
+"needLogin" = "Vui lòng đăng nhập để tiếp tục";
 "understood" = "Đã hiểu";
 "search" = "Tìm kiếm";
 "notFound" = "Không tìm thấy";
