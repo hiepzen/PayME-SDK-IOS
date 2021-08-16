@@ -530,10 +530,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
                 do {
                     try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
-                        let fullName = contact.familyName + " " + contact.givenName
+                        let fullName = contact.givenName + " " + contact.familyName
                         let phone = contact.phoneNumbers.first?.value.stringValue.filter("0123456789".contains) ?? ""
                         if let json = try? JSONSerialization.data(withJSONObject: ["name": fullName, "phone": phone] as [String:Any]) {
-                           if let jsonObj = String(data: json, encoding: String.Encoding.ascii) {
+                           if let jsonObj = String(data: json, encoding: String.Encoding.utf8) {
                                contactList += jsonObj + ","
                            }
                         }
