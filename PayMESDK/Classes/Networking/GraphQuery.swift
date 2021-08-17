@@ -387,6 +387,7 @@ class GraphQuery {
                                             state
                                             fee
                                             description
+                                            reason
                                           }
                                         }
                                       }

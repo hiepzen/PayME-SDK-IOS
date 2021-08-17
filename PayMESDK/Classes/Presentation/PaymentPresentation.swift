@@ -850,8 +850,10 @@ class PaymentPresentation {
                                 ] as [String: AnyObject]
                                 return Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseSuccess)
                             } else {
-                                let responseError = ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject] as [String: AnyObject]
-                                return Result(type: ResultType.FAIL, failReasonLabel: message ?? "", orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
+                                let responseError = ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject,
+                                     "message": (transInfo["reason"] as? String ?? "hasError".localize()) as AnyObject] as [String: AnyObject]
+                                return Result(type: ResultType.FAIL, failReasonLabel: transInfo["reason"] as? String ?? "",
+                                        orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
                             }
                         }()
                         if result != nil {
