@@ -259,7 +259,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     private func setupWebview(_ responseError: ResponseError) {
         removeSpinner()
-        let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil)
+        let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil, needHandleNetwork: true)
         webViewController.form = responseError.html
         if ((orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "" ||
                 (orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? "") != "") {
@@ -309,7 +309,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         guard let order = orderTransaction else {
             return
         }
-        let webViewController = WebViewController(payMEFunction: self.payMEFunction, nibName: "WebView", bundle: nil)
+        let webViewController = WebViewController(payMEFunction: self.payMEFunction, nibName: "WebView", bundle: nil, needHandleNetwork: true)
         webViewController.form = html
         webViewController.loadView()
         var payTimer: Timer? = Timer.scheduledTimer(withTimeInterval: 7, repeats: false) { [self] tmr in
