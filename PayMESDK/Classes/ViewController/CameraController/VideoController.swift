@@ -95,6 +95,11 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
         if (cameraCaptureOutput != nil) {
             if cameraCaptureOutput!.isRecording == false {
                 let connection = cameraCaptureOutput!.connection(with: AVMediaType.video)
+                if #available(iOS 11.0, *) {
+                    if cameraCaptureOutput!.availableVideoCodecTypes.contains(.h264) {
+                        cameraCaptureOutput!.setOutputSettings([AVVideoCodecKey: AVVideoCodecType.h264], for: connection!)
+                    }
+                }
                 if (connection?.isVideoOrientationSupported)! {
                     connection?.videoOrientation = currentVideoOrientation()
                 }
@@ -199,17 +204,6 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
                 let cameraCaptureInput = try AVCaptureDeviceInput(device: camera)
                 activeInput = cameraCaptureInput
                 cameraCaptureOutput = AVCaptureMovieFileOutput()
-                if let convertConnection = cameraCaptureOutput!.connection(with: .video) {
-                    if #available(iOS 11.0, *) {
-                        if cameraCaptureOutput!.availableVideoCodecTypes.contains(.h264) {
-                            cameraCaptureOutput?.setOutputSettings([AVVideoCodecKey: AVVideoCodecType.h264], for: convertConnection)
-                        }
-                    } else {
-                        // Fallback on earlier versions
-                    }
-                } else {
-                    //
-                }
                 session.addInput(cameraCaptureInput)
                 session.addOutput(cameraCaptureOutput!)
                 cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
