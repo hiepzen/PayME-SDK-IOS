@@ -73,7 +73,11 @@ class VideoController: UIViewController, UIImagePickerControllerDelegate, UINavi
 
     @objc func back() {
         session.stopRunning()
-        navigationController?.popViewController(animated: true)
+        if PopupKYC.isFirstStepKYC && PayME.isRecreateNavigationController {
+            PayME.rootVC?.dismiss(animated: true)
+        } else {
+            navigationController?.popViewController(animated: true)
+        }
     }
 
     func currentVideoOrientation() -> AVCaptureVideoOrientation {

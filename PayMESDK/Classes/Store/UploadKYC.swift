@@ -56,10 +56,17 @@ public class UploadKYC {
                                         if PayME.isRecreateNavigationController {
                                             PayME.currentVC?.navigationController?.viewControllers = [navigationArray[0]]
                                             let rootViewController = navigationArray.first
-                                            if self.isUpdateIdentify ?? false {
-                                                (rootViewController as? WebViewController)?.updateIdentify()
+
+                                            if rootViewController is KYCCameraController
+                                                       || rootViewController is AvatarController
+                                                       || rootViewController is VideoController {
+                                                PayME.rootVC?.dismiss(animated: true)
                                             } else {
-                                                (rootViewController as? WebViewController)?.reload()
+                                                if self.isUpdateIdentify ?? false {
+                                                    (rootViewController as? WebViewController)?.updateIdentify()
+                                                } else {
+                                                    (rootViewController as? WebViewController)?.reload()
+                                                }
                                             }
                                         } else {
                                             if (self.imageDocument != nil) {
@@ -167,7 +174,7 @@ public class UploadKYC {
                             self.toastMess(title: "error".localize(), message: response["data"]!["message"] as? String ?? "Something went wrong")
                         }
                     }, onError: { error in
-                        PayME.currentVC?.dismiss(animated: false)
+                PayME.currentVC?.dismiss(animated: false)
                 self.toastMess(title: "error".localize(), message: (error["message"] as? String) ?? "Something went wrong")
             })
         } else {
@@ -192,7 +199,7 @@ public class UploadKYC {
                             }
 
                         }, onError: { error in
-                            PayME.currentVC?.dismiss(animated: false)
+                    PayME.currentVC?.dismiss(animated: false)
                     self.toastMess(title: "error".localize(), message: (error["message"] as? String) ?? "Something went wrong")
                 })
             } else {

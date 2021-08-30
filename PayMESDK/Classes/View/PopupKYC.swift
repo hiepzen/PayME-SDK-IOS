@@ -36,6 +36,7 @@ class PopupKYC: UIViewController, PanModalPresentable {
     }
 
     var active: Int!
+    static var isFirstStepKYC = false
 
     private let popupFace: PopupFace = {
         let popUpWindowView = PopupFace()
@@ -115,27 +116,36 @@ class PopupKYC: UIViewController, PanModalPresentable {
 
     @objc func goToCamera() {
         close()
+        var viewController: UIViewController
+
         if (active == 1) {
             let avatarController = AvatarController()
-            if PayME.currentVC?.navigationController != nil {
-                PayME.currentVC?.navigationController?.pushViewController(avatarController, animated: true)
-            } else {
-                PayME.currentVC?.present(avatarController, animated: true, completion: nil)
-            }
+            viewController = avatarController
         } else if (active == 2) {
             let videoController = VideoController()
-            if PayME.currentVC?.navigationController != nil {
-                PayME.currentVC?.navigationController?.pushViewController(videoController, animated: true)
-            } else {
-                PayME.currentVC?.present(videoController, animated: true, completion: nil)
-            }
+            viewController = videoController
         } else {
             let kycDocument = KYCCameraController()
+            viewController = kycDocument
+        }
+
+        if PopupKYC.isFirstStepKYC {
             if PayME.currentVC?.navigationController != nil {
-                PayME.currentVC?.navigationController?.pushViewController(kycDocument, animated: true)
+                PayME.rootVC = PayME.currentVC
+                PayME.currentVC = PayME.currentVC
+                PayME.currentVC?.navigationController?.pushViewController(viewController, animated: true)
             } else {
-                PayME.currentVC?.present(kycDocument, animated: true, completion: nil)
+                let navigationController = UINavigationController(rootViewController: viewController)
+                PayME.rootVC = PayME.currentVC
+                PayME.currentVC = viewController
+                PayME.isRecreateNavigationController = true
+                if #available(iOS 13.0, *) {
+                    PayME.currentVC?.isModalInPresentation = false
+                }
+                PayME.rootVC?.present(navigationController, animated: true)
             }
+        } else {
+            PayME.currentVC?.navigationController?.pushViewController(viewController, animated: true)
         }
     }
 

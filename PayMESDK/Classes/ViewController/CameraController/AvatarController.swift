@@ -65,7 +65,11 @@ class AvatarController: UIViewController, UIImagePickerControllerDelegate, UINav
 
     @objc func back() {
         session.stopRunning()
-        navigationController?.popViewController(animated: true)
+        if PopupKYC.isFirstStepKYC && PayME.isRecreateNavigationController {
+            PayME.rootVC?.dismiss(animated: true)
+        } else {
+            navigationController?.popViewController(animated: true)
+        }
     }
 
     @objc func takePicture() {

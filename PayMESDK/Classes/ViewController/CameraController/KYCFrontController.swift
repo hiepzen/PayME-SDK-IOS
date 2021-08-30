@@ -129,16 +129,18 @@ class KYCFrontController: UIViewController {
     }
 
     @objc func capture() {
-        if (active! != 2) {
+        if (active! != 2) { // ko phai ho chieu
             let kycCameraController = KYCCameraController()
             kycCameraController.imageFront = kycImage
             kycCameraController.active = active!
+            PopupKYC.isFirstStepKYC = false
             navigationController?.pushViewController(kycCameraController, animated: true)
 
-        } else {
+        } else { // ho chieu co 1 mat -> qua bước kyc tiếp theo
             KYCController.imageDocument = [self.kycImage!]
             KYCController.active = self.active
             let popupKYC = PopupKYC()
+            PopupKYC.isFirstStepKYC = false
             if (KYCController.flowKYC!["kycFace"] == true) {
                 popupKYC.active = 1
                 PayME.currentVC?.presentModal(popupKYC, animated: true)

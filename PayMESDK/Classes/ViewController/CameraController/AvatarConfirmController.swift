@@ -134,6 +134,7 @@ class AvatarConfirm: UIViewController {
         KYCController.imageAvatar = avatarImage!
         if (KYCController.flowKYC!["kycVideo"] == true) {
             let popupKYC = PopupKYC()
+            PopupKYC.isFirstStepKYC = false
             popupKYC.active = 2
             PayME.currentVC?.presentModal(popupKYC, animated: true)
         } else {

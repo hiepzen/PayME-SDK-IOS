@@ -30,6 +30,7 @@ class KYCController {
         PayME.currentVC?.navigationItem.hidesBackButton = true
         PayME.currentVC?.navigationController?.isNavigationBarHidden = true
         let popupKYC = PopupKYC()
+        PopupKYC.isFirstStepKYC = true
         if (KYCController.flowKYC!["identifyImg"] == true) {
             print("flow1")
             popupKYC.active = 0
