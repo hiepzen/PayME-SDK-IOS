@@ -203,7 +203,10 @@ class KYCCameraController: UIViewController, UIImagePickerControllerDelegate, UI
 
     @objc func takePicture() {
         let settings = AVCapturePhotoSettings()
-        settings.flashMode = .auto
+        let device = AVCaptureDevice.default(for: .video)
+        if device?.hasTorch ?? false {
+            settings.flashMode = .auto
+        }
         cameraCaptureOutput?.capturePhoto(with: settings, delegate: self)
     }
 
