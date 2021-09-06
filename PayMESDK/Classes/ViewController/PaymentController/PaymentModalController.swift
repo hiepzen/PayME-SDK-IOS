@@ -144,6 +144,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        subscription?.dispose()
+        super.viewWillDisappear(animated)
+    }
+
     private var subscription: Disposable?
 
     private func setupSubscription() {
@@ -486,7 +491,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupUISearchBank(orderTransaction: OrderTransaction?) {
-        guard let orderTrans = orderTransaction else {
+        guard orderTransaction != nil else {
             return
         }
         confirmController.view.isHidden = true
@@ -500,17 +505,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             searchBankHeightConstraint?.isActive = true
         }
         searchBankController.view.layoutIfNeeded()
-//        let temp = footer.bounds.size.height + (safeAreaInset?.bottom ?? 0)
         let temp = (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
         let searchHeight = min(searchBankController.updateSizeHeight(), screenSize.height - temp)
         searchBankHeightConstraint?.constant = searchHeight
         footerTopConstraint?.isActive = false
-//        footerTopConstraint = footer.topAnchor.constraint(equalTo: searchBankController.view.bottomAnchor)
-//        footerTopConstraint?.isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
         let viewHeight = searchHeight
-//                + footer.bounds.size.height
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
@@ -584,6 +585,12 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func showMethods(_ methods: [PaymentMethod]) {
+        if data.count == 0 {
+            dismiss(animated: true) {
+                self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "methodNotFound".localize() as AnyObject])
+            }
+            return
+        }
         view.endEditing(false)
         confirmController.view.isHidden = true
         UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews]) {
