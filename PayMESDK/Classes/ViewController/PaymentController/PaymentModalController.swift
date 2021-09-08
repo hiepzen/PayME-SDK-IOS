@@ -473,12 +473,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     onSubmitMethod(method)
                     break
                 default:
+                    PaymentModalController.isShowCloseModal = false
                     dismiss(animated: true) {
                         onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "notFoundPayCode".localize() as AnyObject])
                     }
                     break
                 }
             } else {
+                PaymentModalController.isShowCloseModal = false
                 dismiss(animated: true) {
                     onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "notFoundPayCode".localize() as AnyObject])
                 }
@@ -518,7 +520,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func setupUIViewBank(orderTransaction: OrderTransaction?, banks: [Bank]) {
-        guard let orderTrans = orderTransaction else {
+        guard orderTransaction != nil else {
             return
         }
         confirmController.view.isHidden = true
@@ -586,6 +588,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func showMethods(_ methods: [PaymentMethod]) {
         if data.count == 0 {
+            PaymentModalController.isShowCloseModal = false
             dismiss(animated: true) {
                 self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "methodNotFound".localize() as AnyObject])
             }
@@ -639,47 +642,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             }
         }
         tableView.selectRow(at: IndexPath(row: 0, section: 0), animated: true, scrollPosition: .none)
-        tableView(self.tableView, didSelectRowAt: IndexPath(row: 0, section: 0))
+        tableView(tableView, didSelectRowAt: IndexPath(row: 0, section: 0))
     }
 
     func setupUIFee(order: OrderTransaction?) {
-//        view.endEditing(false)
         button.isEnabled = true
         let primaryColor = payMEFunction.configColor[0]
         let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-//        if let orderTrans = order {
-//            let data = [
-//                ["key": "fee".localize(),
-//                 "value": (orderTrans.paymentMethod?.fee ?? 0) > 0 ? "\(String(describing: formatMoney(input: orderTrans.paymentMethod?.fee ?? 0))) đ" : "free".localize(),
-//                 "keyColor": UIColor(3, 3, 3),
-//                 "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
-//                 "color": UIColor(3, 3, 3),
-//                 "font": UIFont.systemFont(ofSize: 15, weight: .regular)
-//                ],
-//                ["key": "totalPayment".localize(),
-//                 "value": "\(String(describing: formatMoney(input: orderTrans.total ?? 0))) đ",
-//                 "font": UIFont.systemFont(ofSize: 20, weight: .bold),
-//                 "color": UIColor(236, 42, 42),
-//                 "keyColor": UIColor(3, 3, 3),
-//                 "keyFont": UIFont.systemFont(ofSize: 15, weight: .regular),
-//                ]
-//            ]
-//            feeInfo.update(data: data)
-//            feeInfo.addLineDashedStroke(pattern: [4, 4], radius: 16, color: UIColor(142, 142, 142).cgColor)
-//
-//            methodsBottomConstraint?.isActive = false
-//            methodsBottomConstraint = button.topAnchor.constraint(equalTo: feeInfo.bottomAnchor, constant: 16)
-//            methodsBottomConstraint?.isActive = true
-//
-//            updateViewConstraints()
-//            view.layoutIfNeeded()
-//            let viewHeight = methodsView.bounds.size.height
-//                    + footer.bounds.size.height
-//            modalHeight = viewHeight
-//            panModalSetNeedsLayoutUpdate()
-//            panModalTransition(to: .longForm)
-//        }
     }
 
     func setupUIOverQuota(_ message: String) {
@@ -861,15 +831,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         dismiss(animated: true, completion: nil)
     }
 
-//    @objc func goBack() {
-//        if (orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue) {
-//            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM))
-//        } else {
-//            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS))
-//        }
-//    }
-
     private func openWallet(action: PayME.Action, amount: Int? = nil, payMEFunction: PayMEFunction, orderTransaction: OrderTransaction) {
+        PaymentModalController.isShowCloseModal = false
         PayME.currentVC!.dismiss(animated: true)
         payMEFunction.openWallet(
                 false, PayME.currentVC!, action, amount, orderTransaction.note,
@@ -905,7 +868,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 onError(["message": "onlyProduction".localize() as AnyObject])
                 return
             }
-//            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.CONFIRMATION, orderTransaction: orderTransaction))
             paymentPresentation.getLinkBank(orderTransaction: orderTransaction)
             break
         case MethodType.BANK_TRANSFER.rawValue:

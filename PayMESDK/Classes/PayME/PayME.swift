@@ -77,6 +77,7 @@ public class PayME {
     }
 
     public func close() {
+        PaymentModalController.isShowCloseModal = false
         if PayME.isWebviewOpening {
             if PayME.isRecreateNavigationController {
                 PayME.currentVC?.dismiss(animated: true)
