@@ -65,6 +65,7 @@ public class PayME {
         public static let ACCOUNT_NOT_LOGIN = -9
         public static let BALANCE_ERROR = -10
         public static let PAYMENT_PENDING = -11
+        public static let ACCOUNT_ERROR = -12
     }
 
     public init(appToken: String, publicKey: String, connectToken: String, appPrivateKey: String, language: String? = PayME.Language.VIETNAMESE, env: Env, configColor: [String], showLog: Int = 0) {

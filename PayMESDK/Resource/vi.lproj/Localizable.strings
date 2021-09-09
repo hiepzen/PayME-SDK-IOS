@@ -24,6 +24,7 @@
 "loginSuccess" = "Đăng nhập thành công";
 "cantAccessServiceConfig" = "Không lấy được config dịch vụ, vui lòng thử lại sau";
 "cantAccessPaymentConfig" = "Không lấy được config thanh toán, vui lòng thử lại sau";
+"pleaseEnterPhoneNumber" = "Vui lòng nhập số điện thoại";
 "notEnoughBalance" = "Số dư tài khoản không đủ. Vui lòng kiểm tra lại";
 "understood" = "Đã hiểu";
 "search" = "Tìm kiếm";

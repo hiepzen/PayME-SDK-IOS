@@ -306,7 +306,8 @@ class PayMEFunction {
                         let orderId = (detect["orderId"] as? String) ?? ""
                         let amount = (detect["amount"] as? Int) ?? 0
                         let note = (detect["note"] as? String) ?? ""
-                        let onSuccessPay = isStartDirectFromUser ? { dictionary in} : onSuccess
+                        let onSuccessPay = isStartDirectFromUser ? { dictionary in
+                        } : onSuccess
                         self.payAction(PayME.currentVC ?? currentVC, storeId, orderId, amount, note, payCode, nil, true, onSuccessPay, onError)
                     } else {
                         currentVC.presentModal(QRNotFound())
@@ -391,6 +392,17 @@ class PayMEFunction {
                     let succeeded = result["succeeded"] as? Bool
                     let storeName = result["storeName"] as? String
                     let storeImage: String? = result["storeImage"] as? String
+                    let handShake = result["handShare"] as? String
+                    let phone = result["phone"] as? String
+
+                    if !(succeeded ?? false) && (phone == nil || handShake == nil) {
+                        if handShake != nil && phone == nil {
+                            onError(["code": PayME.ResponseCode.ACCOUNT_ERROR as AnyObject, "message": "pleaseEnterPhoneNumber".localize() as AnyObject])
+                        } else {
+                            onError(["code": PayME.ResponseCode.ACCOUNT_ERROR as AnyObject, "message": result["message"] as AnyObject])
+                        }
+                        return
+                    }
 
                     self.isAccountActivated = succeeded ?? false && accessToken != nil && updateToken == nil
                     self.accessToken = accessToken ?? ""
