@@ -140,6 +140,7 @@ Trong đó ***AES*** là hàm mã hóa theo thuật toán AES. Tùy vào ngôn n
 | <code>USER_CANCELLED</code>   | <code>-8</code>          | Người dùng thao tác hủy |
 | <code>ACCOUNT_NOT_LOGIN</code>   | <code>-9</code>           | Lỗi chưa đăng nhập tài khoản |
 | <code>PAYMENT_PENDING</code>   | <code>-11</code>           | Thanh toán chờ xử lý |
+| <code>ACCOUNT_ERROR</code>   | <code>-12</code>           | Lỗi tài khoản bị khóa |
 
 ## Các chức năng của PayME SDK
 
