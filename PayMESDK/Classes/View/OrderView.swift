@@ -9,7 +9,7 @@ import Foundation
 
 class OrderView: UIView {
     let amountLabel: UILabel = {
-       let label = UILabel()
+        let label = UILabel()
         label.font = .systemFont(ofSize: 28, weight: .bold)
         label.textColor = .white
         label.textAlignment = .right
@@ -28,7 +28,7 @@ class OrderView: UIView {
     }()
 
     let vStack: UIStackView = {
-       let stack = UIStackView()
+        let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.distribution = .equalSpacing
         stack.axis = .vertical
@@ -51,6 +51,7 @@ class OrderView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
         stack.sizeToFit()
+        stack.spacing = 8
         return stack
     }()
 
@@ -62,6 +63,22 @@ class OrderView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "paymentAmount".localize()
         return label
+    }()
+
+    let amountInput: UITextField = {
+        let textField = UITextField()
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.font = .systemFont(ofSize: 28, weight: .bold)
+        textField.textColor = .white
+        textField.tintColor = .white
+        textField.attributedPlaceholder = NSAttributedString(
+                string: "Nhập số tiền thanh toán",
+                attributes: [
+                    NSAttributedString.Key.foregroundColor: UIColor.white.withAlphaComponent(0.3),
+                    NSAttributedString.Key.font: UIFont.systemFont(ofSize: 28, weight: .regular)
+                ])
+        textField.textAlignment = .center
+        return textField
     }()
 
     let seperator = UIView()
@@ -76,9 +93,9 @@ class OrderView: UIView {
 
         addSubview(vStack)
 
-        vStack.topAnchor.constraint(equalTo: self.topAnchor, constant: 16).isActive = true
-        vStack.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16).isActive = true
-        vStack.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16).isActive = true
+        vStack.topAnchor.constraint(equalTo: topAnchor, constant: 16).isActive = true
+        vStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
+        vStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
 
         storeNameRow = InformationRow(key: "receiveName".localize(), value: storeName, color: .white, font: .systemFont(ofSize: 14, weight: .bold),
                 keyColor: .white, keyFont: .systemFont(ofSize: 14, weight: .regular))
@@ -98,6 +115,7 @@ class OrderView: UIView {
         hStack.addArrangedSubview(amountStack)
         amountStack.addArrangedSubview(amountTitle)
         amountStack.addArrangedSubview(amountLabel)
+//        amountStack.addArrangedSubview(amountInput)
         vStack.addArrangedSubview(hStack)
         vStack.addArrangedSubview(seperator)
         vStack.addArrangedSubview(storeNameRow)
@@ -111,6 +129,7 @@ class OrderView: UIView {
             serviceRow.isHidden = true
             noteRow.isHidden = true
         }
+//        amountLabel.isHidden = true
     }
 
     override func layoutSubviews() {

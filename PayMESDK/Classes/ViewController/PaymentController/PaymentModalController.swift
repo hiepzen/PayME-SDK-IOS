@@ -64,7 +64,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     var safeAreaInset: UIEdgeInsets? = nil
 
-    let orderView: OrderView
+    let orderView: UIView
 
     init(
             payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, payCode: String, isShowResultUI: Bool,
@@ -358,7 +358,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.addSubview(orderView)
         methodsView.addSubview(methodTitle)
         methodsView.addSubview(tableView)
-//        methodsView.addSubview(feeInfo)
         methodsView.addSubview(quotaNote)
         methodsView.addSubview(button)
 
@@ -386,10 +385,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         tableView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
         tableView.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
         tableView.alwaysBounceVertical = false
-
-//        feeInfo.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 8).isActive = true
-//        feeInfo.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
-//        feeInfo.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
 
         quotaNote.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 8).isActive = true
         quotaNote.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
@@ -854,20 +849,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             setupSecurity()
             break
         case MethodType.LINKED.rawValue:
-            if (payMEFunction.appEnv.isEqual("SANDBOX")) {
-                PaymentModalController.isShowCloseModal = false
-                dismiss(animated: true) {
-                    self.onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "onlyProduction".localize() as AnyObject])
-                }
-                return
-            }
             setupSecurity()
             break
         case MethodType.BANK_CARD.rawValue:
-            if (payMEFunction.appEnv.isEqual("SANDBOX")) {
-                onError(["message": "onlyProduction".localize() as AnyObject])
-                return
-            }
             paymentPresentation.getLinkBank(orderTransaction: orderTransaction)
             break
         case MethodType.BANK_TRANSFER.rawValue:

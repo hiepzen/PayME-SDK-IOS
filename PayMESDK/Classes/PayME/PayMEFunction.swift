@@ -232,6 +232,10 @@ class PayMEFunction {
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
         if checkPayCondition(onError) {
+            if (appEnv.isEqual("SANDBOX") && payCode != PayCode.PAYME.rawValue) {
+                onError(["code": PayME.ResponseCode.LIMIT as AnyObject, "message": "onlyProduction".localize() as AnyObject])
+                return
+            }
             PayME.currentVC = currentVC
             request.setExtraData(storeId: storeId)
             if (amount < PaymentModalController.minAmount) {
@@ -264,7 +268,6 @@ class PayMEFunction {
                     payCode: payCode, isShowResultUI: isShowResultUI,
                     onSuccess: onSuccess, onError: onError
             )
-//            currentVC.presentPanModal(paymentModalController)
             currentVC.presentModal(paymentModalController)
         }
     }
