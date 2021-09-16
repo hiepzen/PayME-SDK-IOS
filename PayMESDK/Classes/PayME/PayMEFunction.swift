@@ -382,7 +382,7 @@ class PayMEFunction {
                     let succeeded = result["succeeded"] as? Bool
                     let storeName = result["storeName"] as? String
                     let storeImage: String? = result["storeImage"] as? String
-                    let handShake = result["handShare"] as? String
+                    let handShake = result["handShake"] as? String
                     let phone = result["phone"] as? String
 
                     if !(succeeded ?? false) && (phone == nil || handShake == nil) {
