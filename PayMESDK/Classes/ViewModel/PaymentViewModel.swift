@@ -19,6 +19,7 @@ enum State {
     case BANK_SEARCH
     case BANK_TRANS_RESULT
     case BANK_VIETQR
+    case BANK_QR_CODE_PG
 }
 
 struct PaymentState {
@@ -30,6 +31,7 @@ struct PaymentState {
     let result: Result?
     let bankTransferState: ResultType?
     let error: ResponseError?
+    let qrContent: String?
 
     init(state: State,
          methods: [PaymentMethod]? = nil,
@@ -38,7 +40,8 @@ struct PaymentState {
          orderTransaction: OrderTransaction? = nil,
          result: Result? = nil,
          bankTransferState: ResultType? = nil,
-         error: ResponseError? = nil) {
+         error: ResponseError? = nil,
+         qrContent: String? = nil) {
         self.state = state
         self.methods = methods
         self.listBankManual = listBankManual
@@ -47,6 +50,7 @@ struct PaymentState {
         self.result = result
         self.error = error
         self.bankTransferState = bankTransferState
+        self.qrContent = qrContent
     }
 }
 

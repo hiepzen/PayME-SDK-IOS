@@ -328,20 +328,7 @@ class PayMEFunction {
             currentVC.navigationController?.isNavigationBarHidden = true
             PayME.currentVC = currentVC
 
-            if currentVC.navigationController != nil {
-                PayME.currentVC = currentVC
-                PayME.rootVC = currentVC
-                currentVC.navigationController?.pushViewController(qrScan, animated: true)
-            } else {
-                let navigationController = UINavigationController(rootViewController: qrScan)
-                PayME.currentVC = qrScan
-                PayME.rootVC = currentVC
-                PayME.isRecreateNavigationController = true
-                if #available(iOS 13.0, *) {
-                    PayME.currentVC?.isModalInPresentation = false
-                }
-                currentVC.present(navigationController, animated: true)
-            }
+            navigationAdapter(currentVC: currentVC, navigateVC: qrScan)
 
             if isStartDirectFromUser {
                 onSuccess([:])
@@ -593,6 +580,23 @@ class PayMEFunction {
             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject, "message": "needLogin".localize() as AnyObject])
         } else {
             onSuccess(configService)
+        }
+    }
+
+    func navigationAdapter(currentVC: UIViewController, navigateVC: UIViewController) {
+        if currentVC.navigationController != nil {
+            PayME.currentVC = currentVC
+            PayME.rootVC = currentVC
+            currentVC.navigationController?.pushViewController(navigateVC, animated: true)
+        } else {
+            let navigationController = UINavigationController(rootViewController: navigateVC)
+            PayME.currentVC = navigateVC
+            PayME.rootVC = currentVC
+            PayME.isRecreateNavigationController = true
+            if #available(iOS 13.0, *) {
+                PayME.currentVC?.isModalInPresentation = false
+            }
+            currentVC.present(navigationController, animated: true)
         }
     }
 }

@@ -29,6 +29,7 @@ public class PayME {
         case UTILITY = "UTILITY"
         case FORGOT_PASSWORD = "FORGOT_PASSWORD"
         case TRANSFER = "TRANSFER"
+        case OPEN_HISTORY = "OPEN_HISTORY"
     }
 
     public enum Env: String {
@@ -140,6 +141,14 @@ public class PayME {
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
         payMEFunction.openWallet(true, currentVC, PayME.Action.TRANSFER, amount, description, nil, "", closeWhenDone, onSuccess, onError)
+    }
+
+    public func openHistory(
+            currentVC: UIViewController,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
+            onError: @escaping (Dictionary<String, AnyObject>) -> Void
+    ) {
+        payMEFunction.openWallet(true, currentVC, PayME.Action.OPEN_HISTORY, nil, "", nil, "", false, onSuccess, onError)
     }
 
     public func openService(

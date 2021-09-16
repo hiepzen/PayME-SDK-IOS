@@ -508,4 +508,32 @@ class GraphQuery {
                                        }
                                      }
                                      """
+    static let paymentVNPayQRCode = """
+                                     mutation paymentVNPayQRCode($payInput: OpenEWalletPaymentPayInput!) {
+                                       OpenEWallet {
+                                         Payment {
+                                           Pay(input: $payInput) {
+                                             succeeded
+                                             message
+                                             history {
+                                               payment {
+                                                 transaction
+                                                 method
+                                                 description
+                                               }
+                                               createdAt
+                                             }
+                                             payment {
+                                               ... on PaymentBankQRCodeResponsed {
+                                                 bankQRCodeState: state
+                                                 message
+                                                 qrContent   
+                                                 url
+                                               }
+                                             }
+                                           }
+                                         }
+                                       }
+                                     }
+                                     """
 }

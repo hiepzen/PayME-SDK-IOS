@@ -266,6 +266,34 @@ class API {
         onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
+    func payVNPayQRCode(
+            storeId: Int, orderId: String, extraData: String, note: String, amount: Int,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> (),
+            onPaymeError: @escaping (String) -> () = { s in }
+    ) {
+        let url = urlGraphQL(env: env)
+        let path = "/graphql"
+        let payInput: [String: Any] = [
+            "clientId": clientId,
+            "storeId": storeId,
+            "orderId": orderId,
+            "amount": amount,
+            "payment": [
+                "bankQRCode": [
+                    "active": true
+                ]
+            ]
+        ]
+        let variables: [String: Any] = ["payInput": payInput]
+        let json: [String: Any] = [
+            "query": GraphQuery.paymentVNPayQRCode,
+            "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
+    }
+
     func transferCreditCard(
             storeId: Int, orderId: String, extraData: String, note: String,
             cardNumber: String, cardHolder: String, expiredAt: String, cvv: String, refId: String, amount: Int,

@@ -492,6 +492,40 @@ class PaymentPresentation {
         )
     }
 
+    func payVNQRCode(orderTransaction: OrderTransaction) {
+        request.payVNPayQRCode(
+                storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
+                note: orderTransaction.note, amount: orderTransaction.amount,
+                onSuccess: { success in
+                    print("minh khoa success")
+                    print(success)
+
+                    let data = JSON(success)
+                    if let qrContent = data["OpenEWallet"]["Payment"]["Pay"]["payment"]["qrContent"].string {
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_QR_CODE_PG, qrContent: qrContent))
+                    } else {
+                        let result = Result(
+                                type: ResultType.FAIL,
+                                failReasonLabel: data["OpenEWallet"]["Payment"]["Pay"]["message"].string ?? "hasError".localize(),
+                                orderTransaction: orderTransaction,
+                                transactionInfo: TransactionInformation(transaction: orderTransaction.orderId, transactionTime: toDateString(date: Date())),
+                                extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (data["OpenEWallet"]["Payment"]["Pay"]["message"].string ?? "hasError".localize()) as AnyObject]
+                        )
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                    }
+                },
+                onError: { error in
+                    self.onError(error)
+                    if let code = error["code"] as? Int {
+                        if (code == 401) {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                        }
+                    }
+                },
+                onPaymeError: onPaymeError
+        )
+    }
+
     func payATM(orderTransaction: OrderTransaction) {
         request.transferATM(
                 storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
@@ -790,11 +824,6 @@ class PaymentPresentation {
         request.getFee(amount: orderTransaction.amount, payment: payment, onSuccess: { response in
             let data = JSON(response)
             if data["Utility"]["GetFee"]["succeeded"].boolValue {
-//                if let fee = ((response["Utility"]!["GetFee"] as? [String: AnyObject])?["fee"] as? [String: AnyObject])?["fee"] as? Int {
-//                    orderTransaction.paymentMethod?.fee = fee
-//                    orderTransaction.total = orderTransaction.amount + fee
-//                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.FEE, orderTransaction: orderTransaction))
-//                }
                 if let state = (response["Utility"]!["GetFee"] as? [String: AnyObject])?["state"] as? String {
                     if state == "OVER_DAY_QUOTA" || state == "OVER_MONTH_QUOTA" {
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR,
@@ -851,7 +880,7 @@ class PaymentPresentation {
                                 return Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseSuccess)
                             } else {
                                 let responseError = ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject,
-                                     "message": (transInfo["reason"] as? String ?? "hasError".localize()) as AnyObject] as [String: AnyObject]
+                                                     "message": (transInfo["reason"] as? String ?? "hasError".localize()) as AnyObject] as [String: AnyObject]
                                 return Result(type: ResultType.FAIL, failReasonLabel: transInfo["reason"] as? String ?? "",
                                         orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
                             }
@@ -914,21 +943,21 @@ class PaymentPresentation {
                         var listBank: [BankManual] = []
                         for bank in bankList {
                             listBank.append(BankManual(
-                                bankAccountName: bank["bankAccountName"] as? String ?? "",
-                                bankAccountNumber: bank["bankAccountNumber"] as? String ?? "",
-                                bankBranch: bank["bankBranch"] as? String ?? "",
-                                bankCity: bank["bankCity"] as? String ?? "",
-                                bankName: bank["bankName"] as? String ?? "",
-                                content: bank["content"] as? String ?? "",
-                                swiftCode: bank["swiftCode"] as? String ?? "",
-                                qrCode: bank["qrContent"] as? String ?? ""
+                                    bankAccountName: bank["bankAccountName"] as? String ?? "",
+                                    bankAccountNumber: bank["bankAccountNumber"] as? String ?? "",
+                                    bankBranch: bank["bankBranch"] as? String ?? "",
+                                    bankCity: bank["bankCity"] as? String ?? "",
+                                    bankName: bank["bankName"] as? String ?? "",
+                                    content: bank["content"] as? String ?? "",
+                                    swiftCode: bank["swiftCode"] as? String ?? "",
+                                    qrCode: bank["qrContent"] as? String ?? ""
                             ))
                         }
                         orderTransaction.paymentMethod?.dataBankTransfer = listBank[0]
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, banks: listSettingBank, listBankManual: listBank, orderTransaction: orderTransaction))
                     } else {
                         self.onPaymeError("")
-                        PayME.currentVC!.dismiss(animated: true){
+                        PayME.currentVC!.dismiss(animated: true) {
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "manualBankNotFound".localize() as AnyObject])
                         }
                     }

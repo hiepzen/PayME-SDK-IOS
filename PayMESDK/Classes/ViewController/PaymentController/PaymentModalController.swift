@@ -1,8 +1,9 @@
 import UIKit
 import CommonCrypto
 import RxSwift
+import SafariServices
 
-class PaymentModalController: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate {
+class PaymentModalController: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate, SFSafariViewControllerDelegate {
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
             showSpinner(onView: view)
@@ -178,8 +179,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     if paymentState.state == State.BANK_VIETQR {
                         self.setupUIViewBank(orderTransaction: paymentState.orderTransaction, banks: paymentState.banks ?? [])
                     }
-                    if (paymentState.state == State.BANK_TRANS_RESULT) {
+                    if paymentState.state == State.BANK_TRANS_RESULT {
                         self.setupUIBankTransResult(type: paymentState.bankTransferState ?? .PENDING, orderTransaction: paymentState.orderTransaction)
+                    }
+                    if paymentState.state == State.BANK_QR_CODE_PG {
+                        self.openWebviewVNPay(qrContent: paymentState.qrContent!)
                     }
                     if paymentState.state == State.ERROR {
                         let responseError = paymentState.error!
@@ -259,8 +263,23 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         timer?.fire()
     }
 
-//    var callApiWhenSocketFail: DispatchWorkItem!
     var transactionInfo: TransactionInformation!
+
+    private func openWebviewVNPay(qrContent: String) {
+        if let url = URL(string: qrContent) {
+            let safariVC = SFSafariViewController(url: url)
+            safariVC.delegate = self
+            PaymentModalController.isShowCloseModal = false
+            PayME.currentVC?.dismiss(animated: true) {
+                PayME.currentVC?.present(safariVC, animated: true, completion: nil)
+            }
+        }
+    }
+
+    func safariViewController(_ controller: SFSafariViewController, initialLoadDidRedirectTo URL: URL) {
+        print("minh khoa")
+        print(URL.absoluteString)
+    }
 
     private func setupWebview(_ responseError: ResponseError) {
         removeSpinner()
@@ -467,6 +486,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     orderTransaction.paymentMethod = method
                     onSubmitMethod(method)
                     break
+//                case PayCode.VN_PAY.rawValue:
+//                    let method = PaymentMethod(type: MethodType.BANK_QR_CODE_PG.rawValue, title: "bankQRCode")
+//                    orderTransaction.paymentMethod = method
+//                    onSubmitMethod(method)
+//                    break
                 default:
                     PaymentModalController.isShowCloseModal = false
                     dismiss(animated: true) {
@@ -860,6 +884,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             break
         case MethodType.CREDIT_CARD.rawValue:
             payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: nil, orderTransaction: orderTransaction))
+            break
+        case MethodType.BANK_QR_CODE_PG.rawValue:
+            paymentPresentation.payVNQRCode(orderTransaction: orderTransaction)
             break
         default:
             toastMessError(title: "", message: "Tính năng đang được xây dựng.") { [self] alertAction in
