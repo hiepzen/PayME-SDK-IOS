@@ -208,6 +208,7 @@ public func openWallet(
       case OPEN = "OPEN"
       case DEPOSIT = "DEPOSIT"
       case WITHDRAW = "WITHDRAW"
+      case TRANSFER = "TRANSFER"
   }
 ```
 
@@ -316,6 +317,18 @@ Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action 
 | **Tham số**                                                  | **Mặc định** | **Giải thích**                                               |
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
 | <code>closeWhenDone</code> | <code>false</code>          | <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
+
+### openHistory() - Mở lịch sử giao dịch
+
+```swift
+public func openHistory(
+    currentVC : UIViewController,
+    onSuccess: (Dictionary<String, AnyObject>) -> (),
+    onError: (Dictionary<String, AnyObject>) -> ()
+) -> ()
+```
+
+Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action là <code>Action.OPEN_HISTORY</code>
 
 ### pay() - Thanh toán
 
