@@ -30,7 +30,7 @@ public class NetworkRequestGraphQL {
     public func setOnRequest(
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> ()
-    ) {
+    ) -> URLSessionDataTask {
         let url = NSURL(string: self.url + self.path)
         let request = NSMutableURLRequest(url: url! as URL)
         request.httpMethod = "POST"
@@ -105,13 +105,14 @@ public class NetworkRequestGraphQL {
             }
         }
         task.resume()
+        return task
     }
 
     public func setOnRequestCrypto(
             onError: @escaping ([String: AnyObject]) -> (),
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> ()
-    ) {
+    ) -> URLSessionDataTask? {
         let encryptKey = "10000000"
 
         guard let xAPIKey = try? CryptoRSA.encryptRSA(plainText: encryptKey, publicKey: self.publicKey) else {
@@ -119,11 +120,11 @@ public class NetworkRequestGraphQL {
                 onError(["code": PayME.ResponseCode.ERROR_KEY_ENCODE as AnyObject, "message": "Mã hóa thất bại" as AnyObject])
                 onPaymeError("Có lỗi xảy ra!")
             }
-            return
+            return nil
         }
         let xAPIAction = CryptoAES.encryptAES(text: path, password: encryptKey)
         var xAPIMessage = ""
-        if self.params != nil {
+        if params != nil {
             xAPIMessage = CryptoAES.encryptAES(text: String(data: params!, encoding: .utf8)!, password: encryptKey)
         } else {
             let dictionaryNil = [String: String]()
@@ -138,7 +139,7 @@ public class NetworkRequestGraphQL {
         valueParams += encryptKey
         let xAPIValidate = CryptoAES.MD5(valueParams)!
 
-        let url = NSURL(string: self.url)
+        let url = NSURL(string: url)
         let request = NSMutableURLRequest(url: url! as URL)
         request.httpMethod = "POST"
         request.addValue(self.token, forHTTPHeaderField: "Authorization")
@@ -228,7 +229,6 @@ public class NetworkRequestGraphQL {
             validateString += xAPIMessageResponse
             validateString += decryptKey
 
-//            let validateMD5 = CryptoAES.MD5(validateString)!
             let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey)
             let formattedString = self.formatString(dataRaw: stringJSON)
             let dataJSON = formattedString.data(using: .utf8)
@@ -271,10 +271,9 @@ public class NetworkRequestGraphQL {
                     }
                 }
             }
-
-
         }
         task.resume()
+        return task
     }
 
     func formatString(dataRaw: String) -> String {

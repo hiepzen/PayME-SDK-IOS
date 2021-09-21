@@ -100,6 +100,7 @@
 "inputCardNumber" = "Nhập số thẻ ở mặt trước thẻ";
 "bankTransfer" = "Chuyển khoản";
 "creditCard" = "Thẻ Visa/Master/JCB";
+"qrPay" = "QR Pay";
 "service" = "Dịch vụ";
 "paymentAmount" = "Số tiền thanh toán";
 "passportContent" = "Hộ chiếu chỉ dùng để cung cấp định danh cho người nước ngoài";

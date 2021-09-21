@@ -8,13 +8,20 @@
 
 import UIKit
 import Sentry
+import PayMESDK
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-   
 
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        if let navigationController = UIApplication.shared.windows[1].rootViewController as? UINavigationController,
+           let viewController = navigationController.viewControllers.first as? ViewController {
+            viewController.payME?.setupOpenURL(url: url)
+        }
+        return true
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.

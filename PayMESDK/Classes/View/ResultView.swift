@@ -232,6 +232,12 @@ class ResultView: UIView {
                     ["key": "method".localize(), "value": "creditCard".localize()],
                     ["key": "cardNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? ""))-\(String(describing: result.orderTransaction.paymentMethod?.dataCreditCard?.cardNumber.suffix(4) ?? ""))"],
                 ])
+            case MethodType.BANK_QR_CODE_PG.rawValue:
+                paymentView = InformationView(data: [
+                    ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],
+                    ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime],
+                    ["key": "method".localize(), "value": "qrPay".localize()],
+                ])
             default:
                 paymentView = InformationView(data: [])
                 break

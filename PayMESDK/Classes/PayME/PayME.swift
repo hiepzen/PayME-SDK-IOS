@@ -160,11 +160,11 @@ public class PayME {
     }
 
     public func openWallet(
-            currentVC: UIViewController, action: Action, amount: Int?, description: String?, extraData: String?, serviceCode: String = "",
+            currentVC: UIViewController, action: Action, amount: Int?, description: String?, extraData: String?,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        payMEFunction.openWallet(false, currentVC, action, amount, description, extraData, serviceCode, false, onSuccess, onError)
+        payMEFunction.openWallet(false, currentVC, action, amount, description, extraData, "", false, onSuccess, onError)
     }
 
     public func pay(
@@ -201,6 +201,30 @@ public class PayME {
 
     public func setLanguage(language: String) {
         PayMEFunction.language = language
+    }
+
+    public func setupOpenURL(url: URL) {
+        if let scheme = url.scheme, scheme.localizedCaseInsensitiveCompare("paymesdk") == .orderedSame,
+           let paymentModalController = payMEFunction.paymentModalController,
+           let orderTransaction = payMEFunction.paymentModalController?.orderTransaction {
+            var parameters: [String: String] = [:]
+            URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.forEach {
+                parameters[$0.name] = $0.value
+            }
+            paymentModalController.dismiss(animated: true) {
+                let responseSuccess = [
+                    "payment": ["transaction": parameters["gwId"]]
+                ] as [String: AnyObject]
+                self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: Result(
+                        type: ResultType.SUCCESS,
+                        orderTransaction: orderTransaction,
+                        transactionInfo: TransactionInformation(transaction: parameters["gwId"] ?? "", transactionTime: toDateString(date: Date())),
+                        extraData: responseSuccess
+                )))
+            }
+        } else {
+            print("PAYMESDK Error: setup open url failed")
+        }
     }
 
     static private func getAppId(_ appToken: String) -> String {

@@ -117,7 +117,8 @@ class API {
     func getService(
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -134,7 +135,8 @@ class API {
             accountPhone: Any,
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -194,7 +196,8 @@ class API {
     func getSetting(
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -216,7 +219,8 @@ class API {
     func getWalletInfo(
             onSuccess: @escaping ([String: AnyObject]) -> (),
             onError: @escaping ([String: AnyObject]) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -234,7 +238,8 @@ class API {
             cardNumber: String, cardHolder: String, issuedAt: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -268,10 +273,12 @@ class API {
 
     func payVNPayQRCode(
             storeId: Int, orderId: String, extraData: String, note: String, amount: Int,
+            redirectUrl: String, failedUrl: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
-    ) {
+            onPaymeError: @escaping (String) -> () = { s in
+            }
+    ) -> URLSessionDataTask? {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
         let payInput: [String: Any] = [
@@ -281,7 +288,8 @@ class API {
             "amount": amount,
             "payment": [
                 "bankQRCode": [
-                    "active": true
+                    "active": true,
+                    "redirectUrl": redirectUrl,
                 ]
             ]
         ]
@@ -291,7 +299,7 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onPaymeError)
+       return onRequestCancellable(url, path, params, onSuccess, onError)
     }
 
     func transferCreditCard(
@@ -299,7 +307,8 @@ class API {
             cardNumber: String, cardHolder: String, expiredAt: String, cvv: String, refId: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -355,7 +364,8 @@ class API {
             storeId: Int, orderId: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -390,7 +400,8 @@ class API {
             password: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -413,7 +424,8 @@ class API {
             extraData: String, note: String, otp: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -452,7 +464,8 @@ class API {
             qrContent: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -474,7 +487,8 @@ class API {
             cardNumber: String, expiredAt: String, linkedId: Int?,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -501,7 +515,8 @@ class API {
             storeId: Int, orderId: String, linkedId: Int, refId: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -558,7 +573,8 @@ class API {
             storeId: Int, orderId: String, securityCode: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -594,15 +610,16 @@ class API {
             payCode: String = "",
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
         var input = [
             "serviceType": "OPEN_EWALLET_PAYMENT",
-             "extraData": [
-                 "storeId": storeId
-             ]
+            "extraData": [
+                "storeId": storeId
+            ]
         ] as [String: Any]
         if payCode != "" {
             input.updateValue(payCode, forKey: "payCode")
@@ -623,7 +640,8 @@ class API {
             pathFront: String?, pathBack: String?, pathAvatar: String?, pathVideo: String?, isUpdateIdentify: Bool = false,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -669,7 +687,8 @@ class API {
             swiftCode: String, cardNumber: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -691,7 +710,8 @@ class API {
     func getBankList(
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -707,7 +727,8 @@ class API {
     func registerClient(
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -735,7 +756,8 @@ class API {
             storeId: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -755,7 +777,8 @@ class API {
             clientID: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -775,7 +798,8 @@ class API {
     func getWalletGraphQL(
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -793,7 +817,8 @@ class API {
             payment: [String: Any]?,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -826,7 +851,8 @@ class API {
             transaction: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -847,7 +873,8 @@ class API {
             storeId: Int, orderId: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
@@ -875,7 +902,7 @@ class API {
             _ url: String, _ path: String, _ params: Data?,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> (),
-           _ onPaymeError: @escaping (String) -> () = { s in }
+            _ onPaymeError: @escaping (String) -> () = { s in }
     ) {
         let request = NetworkRequestGraphQL(appId: appId, url: url, path: path, token: accessToken, params: params, publicKey: publicKey, privateKey: privateKey)
         if (env == PayME.Env.DEV) {
@@ -888,13 +915,29 @@ class API {
         }
     }
 
+    private func onRequestCancellable(
+            _ url: String, _ path: String, _ params: Data?,
+            _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            _ onError: @escaping (Dictionary<String, AnyObject>) -> (),
+            _ onPaymeError: @escaping (String) -> () = { s in
+            }
+    ) -> URLSessionDataTask? {
+        let request = NetworkRequestGraphQL(appId: appId, url: url, path: path, token: accessToken, params: params, publicKey: publicKey, privateKey: privateKey)
+        if (env == PayME.Env.DEV) {
+            return request.setOnRequest(onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) })
+        } else {
+            return request.setOnRequestCrypto(onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) }, onPaymeError: { message in onPaymeError(message) })
+        }
+    }
+
     public func decryptSubscriptionMessage(
             xAPIMessageResponse: String,
             xAPIKeyResponse: String,
 //            xAPIValidateResponse: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping ([String: AnyObject]) -> (),
-            onPaymeError: @escaping (String) -> () = { s in }
+            onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
             DispatchQueue.main.async {

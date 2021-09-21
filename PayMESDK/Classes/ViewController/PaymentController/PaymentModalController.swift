@@ -29,6 +29,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     private var bankDetect: Bank?
     private let onError: ([String: AnyObject]) -> ()
     private let onSuccess: ([String: AnyObject]) -> ()
+    private var sessionList: [URLSessionDataTask?] = []
     static var minAmount: Int = 10000
     static var maxAmount: Int = 100000000
 
@@ -143,11 +144,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let primaryColor = payMEFunction.configColor[0]
         let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
         button.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 20)
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        subscription?.dispose()
-        super.viewWillDisappear(animated)
     }
 
     private var subscription: Disposable?
@@ -269,16 +265,17 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if let url = URL(string: qrContent) {
             let safariVC = SFSafariViewController(url: url)
             safariVC.delegate = self
+            safariVC.preferredControlTintColor = UIColor(hexString: PayME.configColor[0])
             PaymentModalController.isShowCloseModal = false
-            PayME.currentVC?.dismiss(animated: true) {
-                PayME.currentVC?.present(safariVC, animated: true, completion: nil)
-            }
+            present(safariVC, animated: true, completion: nil)
         }
     }
 
-    func safariViewController(_ controller: SFSafariViewController, initialLoadDidRedirectTo URL: URL) {
-        print("minh khoa")
-        print(URL.absoluteString)
+    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        controller.dismiss(animated: true) {
+            PaymentModalController.isShowCloseModal = true
+            PayME.currentVC?.dismiss(animated: true)
+        }
     }
 
     private func setupWebview(_ responseError: ResponseError) {
@@ -315,7 +312,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             webViewController.setOnFailWebView(onFailWebView: { responseFromWebView in
                 webViewController.dismiss(animated: true)
                 let message = responseFromWebView as AnyObject
-                let failWebview = ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject] as [String : AnyObject]
+                let failWebview = ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject] as [String: AnyObject]
                 let result = Result(
                         type: ResultType.FAIL,
                         failReasonLabel: responseFromWebView as String,
@@ -462,7 +459,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func getListMethods() {
         paymentPresentation.getListMethods(payCode: payCode, onSuccess: { [self] paymentMethods in
-            activityIndicator.removeFromSuperview()
+            if payCode != PayCode.VN_PAY.rawValue {
+                activityIndicator.removeFromSuperview()
+            }
             data = paymentMethods
             if paymentMethods.count > 0 {
                 switch payCode {
@@ -486,11 +485,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     orderTransaction.paymentMethod = method
                     onSubmitMethod(method)
                     break
-//                case PayCode.VN_PAY.rawValue:
-//                    let method = PaymentMethod(type: MethodType.BANK_QR_CODE_PG.rawValue, title: "bankQRCode")
-//                    orderTransaction.paymentMethod = method
-//                    onSubmitMethod(method)
-//                    break
+                case PayCode.VN_PAY.rawValue:
+                    let method = PaymentMethod(type: MethodType.BANK_QR_CODE_PG.rawValue, title: "bankQRCode")
+                    orderTransaction.paymentMethod = method
+                    onSubmitMethod(method)
+                    break
                 default:
                     PaymentModalController.isShowCloseModal = false
                     dismiss(animated: true) {
@@ -844,6 +843,10 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         if (PaymentModalController.isShowCloseModal == true) {
             onError(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "" as AnyObject])
         }
+
+        sessionList.forEach { task in
+            task?.cancel()
+        }
     }
 
     @objc func closeAction(button: UIButton) {
@@ -886,7 +889,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: nil, orderTransaction: orderTransaction))
             break
         case MethodType.BANK_QR_CODE_PG.rawValue:
-            paymentPresentation.payVNQRCode(orderTransaction: orderTransaction)
+            let task = paymentPresentation.payVNQRCode(orderTransaction: orderTransaction)
+            sessionList.append(task)
             break
         default:
             toastMessError(title: "", message: "Tính năng đang được xây dựng.") { [self] alertAction in

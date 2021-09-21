@@ -13,6 +13,7 @@ import SwiftyJSON
 
 class PayMEFunction {
     let paymentViewModel = PaymentViewModel()
+    var paymentModalController: PaymentModalController? = nil
 
     private let disposeBag = DisposeBag()
     private var configService = Array<ServiceConfig>()
@@ -263,12 +264,12 @@ class PayMEFunction {
 
             let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
                     orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader)
-            let paymentModalController = PaymentModalController(
+            paymentModalController = PaymentModalController(
                     payMEFunction: self, orderTransaction: orderTransaction,
                     payCode: payCode, isShowResultUI: isShowResultUI,
                     onSuccess: onSuccess, onError: onError
             )
-            currentVC.presentModal(paymentModalController)
+            currentVC.presentModal(paymentModalController!)
         }
     }
 
