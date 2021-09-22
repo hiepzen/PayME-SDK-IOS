@@ -189,7 +189,7 @@ class PayMEFunction {
                             "succeeded": \(succeeded!),
                             "handShake": "\(checkStringNil(input: handShake))",
                             "kyc" : {
-                                "kycId": "\(checkIntNil(input: kycID))",
+                                "kycId": \(checkIntNil(input: kycID)),
                                 "state": "\(checkStringNil(input: kycState))",
                                 "identifyNumber": "\(checkStringNil(input: identifyNumber))",
                                 "reason" : "\(checkStringNil(input: reason))",
