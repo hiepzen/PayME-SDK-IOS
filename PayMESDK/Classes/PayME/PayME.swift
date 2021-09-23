@@ -204,9 +204,11 @@ public class PayME {
     }
 
     public func setupOpenURL(url: URL) {
-        if let scheme = url.scheme, scheme.localizedCaseInsensitiveCompare("paymesdk") == .orderedSame,
+        if let scheme = url.scheme,
+           scheme.localizedCaseInsensitiveCompare("paymesdk") == .orderedSame,
            let paymentModalController = payMEFunction.paymentModalController,
-           let orderTransaction = payMEFunction.paymentModalController?.orderTransaction {
+           let orderTransaction = payMEFunction.paymentModalController?.orderTransaction,
+           orderTransaction.paymentMethod?.type == MethodType.BANK_QR_CODE_PG.rawValue {
             var parameters: [String: String] = [:]
             URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.forEach {
                 parameters[$0.name] = $0.value
