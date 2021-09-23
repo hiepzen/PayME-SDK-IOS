@@ -16,7 +16,7 @@ func checkIntNil(input: Int?) -> String {
     if input != nil {
         return String(input!)
     }
-    return ""
+    return "\"\""
 }
 
 func checkStringNil(input: String?) -> String {

@@ -204,7 +204,7 @@ class PayMEFunction {
                       "actions": {
                         "type": "\(action)",
                         "serviceCode": "\(serviceCode)",
-                        "amount": "\(checkIntNil(input: amount))",
+                        "amount": \(checkIntNil(input: amount)),
                         "closeWhenDone": \(closeWhenDone),
                         "description": "\(description ?? "")"
                       },
