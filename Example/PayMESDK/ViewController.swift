@@ -763,9 +763,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             let bottomOfTextField = activeTextField.convert(activeTextField.bounds, to: self.view).maxY;
 
             let topOfKeyboard = self.view.frame.height - keyboardSize.height
-
             // if the bottom of Textfield is below the top of keyboard, move up
-            if bottomOfTextField > topOfKeyboard {
+            if bottomOfTextField > topOfKeyboard - 50 {
                 shouldMoveViewUp = true
             }
         }
@@ -888,6 +887,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         envList.delegate = self
         langList.delegate = self
         payCodeList.delegate = self
+        moneyTransfer.delegate = self
+        qrPayString.delegate = self
 
         environment.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10).isActive = true
         environment.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
