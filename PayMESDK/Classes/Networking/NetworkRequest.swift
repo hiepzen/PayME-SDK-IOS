@@ -139,7 +139,7 @@ public class NetworkRequestGraphQL {
         valueParams += encryptKey
         let xAPIValidate = CryptoAES.MD5(valueParams)!
 
-        let url = NSURL(string: url)
+        let url = NSURL(string: self.url)
         let request = NSMutableURLRequest(url: url! as URL)
         request.httpMethod = "POST"
         request.addValue(self.token, forHTTPHeaderField: "Authorization")

@@ -202,6 +202,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return button
     }()
 
+    let openHistoryButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
+        button.setTitle("Open History", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
     let depositButton: UIButton = {
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
@@ -512,6 +524,24 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
         }
     }
+    @objc func openHistoryAction(sender: UIButton!) {
+        if (self.connectToken != "") {
+            payME!.openHistory(currentVC: self,
+                    onSuccess: { success in
+                        Log.custom.push(title: "Open history", message: success)
+                    }, onError: { error in
+                Log.custom.push(title: "Open history", message: error)
+                if let code = error["code"] as? Int {
+                    if (code != PayME.ResponseCode.USER_CANCELLED) {
+                        let message = error["message"] as? String
+                        self.toastMess(title: "Lỗi", value: message)
+                    }
+                }
+            })
+        } else {
+            toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
+        }
+    }
 
     @objc func depositAction(sender: UIButton!) {
         if (self.connectToken != "") {
@@ -763,9 +793,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             let bottomOfTextField = activeTextField.convert(activeTextField.bounds, to: self.view).maxY;
 
             let topOfKeyboard = self.view.frame.height - keyboardSize.height
-
             // if the bottom of Textfield is below the top of keyboard, move up
-            if bottomOfTextField > topOfKeyboard {
+            if bottomOfTextField > topOfKeyboard - 50 {
                 shouldMoveViewUp = true
             }
         }
@@ -859,6 +888,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(priceLabel)
         sdkContainer.addSubview(refreshButton)
         sdkContainer.addSubview(openWalletButton)
+        sdkContainer.addSubview(openHistoryButton)
         sdkContainer.addSubview(payCodeLabel)
         sdkContainer.addSubview(payCodeDropDown)
         sdkContainer.addSubview(payCodeList)
@@ -888,6 +918,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         envList.delegate = self
         langList.delegate = self
         payCodeList.delegate = self
+        moneyTransfer.delegate = self
+        qrPayString.delegate = self
 
         environment.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10).isActive = true
         environment.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
@@ -981,9 +1013,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         openWalletButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         openWalletButton.addTarget(self, action: #selector(openWalletAction), for: .touchUpInside)
 
-        payCodeLabel.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 10).isActive = true
+        openHistoryButton.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 10).isActive = true
+        openHistoryButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        openHistoryButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        openHistoryButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        openHistoryButton.addTarget(self, action: #selector(openHistoryAction), for: .touchUpInside)
+
+        payCodeLabel.topAnchor.constraint(equalTo: openHistoryButton.bottomAnchor, constant: 10).isActive = true
         payCodeLabel.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
-        payCodeDropDown.topAnchor.constraint(equalTo: openWalletButton.bottomAnchor, constant: 10).isActive = true
+        payCodeDropDown.topAnchor.constraint(equalTo: openHistoryButton.bottomAnchor, constant: 10).isActive = true
         payCodeDropDown.leadingAnchor.constraint(equalTo: payCodeLabel.trailingAnchor, constant: 10).isActive = true
         payCodeDropDown.heightAnchor.constraint(equalToConstant: 30).isActive = true
         payCodeDropDown.widthAnchor.constraint(equalToConstant: 200).isActive = true
