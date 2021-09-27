@@ -54,6 +54,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let orderTransaction: OrderTransaction
     let paymentPresentation: PaymentPresentation
     private var modalHeight: CGFloat? = UIScreen.main.bounds.height
+    private var isPendingVNPAY = false
     let payData: PaymentData
 
     private var atmHeightConstraint: NSLayoutConstraint?
@@ -267,12 +268,15 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             safariVC.delegate = self
             safariVC.preferredControlTintColor = UIColor(hexString: PayME.configColor[0])
             PaymentModalController.isShowCloseModal = false
-            present(safariVC, animated: true, completion: nil)
+            present(safariVC, animated: true) {
+                self.isPendingVNPAY = true
+            }
         }
     }
 
     func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
         controller.dismiss(animated: true) {
+            self.isPendingVNPAY = false
             PaymentModalController.isShowCloseModal = true
             PayME.currentVC?.dismiss(animated: true)
         }
@@ -908,6 +912,20 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
         if !confirmController.view.isHidden && !confirmController.atmView.cardInput.isHidden {
             confirmController.atmView.cardInput.textInput.becomeFirstResponder()
+        }
+        if isPendingVNPAY && orderTransaction.transactionInformation != nil {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                let task = self.paymentPresentation.getTransactionInfo(
+                        transactionInfo: self.orderTransaction.transactionInformation!,
+                        orderTransaction: self.orderTransaction,
+                        isAcceptPending: true
+                ) {
+                    self.dismiss(animated: true) {
+                        self.isPendingVNPAY = false
+                    }
+                }
+                self.sessionList.append(task)
+            }
         }
     }
 

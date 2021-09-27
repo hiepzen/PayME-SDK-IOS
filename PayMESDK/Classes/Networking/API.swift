@@ -853,7 +853,7 @@ class API {
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
             }
-    ) {
+    ) -> URLSessionDataTask? {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
         let variables: [String: Any] = [
@@ -866,7 +866,7 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-        onRequest(url, path, params, onSuccess, onError, onPaymeError)
+        return onRequestCancellable(url, path, params, onSuccess, onError)
     }
 
     func getListBankManual(

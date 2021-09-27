@@ -16,6 +16,7 @@ class OrderTransaction {
     var extraData: String
     var note: String
     var paymentMethod: PaymentMethod?
+    var transactionInformation: TransactionInformation?
     var total: Int
     var isShowHeader: Bool
 
@@ -28,6 +29,7 @@ class OrderTransaction {
             note: String,
             extraData: String,
             paymentMethod: PaymentMethod? = nil,
+            transactionInformation: TransactionInformation? = nil,
             total: Int? = nil,
             isShowHeader: Bool = false
     ) {
@@ -39,6 +41,7 @@ class OrderTransaction {
         self.note = note
         self.extraData = extraData
         self.paymentMethod = paymentMethod
+        self.transactionInformation = transactionInformation
         self.total = total ?? amount
         self.isShowHeader = isShowHeader
     }

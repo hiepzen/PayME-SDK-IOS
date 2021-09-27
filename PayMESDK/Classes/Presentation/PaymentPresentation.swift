@@ -500,8 +500,12 @@ class PaymentPresentation {
                 note: orderTransaction.note, amount: orderTransaction.amount, redirectUrl: redirectUrl, failedUrl: failedUrl,
                 onSuccess: { success in
                     let data = JSON(success)
-                    if let qrContent = data["OpenEWallet"]["Payment"]["Pay"]["payment"]["qrContent"].string {
-                        self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_QR_CODE_PG, qrContent: qrContent))
+                    if let qrContent = data["OpenEWallet"]["Payment"]["Pay"]["payment"]["qrContent"].string,
+                       let transaction = data["OpenEWallet"]["Payment"]["Pay"]["history"]["payment"]["transaction"].string {
+                        orderTransaction.transactionInformation = TransactionInformation(transaction: transaction)
+                        self.paymentViewModel.paymentSubject.onNext(PaymentState(
+                                state: State.BANK_QR_CODE_PG, orderTransaction: orderTransaction, qrContent: qrContent
+                        ))
                     } else {
                         let result = Result(
                                 type: ResultType.FAIL,
@@ -849,7 +853,10 @@ class PaymentPresentation {
         }, onPaymeError: onPaymeError)
     }
 
-    func getTransactionInfo(transactionInfo: TransactionInformation, orderTransaction: OrderTransaction, isAcceptPending: Bool = false) {
+    func getTransactionInfo(
+            transactionInfo: TransactionInformation, orderTransaction: OrderTransaction, isAcceptPending: Bool = false,
+            onComplete: (() -> ())? = nil
+    ) -> URLSessionDataTask? {
         request.getTransactionInfo(transaction: transactionInfo.transaction,
                 onSuccess: { response in
                     let payment = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
@@ -885,6 +892,7 @@ class PaymentPresentation {
                             }
                         }()
                         if result != nil {
+                            onComplete?()
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                         }
                     }
