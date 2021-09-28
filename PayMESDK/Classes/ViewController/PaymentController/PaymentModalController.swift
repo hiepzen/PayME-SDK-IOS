@@ -281,6 +281,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
 
+        processingVNPAY.onPressBack = {
+            PaymentModalController.isShowCloseModal = true
+            self.dismiss(animated: true)
+        }
+
         if let url = URL(string: qrContent) {
             isPendingVNPAY = true
             UIApplication.shared.open(url)
@@ -926,7 +931,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                 let task = self.paymentPresentation.getTransactionInfo(
                         transactionInfo: self.orderTransaction.transactionInformation!,
                         orderTransaction: self.orderTransaction,
-                        isAcceptPending: true
+                        isAcceptPending: false
                 )
                 self.sessionList.append(task)
             }

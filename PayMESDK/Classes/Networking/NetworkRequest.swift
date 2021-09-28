@@ -165,7 +165,6 @@ public class NetworkRequestGraphQL {
                     if (error?.localizedDescription != nil) {
                         if error?.localizedDescription == "The Internet connection appears to be offline."
                                    || error!.localizedDescription.contains("The request timed out") {
-//                            onError(["code": PayME.ResponseCode.NETWORK as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
                             onPaymeError("Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn!")
                             return
                         } else {

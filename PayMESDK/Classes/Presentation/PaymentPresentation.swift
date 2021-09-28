@@ -518,6 +518,8 @@ class PaymentPresentation {
                     }
                 },
                 onError: { error in
+                    print("minh khoa")
+                    print(error)
                     self.onError(error)
                     if let code = error["code"] as? Int {
                         if (code == 401) {

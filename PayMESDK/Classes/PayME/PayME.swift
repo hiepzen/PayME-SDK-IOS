@@ -206,24 +206,21 @@ public class PayME {
     public func setupOpenURL(url: URL) {
         if let scheme = url.scheme,
            scheme.localizedCaseInsensitiveCompare("paymesdk") == .orderedSame,
-           let paymentModalController = payMEFunction.paymentModalController,
            let orderTransaction = payMEFunction.paymentModalController?.orderTransaction,
            orderTransaction.paymentMethod?.type == MethodType.BANK_QR_CODE_PG.rawValue {
             var parameters: [String: String] = [:]
             URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.forEach {
                 parameters[$0.name] = $0.value
             }
-            paymentModalController.dismiss(animated: true) {
-                let responseSuccess = [
-                    "payment": ["transaction": parameters["gwId"]]
-                ] as [String: AnyObject]
-                self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: Result(
-                        type: ResultType.SUCCESS,
-                        orderTransaction: orderTransaction,
-                        transactionInfo: TransactionInformation(transaction: parameters["gwId"] ?? "", transactionTime: toDateString(date: Date())),
-                        extraData: responseSuccess
-                )))
-            }
+            let responseSuccess = [
+                "payment": ["transaction": parameters["gwId"]]
+            ] as [String: AnyObject]
+            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: Result(
+                    type: ResultType.SUCCESS,
+                    orderTransaction: orderTransaction,
+                    transactionInfo: TransactionInformation(transaction: parameters["gwId"] ?? "", transactionTime: toDateString(date: Date())),
+                    extraData: responseSuccess
+            )))
         } else {
             print("PAYMESDK Error: setup open url failed")
         }

@@ -24,7 +24,7 @@ class ProcessingVNPAY : UIView {
         vStack.addArrangedSubview(activityIndicator)
         vStack.addArrangedSubview(button)
 
-        vStack.topAnchor.constraint(equalTo: topAnchor, constant: 16).isActive = true
+        vStack.topAnchor.constraint(equalTo: topAnchor, constant: 20).isActive = true
         vStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         vStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
 
