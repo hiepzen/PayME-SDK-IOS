@@ -854,8 +854,7 @@ class PaymentPresentation {
     }
 
     func getTransactionInfo(
-            transactionInfo: TransactionInformation, orderTransaction: OrderTransaction, isAcceptPending: Bool = false,
-            onComplete: (() -> ())? = nil
+            transactionInfo: TransactionInformation, orderTransaction: OrderTransaction, isAcceptPending: Bool = false
     ) -> URLSessionDataTask? {
         request.getTransactionInfo(transaction: transactionInfo.transaction,
                 onSuccess: { response in
@@ -871,6 +870,8 @@ class PaymentPresentation {
                         }
 
                         let result: Result? = {
+                            print("minh khoa")
+                            print(state)
                             if state == "PENDING" {
                                 if isAcceptPending {
                                     let responseError = ["code": PayME.ResponseCode.PAYMENT_PENDING as AnyObject] as [String: AnyObject]
@@ -892,7 +893,6 @@ class PaymentPresentation {
                             }
                         }()
                         if result != nil {
-                            onComplete?()
                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
                         }
                     }

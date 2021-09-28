@@ -3,7 +3,7 @@ import CommonCrypto
 import RxSwift
 import SafariServices
 
-class PaymentModalController: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate, SFSafariViewControllerDelegate {
+class PaymentModalController: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate {
     func pinField(_ field: OTPInput, didFinishWith code: String) {
         if (field == otpView.otpView) {
             showSpinner(onView: view)
@@ -38,6 +38,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let otpView = OTPView()
     let securityCode = SecurityCode()
     let bankTransResultView = BankTransferResultView()
+    let processingVNPAY = ProcessingVNPAY()
     let confirmController: ConfirmationModal
     let resultView = ResultView()
     let searchBankController: SearchBankController
@@ -263,22 +264,26 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     var transactionInfo: TransactionInformation!
 
     private func openWebviewVNPay(qrContent: String) {
-        if let url = URL(string: qrContent) {
-            let safariVC = SFSafariViewController(url: url)
-            safariVC.delegate = self
-            safariVC.preferredControlTintColor = UIColor(hexString: PayME.configColor[0])
-            PaymentModalController.isShowCloseModal = false
-            present(safariVC, animated: true) {
-                self.isPendingVNPAY = true
-            }
-        }
-    }
+        methodTitle.isHidden = true
+        tableView.isHidden = true
+        quotaNote.isHidden = true
+        button.isHidden = true
+        activityIndicator.isHidden = true
+        processingVNPAY.isHidden = false
 
-    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-        controller.dismiss(animated: true) {
-            self.isPendingVNPAY = false
-            PaymentModalController.isShowCloseModal = true
-            PayME.currentVC?.dismiss(animated: true)
+        footerTopConstraint?.isActive = false
+        footerTopConstraint = footer.topAnchor.constraint(equalTo: processingVNPAY.bottomAnchor)
+        footerTopConstraint?.isActive = true
+
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        modalHeight = orderView.bounds.size.height + processingVNPAY.bounds.size.height + footer.bounds.size.height
+        panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .longForm)
+
+        if let url = URL(string: qrContent) {
+            isPendingVNPAY = true
+            UIApplication.shared.open(url)
         }
     }
 
@@ -380,6 +385,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         methodsView.addSubview(tableView)
         methodsView.addSubview(quotaNote)
         methodsView.addSubview(button)
+        methodsView.addSubview(processingVNPAY)
 
         orderView.topAnchor.constraint(equalTo: methodsView.topAnchor).isActive = true
         orderView.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor).isActive = true
@@ -437,6 +443,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         activityIndicator.leadingAnchor.constraint(equalTo: methodsView.leadingAnchor, constant: 16).isActive = true
         activityIndicator.trailingAnchor.constraint(equalTo: methodsView.trailingAnchor, constant: -16).isActive = true
         activityIndicator.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
+        processingVNPAY.translatesAutoresizingMaskIntoConstraints = false
+        processingVNPAY.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
+        processingVNPAY.topAnchor.constraint(equalTo: orderView.bottomAnchor).isActive = true
+        processingVNPAY.isHidden = true
 
         methodsBottomConstraint = button.topAnchor.constraint(equalTo: activityIndicator.bottomAnchor, constant: 16)
         methodsBottomConstraint?.isActive = true
@@ -822,12 +833,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
         bankTransResultView.updateUI(type: type)
         footerTopConstraint?.isActive = false
-//        footerTopConstraint = footer.topAnchor.constraint(equalTo: bankTransResultView.bottomAnchor)
-//        footerTopConstraint?.isActive = true
         updateViewConstraints()
         view.layoutIfNeeded()
         let viewHeight = bankTransResultView.bounds.size.height
-//                + footer.bounds.size.height
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
@@ -919,11 +927,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         transactionInfo: self.orderTransaction.transactionInformation!,
                         orderTransaction: self.orderTransaction,
                         isAcceptPending: true
-                ) {
-                    self.dismiss(animated: true) {
-                        self.isPendingVNPAY = false
-                    }
-                }
+                )
                 self.sessionList.append(task)
             }
         }
