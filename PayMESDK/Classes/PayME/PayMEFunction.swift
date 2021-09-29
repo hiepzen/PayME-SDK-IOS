@@ -412,7 +412,7 @@ class PayMEFunction {
                             return key == "limit.param.amount.payment"
                         }) {
 
-                            PaymentModalController.minAmount = (configLimitPayment["value"]!["min"] as? Int) ?? 10000
+                            PaymentModalController.minAmount = (configLimitPayment["value"]!["min"] as? Int) ?? 1
                             PaymentModalController.maxAmount = (configLimitPayment["value"]!["max"] as? Int) ?? 100000000
                         } else {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "cantAccessPaymentConfig".localize() as AnyObject])

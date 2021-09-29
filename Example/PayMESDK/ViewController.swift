@@ -700,34 +700,30 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         if (self.connectToken != "") {
             if (moneyPay.text != "") {
                 let amount = Int(moneyPay.text!)
-                if (amount! >= 10000) {
-                    let amountPay = amount!
-                    var storeId = 9
-                    if currentEnv == PayME.Env.SANDBOX {
-                        storeId = 37048160
-                    }
-                    if currentEnv == PayME.Env.PRODUCTION {
-                        storeId = 57956431
-                    }
-                    if currentEnv == PayME.Env.STAGING {
-                        storeId = 223
-                    }
-                    payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note: "Nội dung đơn hàng", payCode: curPayCode, extraData: nil, isShowResultUI: true, onSuccess: { success in
-                        Log.custom.push(title: "pay", message: success)
-                    }, onError: { error in
-                        Log.custom.push(title: "pay", message: error)
-                        if let code = error["code"] as? Int {
-                            if (code != PayME.ResponseCode.USER_CANCELLED) {
-                                let message = error["message"] as? String
-                                self.toastMess(title: "Lỗi", value: message)
-                            }
-                        }
-                    })
-                } else {
-                    toastMess(title: "Lỗi", value: "Vui lòng thanh toán hơn 10.000VND")
+                let amountPay = amount!
+                var storeId = 9
+                if currentEnv == PayME.Env.SANDBOX {
+                    storeId = 37048160
                 }
+                if currentEnv == PayME.Env.PRODUCTION {
+                    storeId = 57956431
+                }
+                if currentEnv == PayME.Env.STAGING {
+                    storeId = 223
+                }
+                payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay, note: "Nội dung đơn hàng", payCode: curPayCode, extraData: nil, isShowResultUI: true, onSuccess: { success in
+                    Log.custom.push(title: "pay", message: success)
+                }, onError: { error in
+                    Log.custom.push(title: "pay", message: error)
+                    if let code = error["code"] as? Int {
+                        if (code != PayME.ResponseCode.USER_CANCELLED) {
+                            let message = error["message"] as? String
+                            self.toastMess(title: "Lỗi", value: message)
+                        }
+                    }
+                })
             } else {
-                toastMess(title: "Lỗi", value: "Vui lòng thanh toán hơn 10.000VND")
+                toastMess(title: "Lỗi", value: "Vui lòng nhập số tiền")
             }
 
 
