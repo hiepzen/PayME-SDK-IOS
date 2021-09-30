@@ -492,12 +492,10 @@ class PaymentPresentation {
         )
     }
 
-    func payVNQRCode(orderTransaction: OrderTransaction) -> URLSessionDataTask? {
-        let redirectUrl = "paymesdk://\(Bundle.main.bundleIdentifier ?? "")/success"
-        let failedUrl: String = "paymesdk://\(Bundle.main.bundleIdentifier ?? "")/failed"
-        return request.payVNPayQRCode(
+    func payVNQRCode(orderTransaction: OrderTransaction, redirectURL: String) -> URLSessionDataTask? {
+        request.payVNPayQRCode(
                 storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
-                note: orderTransaction.note, amount: orderTransaction.amount, redirectUrl: redirectUrl, failedUrl: failedUrl,
+                note: orderTransaction.note, amount: orderTransaction.amount, redirectUrl: redirectURL, failedUrl: "",
                 onSuccess: { success in
                     let data = JSON(success)
                     if let qrContent = data["OpenEWallet"]["Payment"]["Pay"]["payment"]["qrContent"].string,

@@ -221,13 +221,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         }
     }
 
-//    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-//        showSpinner(onView: PayME.currentVC!.view)
-//    }
-//
-//    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-//        removeSpinner()
-//    }
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        showSpinner(onView: PayME.currentVC!.view)
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        removeSpinner()
+    }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         print("error 01")

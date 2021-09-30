@@ -25,6 +25,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     var payCode: String = "PAYME"
     var isShowResultUI: Bool = true
     var transaction: String = ""
+    var redirectURLVNPay: String = ""
     private var selectedMethod: PaymentMethod?
     private var bankDetect: Bank?
     private let onError: ([String: AnyObject]) -> ()
@@ -906,7 +907,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
             payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: nil, orderTransaction: orderTransaction))
             break
         case MethodType.BANK_QR_CODE_PG.rawValue:
-            let task = paymentPresentation.payVNQRCode(orderTransaction: orderTransaction)
+            let task = paymentPresentation.payVNQRCode(orderTransaction: orderTransaction, redirectURL: redirectURLVNPay)
             sessionList.append(task)
             break
         default:

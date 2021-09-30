@@ -16,22 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-        if let rootViewController = UIApplication.shared.windows.first(where: {
-            $0.rootViewController is UINavigationController
-        })?.rootViewController {
-            if let viewController = (rootViewController as! UINavigationController).viewControllers.first(where: {
-                $0 is ViewController
-            }) {
-                print("zo zo zo, ale ale ale")
-                print(url.absoluteString)
-                (viewController as! ViewController).payME?.setupOpenURL(url: url)
-            }
-        }
-
-//        if let navigationController = UIApplication.shared.windows.first?.rootViewController as? UINavigationController,
-//           let viewController = navigationController.viewControllers.first as? ViewController {
-//            viewController.payME?.setupOpenURL(url: url)
-//        }
         return true
     }
 

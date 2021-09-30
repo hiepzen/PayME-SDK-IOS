@@ -169,10 +169,14 @@ public class PayME {
 
     public func pay(
             currentVC: UIViewController, storeId: Int, orderId: String, amount: Int,
-            note: String?, payCode: String, extraData: String?, isShowResultUI: Bool = true,
+            note: String?, payCode: String, redirectURL: String = "", extraData: String?, isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()) {
-        payMEFunction.payAction(currentVC, storeId, orderId, amount, note, payCode, extraData, isShowResultUI, onSuccess, onError)
+        payMEFunction.payAction(
+                currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
+                payCode: payCode, redirectURL: redirectURL, extraData: extraData, isShowResultUI: isShowResultUI,
+                onSuccess: onSuccess, onError: onError
+        )
     }
 
     public func scanQR(
@@ -201,29 +205,6 @@ public class PayME {
 
     public func setLanguage(language: String) {
         PayMEFunction.language = language
-    }
-
-    public func setupOpenURL(url: URL) {
-        if let scheme = url.scheme,
-           scheme.localizedCaseInsensitiveCompare("paymesdk") == .orderedSame,
-           let orderTransaction = payMEFunction.paymentModalController?.orderTransaction,
-           orderTransaction.paymentMethod?.type == MethodType.BANK_QR_CODE_PG.rawValue {
-            var parameters: [String: String] = [:]
-            URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.forEach {
-                parameters[$0.name] = $0.value
-            }
-            let responseSuccess = [
-                "payment": ["transaction": parameters["gwId"]]
-            ] as [String: AnyObject]
-            payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: Result(
-                    type: ResultType.SUCCESS,
-                    orderTransaction: orderTransaction,
-                    transactionInfo: TransactionInformation(transaction: parameters["gwId"] ?? "", transactionTime: toDateString(date: Date())),
-                    extraData: responseSuccess
-            )))
-        } else {
-            print("PAYMESDK Error: setup open url failed")
-        }
     }
 
     static private func getAppId(_ appToken: String) -> String {
