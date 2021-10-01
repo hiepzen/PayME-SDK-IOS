@@ -40,32 +40,6 @@ Update file Info.plist của app với những key như sau (giá trị của st
 <string>Need to access your contact</string>
 ```
 
-Update file Info.plist để tạo schema dùng cho <code>deeplink</code> thanh toán
-
-```
-<key>CFBundleURLTypes</key>
-  <array>
-    <dict>
-	<key>CFBundleTypeRole</key>
-	<string>None</string>
-	<key>CFBundleURLName</key>
-	<string>{your_bundle_id}</string>
-	<key>CFBundleURLSchemes</key>
-	<array>
-	  <string>paymesdk</string>
-	</array>
-    </dict>
-  </array>
-<key>CFBundleVersion</key>
-```
-Thêm đoạn code sau vào trong AppDelegate.swift dùng cho <code>deeplink</code> thanh toán
-
-```swift
-func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-	payME.setupOpenURL(url: url)
-}
-```
-
 ## Cách sử dụng SDK:
 
 Hệ thống PayME sẽ cung cấp cho app tích hợp các thông tin sau:
@@ -407,6 +381,7 @@ public func pay(
     amount: Int,
     note: String?,
     payCode: String,
+    redirectURL: String,
     extraData: String?,
     isShowResultUI: Bool = true,
     onSuccess: (Dictionary<String, AnyObject>) -> (),
@@ -416,6 +391,7 @@ public func pay(
 | Tham số                                                      | **Bắt buộc** | **Giá trị**                                               | 
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
 | <code>payCode</code> | Yes          | <code>PAYME</code> <code>ATM</code> <code>CREDIT</code> <code>VN_PAY</code> <code>MANUAL_BANK</code>  |
+| <code>redirectURL</code> | No          | truyền <code>universal link</code> hoặc <code>schema</code> của ứng dụng khi <code>payCode</code> là <code>VN_PAY</code>  |
 
 
 ### scanQR() - Mở chức năng quét mã QR để thanh toán
