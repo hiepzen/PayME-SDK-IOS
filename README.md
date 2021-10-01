@@ -126,6 +126,35 @@ connectToken = AES256("{ timestamp: "2021-01-20T06:53:07.621Z",
 
 Trong đó ***AES*** là hàm mã hóa theo thuật toán AES. Tùy vào ngôn ngữ ở server mà bên hệ thống dùng thư viện tương ứng. Xem thêm tại đây https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
 
+Cách tạo **connectToken bao gồm thông tin KYC** :
+
+```swift
+connectToken = AES256("{
+    userId: string,
+    phone: string,
+    timestamp: Date(ISO),
+    kycInfo: {
+        {
+            fullname :string
+            gender: string ( MALE/FEMALE)
+            birthday: Date(ISO)
+            address: string
+            identifyType: string (CMND/CCCD)
+            identifyNumber: string
+            issuedAt: Date(ISO)
+            placeOfIssue: string
+            video: string
+            face: string
+            image: {
+              front: string
+              back: string
+            }}
+        }
+}" + secretKey )
+```
+| **Tham số**   | **Bắt buộc** | **Giải thích**                                               |
+| :------------ | :----------- | :----------------------------------------------------------- |
+| <code>face</code><code>video</code><code>front</code><code>back</code> | Yes | đường dẫn đến ảnh/video kyc |
 ## Mã lỗi của PayME SDK
 
 | **Hằng số**   | **Mã lỗi** | **Giải thích**                                               |
