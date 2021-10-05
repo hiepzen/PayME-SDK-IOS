@@ -129,25 +129,27 @@ Trong đó ***AES*** là hàm mã hóa theo thuật toán AES. Tùy vào ngôn n
 Cách tạo **connectToken bao gồm thông tin KYC** ( Dành cho các đối tác có thệ thống KYC riêng ):
 
 ```swift
+// example 
+
 connectToken = AES256("{
-    userId: string,
-    phone: string,
-    timestamp: Date(ISO),
+    userId: "ABC",
+    phone: "0909998877",
+    timestamp: "2021-01-20T06:53:07.621Z",
     kycInfo: {
         {
-            fullname :string
-            gender: string ( MALE/FEMALE)
-            birthday: Date(ISO)
-            address: string
-            identifyType: string (CMND/CCCD)
-            identifyNumber: string
-            issuedAt: Date(ISO)
-            placeOfIssue: string
-            video: string
-            face: string
+            fullname: "Nguyen Van A",
+            gender: "MALE",
+            birthday: "1995-01-20T06:53:07.621Z",
+            address: "1 Nguyen Co Thach",
+            identifyType: "CMND",
+            identifyNumber: "123456789",
+            issuedAt: "2012-01-20T06:53:07.621Z",
+            placeOfIssue: "Hai Duong",
+            video: "https://....//202/Co-29vnK6.mp4",
+            face: "https://.../photo/2015/04/_480.jpg",
             image: {
-              front: string
-              back: string
+              front: "https://.../photo/2015/04/_480.jpg",
+              back: "https://.../photo/2015/04/_480.jpg",
             }}
         }
 }" + secretKey )
