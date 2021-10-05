@@ -126,7 +126,7 @@ connectToken = AES256("{ timestamp: "2021-01-20T06:53:07.621Z",
 
 Trong đó ***AES*** là hàm mã hóa theo thuật toán AES. Tùy vào ngôn ngữ ở server mà bên hệ thống dùng thư viện tương ứng. Xem thêm tại đây https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
 
-Cách tạo **connectToken bao gồm thông tin KYC** :
+Cách tạo **connectToken bao gồm thông tin KYC** ( Dành cho các đối tác có thệ thống KYC riêng ):
 
 ```swift
 connectToken = AES256("{
