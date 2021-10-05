@@ -425,7 +425,7 @@ public func pay(
     amount: Int,
     note: String?,
     payCode: String,
-    redirectURL: String,
+    redirectURL: String = "",
     extraData: String?,
     isShowResultUI: Bool = true,
     onSuccess: (Dictionary<String, AnyObject>) -> (),
@@ -444,6 +444,7 @@ public func pay(
 public func scanQR(
             currentVC: UIViewController,
 	    payCode: String,
+	    redirectURL: String = "",
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
 ) -> ()
@@ -473,6 +474,7 @@ public func payQRCode(
 	currentVC: UIViewController, 
 	qr: String,
 	payCode: String,
+	redirectURL: String = "",
 	isShowResultUI: Bool,
     	onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
 	onError: @escaping (Dictionary<String, AnyObject>) -> ()
