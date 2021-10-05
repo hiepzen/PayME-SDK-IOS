@@ -331,6 +331,7 @@ class GraphQuery {
                                         updateToken
                                         storeName
                                         storeImage
+                                        fullnameKyc
                                       }
                                     }
                                   }

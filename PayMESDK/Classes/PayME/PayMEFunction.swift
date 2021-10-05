@@ -170,6 +170,7 @@ class PayMEFunction {
             let identifyNumber = dataInit!["kyc"]!["identifyNumber"] as? String
             let reason = dataInit!["kyc"]!["reason"] as? String
             let sentAt = dataInit!["kyc"]!["sentAt"] as? String
+            let fullnameKyc = dataInit!["fullnameKyc"] as? String
 
             let data =
                     """
@@ -194,7 +195,8 @@ class PayMEFunction {
                                 "identifyNumber": "\(checkStringNil(input: identifyNumber))",
                                 "reason" : "\(checkStringNil(input: reason))",
                                 "sentAt" : "\(checkStringNil(input: sentAt))"
-                            }
+                            },
+                            "fullnameKyc": "\(checkStringNil(input: fullnameKyc))"
                       },
                       "partner" : {
                            "type":"IOS",
@@ -212,6 +214,10 @@ class PayMEFunction {
                       "showLog": "\(isShowLog)"
                     }
                     """
+
+            print("minh khoa")
+            print(data)
+
             webViewController.setURLRequest(urlWebview(env: env) + "\(encryptAES(data))")
             webViewController.setOnSuccessCallback(onSuccess: onSuccess)
             webViewController.setOnErrorCallback(onError: onError)
