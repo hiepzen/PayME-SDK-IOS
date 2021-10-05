@@ -145,7 +145,7 @@ connectToken = AES256("{
             identifyNumber: "123456789",
             issuedAt: "2012-01-20T06:53:07.621Z",
             placeOfIssue: "Hai Duong",
-            video: "https://....//202/Co-29vnK6.mp4",
+            video: "https://..../202/Co-29vnK6.mp4",
             face: "https://.../photo/2015/04/_480.jpg",
             image: {
               front: "https://.../photo/2015/04/_480.jpg",
