@@ -264,19 +264,27 @@ class PayMEFunction {
                     curStoreImage = data["OpenEWallet"]["GetInfoMerchant"]["storeImage"].string ?? self.storeImage
                     isShowHeader = data["OpenEWallet"]["GetInfoMerchant"]["isVisibleHeader"].boolValue
                 }
+
+                let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
+                        orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader)
+                self.paymentModalController = PaymentModalController(
+                        payMEFunction: self, orderTransaction: orderTransaction,
+                        payCode: payCode, isShowResultUI: isShowResultUI,
+                        onSuccess: onSuccess, onError: onError
+                )
+                self.paymentModalController?.redirectURLVNPay = redirectURL
+                currentVC.presentModal(self.paymentModalController!)
             }, onError: { error in
-
+                let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
+                        orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader)
+                self.paymentModalController = PaymentModalController(
+                        payMEFunction: self, orderTransaction: orderTransaction,
+                        payCode: payCode, isShowResultUI: isShowResultUI,
+                        onSuccess: onSuccess, onError: onError
+                )
+                self.paymentModalController?.redirectURLVNPay = redirectURL
+                currentVC.presentModal(self.paymentModalController!)
             })
-
-            let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
-                    orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader)
-            paymentModalController = PaymentModalController(
-                    payMEFunction: self, orderTransaction: orderTransaction,
-                    payCode: payCode, isShowResultUI: isShowResultUI,
-                    onSuccess: onSuccess, onError: onError
-            )
-            paymentModalController?.redirectURLVNPay = redirectURL
-            currentVC.presentModal(paymentModalController!)
         }
     }
 
