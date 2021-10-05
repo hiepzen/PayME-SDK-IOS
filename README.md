@@ -152,9 +152,22 @@ connectToken = AES256("{
         }
 }" + secretKey )
 ```
-| **Tham số**   | **Bắt buộc** | **Giải thích**                                               |
-| :------------ | :----------- | :----------------------------------------------------------- |
-| <code>face</code><code>video</code><code>front</code><code>back</code> | Yes | đường dẫn đến ảnh/video kyc |
+
+Tham số <code>kycInfo</code>
+
+| **Tham số**    | **Bắt buộc** | **Giải thích**                                               |
+| -------------- | ------------ | ------------------------------------------------------------ |
+| fullname | Yes          | Họ tên |
+| gender | Yes          |  Giới tính ( MALE/FEMALE) |
+| address | Yes          |  Địa chỉ |
+| identifyType | Yes          |   Loại giấy tờ (CMND/CCCD) |
+| identifyNumber | Yes          |   Số giấy tờ  |
+| issuedAt | Yes          |   Ngày đăng ký |
+| placeOfIssue | Yes          |  Nơi cấp |
+| video | No          |   đường dẫn tới video |
+| face | No          |   đường dẫn tới ảnh chụp khuôn mặt |
+| front | No          |   đường dẫn tới ảnh mặt trước giấy tờ |
+| back | No          |   đường dẫn tới ảnh mặt sau giấy tờ |
 ## Mã lỗi của PayME SDK
 
 | **Hằng số**   | **Mã lỗi** | **Giải thích**                                               |
