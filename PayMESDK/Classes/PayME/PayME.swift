@@ -180,19 +180,20 @@ public class PayME {
     }
 
     public func scanQR(
-            currentVC: UIViewController, payCode: String,
+            currentVC: UIViewController, payCode: String, redirectURL: String = "",
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        payMEFunction.openQRCode(currentVC: currentVC, payCode: payCode, onSuccess: onSuccess, onError: onError, isStartDirectFromUser: true)
+        payMEFunction.openQRCode(currentVC: currentVC, payCode: payCode, redirectURL: redirectURL, onSuccess: onSuccess, onError: onError, isStartDirectFromUser: true)
     }
 
     public func payQRCode(
-            currentVC: UIViewController, qr: String, payCode: String, isShowResultUI: Bool = true,
+            currentVC: UIViewController, qr: String, payCode: String, redirectURL: String = "",
+            isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        payMEFunction.payQRCode(currentVC: currentVC, qr: qr, payCode: payCode, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
+        payMEFunction.payQRCode(currentVC: currentVC, qr: qr, payCode: payCode, redirectURL: redirectURL, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
     }
 
     public func openKYC(

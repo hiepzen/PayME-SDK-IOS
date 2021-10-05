@@ -296,7 +296,7 @@ class PayMEFunction {
 
     func openQRCode(
             currentVC: UIViewController,
-            payCode: String = "PAYME",
+            payCode: String = "PAYME", redirectURL: String = "",
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void,
             isStartDirectFromUser: Bool = false
@@ -319,7 +319,12 @@ class PayMEFunction {
                         let note = (detect["note"] as? String) ?? ""
                         let onSuccessPay = isStartDirectFromUser ? { dictionary in
                         } : onSuccess
-                        self.payAction(currentVC: PayME.currentVC ?? currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, payCode: payCode, extraData: nil, isShowResultUI: true, onSuccess: onSuccessPay, onError: onError)
+                        let currentViewController = PayME.currentVC ?? currentVC
+                        self.payAction(
+                                currentVC: currentViewController, storeId: storeId, orderId: orderId, amount: amount,
+                                note: note, payCode: payCode, redirectURL: redirectURL, extraData: nil,
+                                isShowResultUI: true, onSuccess: onSuccessPay, onError: onError
+                        )
                     } else {
                         currentVC.presentModal(QRNotFound())
                     }
@@ -346,7 +351,7 @@ class PayMEFunction {
 
     func payQRCode(
             currentVC: UIViewController,
-            qr: String, payCode: String = "PAYME",
+            qr: String, payCode: String = "PAYME", redirectURL: String = "",
             isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
@@ -365,7 +370,9 @@ class PayMEFunction {
                 let orderId = (detect["orderId"] as? String) ?? ""
                 let amount = (detect["amount"] as? Int) ?? 0
                 let note = (detect["note"] as? String) ?? ""
-                self.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note, payCode: payCode, extraData: nil, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
+                self.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
+                        payCode: payCode, redirectURL: redirectURL, extraData: nil, isShowResultUI: isShowResultUI,
+                        onSuccess: onSuccess, onError: onError)
             } else {
                 onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
             }
