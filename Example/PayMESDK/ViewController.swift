@@ -406,22 +406,22 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         let isoDate = iSO8601DateFormatter.string(from: Date())
         let data: [String: Any] = [
             "timestamp": isoDate, "userId": "\(userId)", "phone": "\(phone)",
-            "kycInfo": [
-                "fullname": "Lai Van Hieu",
-                "gender": "MALE",
-                "birthday": "1995-01-20T06:53:07.621Z",
-                "address": "31 vu tung",
-                "identifyType": "CMND",
-                "identifyNumber": "String",
-                "issuedAt": "2012-01-20T06:53:07.621Z",
-                "placeOfIssue":"Hai Duong",
-                "video": "https://sbx-static.payme.vn//2020/10/28/Co-29vnK6.mp4",
-                "face":"https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
-                "image": [
-                    "front": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
-                    "back":"https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg"
-                ]
-            ]
+//            "kycInfo": [
+//                "fullname": "Lai Van Hieu",
+//                "gender": "MALE",
+//                "birthday": "1995-01-20T06:53:07.621Z",
+//                "address": "31 vu tung",
+//                "identifyType": "CMND",
+//                "identifyNumber": "String",
+//                "issuedAt": "2012-01-20T06:53:07.621Z",
+//                "placeOfIssue":"Hai Duong",
+//                "video": "https://sbx-static.payme.vn//2020/10/28/Co-29vnK6.mp4",
+//                "face":"https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
+//                "image": [
+//                    "front": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
+//                    "back":"https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg"
+//                ]
+//            ]
         ]
         let params = try? JSONSerialization.data(withJSONObject: data)
         let aes = try? AES(key: Array(secretKey.utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
@@ -462,9 +462,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             showSpinner(onView: view)
             payME?.login(onSuccess: { success in
                 self.scrollView.isHidden = false
-                if success["code"] as! PayME.KYCState == PayME.KYCState.NOT_KYC {
-                    self.kycButton.isHidden = false
-                }
+//                if success["code"] as! PayME.KYCState == PayME.KYCState.NOT_KYC {
+                self.kycButton.isHidden = false
+//                }
                 self.getBalance(self.refreshButton)
                 self.loginButton.backgroundColor = UIColor.gray
                 self.logoutButton.backgroundColor = UIColor.white

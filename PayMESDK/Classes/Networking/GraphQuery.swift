@@ -29,6 +29,7 @@ class GraphQuery {
                                          avatar
                                          email
                                          gender
+                                         state
                                          isVerifiedEmail
                                          isWaitingEmailVerification
                                          birthday
@@ -53,6 +54,15 @@ class GraphQuery {
                                            reason
                                            identifyNumber
                                            details {
+                                             face {
+                                                state
+                                             }
+                                             video {
+                                                state
+                                             }
+                                             image {
+                                                state
+                                             }
                                              identifyNumber
                                              issuedAt
                                            }

@@ -157,9 +157,6 @@ class PayMEFunction {
                 bottomSafeArea = currentVC.bottomLayoutGuide.length
             }
 
-            print("paddingTop: \(topSafeArea)")
-            print("paddingBottom: \(bottomSafeArea)")
-
             let message = dataInit!["message"] as? String
             let accessToken = dataInit!["accessToken"] as? String
             let succeeded = dataInit!["succeeded"] as? Bool
@@ -502,22 +499,47 @@ class PayMEFunction {
             onError(["code": PayME.ResponseCode.ACCOUNT_NOT_ACTIVATED as AnyObject, "message": "notActivated".localize() as AnyObject])
             return
         }
-        if kycState == "APPROVED" {
-            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "kycApproved".localize() as AnyObject])
-            return
-        }
-        if kycState == "PENDING" {
-            openWallet(false, currentVC, PayME.Action.OPEN, nil, "", "", "", false, { dictionary in }, onError)
-            return
-        }
-        if kycMode == nil {
-            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config KYC, vui lòng thử lại sau" as AnyObject])
-            return
-        }
-        PayME.currentVC = currentVC
-        KYCController.reset()
-        let kycController = KYCController(payMEFunction: self, flowKYC: kycMode!, onSuccess: onSuccess)
-        kycController.kyc()
+
+        getAccountInfo({response  in
+            let data = JSON(response)
+            let kycState = data["Account"]["kyc"]["state"].string
+            self.kycState = kycState ?? self.kycState
+
+            if self.kycState == "APPROVED" {
+                onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "kycApproved".localize() as AnyObject])
+                return
+            }
+            if self.kycState == "PENDING" {
+                self.openWallet(false, currentVC, PayME.Action.OPEN, nil, "", "", "", false, { dictionary in }, onError)
+                return
+            }
+            if self.kycMode == nil {
+                onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không lấy được config KYC, vui lòng thử lại sau" as AnyObject])
+                return
+            }
+
+            if data["Account"]["kyc"]["kycId"].boolValue {
+                let video = data["Account"]["kyc"]["details"]["video"]["state"].string
+                let face = data["Account"]["kyc"]["details"]["face"]["state"].string
+                let image = data["Account"]["kyc"]["details"]["image"]["state"].string
+                let videoCondition = !(video == "APPROVED" || video == "PENDING")
+                let faceCondition = !(face == "APPROVED" || face == "PENDING")
+                let imageCondition = !(image == "APPROVED" || image == "PENDING")
+
+                self.kycMode = [
+                    "identifyImg": (self.kycMode!["identifyImg"] ?? false) || videoCondition,
+                    "faceImg": (self.kycMode!["faceImg"] ?? false) || faceCondition,
+                    "kycVideo": (self.kycMode!["kycVideo"] ?? false) || imageCondition
+                ]
+            }
+
+            PayME.currentVC = currentVC
+            KYCController.reset()
+            let kycController = KYCController(payMEFunction: self, flowKYC: self.kycMode!, onSuccess: onSuccess)
+            kycController.kyc()
+        }, {error  in
+            onError(error)
+        })
     }
 
     private func initSDK(
