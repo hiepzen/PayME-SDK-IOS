@@ -7,7 +7,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var floatingButtonController: FloatingButtonController = FloatingButtonController()
     var payME: PayME?
     var activeTextField: UITextField? = nil
-    let envData: Dictionary = ["dev": PayME.Env.DEV, "sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION, "staging": PayME.Env.STAGING]
+    let envData: Dictionary = ["sandbox": PayME.Env.SANDBOX]
     let langData = [PayME.Language.VIETNAMESE, PayME.Language.ENGLISH]
     let payCodeData = ["PAYME", "ATM", "VN_PAY", "CREDIT", "MOMO", "ZALO_PAY", "MANUAL_BANK"]
 
@@ -721,7 +721,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let amountPay = amount!
                 var storeId = 9
                 if currentEnv == PayME.Env.SANDBOX {
-                    storeId = 37048160
+                    storeId = 10581207
                 }
                 if currentEnv == PayME.Env.PRODUCTION {
                     storeId = 57956431
