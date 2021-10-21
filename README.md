@@ -74,33 +74,7 @@ Trong đó các thông số có dạng:
 
 - appPrivateKey: là private key của app tự sinh ra như trên
 
-```swift
-private let PRIVATE_KEY: String =
-  """
-  -----BEGIN RSA PRIVATE KEY-----
-  MIIBOwIBAAJBAOkNeYrZOhKTS6OcPEmbdRGDRgMHIpSpepulZJGwfg1IuRM+ZFBm
-  F6NgzicQDNXLtaO5DNjVw1o29BFoK0I6+sMCAwEAAQJAVCsGq2vaulyyI6vIZjkb
-  5bBId8164r/2xQHNuYRJchgSJahHGk46ukgBdUKX9IEM6dAQcEUgQH+45ARSSDor
-  mQIhAPt81zvT4oK1txaWEg7LRymY2YzB6PihjLPsQUo1DLf3AiEA7Tv005jvNbNC
-  pRyXcfFIy70IHzVgUiwPORXQDqJhWJUCIQDeDiZR6k4n0eGe7NV3AKCOJyt4cMOP
-  vb1qJOKlbmATkwIhALKSJfi8rpraY3kLa4fuGmCZ2qo7MFTKK29J1wGdAu99AiAQ
-  dx6DtFyY8hoo0nuEC/BXQYPUjqpqgNOx**********==
-  -----END RSA PRIVATE KEY-----
-  """
-```
-
 - publicKey: là public key được PayME cung cấp cho mỗi app riêng biệt.
-
- ```swift
- private let PUBLIC_KEY: String =
-      """
-      -----BEGIN PUBLIC KEY-----
-      MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKWcehEELB4GdQ4cTLLQroLqnD3AhdKi
-      wIhTJpAi1XnbfOSrW/Ebw6h1485GOAvuG/OwB+ScsfPJBoNJeNFU6J**********
-      -----END PUBLIC KEY-----
-      """
-    
- ```
 
 -   configColor : là tham số màu để có thể thay đổi màu sắc giao dịch ví PayME, kiểu dữ liệu là chuỗi với định dạng #rrggbb. Nếu như truyền 2 màu thì giao diện PayME sẽ gradient theo 2 màu truyền vào.
 
