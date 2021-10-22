@@ -345,7 +345,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         guard let order = orderTransaction else {
             return
         }
-        let webViewController = WebViewController(payMEFunction: self.payMEFunction, nibName: "WebView", bundle: nil, needHandleNetwork: true)
+        let webViewController = WebViewController(payMEFunction: self.payMEFunction, nibName: "WebView", bundle: nil, needHandleNetwork: true, hasSpinnerHandle: false)
         webViewController.form = html
         webViewController.loadView()
         var payTimer: Timer? = Timer.scheduledTimer(withTimeInterval: 7, repeats: false) { [self] tmr in

@@ -65,6 +65,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var individualTaskTimer: Timer!
     var payMEFunction: PayMEFunction?
     var needHandleNetwork: Bool = false
+    var hasSpinnerHandle: Bool = true
     let reachability = try! Reachability()
     private var onSuccessWebView: ((String) -> ())? = nil
     private var onFailWebView: ((String) -> ())? = nil
@@ -80,9 +81,10 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         return button
     }()
 
-    init(payMEFunction: PayMEFunction?, nibName: String?, bundle: Bundle?, needHandleNetwork: Bool = false) {
+    init(payMEFunction: PayMEFunction?, nibName: String?, bundle: Bundle?, needHandleNetwork: Bool = false, hasSpinnerHandle: Bool = true) {
         self.payMEFunction = payMEFunction
         self.needHandleNetwork = needHandleNetwork
+        self.hasSpinnerHandle = hasSpinnerHandle
         super.init(nibName: nibName, bundle: bundle)
     }
 
@@ -222,11 +224,15 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-        showSpinner(onView: PayME.currentVC!.view)
+        if hasSpinnerHandle {
+            showSpinner(onView: PayME.currentVC!.view)
+        }
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        removeSpinner()
+        if hasSpinnerHandle {
+            removeSpinner()
+        }
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
