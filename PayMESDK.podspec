@@ -50,5 +50,4 @@ Pod::Spec.new do |s|
   s.dependency 'RxCocoa'
   s.dependency 'SVGKit'
   s.dependency 'SwiftyJSON'
-  s.dependency 'ReachabilitySwift'
 end
