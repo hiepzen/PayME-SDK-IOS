@@ -134,7 +134,7 @@ class KYCBackController: UIViewController {
         KYCController.active = active
         let popupKYC = PopupKYC()
         PopupKYC.isFirstStepKYC = false
-        if (KYCController.flowKYC!["kycFace"] == true) {
+        if (KYCController.flowKYC!["faceImg"] == true) {
             popupKYC.active = 1
             PayME.currentVC?.presentModal(popupKYC, animated: true)
 
