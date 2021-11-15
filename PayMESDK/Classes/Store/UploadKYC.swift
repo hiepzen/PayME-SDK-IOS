@@ -65,7 +65,7 @@ public class UploadKYC {
                                                 if self.isUpdateIdentify ?? false {
                                                     (rootViewController as? WebViewController)?.updateIdentify()
                                                 } else {
-                                                    (rootViewController as? WebViewController)?.reload()
+                                                    (rootViewController as? WebViewController)?.onReloadKYCStatuc()
                                                 }
                                             }
                                         } else {
