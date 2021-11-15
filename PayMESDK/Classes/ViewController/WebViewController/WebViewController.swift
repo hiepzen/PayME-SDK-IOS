@@ -269,7 +269,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
     }
 
-    func onReloadKYCStatuc() {
+    func onReloadKYCStatus() {
         let injectedJS = "       const script = document.createElement('script');\n" +
                 "          script.type = 'text/javascript';\n" +
                 "          script.async = true;\n" +
