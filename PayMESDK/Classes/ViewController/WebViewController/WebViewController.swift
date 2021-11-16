@@ -10,6 +10,7 @@ import UIKit
 import WebKit
 import ContactsUI
 import Alamofire
+import SwiftyJSON
 
 class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler, WKNavigationDelegate, PanModalPresentable {
     var KYCAgain: Bool? = nil
@@ -526,6 +527,25 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     private func fetchContacts() {
         var contactList: String = "["
         let store = CNContactStore()
+        
+        var config: [String: Any]?
+        if let infoPlistPath = Bundle.main.url(forResource: "Info", withExtension: "plist") {
+            do {
+                let infoPlistData = try Data(contentsOf: infoPlistPath)
+                
+                if let dict = try PropertyListSerialization.propertyList(from: infoPlistData, options: [], format: nil) as? [String: Any] {
+                    config = dict
+                }
+            } catch {
+                print(error)
+            }
+        }
+        
+        if JSON(config)["NSContactsUsageDescription"].string == nil {
+            self.onContactGranted(contacts: "null")
+            return
+        }
+            
         store.requestAccess(for: .contacts) { (granted, error) in
             if let error = error {
                 print("failed to request access", error)
@@ -569,10 +589,13 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     }
     func onContactGranted(contacts: String) {
         let injectedJS = """
-                           window.onPermission(true);
+                           window.onPermission(\(contacts == "null" ? "false" : "true"));
                            window.onContacts(\(contacts));
                            true; // note: this is required, or you'll sometimes get silent failures
                          """
+        
+        print("minh khoa")
+        print(injectedJS)
         DispatchQueue.main.async {
             self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
         }
