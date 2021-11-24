@@ -526,7 +526,6 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
 
     private func fetchContacts() {
         var contactList: String = "["
-        let store = CNContactStore()
         
         var config: [String: Any]?
         if let infoPlistPath = Bundle.main.url(forResource: "Info", withExtension: "plist") {
@@ -545,37 +544,61 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             self.onContactGranted(contacts: "null")
             return
         }
-            
-        store.requestAccess(for: .contacts) { (granted, error) in
-            if let error = error {
-                print("failed to request access", error)
-                self.onContactNotGranted()
-                return
-            }
-            if granted {
-                let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
-                let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
-                do {
-                    try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
-                        let fullName = contact.givenName + " " + contact.familyName
-                        let phone = contact.phoneNumbers.first?.value.stringValue.filter("0123456789".contains) ?? ""
-                        if let json = try? JSONSerialization.data(withJSONObject: ["name": fullName, "phone": phone] as [String:Any]) {
-                           if let jsonObj = String(data: json, encoding: String.Encoding.utf8) {
-                               contactList += jsonObj + ","
-                           }
-                        }
-                    })
-                } catch let error {
-                    print("Failed to enumerate contact", error)
+        
+        
+        if CNContactStore.authorizationStatus(for: .contacts) == .notDetermined {
+            let store = CNContactStore()
+            store.requestAccess(for: .contacts) { (granted, error) in
+                if let error = error {
+                    print("failed to request access", error)
+                    self.onContactNotGranted()
+                    return
                 }
-                contactList += "]"
-                self.onContactGranted(contacts: contactList)
-            } else {
-                self.onContactNotGranted()
-                return
+                if granted {
+                    let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
+                    let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
+                    do {
+                        try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
+                            let fullName = contact.givenName + " " + contact.familyName
+                            let phone = contact.phoneNumbers.first?.value.stringValue.filter("0123456789".contains) ?? ""
+                            if let json = try? JSONSerialization.data(withJSONObject: ["name": fullName, "phone": phone] as [String:Any]) {
+                               if let jsonObj = String(data: json, encoding: String.Encoding.utf8) {
+                                   contactList += jsonObj + ","
+                               }
+                            }
+                        })
+                    } catch let error {
+                        print("Failed to enumerate contact", error)
+                    }
+                    contactList += "]"
+                    self.onContactGranted(contacts: contactList)
+                } else {
+                    self.onContactNotGranted()
+                    return
+                }
             }
+        } else if CNContactStore.authorizationStatus(for: .contacts) == .authorized {
+            let store = CNContactStore()
+            let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
+            let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
+            do {
+                try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
+                    let fullName = contact.givenName + " " + contact.familyName
+                    let phone = contact.phoneNumbers.first?.value.stringValue.filter("0123456789".contains) ?? ""
+                    if let json = try? JSONSerialization.data(withJSONObject: ["name": fullName, "phone": phone] as [String:Any]) {
+                       if let jsonObj = String(data: json, encoding: String.Encoding.utf8) {
+                           contactList += jsonObj + ","
+                       }
+                    }
+                })
+            } catch let error {
+                print("Failed to enumerate contact", error)
+            }
+            contactList += "]"
+            self.onContactGranted(contacts: contactList)
         }
     }
+    
     func onContactNotGranted(){
         let injectedJS = "       const script = document.createElement('script');\n" +
                 "          script.type = 'text/javascript';\n" +
