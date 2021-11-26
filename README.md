@@ -40,6 +40,21 @@ Update file Info.plist của app với những key như sau (giá trị của st
 <string>Need to access your contact</string>
 ```
 
+**Nếu không sử dụng tính năng danh bạ thì thêm vào cuối podfile**
+
+```ruby
+post_install do |installer|
+   installer.pods_project.targets.each do |target|
+       if target.name == 'PayMESDK'
+           target.build_configurations.each do |config|
+             config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] ||= '$(inherited)'
+             config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] << 'IGNORE_CONTACT'
+           end
+       end
+   end
+end
+```
+
 ## Cách sử dụng SDK:
 
 Hệ thống PayME sẽ cung cấp cho app tích hợp các thông tin sau:
