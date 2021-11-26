@@ -46,6 +46,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Need to access your camera to capture a photo add and update profile picture.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>hihi</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Need to access your library to add a photo or videoo off kyc video</string>
 	<key>UILaunchStoryboardName</key>

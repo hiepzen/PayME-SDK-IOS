@@ -8,7 +8,9 @@
 
 import UIKit
 import WebKit
+#if !IGNORE_CONTACT
 import ContactsUI
+#endif
 import Alamofire
 import SwiftyJSON
 
@@ -539,13 +541,12 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 print(error)
             }
         }
-        
-        if JSON(config)["NSContactsUsageDescription"].string == nil {
-            self.onContactGranted(contacts: "null")
-            return
-        }
-        
-        
+
+        #if IGNORE_CONTACT
+        print("vo ne")
+        self.onContactGranted(contacts: "null")
+        #else
+        print("an lo")
         if CNContactStore.authorizationStatus(for: .contacts) == .notDetermined {
             let store = CNContactStore()
             store.requestAccess(for: .contacts) { (granted, error) in
@@ -597,6 +598,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             contactList += "]"
             self.onContactGranted(contacts: contactList)
         }
+        #endif
     }
     
     func onContactNotGranted(){
