@@ -32,10 +32,10 @@ class BankItem: UICollectionViewCell {
     }
 
     func config(bank: BankManual) {
-        imageView.load(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Ficon_banks%2Ficon\(bank.swiftCode)%402x.png?alt=media&token=0c6cd79a-9a4f-4ea2-b178-94e0b4731ac2")
+        imageView.load(url: "https://static.payme.vn/image_bank/icon_banks/icon\(bank.swiftCode)@2x.png")
     }
     func config(bank: Bank) {
-        imageView.load(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Ficon_banks%2Ficon\(bank.swiftCode)%402x.png?alt=media&token=0c6cd79a-9a4f-4ea2-b178-94e0b4731ac2")
+        imageView.load(url: "https://static.payme.vn/image_bank/icon_banks/icon\(bank.swiftCode)@2x.png")
     }
     let imageView: UIImageView = {
        var image = UIImageView()
