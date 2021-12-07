@@ -126,7 +126,7 @@ class BankTransferView: UIView {
         paymeInfo.trailingAnchor.constraint(equalTo: transferInfo.trailingAnchor).isActive = true
         transferInfo.bottomAnchor.constraint(equalTo: paymeInfo.bottomAnchor).isActive = true
 
-        if paymeBank.qrCode != "" {
+        if (paymeBank.qrCode != "" || paymeBank.qrImage != "") {
             qrView = BankQrView(qrString: paymeBank.qrCode, bank: paymeBank)
             vStackContainer.addArrangedSubview(note)
             vStackContainer.addArrangedSubview(qrView ?? UIView())
