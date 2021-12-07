@@ -89,6 +89,7 @@ class InformationRow: UIStackView {
     @objc func onPressCopy() {
         let pasteboard = UIPasteboard.general
         pasteboard.string = value
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
     
     required init(coder: NSCoder) {
