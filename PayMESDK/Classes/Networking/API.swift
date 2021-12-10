@@ -205,7 +205,8 @@ class API {
             "configsKeys": ["limit.param.amount.payment",
                             "kyc.mode.enable",
                             "credit.sacom.auth.link",
-                            "service.main.visible"]
+                            "service.main.visible",
+                            "sdk.web.secretKey"]
         ]
         let json: [String: Any] = [
             "query": GraphQuery.getSettingQuery,
@@ -299,7 +300,7 @@ class API {
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-       return onRequestCancellable(url, path, params, onSuccess, onError)
+        return onRequestCancellable(url, path, params, onSuccess, onError)
     }
 
     func transferCreditCard(
@@ -902,7 +903,8 @@ class API {
             _ url: String, _ path: String, _ params: Data?,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            _ onPaymeError: @escaping (String) -> () = { s in }
+            _ onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let request = NetworkRequestGraphQL(appId: appId, url: url, path: path, token: accessToken, params: params, publicKey: publicKey, privateKey: privateKey)
         if (env == PayME.Env.DEV) {

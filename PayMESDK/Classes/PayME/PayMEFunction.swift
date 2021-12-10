@@ -26,6 +26,7 @@ class PayMEFunction {
     private var storeName = ""
     private var storeImage: String = ""
     private var kycMode: [String: Bool]? = nil
+    private var webKey = ""
     var authenCreditLink: String = ""
     static var language = PayME.Language.VIETNAMESE
 
@@ -92,7 +93,7 @@ class PayMEFunction {
     }
 
     func encryptAES(_ data: String) -> String {
-        let aes = try? AES(key: Array("LkaWasflkjfqr2g3".utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
+        let aes = try? AES(key: Array(webKey.utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
         let dataEncrypted = try? aes!.encrypt(Array(data.utf8))
         return dataEncrypted!.toBase64()!
     }
@@ -483,6 +484,13 @@ class PayMEFunction {
                             if let authenLink = configCreditAuthenLink["value"] as? String {
                                 self.authenCreditLink = authenLink
                             }
+                        }
+
+                        if let configWebKey = configs.first(where: { config in
+                            let key = (config["key"] as? String) ?? ""
+                            return key == "sdk.web.secretKey"
+                        }) {
+                            self.webKey = configWebKey["value"] as? String ?? ""
                         }
 
                         onSuccess(result)
