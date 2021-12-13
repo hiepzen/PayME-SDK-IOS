@@ -535,9 +535,9 @@ class PayMEFunction {
                 let imageCondition = !(image == "APPROVED" || image == "PENDING")
 
                 self.kycMode = [
-                    "identifyImg": (self.kycMode!["identifyImg"] ?? false) || videoCondition,
-                    "faceImg": (self.kycMode!["faceImg"] ?? false) || faceCondition,
-                    "kycVideo": (self.kycMode!["kycVideo"] ?? false) || imageCondition
+                    "identifyImg": (self.kycMode!["identifyImg"] ?? false) && videoCondition,
+                    "faceImg": (self.kycMode!["faceImg"] ?? false) && faceCondition,
+                    "kycVideo": (self.kycMode!["kycVideo"] ?? false) && imageCondition
                 ]
             }
 
