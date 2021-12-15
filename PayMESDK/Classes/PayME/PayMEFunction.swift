@@ -231,7 +231,7 @@ class PayMEFunction {
     }
 
     func payAction(
-            currentVC: UIViewController, storeId: Int, orderId: String, amount: Int, note: String?,
+            currentVC: UIViewController, storeId: Int?, userName: String?, orderId: String, amount: Int, note: String?,
             payCode: String = "PAYME", extraData: String?, isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
@@ -255,7 +255,7 @@ class PayMEFunction {
             var curStoreName: String = storeName
             var curStoreImage: String = storeImage
             var isShowHeader: Bool = false
-            request.getMerchantInformation(storeId: storeId, onSuccess: { response in
+            request.getMerchantInformation(onSuccess: { response in
                 let data = JSON(response)
                 if data["OpenEWallet"]["GetInfoMerchant"]["succeeded"].boolValue == true {
                     curStoreName = data["OpenEWallet"]["GetInfoMerchant"]["storeName"].string ?? self.storeName
@@ -264,7 +264,7 @@ class PayMEFunction {
                 }
 
                 let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
-                        orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader)
+                        orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader, userName: userName)
                 self.paymentModalController = PaymentModalController(
                         payMEFunction: self, orderTransaction: orderTransaction,
                         payCode: payCode, isShowResultUI: isShowResultUI,
@@ -274,7 +274,7 @@ class PayMEFunction {
                 currentVC.presentModal(self.paymentModalController!)
             }, onError: { error in
                 let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
-                        orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader)
+                        orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader, userName: userName)
                 self.paymentModalController = PaymentModalController(
                         payMEFunction: self, orderTransaction: orderTransaction,
                         payCode: payCode, isShowResultUI: isShowResultUI,
@@ -323,11 +323,12 @@ class PayMEFunction {
                         let orderId = (detect["orderId"] as? String) ?? ""
                         let amount = (detect["amount"] as? Int) ?? 0
                         let note = (detect["note"] as? String) ?? ""
+                        let userName = (detect["userName"] as? String) ?? ""
                         let onSuccessPay = isStartDirectFromUser ? { dictionary in
                         } : onSuccess
                         let currentViewController = PayME.currentVC ?? currentVC
                         self.payAction(
-                                currentVC: currentViewController, storeId: storeId, orderId: orderId, amount: amount,
+                                currentVC: currentViewController, storeId: storeId, userName: userName, orderId: orderId, amount: amount,
                                 note: note, payCode: payCode, extraData: nil,
                                 isShowResultUI: true, onSuccess: onSuccessPay, onError: onError
                         )
@@ -376,7 +377,8 @@ class PayMEFunction {
                 let orderId = (detect["orderId"] as? String) ?? ""
                 let amount = (detect["amount"] as? Int) ?? 0
                 let note = (detect["note"] as? String) ?? ""
-                self.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
+                let userName = (detect["userName"] as? String) ?? ""
+                self.payAction(currentVC: currentVC, storeId: storeId, userName: userName, orderId: orderId, amount: amount, note: note,
                         payCode: payCode, extraData: nil, isShowResultUI: isShowResultUI,
                         onSuccess: onSuccess, onError: onError)
             } else {

@@ -168,12 +168,12 @@ public class PayME {
     }
 
     public func pay(
-            currentVC: UIViewController, storeId: Int, orderId: String, amount: Int,
+            currentVC: UIViewController, storeId: Int?, userName: String?, orderId: String, amount: Int,
             note: String?, payCode: String, extraData: String?, isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()) {
         payMEFunction.payAction(
-                currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
+                currentVC: currentVC, storeId: storeId, userName: userName, orderId: orderId, amount: amount, note: note,
                 payCode: payCode, extraData: extraData, isShowResultUI: isShowResultUI,
                 onSuccess: onSuccess, onError: onError
         )
