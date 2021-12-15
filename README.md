@@ -414,7 +414,6 @@ public func pay(
     amount: Int,
     note: String?,
     payCode: String,
-    redirectURL: String = "",
     extraData: String?,
     isShowResultUI: Bool = true,
     onSuccess: (Dictionary<String, AnyObject>) -> (),
@@ -423,9 +422,7 @@ public func pay(
 ```
 | Tham số                                                      | **Bắt buộc** | **Giá trị**                                               | 
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| <code>payCode</code> | Yes          | <code>PAYME</code> <code>ATM</code> <code>CREDIT</code> <code>VN_PAY</code> <code>MANUAL_BANK</code>  |
-| <code>redirectURL</code> | No          | truyền <code>universal link</code> hoặc <code>schema</code> của ứng dụng khi <code>payCode</code> là <code>VN_PAY</code>  |
-
+| <code>payCode</code> | Yes          | <code>PAYME</code> <code>ATM</code> <code>CREDIT</code> <code>MANUAL_BANK</code>  |
 
 ### scanQR() - Mở chức năng quét mã QR để thanh toán
 
