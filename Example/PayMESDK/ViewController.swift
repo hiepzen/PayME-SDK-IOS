@@ -657,7 +657,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @objc func onPayQR(sender: UIButton!) {
         if (connectToken != "") {
             if (qrPayString.text != "") {
-               payME!.payQRCode(currentVC: self, qr: qrPayString.text!, payCode: curPayCode,
+               payME!.payQRCode(currentVC: self, qr: qrPayString.text!, payCode: curPayCode, userName: nil,
                        onSuccess: { success in
                             Log.custom.push(title: "payQRCode", message: success)
                        },
@@ -693,7 +693,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
 
     @objc func scanQR() {
-        payME!.scanQR(currentVC: self, payCode: curPayCode, onSuccess: { response in
+        payME!.scanQR(currentVC: self, payCode: curPayCode, userName: "", onSuccess: { response in
             Log.custom.push(title: "payQRCode", message: response)
         }, onError: { error in
             Log.custom.push(title: "payQRCode", message: error)
@@ -731,8 +731,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     storeId = 223
                 }
                 let redirectUrl = "paymesdk://\(Bundle.main.bundleIdentifier ?? "")/success"
-                payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay,
-                        note: "Nội dung đơn hàng", payCode: curPayCode, redirectURL: redirectUrl, extraData: nil, isShowResultUI: true,
+                payME!.pay(currentVC: self, storeId: storeId, userName: nil, orderId: String(Date().timeIntervalSince1970), amount: amountPay,
+                        note: "Nội dung đơn hàng", payCode: curPayCode, extraData: nil, isShowResultUI: true,
                         onSuccess: { success in
                     Log.custom.push(title: "pay", message: success)
                 }, onError: { error in

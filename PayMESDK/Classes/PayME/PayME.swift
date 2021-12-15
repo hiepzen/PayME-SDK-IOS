@@ -168,32 +168,32 @@ public class PayME {
     }
 
     public func pay(
-            currentVC: UIViewController, storeId: Int, orderId: String, amount: Int,
+            currentVC: UIViewController, storeId: Int?, userName: String?, orderId: String, amount: Int,
             note: String?, payCode: String, extraData: String?, isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()) {
         payMEFunction.payAction(
-                currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
+                currentVC: currentVC, storeId: storeId, userName: userName, orderId: orderId, amount: amount, note: note,
                 payCode: payCode, redirectURL: "", extraData: extraData, isShowResultUI: isShowResultUI,
                 onSuccess: onSuccess, onError: onError
         )
     }
 
     public func scanQR(
-            currentVC: UIViewController, payCode: String, redirectURL: String = "",
+            currentVC: UIViewController, payCode: String, userName: String?,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        payMEFunction.openQRCode(currentVC: currentVC, payCode: payCode, redirectURL: redirectURL, onSuccess: onSuccess, onError: onError, isStartDirectFromUser: true)
+        payMEFunction.openQRCode(currentVC: currentVC, payCode: payCode, userName: userName, onSuccess: onSuccess, onError: onError, isStartDirectFromUser: true)
     }
 
     public func payQRCode(
-            currentVC: UIViewController, qr: String, payCode: String, redirectURL: String = "",
+            currentVC: UIViewController, qr: String, payCode: String, userName: String?,
             isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        payMEFunction.payQRCode(currentVC: currentVC, qr: qr, payCode: payCode, redirectURL: redirectURL, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
+        payMEFunction.payQRCode(currentVC: currentVC, qr: qr, payCode: payCode, userName: userName, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
     }
 
     public func openKYC(

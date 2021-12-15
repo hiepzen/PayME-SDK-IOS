@@ -432,7 +432,6 @@ class GraphQuery {
                                                          content
                                                          swiftCode
                                                          qrContent
-                                                         qrImage
                                                        }
                                                      }
                                                    }
