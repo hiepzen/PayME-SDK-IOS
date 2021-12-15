@@ -174,26 +174,26 @@ public class PayME {
             onError: @escaping (Dictionary<String, AnyObject>) -> ()) {
         payMEFunction.payAction(
                 currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
-                payCode: payCode, redirectURL: "", extraData: extraData, isShowResultUI: isShowResultUI,
+                payCode: payCode, extraData: extraData, isShowResultUI: isShowResultUI,
                 onSuccess: onSuccess, onError: onError
         )
     }
 
     public func scanQR(
-            currentVC: UIViewController, payCode: String, redirectURL: String = "",
+            currentVC: UIViewController, payCode: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
-        payMEFunction.openQRCode(currentVC: currentVC, payCode: payCode, redirectURL: redirectURL, onSuccess: onSuccess, onError: onError, isStartDirectFromUser: true)
+        payMEFunction.openQRCode(currentVC: currentVC, payCode: payCode, onSuccess: onSuccess, onError: onError, isStartDirectFromUser: true)
     }
 
     public func payQRCode(
-            currentVC: UIViewController, qr: String, payCode: String, redirectURL: String = "",
+            currentVC: UIViewController, qr: String, payCode: String,
             isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
-        payMEFunction.payQRCode(currentVC: currentVC, qr: qr, payCode: payCode, redirectURL: redirectURL, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
+        payMEFunction.payQRCode(currentVC: currentVC, qr: qr, payCode: payCode, isShowResultUI: isShowResultUI, onSuccess: onSuccess, onError: onError)
     }
 
     public func openKYC(

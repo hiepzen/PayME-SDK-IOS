@@ -232,7 +232,7 @@ class PayMEFunction {
 
     func payAction(
             currentVC: UIViewController, storeId: Int, orderId: String, amount: Int, note: String?,
-            payCode: String = "PAYME", redirectURL: String = "", extraData: String?, isShowResultUI: Bool = true,
+            payCode: String = "PAYME", extraData: String?, isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
@@ -270,7 +270,7 @@ class PayMEFunction {
                         payCode: payCode, isShowResultUI: isShowResultUI,
                         onSuccess: onSuccess, onError: onError
                 )
-                self.paymentModalController?.redirectURLVNPay = redirectURL
+                self.paymentModalController?.redirectURLVNPay = ""
                 currentVC.presentModal(self.paymentModalController!)
             }, onError: { error in
                 let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
@@ -280,7 +280,7 @@ class PayMEFunction {
                         payCode: payCode, isShowResultUI: isShowResultUI,
                         onSuccess: onSuccess, onError: onError
                 )
-                self.paymentModalController?.redirectURLVNPay = redirectURL
+                self.paymentModalController?.redirectURLVNPay = ""
                 currentVC.presentModal(self.paymentModalController!)
             })
         }
@@ -302,7 +302,7 @@ class PayMEFunction {
 
     func openQRCode(
             currentVC: UIViewController,
-            payCode: String = "PAYME", redirectURL: String = "",
+            payCode: String = "PAYME",
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void,
             isStartDirectFromUser: Bool = false
@@ -328,7 +328,7 @@ class PayMEFunction {
                         let currentViewController = PayME.currentVC ?? currentVC
                         self.payAction(
                                 currentVC: currentViewController, storeId: storeId, orderId: orderId, amount: amount,
-                                note: note, payCode: payCode, redirectURL: redirectURL, extraData: nil,
+                                note: note, payCode: payCode, extraData: nil,
                                 isShowResultUI: true, onSuccess: onSuccessPay, onError: onError
                         )
                     } else {
@@ -357,7 +357,7 @@ class PayMEFunction {
 
     func payQRCode(
             currentVC: UIViewController,
-            qr: String, payCode: String = "PAYME", redirectURL: String = "",
+            qr: String, payCode: String = "PAYME",
             isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
@@ -377,7 +377,7 @@ class PayMEFunction {
                 let amount = (detect["amount"] as? Int) ?? 0
                 let note = (detect["note"] as? String) ?? ""
                 self.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
-                        payCode: payCode, redirectURL: redirectURL, extraData: nil, isShowResultUI: isShowResultUI,
+                        payCode: payCode, extraData: nil, isShowResultUI: isShowResultUI,
                         onSuccess: onSuccess, onError: onError)
             } else {
                 onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
