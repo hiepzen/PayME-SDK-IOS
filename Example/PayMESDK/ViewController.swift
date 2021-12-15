@@ -8,8 +8,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var payME: PayME?
     var activeTextField: UITextField? = nil
     let envData: Dictionary = ["sandbox": PayME.Env.SANDBOX]
+//    let envData: Dictionary = ["sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION]
     let langData = [PayME.Language.VIETNAMESE, PayME.Language.ENGLISH]
-    let payCodeData = ["PAYME", "ATM", "VN_PAY", "CREDIT", "MOMO", "ZALO_PAY", "MANUAL_BANK"]
+    let payCodeData = ["PAYME", "ATM", "CREDIT", "MOMO", "ZALO_PAY", "MANUAL_BANK"]
 
     let environment: UILabel = {
         let label = UILabel()
