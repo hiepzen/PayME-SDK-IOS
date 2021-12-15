@@ -732,7 +732,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 }
                 let redirectUrl = "paymesdk://\(Bundle.main.bundleIdentifier ?? "")/success"
                 payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay,
-                        note: "Nội dung đơn hàng", payCode: curPayCode, redirectURL: redirectUrl, extraData: nil, isShowResultUI: true,
+                        note: "Nội dung đơn hàng", payCode: curPayCode, extraData: nil, isShowResultUI: true,
                         onSuccess: { success in
                     Log.custom.push(title: "pay", message: success)
                 }, onError: { error in
