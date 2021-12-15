@@ -32,12 +32,6 @@ class BankQrView: UIView {
             if let qrImage = bank.qrCode.generateQRImage(withLogo: logo) {
                 qrImageView.image = qrImage
             }
-        } else if bank.qrImage != "" {
-            if let dataLogo = Data(base64Encoded: bank.qrImage.replaceAll(target: "data:image/png;base64,", withString: ""), options: .ignoreUnknownCharacters) {
-                hStack.addArrangedSubview(qrContainer)
-                qrContainer.addSubview(qrImageView)
-                qrImageView.image =  UIImage(data: dataLogo)
-            }
         }
         hStack.addArrangedSubview(vStack)
         vStack.addArrangedSubview(noteLabel)
