@@ -29,6 +29,7 @@ class BankTransferResultView: UIView {
         vStack.addArrangedSubview(label)
         vStack.addArrangedSubview(button)
 
+
         vStack.topAnchor.constraint(equalTo: topAnchor, constant: 40).isActive = true
         vStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
         vStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true

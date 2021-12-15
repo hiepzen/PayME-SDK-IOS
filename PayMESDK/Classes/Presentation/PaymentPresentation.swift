@@ -957,8 +957,7 @@ class PaymentPresentation {
                                     bankName: bank["bankName"] as? String ?? "",
                                     content: bank["content"] as? String ?? "",
                                     swiftCode: bank["swiftCode"] as? String ?? "",
-                                    qrCode: bank["qrContent"] as? String ?? "",
-                                    qrImage: bank["qrImage"] as? String ?? ""
+                                    qrCode: bank["qrContent"] as? String ?? ""
                             ))
                         }
                         orderTransaction.paymentMethod?.dataBankTransfer = listBank[0]
