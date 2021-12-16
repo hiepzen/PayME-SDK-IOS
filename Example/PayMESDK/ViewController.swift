@@ -7,7 +7,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var floatingButtonController: FloatingButtonController = FloatingButtonController()
     var payME: PayME?
     var activeTextField: UITextField? = nil
-    let envData: Dictionary = ["sandbox": PayME.Env.SANDBOX]
+    let envData: Dictionary = ["dev": PayME.Env.DEV,"sandbox": PayME.Env.SANDBOX]
 //    let envData: Dictionary = ["sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION]
     let langData = [PayME.Language.VIETNAMESE, PayME.Language.ENGLISH]
     let payCodeData = ["PAYME", "ATM", "CREDIT", "MOMO", "ZALO_PAY", "MANUAL_BANK"]
@@ -731,7 +731,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     storeId = 223
                 }
                 let redirectUrl = "paymesdk://\(Bundle.main.bundleIdentifier ?? "")/success"
-                payME!.pay(currentVC: self, storeId: storeId, orderId: String(Date().timeIntervalSince1970), amount: amountPay,
+                payME!.pay(currentVC: self, storeId: storeId, userName: "", orderId: String(Date().timeIntervalSince1970), amount: amountPay,
                         note: "Nội dung đơn hàng", payCode: curPayCode, extraData: nil, isShowResultUI: true,
                         onSuccess: { success in
                     Log.custom.push(title: "pay", message: success)

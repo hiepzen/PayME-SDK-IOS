@@ -55,7 +55,7 @@ class API {
     private let appToken: String
     private let connectToken: String
     private let deviceId: String
-    private var storeId: Int = 0
+    private var storeId: Int? = 0
 
     init(_ publicKey: String, _ privateKey: String, _ env: PayME.Env, _ appToken: String,
          _ connectToken: String, _ deviceId: String, _ appId: String) {
@@ -74,7 +74,7 @@ class API {
         self.accessTokenKYC = accessTokenKYC
     }
 
-    func setExtraData(storeId: Int = 0) {
+    func setExtraData(storeId: Int? = 0) {
         self.storeId = storeId
     }
 
@@ -235,7 +235,7 @@ class API {
     }
 
     func transferATM(
-            storeId: Int, orderId: String, extraData: String, note: String,
+            storeId: Int?, userName: String?, orderId: String, extraData: String, note: String,
             cardNumber: String, cardHolder: String, issuedAt: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -247,6 +247,7 @@ class API {
         var payInput: [String: Any] = [
             "clientId": clientId,
             "storeId": storeId,
+            "userName": userName,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -273,7 +274,7 @@ class API {
     }
 
     func payVNPayQRCode(
-            storeId: Int, orderId: String, extraData: String, note: String, amount: Int,
+            storeId: Int?, userName: String?, orderId: String, extraData: String, note: String, amount: Int,
             redirectUrl: String, failedUrl: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -285,6 +286,7 @@ class API {
         let payInput: [String: Any] = [
             "clientId": clientId,
             "storeId": storeId,
+            "userName": userName,
             "orderId": orderId,
             "amount": amount,
             "payment": [
@@ -304,7 +306,7 @@ class API {
     }
 
     func transferCreditCard(
-            storeId: Int, orderId: String, extraData: String, note: String,
+            storeId: Int?, userName: String?, orderId: String, extraData: String, note: String,
             cardNumber: String, cardHolder: String, expiredAt: String, cvv: String, refId: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -318,6 +320,7 @@ class API {
                 return [
                     "clientId": clientId,
                     "storeId": storeId,
+                    "userName": userName,
                     "amount": amount,
                     "orderId": orderId,
                     "payment": [
@@ -362,7 +365,7 @@ class API {
     }
 
     func paymentBankTransfer(
-            storeId: Int, orderId: String, extraData: String, note: String, amount: Int,
+            storeId: Int?, userName: String?, orderId: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -373,6 +376,7 @@ class API {
         var payInput: [String: Any] = [
             "clientId": clientId,
             "storeId": storeId,
+            "userName": userName,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -421,7 +425,7 @@ class API {
     }
 
     func transferByLinkedBank(
-            transaction: String, storeId: Int, orderId: String, linkedId: Int,
+            transaction: String, storeId: Int?, userName: String?, orderId: String, linkedId: Int,
             extraData: String, note: String, otp: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -436,6 +440,7 @@ class API {
             "note": note,
             "clientId": clientId,
             "storeId": storeId,
+            "userName": userName,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -513,7 +518,7 @@ class API {
     }
 
     func checkFlowLinkedBank(
-            storeId: Int, orderId: String, linkedId: Int, refId: String, extraData: String, note: String, amount: Int,
+            storeId: Int?, userName: String?, orderId: String, linkedId: Int, refId: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -528,6 +533,7 @@ class API {
                     "note": note,
                     "clientId": clientId,
                     "storeId": storeId,
+                    "userName": userName,
                     "amount": amount,
                     "orderId": orderId,
                     "payment": [
@@ -571,7 +577,7 @@ class API {
     }
 
     func transferWallet(
-            storeId: Int, orderId: String, securityCode: String, extraData: String, note: String, amount: Int,
+            storeId: Int?, userName: String?, orderId: String, securityCode: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -582,6 +588,7 @@ class API {
         var payInput: [String: Any] = [
             "clientId": clientId,
             "storeId": storeId,
+            "userName": userName,
             "amount": amount,
             "orderId": orderId,
             "note": note,
@@ -754,7 +761,6 @@ class API {
     }
 
     func getMerchantInformation(
-            storeId: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -764,7 +770,6 @@ class API {
         let path = "/graphql"
         let variables: [String: Any] = ["infoInput": [
             "appId": appId,
-            "storeId": storeId
         ]]
         let json: [String: Any] = [
             "query": GraphQuery.getMerchantInformation,
@@ -871,7 +876,7 @@ class API {
     }
 
     func getListBankManual(
-            storeId: Int, orderId: String, amount: Int,
+            storeId: Int?, userName: String?, orderId: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -882,6 +887,7 @@ class API {
         let variables: [String: Any] = ["payInput": [
             "clientId": clientId,
             "storeId": storeId,
+            "userName": userName,
             "amount": amount,
             "orderId": orderId,
             "payment": [
