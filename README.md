@@ -390,7 +390,7 @@ public func pay(
 | <code>currentVC</code> | Yes          | ViewController để PayME SDK dựa vào đó tự mở giao diện của PayME lên. |
 | <code>amount</code> | Yes          | Số tiền cần thanh toán bên app truyền qua cho SDK            |
 | <code>extraData</code> | Yes          | Khi thực hiện thanh toán thì app cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IPN lại hệ thống backend tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết. |
-| <code>storeId</code> | Yes | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
+| <code>storeId</code> | No | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
 | <code>orderId</code> | Yes | Mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch (tối đa 22 kí tự) |
 | <code>note</code> | No | Mô tả giao dịch từ phía đối tác |
 | <code>isShowResultUI</code> | No | Đã có giá trị default là <code>true</code>, với ý nghĩa là khi có kết quả thanh toán thì sẽ hiển thị màn hình thành công, thất bại. Khi truyền giá trị là false thì sẽ không có màn hình thành công, thất bại. |
@@ -409,7 +409,8 @@ Trong trường hợp app tích hợp cần lấy số dư để tự hiển th�
 ```swift
 public func pay(
     currentVC : UIViewController,
-    storeId: Int,
+    storeId: Int?,
+    userName: String?,
     orderId: Int,
     amount: Int,
     note: String?,
@@ -423,6 +424,7 @@ public func pay(
 | Tham số                                                      | **Bắt buộc** | **Giá trị**                                               | 
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
 | <code>payCode</code> | Yes          | <code>PAYME</code> <code>ATM</code> <code>CREDIT</code> <code>MANUAL_BANK</code>  |
+| <code>userName</code> | No | tên người dùng |
 
 ### scanQR() - Mở chức năng quét mã QR để thanh toán
 
