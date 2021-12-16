@@ -409,7 +409,8 @@ Trong trường hợp app tích hợp cần lấy số dư để tự hiển th�
 ```swift
 public func pay(
     currentVC : UIViewController,
-    storeId: Int,
+    storeId: Int?,
+    userName: String?,
     orderId: Int,
     amount: Int,
     note: String?,
@@ -423,6 +424,8 @@ public func pay(
 | Tham số                                                      | **Bắt buộc** | **Giá trị**                                               | 
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
 | <code>payCode</code> | Yes          | <code>PAYME</code> <code>ATM</code> <code>CREDIT</code> <code>MANUAL_BANK</code>  |
+| <code>userName</code> | No          | Tên tài khoản |
+| <code>storeId</code> | No | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
 
 ### scanQR() - Mở chức năng quét mã QR để thanh toán
 
@@ -430,7 +433,6 @@ public func pay(
 public func scanQR(
             currentVC: UIViewController,
 	    payCode: String,
-	    redirectURL: String = "",
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
 ) -> ()
@@ -438,12 +440,12 @@ public func scanQR(
 ```
 Định dạng QR : 
 ```swift
-let qrString =  "{$type}|${storeId}|${action}|${amount}|${note}|${orderId}"
+let qrString =  "{$type}|${storeId?}|${action}|${amount}|${note}|${orderId}|${userName?}"
 ```
 
 Ví dụ  : 
 ```swift
-let qrString = "OPENEWALLET|54938607|PAYMENT|20000|Chuyentien|2445562323"
+let qrString = "OPENEWALLET|54938607|PAYMENT|20000|Chuyentien|2445562323|DEMO)"
 ```
 
 - action: loại giao dịch ( 'PAYMENT' => thanh toán)
@@ -460,7 +462,6 @@ public func payQRCode(
 	currentVC: UIViewController, 
 	qr: String,
 	payCode: String,
-	redirectURL: String = "",
 	isShowResultUI: Bool,
     	onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
 	onError: @escaping (Dictionary<String, AnyObject>) -> ()
