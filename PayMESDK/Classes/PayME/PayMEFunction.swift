@@ -255,7 +255,7 @@ class PayMEFunction {
             var curStoreName: String = storeName
             var curStoreImage: String = storeImage
             var isShowHeader: Bool = false
-            request.getMerchantInformation(onSuccess: { response in
+            request.getMerchantInformation(storeId: storeId, onSuccess: { response in
                 let data = JSON(response)
                 if data["OpenEWallet"]["GetInfoMerchant"]["succeeded"].boolValue == true {
                     curStoreName = data["OpenEWallet"]["GetInfoMerchant"]["storeName"].string ?? self.storeName

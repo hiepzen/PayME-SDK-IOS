@@ -215,6 +215,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return button
     }()
 
+    let userNameField: UITextField = {
+        let textField = UITextField()
+        textField.layer.borderColor = UIColor.black.cgColor
+        textField.layer.borderWidth = 0.5
+        textField.backgroundColor = UIColor.white
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.placeholder = "Nhập username"
+        textField.text = ""
+        textField.setLeftPaddingPoints(10)
+        return textField
+    }()
+
     let depositButton: UIButton = {
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
@@ -731,7 +743,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     storeId = 223
                 }
                 let redirectUrl = "paymesdk://\(Bundle.main.bundleIdentifier ?? "")/success"
-                payME!.pay(currentVC: self, storeId: storeId, userName: "", orderId: String(Date().timeIntervalSince1970), amount: amountPay,
+                payME!.pay(currentVC: self, storeId: nil, userName: userNameField.text ?? "", orderId: String(Date().timeIntervalSince1970), amount: amountPay,
                         note: "Nội dung đơn hàng", payCode: curPayCode, extraData: nil, isShowResultUI: true,
                         onSuccess: { success in
                     Log.custom.push(title: "pay", message: success)
@@ -907,6 +919,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(refreshButton)
         sdkContainer.addSubview(openWalletButton)
         sdkContainer.addSubview(openHistoryButton)
+        sdkContainer.addSubview(userNameField)
         sdkContainer.addSubview(payCodeLabel)
         sdkContainer.addSubview(payCodeDropDown)
         sdkContainer.addSubview(payCodeList)
@@ -1037,9 +1050,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         openHistoryButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         openHistoryButton.addTarget(self, action: #selector(openHistoryAction), for: .touchUpInside)
 
-        payCodeLabel.topAnchor.constraint(equalTo: openHistoryButton.bottomAnchor, constant: 10).isActive = true
+        userNameField.topAnchor.constraint(equalTo: openHistoryButton.bottomAnchor, constant: 10).isActive = true
+        userNameField.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        userNameField.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        userNameField.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
+        payCodeLabel.topAnchor.constraint(equalTo: userNameField.bottomAnchor, constant: 10).isActive = true
         payCodeLabel.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
-        payCodeDropDown.topAnchor.constraint(equalTo: openHistoryButton.bottomAnchor, constant: 10).isActive = true
+        payCodeDropDown.topAnchor.constraint(equalTo: userNameField.bottomAnchor, constant: 10).isActive = true
         payCodeDropDown.leadingAnchor.constraint(equalTo: payCodeLabel.trailingAnchor, constant: 10).isActive = true
         payCodeDropDown.heightAnchor.constraint(equalToConstant: 30).isActive = true
         payCodeDropDown.widthAnchor.constraint(equalToConstant: 200).isActive = true

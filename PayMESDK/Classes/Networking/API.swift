@@ -246,8 +246,6 @@ class API {
         let path = "/graphql"
         var payInput: [String: Any] = [
             "clientId": clientId,
-            "storeId": storeId,
-            "userName": userName,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -258,6 +256,12 @@ class API {
                 ]
             ]
         ]
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -283,10 +287,8 @@ class API {
     ) -> URLSessionDataTask? {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let payInput: [String: Any] = [
+        var payInput: [String: Any] = [
             "clientId": clientId,
-            "storeId": storeId,
-            "userName": userName,
             "orderId": orderId,
             "amount": amount,
             "payment": [
@@ -296,6 +298,12 @@ class API {
                 ]
             ]
         ]
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
         let variables: [String: Any] = ["payInput": payInput]
         let json: [String: Any] = [
             "query": GraphQuery.paymentVNPayQRCode,
@@ -319,8 +327,6 @@ class API {
             if refId != "" {
                 return [
                     "clientId": clientId,
-                    "storeId": storeId,
-                    "userName": userName,
                     "amount": amount,
                     "orderId": orderId,
                     "payment": [
@@ -336,7 +342,6 @@ class API {
             } else {
                 return [
                     "clientId": clientId,
-                    "storeId": storeId,
                     "amount": amount,
                     "orderId": orderId,
                     "payment": [
@@ -349,6 +354,12 @@ class API {
                 ]
             }
         }()
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -375,8 +386,6 @@ class API {
         let path = "/graphql"
         var payInput: [String: Any] = [
             "clientId": clientId,
-            "storeId": storeId,
-            "userName": userName,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -386,6 +395,12 @@ class API {
                 ]
             ]
         ]
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -439,8 +454,6 @@ class API {
             "referExtraData": extraData,
             "note": note,
             "clientId": clientId,
-            "storeId": storeId,
-            "userName": userName,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -451,6 +464,12 @@ class API {
                 ]
             ]
         ]
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -499,9 +518,11 @@ class API {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
         var authCreditCardInput: [String: Any] = [
-            "storeId": storeId,
             "cardNumber": cardNumber
         ]
+        if storeId != nil {
+            authCreditCardInput.updateValue(storeId, forKey: "storeId")
+        }
         if expiredAt != "" {
             authCreditCardInput.updateValue(expiredAt, forKey: "expiredAt")
         }
@@ -532,8 +553,6 @@ class API {
                     "referExtraData": extraData,
                     "note": note,
                     "clientId": clientId,
-                    "storeId": storeId,
-                    "userName": userName,
                     "amount": amount,
                     "orderId": orderId,
                     "payment": [
@@ -549,7 +568,6 @@ class API {
                     "referExtraData": extraData,
                     "note": note,
                     "clientId": clientId,
-                    "storeId": storeId,
                     "amount": amount,
                     "orderId": orderId,
                     "payment": [
@@ -561,6 +579,12 @@ class API {
                 ]
             }
         }()
+        if storeId != nil {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -587,8 +611,6 @@ class API {
         let path = "/graphql"
         var payInput: [String: Any] = [
             "clientId": clientId,
-            "storeId": storeId,
-            "userName": userName,
             "amount": amount,
             "orderId": orderId,
             "note": note,
@@ -599,6 +621,12 @@ class API {
                 ]
             ]
         ]
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -625,10 +653,10 @@ class API {
         let path = "/graphql"
         var input = [
             "serviceType": "OPEN_EWALLET_PAYMENT",
-            "extraData": [
-                "storeId": storeId
-            ]
         ] as [String: Any]
+        if storeId != nil {
+            input.updateValue(["storeId": storeId], forKey: "extraData")
+        }
         if payCode != "" {
             input.updateValue(payCode, forKey: "payCode")
         }
@@ -761,6 +789,7 @@ class API {
     }
 
     func getMerchantInformation(
+            storeId: Int?,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -768,9 +797,12 @@ class API {
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let variables: [String: Any] = ["infoInput": [
+        var variables: [String: Any] = ["infoInput": [
             "appId": appId,
         ]]
+        if (storeId != nil) {
+            variables.updateValue(storeId, forKey: "storeId")
+        }
         let json: [String: Any] = [
             "query": GraphQuery.getMerchantInformation,
             "variables": variables,
@@ -828,26 +860,22 @@ class API {
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let variables: [String: Any] = {
-            if let paymentArg = payment {
-                return ["getFeeInput": [
-                    "clientId": clientId,
-                    "serviceType": "OPEN_EWALLET_PAYMENT",
-                    "payment": paymentArg,
-                    "amount": amount,
-                    "storeId": storeId
-                ]]
-            }
-            return ["getFeeInput": [
-                "clientId": clientId,
-                "serviceType": "OPEN_EWALLET_PAYMENT",
-                "amount": amount,
-                "storeId": storeId
-            ]]
-        }()
+        var variables = [
+            "clientId": clientId,
+            "serviceType": "OPEN_EWALLET_PAYMENT",
+            "amount": amount
+        ] as [String: Any]
+        if payment != nil {
+            variables.updateValue(payment, forKey: "payment")
+        }
+        if storeId != nil {
+            variables.updateValue(storeId, forKey: "storeId")
+        }
         let json: [String: Any] = [
             "query": GraphQuery.getFeeGraphQLQuery,
-            "variables": variables,
+            "variables": [
+                "getFeeInput": variables
+            ],
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
         onRequest(url, path, params, onSuccess, onError, onPaymeError)
@@ -884,10 +912,8 @@ class API {
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let variables: [String: Any] = ["payInput": [
+        var variables: [String: Any] = ["payInput": [
             "clientId": clientId,
-            "storeId": storeId,
-            "userName": userName,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -897,6 +923,13 @@ class API {
                 ]
             ]
         ]]
+        if (storeId != nil) {
+            variables.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            variables.updateValue(userName, forKey: "userName")
+
+        }
         let json: [String: Any] = [
             "query": GraphQuery.getListBankManual,
             "variables": variables,
