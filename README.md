@@ -427,6 +427,8 @@ public func pay(
 | <code>userName</code> | No          | Tên tài khoản |
 | <code>storeId</code> | No | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
 
+Lưu ý : Chỉ có userName hoặc storeId, nếu dùng userName thì để storeId = nil và ngược lại
+
 ### scanQR() - Mở chức năng quét mã QR để thanh toán
 
 ```swift
