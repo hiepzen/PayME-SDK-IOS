@@ -922,16 +922,22 @@ class PaymentPresentation {
                         return
                     }
                     if (isSucceed == false) {
+                        PaymentModalController.isShowCloseModal = false
                         if let message = payInfo["message"] as? String {
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
-                            self.onPaymeError(message)
+                           PayME.currentVC!.dismiss(animated: true) {
+                               self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
+                               self.onPaymeError(message)
+                           }
                         } else {
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "hasError".localize() as AnyObject])
-                            self.onPaymeError("hasError".localize())
+                           PayME.currentVC!.dismiss(animated: true) {
+                               self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "hasError".localize() as AnyObject])
+                               self.onPaymeError("hasError".localize())
+                           }
                         }
                         return
                     }
                     guard let payment = payInfo["payment"] as? [String: AnyObject] else {
+                        PaymentModalController.isShowCloseModal = false
                         if let message = payInfo["message"] as? String {
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                             self.onPaymeError(message)
