@@ -912,7 +912,7 @@ class API {
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        var variables: [String: Any] = ["payInput": [
+        var variables: [String: Any] = [
             "clientId": clientId,
             "amount": amount,
             "orderId": orderId,
@@ -922,17 +922,18 @@ class API {
                     "recheck": false
                 ]
             ]
-        ]]
+        ]
         if (storeId != nil) {
             variables.updateValue(storeId, forKey: "storeId")
         }
         if userName != nil {
             variables.updateValue(userName, forKey: "userName")
-
         }
         let json: [String: Any] = [
             "query": GraphQuery.getListBankManual,
-            "variables": variables,
+            "variables": [
+                "payInput": variables
+            ],
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
         onRequest(url, path, params, onSuccess, onError, onPaymeError)
