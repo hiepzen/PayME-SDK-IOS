@@ -451,10 +451,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             onCloseWebview()
         }
         if message.name == onPay {
-            if let dictionary = message.body as? [String: AnyObject] {
-                let userName = dictionary["userName"] as? String
-                payMEFunction?.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
-            }
+            payMEFunction?.openQRCode(currentVC: self, onSuccess: onSuccess!, onError: onError!)
         }
         if message.name == getContacts {
             fetchContacts()
