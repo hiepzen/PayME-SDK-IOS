@@ -970,6 +970,7 @@ class PaymentPresentation {
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, banks: listSettingBank, listBankManual: listBank, orderTransaction: orderTransaction))
                     } else {
                         self.onPaymeError("")
+                        PaymentModalController.isShowCloseModal = false
                         PayME.currentVC!.dismiss(animated: true) {
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "manualBankNotFound".localize() as AnyObject])
                         }
