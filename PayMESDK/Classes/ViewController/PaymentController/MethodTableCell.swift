@@ -102,6 +102,9 @@ class Method: UITableViewCell {
                     }
                 }
                 break
+            case MethodType.CREDIT_BALANCE.rawValue:
+                methodView.image.image = UIImage(for: Method.self, named: "methodCreditWallet")
+                break
             case MethodType.BANK_CARD.rawValue:
                 methodView.image.image = UIImage(for: Method.self, named: "iconAtm")
                 break

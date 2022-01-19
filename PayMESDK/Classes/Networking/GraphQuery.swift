@@ -242,6 +242,26 @@ class GraphQuery {
                                        }
                                      }
                                      """
+    static let creditWallettQuery = """
+                                     mutation transferWalletQuery($payInput: OpenEWalletPaymentPayInput!) {
+                                       OpenEWallet {
+                                         Payment {
+                                           Pay(input: $payInput) {
+                                             succeeded
+                                             message
+                                             history {
+                                               payment {
+                                                 transaction
+                                                 method
+                                                 description
+                                               }
+                                               createdAt
+                                             }
+                                           }
+                                         }
+                                       }
+                                     }
+                                     """
     static let getTranferMethodsQuery = """
                                         mutation getTranferMethodsQuery($getPaymentMethodInput: PaymentMethodInput) {
                                           Utility {
@@ -264,6 +284,9 @@ class GraphQuery {
                                                   }
                                                   ... on WalletMethodInfo {
                                                     accountId
+                                                  }
+                                                  ... on CreditBalanceInfo {
+                                                    supplierLinkedId
                                                   }
                                                 }
                                               }

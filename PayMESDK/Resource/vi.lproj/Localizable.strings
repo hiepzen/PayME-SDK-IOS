@@ -34,6 +34,7 @@
 "confirmOTP" = "Xác thực OTP";
 "confirm" = "Xác nhận";
 "walletBalance" = "Số dư ví";
+"creditWallet" = "Ví tín dụng";
 "activeNow" = "Kích hoạt ngay";
 "activeNowContent" = "(*) Vui lòng kích hoạt tài khoản ví trước khi sử dụng";
 "kycNow" = "Định danh ngay";

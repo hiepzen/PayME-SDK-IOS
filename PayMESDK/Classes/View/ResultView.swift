@@ -212,6 +212,13 @@ class ResultView: UIView {
                     ["key": "accountNumber".localize(), "value": "\(String(describing: result.orderTransaction.paymentMethod?.title ?? ""))-\(String(describing: result.orderTransaction.paymentMethod!.label.suffix(4)))"],
                 ])
                 break
+            case MethodType.CREDIT_BALANCE.rawValue:
+                paymentView = InformationView(data: [
+                    ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],
+                    ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime],
+                    ["key": "method".localize(), "value": "creditWallet".localize()]
+                ])
+                break
             case MethodType.BANK_CARD.rawValue:
                 paymentView = InformationView(data: [
                     ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],

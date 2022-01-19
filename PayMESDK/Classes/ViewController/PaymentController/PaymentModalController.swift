@@ -896,6 +896,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         case MethodType.LINKED.rawValue:
             setupSecurity()
             break
+        case MethodType.CREDIT_BALANCE.rawValue:
+            setupSecurity()
+            break
         case MethodType.BANK_CARD.rawValue:
             paymentPresentation.getLinkBank(orderTransaction: orderTransaction)
             break

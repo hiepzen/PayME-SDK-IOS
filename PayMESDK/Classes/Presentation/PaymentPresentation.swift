@@ -137,6 +137,62 @@ class PaymentPresentation {
                 },
                 onPaymeError: onPaymeError)
     }
+    
+    func paymentCreditWallet(securityCode: String, orderTransaction: OrderTransaction) {
+        request.creditWallet(storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, securityCode: securityCode, supplierLinkedId: orderTransaction.paymentMethod?.dataCreditWallet?.supplierLinkedId ?? "", extraData: orderTransaction.extraData, note: orderTransaction.note, amount: orderTransaction.amount,
+                             onSuccess: { response in
+            let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
+            let payInfo = paymentInfo["Pay"] as! [String: AnyObject]
+            let message = payInfo["message"] as! String
+            let succeeded = payInfo["succeeded"] as! Bool
+            var formatDate = ""
+            var transactionNumber = ""
+            if let history = payInfo["history"] as? [String: AnyObject] {
+                if let createdAt = history["createdAt"] as? String {
+                    if let date = toDate(dateString: createdAt) {
+                        formatDate = toDateString(date: date)
+                    }
+                }
+                if let payment = history["payment"] as? [String: AnyObject] {
+                    if let transaction = payment["transaction"] as? String {
+                        transactionNumber = transaction
+                    }
+                }
+            }
+
+            if (succeeded == true) {
+                let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
+                let responseSuccess = [
+                    "payment": ["transaction": paymentInfo["transaction"] as? String]
+                ] as [String: AnyObject]
+                let result = Result(
+                        type: ResultType.SUCCESS,
+                        orderTransaction: orderTransaction,
+                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                        extraData: responseSuccess
+                )
+                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+            } else {
+                let result = Result(
+                        type: ResultType.FAIL,
+                        failReasonLabel: message,
+                        orderTransaction: orderTransaction,
+                        transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                        extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject]
+                )
+                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+            }
+        },
+                             onError:  { error in
+            if let code = error["code"] as? Int {
+                if (code == 401) {
+                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                }
+            }
+            self.onError(error)
+        },
+                             onPaymeError: onPaymeError)
+    }
 
     func transferByLinkedBank(transaction: String, orderTransaction: OrderTransaction, linkedId: Int, OTP: String) {
         request.transferByLinkedBank(
@@ -396,6 +452,11 @@ class PaymentPresentation {
                             } else {
                                 self.paymentLinkedMethod(orderTransaction: orderTransaction)
                             }
+                        }
+                        if methodType == "CREDIT_BALANCE" {
+                            self.paymentCreditWallet(
+                                securityCode: securityCode,
+                                orderTransaction: orderTransaction)
                         }
                     } else {
                         let message = securityResponse["message"] as! String
@@ -729,47 +790,52 @@ class PaymentPresentation {
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
     ) {
         request.getTransferMethods(payCode: payCode,
-                onSuccess: { response in
-                    let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
-                    var methods: [PaymentMethod] = []
-                    for (index, item) in items.enumerated() {
-                        guard let methodType = item["type"] as? String else {
-                            continue
-                        }
-                        let methodInformation = PaymentMethod(
-                                type: methodType, title: item["title"] as! String, label: item["label"] as! String
-                        )
-                        if methodType == "WALLET" {
-                            methodInformation.dataWallet = WalletInformation(balance: 0)
-                        }
-                        if methodType == "LINKED" {
-                            methodInformation.dataLinked = LinkedInformation(
-                                    swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as? String,
-                                    linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int,
-                                    issuer: (item["data"] as! [String: AnyObject])["issuer"] as? String ?? ""
-                            )
-                        }
-                        methods.append(methodInformation)
-                    }
-                    guard let method = methods.first(where: { $0.type == "WALLET" }) else {
-                        onSuccess(methods)
-                        return
-                    }
-                    if self.accessToken != "" && self.kycState == "APPROVED" {
-                        self.request.getWalletInfo(onSuccess: { response in
-                            let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as? Int ?? 0
-                            method.dataWallet?.balance = balance
-                            onSuccess(methods)
-                        }, onError: { error in onError(error) })
-                    } else {
-                        onSuccess(methods)
-                    }
-
-                },
-                onError: { error in onError(error) },
-                onPaymeError: onPaymeError)
+                                   onSuccess: { response in
+            let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
+            var methods: [PaymentMethod] = []
+            for (_, item) in items.enumerated() {
+                guard let methodType = item["type"] as? String else {
+                    continue
+                }
+                let methodInformation = PaymentMethod(
+                    type: methodType, title: item["title"] as! String, label: item["label"] as! String
+                )
+                if methodType == "WALLET" {
+                    methodInformation.dataWallet = WalletInformation(balance: 0)
+                }
+                if methodType == "LINKED" {
+                    methodInformation.dataLinked = LinkedInformation(
+                        swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as? String,
+                        linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int,
+                        issuer: (item["data"] as! [String: AnyObject])["issuer"] as? String ?? ""
+                    )
+                }
+                if methodType == "CREDIT_BALANCE" {
+                    methodInformation.dataCreditWallet = CreditWalletInformation(
+                        supplierLinkedId: (item["data"] as! [String: AnyObject])["supplierLinkedId"] as? String
+                    )
+                }
+                methods.append(methodInformation)
+            }
+            guard let method = methods.first(where: { $0.type == "WALLET" }) else {
+                onSuccess(methods)
+                return
+            }
+            if self.accessToken != "" && self.kycState == "APPROVED" {
+                self.request.getWalletInfo(onSuccess: { response in
+                    let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as? Int ?? 0
+                    method.dataWallet?.balance = balance
+                    onSuccess(methods)
+                }, onError: { error in onError(error) })
+            } else {
+                onSuccess(methods)
+            }
+            
+        },
+                                   onError: { error in onError(error) },
+                                   onPaymeError: onPaymeError)
     }
-
+    
     func getLinkBank(orderTransaction: OrderTransaction) {
         request.getBankList(onSuccess: { bankListResponse in
             let banks = bankListResponse["Setting"]!["banks"] as! [[String: AnyObject]]
@@ -783,10 +849,10 @@ class PaymentPresentation {
                         dateString = "releaseDate".localize()
                     }
                     let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int,
-                            cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String,
-                            shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String,
-                            isVietQr: bank["vietQRAccepted"] as? Bool ?? false,
-                            requiredDateString: dateString
+                                    cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String,
+                                    shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String,
+                                    isVietQr: bank["vietQRAccepted"] as? Bool ?? false,
+                                    requiredDateString: dateString
                     )
                     listBank.append(temp)
                 }
@@ -819,6 +885,14 @@ class PaymentPresentation {
                     "linked": [
                         "linkedId": orderTransaction.paymentMethod?.dataLinked?.linkedId ?? 0,
                         "envName": "MobileApp"
+                    ]
+                ]
+            case MethodType.CREDIT_BALANCE.rawValue:
+                return [
+                    "creditBalance": [
+                        "active": true,
+                        "securityCode": "",
+                        "supplierLinkedId": orderTransaction.paymentMethod?.dataCreditWallet?.supplierLinkedId ?? ""
                     ]
                 ]
             default: return nil
@@ -861,7 +935,7 @@ class PaymentPresentation {
                     let payment = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
                     if let transInfo = payment["GetTransactionInfo"] as? [String: AnyObject] {
                         let state = transInfo["state"] as? String ?? ""
-                        let message = transInfo["message"] as? String
+                        _ = transInfo["message"] as? String
                         if let total: Int = transInfo["total"] as? Int {
                             orderTransaction.total = total
                         }

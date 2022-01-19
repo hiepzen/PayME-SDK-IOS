@@ -605,6 +605,43 @@ class API {
         let params = try? JSONSerialization.data(withJSONObject: json)
         onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
+    
+    func creditWallet(
+        storeId: Int, orderId: String, securityCode: String, supplierLinkedId: String, extraData: String, note: String, amount: Int,
+        onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+        onError: @escaping (Dictionary<String, AnyObject>) -> (),
+        onPaymeError: @escaping (String) -> () = { s in }
+    ) {
+        let url = urlGraphQL(env: env)
+        let path = "/graphql"
+        var payInput: [String: Any] = [
+            "clientId": clientId,
+            "storeId": storeId,
+            "amount": amount,
+            "orderId": orderId,
+            "note": note,
+            "payment": [
+                "creditBalance": [
+                    "active": true,
+                    "securityCode": securityCode,
+                    "supplierLinkedId": supplierLinkedId
+                ]
+            ]
+        ]
+        if (note != "") {
+            payInput.updateValue(note, forKey: "note")
+        }
+        if (extraData != "") {
+            payInput.updateValue(extraData, forKey: "referExtraData")
+        }
+        let variables: [String: Any] = ["payInput": payInput]
+        let json: [String: Any] = [
+            "query": GraphQuery.creditWallettQuery,
+            "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
+    }
 
     func getTransferMethods(
             payCode: String = "",

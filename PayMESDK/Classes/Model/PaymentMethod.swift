@@ -32,6 +32,7 @@ enum MethodType: String {
     case CREDIT_CARD_PG = "CREDIT_CARD_PG"
     case BANK_QR_CODE_PG = "BANK_QR_CODE_PG"
     case ZALOPAY_PG = "ZALOPAY_PG"
+    case CREDIT_BALANCE = "CREDIT_BALANCE"
 }
 
 class PaymentData {
@@ -54,6 +55,7 @@ class PaymentMethod {
     var dataBank: BankInformation?
     var dataBankTransfer: BankManual?
     var dataCreditCard: CreditCardInfomation?
+    var dataCreditWallet: CreditWalletInformation?
 
     init(
         type: String,
@@ -65,7 +67,8 @@ class PaymentMethod {
         dataLinked: LinkedInformation? = nil,
         dataBank: BankInformation? = nil,
         dataBankTransfer: BankManual? = nil,
-        dataCreditCard: CreditCardInfomation? = nil
+        dataCreditCard: CreditCardInfomation? = nil,
+        dataCreditWallet: CreditWalletInformation? = nil
     ) {
         self.type = type
         self.title = title
@@ -77,6 +80,7 @@ class PaymentMethod {
         self.dataBank = dataBank
         self.dataBankTransfer = dataBankTransfer
         self.dataCreditCard = dataCreditCard
+        self.dataCreditWallet = dataCreditWallet
     }
 }
 
