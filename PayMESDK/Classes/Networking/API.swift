@@ -55,7 +55,7 @@ class API {
     private let appToken: String
     private let connectToken: String
     private let deviceId: String
-    private var storeId: Int = 0
+    private var storeId: Int? = 0
 
     init(_ publicKey: String, _ privateKey: String, _ env: PayME.Env, _ appToken: String,
          _ connectToken: String, _ deviceId: String, _ appId: String) {
@@ -74,7 +74,7 @@ class API {
         self.accessTokenKYC = accessTokenKYC
     }
 
-    func setExtraData(storeId: Int = 0) {
+    func setExtraData(storeId: Int? = 0) {
         self.storeId = storeId
     }
 
@@ -205,7 +205,8 @@ class API {
             "configsKeys": ["limit.param.amount.payment",
                             "kyc.mode.enable",
                             "credit.sacom.auth.link",
-                            "service.main.visible"]
+                            "service.main.visible",
+                            "sdk.web.secretKey"]
         ]
         let json: [String: Any] = [
             "query": GraphQuery.getSettingQuery,
@@ -234,7 +235,7 @@ class API {
     }
 
     func transferATM(
-            storeId: Int, orderId: String, extraData: String, note: String,
+            storeId: Int?, userName: String?, orderId: String, extraData: String, note: String,
             cardNumber: String, cardHolder: String, issuedAt: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -245,7 +246,6 @@ class API {
         let path = "/graphql"
         var payInput: [String: Any] = [
             "clientId": clientId,
-            "storeId": storeId,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -256,6 +256,12 @@ class API {
                 ]
             ]
         ]
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -272,7 +278,7 @@ class API {
     }
 
     func payVNPayQRCode(
-            storeId: Int, orderId: String, extraData: String, note: String, amount: Int,
+            storeId: Int?, userName: String?, orderId: String, extraData: String, note: String, amount: Int,
             redirectUrl: String, failedUrl: String,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -281,9 +287,8 @@ class API {
     ) -> URLSessionDataTask? {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let payInput: [String: Any] = [
+        var payInput: [String: Any] = [
             "clientId": clientId,
-            "storeId": storeId,
             "orderId": orderId,
             "amount": amount,
             "payment": [
@@ -293,17 +298,23 @@ class API {
                 ]
             ]
         ]
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
         let variables: [String: Any] = ["payInput": payInput]
         let json: [String: Any] = [
             "query": GraphQuery.paymentVNPayQRCode,
             "variables": variables,
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
-       return onRequestCancellable(url, path, params, onSuccess, onError)
+        return onRequestCancellable(url, path, params, onSuccess, onError)
     }
 
     func transferCreditCard(
-            storeId: Int, orderId: String, extraData: String, note: String,
+            storeId: Int?, userName: String?, orderId: String, extraData: String, note: String,
             cardNumber: String, cardHolder: String, expiredAt: String, cvv: String, refId: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -316,7 +327,6 @@ class API {
             if refId != "" {
                 return [
                     "clientId": clientId,
-                    "storeId": storeId,
                     "amount": amount,
                     "orderId": orderId,
                     "payment": [
@@ -332,7 +342,6 @@ class API {
             } else {
                 return [
                     "clientId": clientId,
-                    "storeId": storeId,
                     "amount": amount,
                     "orderId": orderId,
                     "payment": [
@@ -345,6 +354,12 @@ class API {
                 ]
             }
         }()
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -361,7 +376,7 @@ class API {
     }
 
     func paymentBankTransfer(
-            storeId: Int, orderId: String, extraData: String, note: String, amount: Int,
+            storeId: Int?, userName: String?, orderId: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -371,7 +386,6 @@ class API {
         let path = "/graphql"
         var payInput: [String: Any] = [
             "clientId": clientId,
-            "storeId": storeId,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -381,6 +395,12 @@ class API {
                 ]
             ]
         ]
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -420,7 +440,7 @@ class API {
     }
 
     func transferByLinkedBank(
-            transaction: String, storeId: Int, orderId: String, linkedId: Int,
+            transaction: String, storeId: Int?, userName: String?, orderId: String, linkedId: Int,
             extraData: String, note: String, otp: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
@@ -434,7 +454,6 @@ class API {
             "referExtraData": extraData,
             "note": note,
             "clientId": clientId,
-            "storeId": storeId,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -445,6 +464,12 @@ class API {
                 ]
             ]
         ]
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -493,9 +518,11 @@ class API {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
         var authCreditCardInput: [String: Any] = [
-            "storeId": storeId,
             "cardNumber": cardNumber
         ]
+        if storeId != nil {
+            authCreditCardInput.updateValue(storeId, forKey: "storeId")
+        }
         if expiredAt != "" {
             authCreditCardInput.updateValue(expiredAt, forKey: "expiredAt")
         }
@@ -512,7 +539,7 @@ class API {
     }
 
     func checkFlowLinkedBank(
-            storeId: Int, orderId: String, linkedId: Int, refId: String, extraData: String, note: String, amount: Int,
+            storeId: Int?, userName: String?, orderId: String, linkedId: Int, refId: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -526,7 +553,6 @@ class API {
                     "referExtraData": extraData,
                     "note": note,
                     "clientId": clientId,
-                    "storeId": storeId,
                     "amount": amount,
                     "orderId": orderId,
                     "payment": [
@@ -542,7 +568,6 @@ class API {
                     "referExtraData": extraData,
                     "note": note,
                     "clientId": clientId,
-                    "storeId": storeId,
                     "amount": amount,
                     "orderId": orderId,
                     "payment": [
@@ -554,6 +579,12 @@ class API {
                 ]
             }
         }()
+        if storeId != nil {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -570,7 +601,7 @@ class API {
     }
 
     func transferWallet(
-            storeId: Int, orderId: String, securityCode: String, extraData: String, note: String, amount: Int,
+            storeId: Int?, userName: String?, orderId: String, securityCode: String, extraData: String, note: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -580,7 +611,6 @@ class API {
         let path = "/graphql"
         var payInput: [String: Any] = [
             "clientId": clientId,
-            "storeId": storeId,
             "amount": amount,
             "orderId": orderId,
             "note": note,
@@ -591,6 +621,12 @@ class API {
                 ]
             ]
         ]
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
         if (note != "") {
             payInput.updateValue(note, forKey: "note")
         }
@@ -654,10 +690,10 @@ class API {
         let path = "/graphql"
         var input = [
             "serviceType": "OPEN_EWALLET_PAYMENT",
-            "extraData": [
-                "storeId": storeId
-            ]
         ] as [String: Any]
+        if storeId != nil {
+            input.updateValue(["storeId": storeId], forKey: "extraData")
+        }
         if payCode != "" {
             input.updateValue(payCode, forKey: "payCode")
         }
@@ -790,7 +826,7 @@ class API {
     }
 
     func getMerchantInformation(
-            storeId: Int,
+            storeId: Int?,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -798,10 +834,12 @@ class API {
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let variables: [String: Any] = ["infoInput": [
+        var variables: [String: Any] = ["infoInput": [
             "appId": appId,
-            "storeId": storeId
         ]]
+        if (storeId != nil) {
+            variables.updateValue(storeId, forKey: "storeId")
+        }
         let json: [String: Any] = [
             "query": GraphQuery.getMerchantInformation,
             "variables": variables,
@@ -859,26 +897,22 @@ class API {
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let variables: [String: Any] = {
-            if let paymentArg = payment {
-                return ["getFeeInput": [
-                    "clientId": clientId,
-                    "serviceType": "OPEN_EWALLET_PAYMENT",
-                    "payment": paymentArg,
-                    "amount": amount,
-                    "storeId": storeId
-                ]]
-            }
-            return ["getFeeInput": [
-                "clientId": clientId,
-                "serviceType": "OPEN_EWALLET_PAYMENT",
-                "amount": amount,
-                "storeId": storeId
-            ]]
-        }()
+        var variables = [
+            "clientId": clientId,
+            "serviceType": "OPEN_EWALLET_PAYMENT",
+            "amount": amount
+        ] as [String: Any]
+        if payment != nil {
+            variables.updateValue(payment, forKey: "payment")
+        }
+        if storeId != nil {
+            variables.updateValue(storeId, forKey: "storeId")
+        }
         let json: [String: Any] = [
             "query": GraphQuery.getFeeGraphQLQuery,
-            "variables": variables,
+            "variables": [
+                "getFeeInput": variables
+            ],
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
         onRequest(url, path, params, onSuccess, onError, onPaymeError)
@@ -907,7 +941,7 @@ class API {
     }
 
     func getListBankManual(
-            storeId: Int, orderId: String, amount: Int,
+            storeId: Int?, userName: String?, orderId: String, amount: Int,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),
             onPaymeError: @escaping (String) -> () = { s in
@@ -915,9 +949,8 @@ class API {
     ) {
         let url = urlGraphQL(env: env)
         let path = "/graphql"
-        let variables: [String: Any] = ["payInput": [
+        var variables: [String: Any] = [
             "clientId": clientId,
-            "storeId": storeId,
             "amount": amount,
             "orderId": orderId,
             "payment": [
@@ -926,10 +959,18 @@ class API {
                     "recheck": false
                 ]
             ]
-        ]]
+        ]
+        if (storeId != nil) {
+            variables.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            variables.updateValue(userName, forKey: "userName")
+        }
         let json: [String: Any] = [
             "query": GraphQuery.getListBankManual,
-            "variables": variables,
+            "variables": [
+                "payInput": variables
+            ],
         ]
         let params = try? JSONSerialization.data(withJSONObject: json)
         onRequest(url, path, params, onSuccess, onError, onPaymeError)
@@ -939,7 +980,8 @@ class API {
             _ url: String, _ path: String, _ params: Data?,
             _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> (),
-            _ onPaymeError: @escaping (String) -> () = { s in }
+            _ onPaymeError: @escaping (String) -> () = { s in
+            }
     ) {
         let request = NetworkRequestGraphQL(appId: appId, url: url, path: path, token: accessToken, params: params, publicKey: publicKey, privateKey: privateKey)
         if (env == PayME.Env.DEV) {

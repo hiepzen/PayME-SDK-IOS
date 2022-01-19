@@ -175,6 +175,7 @@ class GraphQuery {
                                             amount
                                             note
                                             orderId
+                                            userName
                                           }
                                         }
                                       }

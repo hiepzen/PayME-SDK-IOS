@@ -26,6 +26,7 @@ class PayMEFunction {
     private var storeName = ""
     private var storeImage: String = ""
     private var kycMode: [String: Bool]? = nil
+    private var webKey = ""
     var authenCreditLink: String = ""
     static var language = PayME.Language.VIETNAMESE
 
@@ -92,7 +93,7 @@ class PayMEFunction {
     }
 
     func encryptAES(_ data: String) -> String {
-        let aes = try? AES(key: Array("LkaWasflkjfqr2g3".utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
+        let aes = try? AES(key: Array(webKey.utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
         let dataEncrypted = try? aes!.encrypt(Array(data.utf8))
         return dataEncrypted!.toBase64()!
     }
@@ -230,8 +231,8 @@ class PayMEFunction {
     }
 
     func payAction(
-            currentVC: UIViewController, storeId: Int, orderId: String, amount: Int, note: String?,
-            payCode: String = "PAYME", redirectURL: String = "", extraData: String?, isShowResultUI: Bool = true,
+            currentVC: UIViewController, storeId: Int?, userName: String?, orderId: String, amount: Int, note: String?,
+            payCode: String = "PAYME", extraData: String?, isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {
@@ -263,23 +264,23 @@ class PayMEFunction {
                 }
 
                 let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
-                        orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader)
+                        orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader, userName: userName)
                 self.paymentModalController = PaymentModalController(
                         payMEFunction: self, orderTransaction: orderTransaction,
                         payCode: payCode, isShowResultUI: isShowResultUI,
                         onSuccess: onSuccess, onError: onError
                 )
-                self.paymentModalController?.redirectURLVNPay = redirectURL
+                self.paymentModalController?.redirectURLVNPay = ""
                 currentVC.presentModal(self.paymentModalController!)
             }, onError: { error in
                 let orderTransaction = OrderTransaction(amount: amount, storeId: storeId, storeName: curStoreName, storeImage: curStoreImage,
-                        orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader)
+                        orderId: orderId, note: note ?? "", extraData: extraData ?? "", total: amount, isShowHeader: isShowHeader, userName: userName)
                 self.paymentModalController = PaymentModalController(
                         payMEFunction: self, orderTransaction: orderTransaction,
                         payCode: payCode, isShowResultUI: isShowResultUI,
                         onSuccess: onSuccess, onError: onError
                 )
-                self.paymentModalController?.redirectURLVNPay = redirectURL
+                self.paymentModalController?.redirectURLVNPay = ""
                 currentVC.presentModal(self.paymentModalController!)
             })
         }
@@ -301,7 +302,7 @@ class PayMEFunction {
 
     func openQRCode(
             currentVC: UIViewController,
-            payCode: String = "PAYME", redirectURL: String = "",
+            payCode: String = "PAYME",
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void,
             isStartDirectFromUser: Bool = false
@@ -322,12 +323,13 @@ class PayMEFunction {
                         let orderId = (detect["orderId"] as? String) ?? ""
                         let amount = (detect["amount"] as? Int) ?? 0
                         let note = (detect["note"] as? String) ?? ""
+                        let userName = (detect["userName"] as? String) ?? ""
                         let onSuccessPay = isStartDirectFromUser ? { dictionary in
                         } : onSuccess
                         let currentViewController = PayME.currentVC ?? currentVC
                         self.payAction(
-                                currentVC: currentViewController, storeId: storeId, orderId: orderId, amount: amount,
-                                note: note, payCode: payCode, redirectURL: redirectURL, extraData: nil,
+                                currentVC: currentViewController, storeId: storeId, userName: userName, orderId: orderId, amount: amount,
+                                note: note, payCode: payCode, extraData: nil,
                                 isShowResultUI: true, onSuccess: onSuccessPay, onError: onError
                         )
                     } else {
@@ -356,7 +358,7 @@ class PayMEFunction {
 
     func payQRCode(
             currentVC: UIViewController,
-            qr: String, payCode: String = "PAYME", redirectURL: String = "",
+            qr: String, payCode: String = "PAYME",
             isShowResultUI: Bool = true,
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> Void,
             onError: @escaping (Dictionary<String, AnyObject>) -> Void
@@ -375,8 +377,9 @@ class PayMEFunction {
                 let orderId = (detect["orderId"] as? String) ?? ""
                 let amount = (detect["amount"] as? Int) ?? 0
                 let note = (detect["note"] as? String) ?? ""
-                self.payAction(currentVC: currentVC, storeId: storeId, orderId: orderId, amount: amount, note: note,
-                        payCode: payCode, redirectURL: redirectURL, extraData: nil, isShowResultUI: isShowResultUI,
+                let userName = (detect["userName"] as? String) ?? ""
+                self.payAction(currentVC: currentVC, storeId: storeId, userName: userName, orderId: orderId, amount: amount, note: note,
+                        payCode: payCode, extraData: nil, isShowResultUI: isShowResultUI,
                         onSuccess: onSuccess, onError: onError)
             } else {
                 onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
@@ -485,6 +488,13 @@ class PayMEFunction {
                             }
                         }
 
+                        if let configWebKey = configs.first(where: { config in
+                            let key = (config["key"] as? String) ?? ""
+                            return key == "sdk.web.secretKey"
+                        }) {
+                            self.webKey = configWebKey["value"] as? String ?? ""
+                        }
+
                         onSuccess(result)
                     }, onError: { error in onError(error) })
                 }, onError: { errorAccessToken in onError(errorAccessToken) })
@@ -527,9 +537,9 @@ class PayMEFunction {
                 let imageCondition = !(image == "APPROVED" || image == "PENDING")
 
                 self.kycMode = [
-                    "identifyImg": (self.kycMode!["identifyImg"] ?? false) || videoCondition,
-                    "faceImg": (self.kycMode!["faceImg"] ?? false) || faceCondition,
-                    "kycVideo": (self.kycMode!["kycVideo"] ?? false) || imageCondition
+                    "identifyImg": (self.kycMode!["identifyImg"] ?? false) && videoCondition,
+                    "faceImg": (self.kycMode!["faceImg"] ?? false) && faceCondition,
+                    "kycVideo": (self.kycMode!["kycVideo"] ?? false) && imageCondition
                 ]
             }
 

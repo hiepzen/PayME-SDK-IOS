@@ -7,6 +7,8 @@
 
 import Foundation
 import SVGKit
+import Toast_Swift
+
 class InformationRow: UIStackView {
     var key: String
     var value: String
@@ -89,8 +91,14 @@ class InformationRow: UIStackView {
     @objc func onPressCopy() {
         let pasteboard = UIPasteboard.general
         pasteboard.string = value
+
+        var style = ToastStyle()
+        style.cornerRadius = CGFloat(20)
+        ToastManager.shared.style = style
+        hideAllToasts()
+        self.makeToast("Đã sao chép vào khay nhớ tạm", duration: 0.5, position: .bottom, style: style)
     }
-    
+
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

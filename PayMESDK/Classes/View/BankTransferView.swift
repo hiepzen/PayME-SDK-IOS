@@ -69,7 +69,7 @@ class BankTransferView: UIView {
         guard let paymeBank = bank else { return }
         contentLabel.text = paymeBank.bankName
         bankNameLabel.text = paymeBank.bankName
-        bankLogo.load(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Ficon_banks%2Ficon\(paymeBank.swiftCode)%402x.png?alt=media&token=0c6cd79a-9a4f-4ea2-b178-94e0b4731ac2")
+        bankLogo.load(url: "https://static.payme.vn/image_bank/icon_banks/icon\(paymeBank.swiftCode)@2x.png")
         paymeInfo?.removeFromSuperview()
         note.removeFromSuperview()
         qrView?.removeFromSuperview()

@@ -82,7 +82,7 @@ class PaymentPresentation {
 
     func paymentPayMEMethod(securityCode: String, orderTransaction: OrderTransaction) {
         request.transferWallet(
-                storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, securityCode: securityCode,
+                storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, securityCode: securityCode,
                 extraData: orderTransaction.extraData, note: orderTransaction.note, amount: orderTransaction.amount,
                 onSuccess: { response in
                     let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
@@ -196,7 +196,7 @@ class PaymentPresentation {
 
     func transferByLinkedBank(transaction: String, orderTransaction: OrderTransaction, linkedId: Int, OTP: String) {
         request.transferByLinkedBank(
-                transaction: transaction, storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, linkedId: linkedId,
+                transaction: transaction, storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, linkedId: linkedId,
                 extraData: orderTransaction.extraData, note: orderTransaction.note, otp: OTP, amount: orderTransaction.amount,
                 onSuccess: { response in
                     let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
@@ -338,7 +338,7 @@ class PaymentPresentation {
 
     func paymentLinkedMethod(orderTransaction: OrderTransaction) {
         request.checkFlowLinkedBank(
-                storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, linkedId: (orderTransaction.paymentMethod?.dataLinked!.linkedId)!,
+                storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, linkedId: (orderTransaction.paymentMethod?.dataLinked!.linkedId)!,
                 refId: orderTransaction.paymentMethod?.dataLinked?.referenceId ?? "",
                 extraData: orderTransaction.extraData, note: orderTransaction.note, amount: orderTransaction.amount,
                 onSuccess: { flow in
@@ -490,7 +490,7 @@ class PaymentPresentation {
     func payBankTransfer(orderTransaction: OrderTransaction) {
         paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_TRANS_RESULT, orderTransaction: orderTransaction, bankTransferState: .PENDING))
         request.paymentBankTransfer(
-                storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
+                storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
                 note: orderTransaction.note, amount: orderTransaction.amount,
                 onSuccess: { success in
                     var formatDate = ""
@@ -555,7 +555,7 @@ class PaymentPresentation {
 
     func payVNQRCode(orderTransaction: OrderTransaction, redirectURL: String) -> URLSessionDataTask? {
         request.payVNPayQRCode(
-                storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
+                storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
                 note: orderTransaction.note, amount: orderTransaction.amount, redirectUrl: redirectURL, failedUrl: "",
                 onSuccess: { success in
                     let data = JSON(success)
@@ -592,7 +592,7 @@ class PaymentPresentation {
 
     func payATM(orderTransaction: OrderTransaction) {
         request.transferATM(
-                storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
+                storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
                 note: orderTransaction.note, cardNumber: orderTransaction.paymentMethod!.dataBank!.cardNumber,
                 cardHolder: orderTransaction.paymentMethod!.dataBank!.cardHolder,
                 issuedAt: orderTransaction.paymentMethod!.dataBank!.issueDate, amount: orderTransaction.amount,
@@ -684,7 +684,7 @@ class PaymentPresentation {
     }
 
     func payCreditCard(orderTransaction: OrderTransaction) {
-        request.transferCreditCard(storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
+        request.transferCreditCard(storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
                 note: orderTransaction.note, cardNumber: orderTransaction.paymentMethod!.dataCreditCard!.cardNumber,
                 cardHolder: orderTransaction.paymentMethod!.dataCreditCard!.cardHolder,
                 expiredAt: orderTransaction.paymentMethod!.dataCreditCard!.expiredAt, cvv: orderTransaction.paymentMethod!.dataCreditCard!.cvv,
@@ -984,7 +984,7 @@ class PaymentPresentation {
 
     func getListBankManual(orderTransaction: OrderTransaction, listSettingBank: [Bank]) {
         request.getListBankManual(
-                storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, amount: orderTransaction.amount,
+                storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, amount: orderTransaction.amount,
                 onSuccess: { response in
                     guard let payInfo = (response["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["Pay"]
                             as? [String: AnyObject] else {
@@ -996,16 +996,22 @@ class PaymentPresentation {
                         return
                     }
                     if (isSucceed == false) {
+                        PaymentModalController.isShowCloseModal = false
                         if let message = payInfo["message"] as? String {
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
-                            self.onPaymeError(message)
+                           PayME.currentVC!.dismiss(animated: true) {
+                               self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
+                               self.onPaymeError(message)
+                           }
                         } else {
-                            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "hasError".localize() as AnyObject])
-                            self.onPaymeError("hasError".localize())
+                           PayME.currentVC!.dismiss(animated: true) {
+                               self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "hasError".localize() as AnyObject])
+                               self.onPaymeError("hasError".localize())
+                           }
                         }
                         return
                     }
                     guard let payment = payInfo["payment"] as? [String: AnyObject] else {
+                        PaymentModalController.isShowCloseModal = false
                         if let message = payInfo["message"] as? String {
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
                             self.onPaymeError(message)
@@ -1038,6 +1044,7 @@ class PaymentPresentation {
                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.BANK_TRANSFER, banks: listSettingBank, listBankManual: listBank, orderTransaction: orderTransaction))
                     } else {
                         self.onPaymeError("")
+                        PaymentModalController.isShowCloseModal = false
                         PayME.currentVC!.dismiss(animated: true) {
                             self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "manualBankNotFound".localize() as AnyObject])
                         }

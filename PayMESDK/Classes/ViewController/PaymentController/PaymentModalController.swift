@@ -506,11 +506,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     orderTransaction.paymentMethod = method
                     onSubmitMethod(method)
                     break
-                case PayCode.VN_PAY.rawValue:
-                    let method = PaymentMethod(type: MethodType.BANK_QR_CODE_PG.rawValue, title: "bankQRCode")
-                    orderTransaction.paymentMethod = method
-                    onSubmitMethod(method)
-                    break
+//                case PayCode.VN_PAY.rawValue:
+//                    let method = PaymentMethod(type: MethodType.BANK_QR_CODE_PG.rawValue, title: "bankQRCode")
+//                    orderTransaction.paymentMethod = method
+//                    onSubmitMethod(method)
+//                    break
                 default:
                     PaymentModalController.isShowCloseModal = false
                     dismiss(animated: true) {

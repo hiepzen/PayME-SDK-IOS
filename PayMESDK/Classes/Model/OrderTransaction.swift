@@ -9,7 +9,7 @@ import Foundation
 
 class OrderTransaction {
     var amount: Int
-    var storeId: Int
+    var storeId: Int?
     var storeName: String
     var storeImage: String
     var orderId: String
@@ -19,10 +19,11 @@ class OrderTransaction {
     var transactionInformation: TransactionInformation?
     var total: Int
     var isShowHeader: Bool
+    var userName: String?
 
     init(
             amount: Int = 10000,
-            storeId: Int,
+            storeId: Int? = nil,
             storeName: String = "",
             storeImage: String = "",
             orderId: String,
@@ -31,7 +32,8 @@ class OrderTransaction {
             paymentMethod: PaymentMethod? = nil,
             transactionInformation: TransactionInformation? = nil,
             total: Int? = nil,
-            isShowHeader: Bool = false
+            isShowHeader: Bool = false,
+            userName: String? = nil
     ) {
         self.amount = amount
         self.storeId = storeId
@@ -44,5 +46,6 @@ class OrderTransaction {
         self.transactionInformation = transactionInformation
         self.total = total ?? amount
         self.isShowHeader = isShowHeader
+        self.userName = userName
     }
 }

@@ -61,7 +61,7 @@ class BankQrView: UIView {
         seperator.heightAnchor.constraint(equalToConstant: 23).isActive = true
         bankLogo.heightAnchor.constraint(equalToConstant: 32).isActive = true
 
-        bankLogo.load(url: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Ficon_banks%2Ficon\(bank.swiftCode)%402x.png?alt=media&token=0c6cd79a-9a4f-4ea2-b178-94e0b4731ac2")
+        bankLogo.load(url: "https://static.payme.vn/image_bank/icon_banks/icon\(bank.swiftCode)@2x.png")
     }
 
     required init?(coder: NSCoder) {

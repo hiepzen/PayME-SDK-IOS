@@ -65,7 +65,7 @@ public class UploadKYC {
                                                 if self.isUpdateIdentify ?? false {
                                                     (rootViewController as? WebViewController)?.updateIdentify()
                                                 } else {
-                                                    (rootViewController as? WebViewController)?.reload()
+                                                    (rootViewController as? WebViewController)?.onReloadKYCStatus()
                                                 }
                                             }
                                         } else {
@@ -92,7 +92,7 @@ public class UploadKYC {
                                             if self.isUpdateIdentify ?? false {
                                                 (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.updateIdentify()
                                             } else {
-                                                (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.reload()
+                                                (PayME.currentVC?.navigationController?.visibleViewController as? WebViewController)?.onReloadKYCStatus()
                                             }
                                         }
                                     }

@@ -81,7 +81,7 @@ class ATMView: UIView {
             break
         case MethodType.LINKED.rawValue:
             if method.dataLinked != nil {
-                let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/vn-mecorp-payme-wallet.appspot.com/o/image_bank%2Fimage_method%2Fmethod\(method.dataLinked!.swiftCode ?? method.dataLinked!.issuer).png?alt=media&token=28cdb30e-fa9b-430c-8c0e-5369f500612e")
+                let url = URL(string: "https://static.payme.vn/image_bank/image_method/method\(method.dataLinked!.swiftCode ?? method.dataLinked!.issuer)@2x.png")
                 DispatchQueue.global().async {
                     if let sureURL = url as URL? {
                         if let data = try? Data(contentsOf: sureURL) {

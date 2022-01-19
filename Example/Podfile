@@ -4,3 +4,15 @@ target 'PayMESDK_Example' do
   pod 'PayMESDK', :path => '../'
   pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '7.1.3'
 end
+
+
+#post_install do |installer|
+#    installer.pods_project.targets.each do |target|
+#        if target.name == 'PayMESDK'
+#            target.build_configurations.each do |config|
+#              config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] ||= '$(inherited)'
+#              config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] << 'IGNORE_CONTACT'
+#            end
+#        end
+#    end
+#end
