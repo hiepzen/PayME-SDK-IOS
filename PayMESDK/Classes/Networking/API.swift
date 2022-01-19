@@ -643,7 +643,7 @@ class API {
     }
     
     func creditWallet(
-        storeId: Int, orderId: String, securityCode: String, supplierLinkedId: String, extraData: String, note: String, amount: Int,
+        storeId: Int?, orderId: String, securityCode: String, supplierLinkedId: String, extraData: String, note: String, amount: Int,
         onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
         onError: @escaping (Dictionary<String, AnyObject>) -> (),
         onPaymeError: @escaping (String) -> () = { s in }

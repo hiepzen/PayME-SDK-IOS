@@ -8,7 +8,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var payME: PayME?
     var activeTextField: UITextField? = nil
 //    let envData: Dictionary = ["dev": PayME.Env.DEV,"sandbox": PayME.Env.SANDBOX]
-    let envData: Dictionary = ["sandbox": PayME.Env.SANDBOX, "production": PayME.Env.PRODUCTION]
+    let envData: Dictionary = ["sandbox": PayME.Env.SANDBOX, "dev": PayME.Env.DEV, "production": PayME.Env.PRODUCTION]
     let langData = [PayME.Language.VIETNAMESE, PayME.Language.ENGLISH]
     let payCodeData = ["PAYME", "ATM", "CREDIT", "MOMO", "ZALO_PAY", "MANUAL_BANK"]
 
