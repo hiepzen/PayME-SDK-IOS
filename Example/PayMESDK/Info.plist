@@ -50,6 +50,8 @@
 	<string>hihi</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Need to access your library to add a photo or videoo off kyc video</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Need to access your library to add a photo or videoo off kyc video</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
