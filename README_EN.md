@@ -248,7 +248,7 @@ This function is called when from the built-in app when you want to call a PayME
 #### Parameter
 
 | **Parameters** | **Required** | **Explanation** |
-| :------------------------------------------------- ---------- | :---------- | :----------------------------------------------------------- |
+| :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
 | currentVC | Yes | ViewController to rely on PayME SDK to open up PayME's interface. |
 | action | Yes | OPEN : Used to open the PayME WebView wallet interface and do not perform any special action.DEPOSIT: Used to open the PayME wallet interface and perform the deposit function PayME will process and have a message of success and failure on the UI by PayME. In addition, the results will be returned to the integrated app if you want to display and process it yourself on the app.WITHDRAW: Used to open the PayME wallet interface and perform the withdrawal function PayME will process and have a message of success and failure. on PayME UI. In addition, it will return to the integrated app if you want to display and process it yourself on the app. |
 | amount | No | Used in case the action is Deposit/Withdraw, then enter the amount |
@@ -304,7 +304,7 @@ public func deposit(
 
 This function has the same meaning as calling <code>openWallet</code> với action <code>Action.DEPOSIT</code>
 | **Parameters** | **Default** | **Explanation** |
-| :------------------------------------------------- ---------- | :---------- | :----------------------------------------------------------- |
+| :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
 | closeWhenDone | false | true: Close SDK on completion of transaction |
 
 ### withdraw() - Withdraw money
@@ -322,7 +322,7 @@ public func withdraw(
 
 This function has the same meaning as calling <code>openWallet</code> với action là <code>Action.WITHDRAW</code>
 **Parameters** | **Default** | **Explanation** |
-| :------------------------------------------------- ---------- | :---------- | :----------------------------------------------------------- |
+| :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
 | closeWhenDone | false | true: Close SDK on completion of transaction |
 
 ### transfer() - Transfer money
@@ -341,7 +341,7 @@ public func transfer(
 
 This function has the same meaning as calling <code>openWallet</code> với action là <code>Action.TRANSFER</code>
 **Parameters** | **Default** | **Explanation** |
-| :------------------------------------------------- ---------- | :---------- | :----------------------------------------------------------- |
+| :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
 | closeWhenDone | false | true: Close SDK on completion of transaction |
 
 ### openHistory() - Open transaction history
