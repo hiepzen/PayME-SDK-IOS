@@ -7,7 +7,7 @@ PayME SDK is a set of libraries for apps to interact with PayME Platform. PayME 
 **Some terms**
 
 | | Name | Explanation |
-| :--- | :----- | --------------------------------------------------- ---------- |
+| :--- | :----- | ------------------------------------------------------------- |
 | 1 | app | Is an iOS/Android mobile app or a web that will integrate the SDK to perform the PayME wallet payment function. |
 | 2 | SDK | Is a toolkit to support the integration of PayME wallet into the app system. |
 | 3 | backend | An integrated system that supports an app, server or api that supports |
@@ -108,7 +108,7 @@ connectToken = AES256("{ timestamp: "2021-01-20T06:53:07.621Z",
 ```
 
 **Parameters** | **Required** | **Explanation** |
-| :----------- | :---------- | :------------------------------------------------- ---------- |
+| :----------- | :---------- | :----------------------------------------------------------- |
 | **timestamp** | Yes | ConnectToken creation time in the format iSO 8601 , Used to determine the timeout time of connectToken. Example 2021-01-20T06:53:07,621Z |
 | ***userId*** | Yes | is a unique fixed value corresponding to each customer account in the service, usually this value is provided by the integrated system server for the PayME SDK |
 | ***phone*** | Yes | Phone number of the integrated system, if the system does not use the phone number, it may not be necessary to pass up or transmit null |
@@ -147,7 +147,7 @@ connectToken = AES256("{
 kycInfo parameter
 
 | **Parameters** | **Required** | **Explanation** |
-| -------------- | ------------ | --------------------------------------------------- ---------- |
+| -------------- | ------------ | ------------------------------------------------------------- |
 | fullname | Yes | Full name |
 | gender | Yes | Gender ( MALE/FEMALE) |
 | address | Yes | Address |
@@ -162,7 +162,7 @@ kycInfo parameter
 ## PayME SDK Error Code
 
 **Constant** | **Error Code** | **Explanation** |
-| :----------- | :---------- | :------------------------------------------------- ---------- |
+| :----------- | :---------- | :----------------------------------------------------------- |
 | EXPIRED | 401 | ***token*** expired |
 | NETWORK | -1 | Network connection problem |
 | SYSTEM | -2 | System Error |
@@ -248,7 +248,7 @@ This function is called when from the built-in app when you want to call a PayME
 #### Parameter
 
 | **Parameters** | **Required** | **Explanation** |
-| :------------------------------------------------- ---------- | :---------- | :------------------------------------------------- ---------- |
+| :------------------------------------------------- ---------- | :---------- | :----------------------------------------------------------- |
 | currentVC | Yes | ViewController to rely on PayME SDK to open up PayME's interface. |
 | action | Yes | OPEN : Used to open the PayME WebView wallet interface and do not perform any special action.DEPOSIT: Used to open the PayME wallet interface and perform the deposit function PayME will process and have a message of success and failure on the UI by PayME. In addition, the results will be returned to the integrated app if you want to display and process it yourself on the app.WITHDRAW: Used to open the PayME wallet interface and perform the withdrawal function PayME will process and have a message of success and failure. on PayME UI. In addition, it will return to the integrated app if you want to display and process it yourself on the app. |
 | amount | No | Used in case the action is Deposit/Withdraw, then enter the amount |
@@ -304,7 +304,7 @@ public func deposit(
 
 This function has the same meaning as calling <code>openWallet</code> với action <code>Action.DEPOSIT</code>
 | **Parameters** | **Default** | **Explanation** |
-| :------------------------------------------------- ---------- | :---------- | :------------------------------------------------- ---------- |
+| :------------------------------------------------- ---------- | :---------- | :----------------------------------------------------------- |
 | closeWhenDone | false | true: Close SDK on completion of transaction |
 
 ### withdraw() - Withdraw money
@@ -322,7 +322,7 @@ public func withdraw(
 
 This function has the same meaning as calling <code>openWallet</code> với action là <code>Action.WITHDRAW</code>
 **Parameters** | **Default** | **Explanation** |
-| :------------------------------------------------- ---------- | :---------- | :------------------------------------------------- ---------- |
+| :------------------------------------------------- ---------- | :---------- | :----------------------------------------------------------- |
 | closeWhenDone | false | true: Close SDK on completion of transaction |
 
 ### transfer() - Transfer money
@@ -341,7 +341,7 @@ public func transfer(
 
 This function has the same meaning as calling <code>openWallet</code> với action là <code>Action.TRANSFER</code>
 **Parameters** | **Default** | **Explanation** |
-| :------------------------------------------------- ---------- | :---------- | :------------------------------------------------- ---------- |
+| :------------------------------------------------- ---------- | :---------- | :----------------------------------------------------------- |
 | closeWhenDone | false | true: Close SDK on completion of transaction |
 
 ### openHistory() - Open transaction history
@@ -376,7 +376,7 @@ public func pay(
 ) -> ()
 ```
 Parameter | **Required** | **Explanation** |
-| :------------------------------------------------- ---------- | :---------- | :------------------------------------------------- ---------- |
+| :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
 | currentVC | Yes | ViewController to rely on PayME SDK to open up PayME's interface. |
 | amount | Yes | The amount to be paid by the app is passed to the SDK |
 | extraData | Yes | When making a payment, the app needs to transmit other data if it wants so that the PayME backend system can IPN back to the reverse integrated backend system. For example the transactionID of the transaction or any other data needed. |
@@ -412,7 +412,7 @@ public func pay(
 ) -> ()
 ```
 Parameter | **Required** | **Value** |
-| :------------------------------------------------- ---------- | :---------- | :------------------------------------------------- ---------- |
+| :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
 | payCode | Yes | PAYME ATM CREDIT MANUAL_BANK |
 | userName | No | Account Name |
 | storeId | No | ID of the payment public store that made the payment |
