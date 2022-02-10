@@ -2,16 +2,16 @@ PayME SDK is a set of libraries for apps to interact with PayME Platform. PayME 
 
 - Login system, eKYC via PayME wallet account
 - Support app to get PayME wallet balance information
-- Deposit and withdraw from PayME wallet.
+- Deposit and withdraw from PayME wallet
 
 **Some terms**
 
 | | Name | Explanation |
 | :--- | :----- | ------------------------------------------------------------- |
-| 1 | app | Is an iOS/Android mobile app or a web that will integrate the SDK to perform the PayME wallet payment function. |
+| 1 | app | Is an iOS/Android mobile app or web that will integrate the SDK to perform the PayME wallet payment function. |
 | 2 | SDK | Is a toolkit to support the integration of PayME wallet into the app system. |
-| 3 | backend | An integrated system that supports an app, server or api that supports |
-| 4 | AES | AES256 data encryption function PKCS5 . [Reference](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) |
+| 3 | backend | An integrated system that supports an app, server or api. |
+| 4 | AES | AES data encryption function. [Reference](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) |
 | 5 | RSA | RSA data encryption algorithm. |
 | 6 | IPN | Instant Payment Notification , used to notify between the app's backend and PayME's backend |
 
@@ -27,7 +27,7 @@ Then run the pod install command to complete the installation
 
 **Info.plist**
 
-Update the app's Info.plist file with the following keys (string values ​​may vary) , here are the messages displayed when asking the user for the corresponding permission):
+Update Info.plist file with the following keys (values of string ​​may change, here are the messages displayed when asking the user for the corresponding permission):
 
 ```swift
 <key>NSCameraUsageDescription</key>
@@ -40,7 +40,7 @@ Update the app's Info.plist file with the following keys (string values ​​ma
 <string>Need to access your contact</string>
 ```
 
-**If you don't use the contacts feature, add it to the end of the podfile**
+**If you don't use the contacts feature, add it at the end of the podfile**
 
 ```ruby
 post_install do |installer|
@@ -60,19 +60,19 @@ end
 The PayME system will provide the integrated app with the following information:
 
 - **PublicKey** : Used to encrypt data, the integrated app needs to transmit to the SDK for encryption.
-- **AppToken** : AppId provides a unique identifier for each app, needs to be passed to the SDK for encryption
+- **AppToken** : AppId provides a unique identifier for each app, needs to be transmit to the SDK for encryption.
 - **SecretKey** : Used to encrypt and authenticate data in the backend system for the integrated app.
 
 The App side will provide the PayME system with the following information:
 
-- **AppPublicKey** : It will be sent through PayME's backend system for encryption. (do not pass this SDK)
-- **AppPrivateKey**: Will pass in PayME SDK to perform the decryption.
+- **AppPublicKey** : It will be sent through PayME's backend system for encryption. (do not transmit to this SDK)
+- **AppPrivateKey**: It will transmit to PayME SDK to perform the decryption.
 
 Encryption standard: RSA-512bit. The following tool can be used to generate [here](https://travistidwell.com/jsencrypt/demo/)
 
-### Initialize PayME SDK:
+### Create PayME SDK:
 
-Before using PayME SDK need to call the initialization method only once to initialize the SDK.
+Necessary to call the initialization method only 1 time to initialize the SDK before using PayME SDK.
 
 ```swift
 let payme = PayME(appToken : "AppToken", 
@@ -87,18 +87,18 @@ let payme = PayME(appToken : "AppToken",
 
 In which the parameters have the form:
 
-- appPrivateKey: is the private key of the self-generated app as above
+- appPrivateKey: is the private key self-generate from the app as above.
 
 - publicKey: is the public key provided by PayME for each separate app.
 
-- configColor : is the color parameter to be able to change the color of PayME wallet transactions, the data type is string with the format #rrggbb. If 2 colors are transmitted, the PayME interface will gradient according to the 2 input colors.
+- configColor: The color parameter can change color of PayME wallet transactions. The data type is string with the format #rrggbb. If 2 colors are transmitted, the PayME interface will gradient according to the 2 input colors.
 
 
 ![image](../master/assets/configColor.png?raw=true)
 
 How to create **connectToken**:
 
-connectToken is needed to pass api calls from to PayME and will be generated from the integrated app's backend. The structure is as follows:
+connectToken is needed to transmit the api to PayME, and it will create from backend system of the integrated app. The structure is following below:
 
 ```swift
 connectToken = AES256("{ timestamp: "2021-01-20T06:53:07.621Z", 
@@ -108,12 +108,12 @@ connectToken = AES256("{ timestamp: "2021-01-20T06:53:07.621Z",
 ```
 
 **Parameters** | **Required** | **Explanation** |
-| :----------- | :---------- | :----------------------------------------------------------- |
-| **timestamp** | Yes | ConnectToken creation time in the format iSO 8601 , Used to determine the timeout time of connectToken. Example 2021-01-20T06:53:07,621Z |
-| ***userId*** | Yes | is a unique fixed value corresponding to each customer account in the service, usually this value is provided by the integrated system server for the PayME SDK |
-| ***phone*** | Yes | Phone number of the integrated system, if the system does not use the phone number, it may not be necessary to pass up or transmit null |
+| :----------- | :---------- | :------------------------------------------------- ---------- |
+| **timestamp** | Yes | Time of creating connectToken in the format iSO 8601. Used to determine the timeout of connectToken. Example 2021-01-20T06:53:07,621Z |
+| ***userId*** | Yes | Is a unique fixed value corresponding to each customer account in the service, usually this value is provided by the integrated system server for the PayME SDK |
+| ***phone*** | Yes | Phone number of the integrated system. If the system does not use the phone number, it may not be necessary to transmit up or transmit null |
 
-Where ***AES*** is the encryption function according to the AES algorithm. Depending on the language on the server, the system side uses the corresponding library. See more here https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
+In which ***AES*** is the encryption function according to the AES algorithm. Depending on the language on the server, the system side uses the corresponding library. See more: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
 
 How to create **connectToken including KYC information** (For partners with their own KYC system):
 
@@ -155,14 +155,15 @@ kycInfo parameter
 | identifyNumber | Yes | Number of papers |
 | issuedAt | Yes | Registration date |
 | placeOfIssue | Yes | Place of issue |
-| video | No | video link |
-| face | No | path to face photo |
+| video | No | Video link |
+| face | No | Link to face photo |
 | front | No | link to a photo of the front of the document |
 | back | No | link to photo of the back of the document |
+
 ## PayME SDK Error Code
 
 **Constant** | **Error Code** | **Explanation** |
-| :----------- | :---------- | :----------------------------------------------------------- |
+| :----------- | :---------- |:-------------------------------------------------------------|
 | EXPIRED | 401 | ***token*** expired |
 | NETWORK | -1 | Network connection problem |
 | SYSTEM | -2 | System Error |
@@ -181,10 +182,10 @@ kycInfo parameter
 ### login()
 
 There are 2 cases
-- Used to login for the first time right after initializing PayME.
-- Used when the accessToken expires, when calling the SDK function that returns the ResponseCode.EXPIRED error code, the app needs to call login again to get the accessToken for other functions.
+- Used to login for the first time right after create PayME.
+- Used when the accessToken expires, when calling the SDK function that returns the ResponseCode.EXPIRED error code, the app needs to re-call login to get the accessToken for other functions.
 
-After calling login() successfully, then call other functions of the SDK ( openWallet, pay ...)
+After calling login() successfully, then call other functions of the SDK (openWallet, pay ...)
 
 ```swift
 public func login(
@@ -201,7 +202,7 @@ public enum KYCState {
         case KYC_APPROVED
 }
 ```
-Features such as deposit, withdrawal, and pay are only available when the wallet is activated and the identity is successfully sent. That is, when login will be returned enum KYCState with the case KYC_APPROVED.
+Features such as deposit, withdrawal, and pay are only available when the wallet is activated and the identified was successful. That is, when login will be returned enum KYCState with the case KYC_APPROVED.
 
 ### logout()
 
@@ -213,13 +214,13 @@ Used to log out of the session on the SDK
 
 ### close() - Close SDK
 
-This function is used to close the built-in app's UI SDK while pay() or openWallet()
+This function is used to let the integrated app close the SDK UI while <code>pay()</code> or <code>openWallet()</code>
 
 ```swift
 public func close() -> ()
 ```
 
-### openWallet() - Opens the PayME composite function UI
+### openWallet() - Open UI for PayME general function
 
 ```swift
 public func openWallet( 
@@ -233,7 +234,7 @@ public func openWallet(
 ) -> ()
 ```
 
-**where enum Action includes:**
+**in which, enum Action includes:**
 
 ```swift
   enum Action: String {
@@ -243,16 +244,16 @@ public func openWallet(
       case TRANSFER = "TRANSFER"
   }
 ```
-This function is called when from the built-in app when you want to call a PayME function by passing the Action parameter as above.
+This function is called when from the built-in app when you want to call a PayME function by transmit the Action parameter as above.
 
 #### Parameter
 
 | **Parameters** | **Required** | **Explanation** |
 | :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
 | currentVC | Yes | ViewController to rely on PayME SDK to open up PayME's interface. |
-| action | Yes | OPEN : Used to open the PayME WebView wallet interface and do not perform any special action.DEPOSIT: Used to open the PayME wallet interface and perform the deposit function PayME will process and have a message of success and failure on the UI by PayME. In addition, the results will be returned to the integrated app if you want to display and process it yourself on the app.WITHDRAW: Used to open the PayME wallet interface and perform the withdrawal function PayME will process and have a message of success and failure. on PayME UI. In addition, it will return to the integrated app if you want to display and process it yourself on the app. |
-| amount | No | Used in case the action is Deposit/Withdraw, then enter the amount |
-| description | No | Transaction description if available |
+| action | Yes | OPEN: Used to open the PayME WebView wallet interface and do not perform any special action. DEPOSIT: Used to open the PayME wallet interface and perform the deposit function PayME will process and have a message of success and failure on the UI by PayME. In addition, the results will be returned to the integrated app if you want to display and process it yourself on the app. WITHDRAW: Used to open the PayME wallet interface and perform the withdrawal function PayME will process and have a message of success and failure on PayME UI. In addition, it will return to the integrated app if you want to display and process it yourself on the app. |
+| amount | No | Used in case the action is Deposit/Withdraw, then transmit the amount |
+| description | No | Transmit the transaction description if available. |
 | extraData | No | When performing Deposit or Withdraw, the integrated app needs to transmit other data if desired so that the PayME backend system can IBN back to the opposite integrated backend app system. For example: the transactionID of the transaction or any other data needed by the integrated app system. |
 | onSuccess | Yes | Used to catch callback when making a successful transaction from PayME SDK |
 | onError | Yes | Used to catch callback when an error occurs during calling PayME SDK |
@@ -288,7 +289,7 @@ class ViewController: UIViewController {
 }
 ```
 
-### deposit() - Recharge
+### deposit() - Deposit
 
 ```swift
 public func deposit(
@@ -303,9 +304,10 @@ public func deposit(
 ```
 
 This function has the same meaning as calling <code>openWallet</code> với action <code>Action.DEPOSIT</code>
+
 | **Parameters** | **Default** | **Explanation** |
 | :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
-| closeWhenDone | false | true: Close SDK on completion of transaction |
+| closeWhenDone | false | true: Close SDK when transaction completed |
 
 ### withdraw() - Withdraw money
 ```swift
@@ -321,9 +323,10 @@ public func withdraw(
 ```
 
 This function has the same meaning as calling <code>openWallet</code> với action là <code>Action.WITHDRAW</code>
-**Parameters** | **Default** | **Explanation** |
+
+| **Parameters** | **Default** | **Explanation** |
 | :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
-| closeWhenDone | false | true: Close SDK on completion of transaction |
+| closeWhenDone | false | true: Close SDK when transaction completed |
 
 ### transfer() - Transfer money
 
@@ -340,9 +343,10 @@ public func transfer(
 ```
 
 This function has the same meaning as calling <code>openWallet</code> với action là <code>Action.TRANSFER</code>
-**Parameters** | **Default** | **Explanation** |
-| :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
-| closeWhenDone | false | true: Close SDK on completion of transaction |
+
+| **Parameters** | **Default** | **Explanation** |
+|:---------------| :---------- | :----------------------------------------------------------- |
+| closeWhenDone  | false | true: Close SDK when transaction completed |
 
 ### openHistory() - Open transaction history
 
@@ -375,24 +379,24 @@ public func pay(
     onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
-Parameter | **Required** | **Explanation** |
-| :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
-| currentVC | Yes | ViewController to rely on PayME SDK to open up PayME's interface. |
-| amount | Yes | The amount to be paid by the app is passed to the SDK |
-| extraData | Yes | When making a payment, the app needs to transmit other data if it wants so that the PayME backend system can IPN back to the reverse integrated backend system. For example the transactionID of the transaction or any other data needed. |
-| storeId | Yes | ID of the payment public store that made the payment |
-| orderId | Yes | Partner's transaction code, need to be unique on each transaction (maximum 22 characters) |
-| note | No | Description of the transaction from the counterparty |
+| **Parameter**  | **Required** | **Explanation** |
+|:---------------| :---------- | :----------------------------------------------------------- |
+| currentVC      | Yes | ViewController in order to PayME SDK can open PayME's interface automatically. |
+| amount         | Yes | The amount to be paid in the app is transmitted to SDK |
+| extraData      | Yes | When making a payment, the app needs to transmit other data if it wants, so that the PayME backend system can IPN back to the reverse integrated backend system. For example the transactionID of the transaction or any other data needed. |
+| storeId        | Yes | ID of the payment gateway that made the payment |
+| orderId        | Yes | Partner's transaction code, need to be unique on each transaction (maximum 22 characters) |
+| note           | No | Description of the transaction from the partner |
 | isShowResultUI | No | Already have a default value of true, with the meaning that when there is a payment result, the success and failure screen will be displayed. When passing the value false, there will be no success or failure screens. |
-| onSuccess | Yes | Callback returns results on success |
-| onError | Yes | Callback returns result on failure |
+| onSuccess      | Yes | Callback returns results on success |
+| onError        | Yes | Callback returns result on failure |
 
 In case the built-in app needs to get the balance to display itself on the UI on the app, you can use the getWalletInfo()
 function, this function doesn't display the UI of the PayME SDK
 
-- When paying with a PayME wallet, an activated account is required. active, identifier and balance in wallet must be greater than payment amount
-- Account information obtained via getAccountInfo() function
-- Balance information is obtained through the function getWalletInfo()
+- When paying with PayME wallet, it required the activated account, identifier and balance in the wallet must be greater than the payment amount.
+- Account information is obtained through the getAccountInfo() function
+- Balance information is obtained through the getWalletInfo() function
 
 :warning: version 0.1.66 onwards:
 
@@ -411,11 +415,11 @@ public func pay(
     onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
-Parameter | **Required** | **Value** |
-| :----------------------------------------------------------- | :---------- | :----------------------------------------------------------- |
+|**Parameter** | **Required** | **Value** |
+| :----------------------------------------------------------- | :---------- |:-------------------------------------------------------------|
 | payCode | Yes | PAYME ATM CREDIT MANUAL_BANK |
 | userName | No | Account Name |
-| storeId | No | ID of the payment public store that made the payment |
+| storeId | No | ID of the payment gateway that made the payment |
 
 Note: Only userName or storeId, if using userName, let storeId = nil and vice versa
 
@@ -437,11 +441,11 @@ Example:
 ```swift
 let qrString = "OPENEWALLET|54938607|PAYMENT|20000|Chuyentien|2445562323|DEMO)"
 ```
-- action: transaction type ( 'PAYMENT' => payment)
-- amount: payment amount
-- note: Description of transaction from counterparty side
-- orderId: partner's transaction code, which needs to be unique on each transaction
-- storeId: The ID of the store where the payment is being made
+- action: Transaction type ( 'PAYMENT' => payment)
+- amount: Payment amount
+- note: Description of transaction from partner side
+- orderId: Partner's transaction code, which needs to be unique on each transaction
+- storeId: The ID of the payment gateway where the payment is being made
 - type: <code>OPENEWALLET</code>
 
 ### payQRCode() - QR code payment
@@ -476,7 +480,7 @@ public func getWalletInfo(
 ) -> ()
 ```
 
-- In case of an error, the function will return an error message at the onError function, then the app can display the balance as 0.
+- In case of error, the function will return an error message at the onError function, then the app can display the balance as 0.
 
 - In the successful case, the SDK returns the following information:
 
@@ -493,13 +497,13 @@ public func getWalletInfo(
 ```
 ***balance*** : The built-in app can use the value in the balance key to display, other fields are currently unused.
 
-***detail.cash :*** Usable Money
+***detail.cash :*** Money can be used.
 
-***detail.lockCash:*** Locked Money
+***detail.lockCash:*** Money is locked.
 
 ### getAccountInfo()
 
-App can use this calculator after initializing SDK to know the status link to PayME wallet.
+App can use this function after create SDK to know the connection status to PayME wallet.
 
 ```swift
 public func getAccountInfo(
@@ -510,7 +514,7 @@ public func getAccountInfo(
 
 ### getSupportedServices()
 
-Used to identify services that can be paid for by the SDK (electricity, water, tuition...).
+Used to identify services that can be paid by the SDK (electricity, water, tuition...).
 
 ```swift
 public func getSupportedServices(
@@ -531,7 +535,7 @@ class ServiceConfig {
 
 ### openService()
 
-Open WebSDK to pay for services. (Feature under construction)
+Open WebSDK to pay for services. (Feature under development)
 
 ```swift
 public func openService(
