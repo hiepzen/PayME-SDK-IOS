@@ -476,6 +476,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         let viewHeight = methodsView.bounds.size.height
                 + footer.bounds.size.height
         modalHeight = viewHeight
+        confirmController.paymentVC = self
     }
 
     func getListMethods() {

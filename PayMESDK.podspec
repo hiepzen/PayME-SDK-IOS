@@ -51,4 +51,5 @@ Pod::Spec.new do |s|
   s.dependency 'SVGKit'
   s.dependency 'SwiftyJSON'
   s.dependency 'Toast-Swift', '~> 5.0.1'
+  s.dependency 'PayCardsRecognizer'
 end

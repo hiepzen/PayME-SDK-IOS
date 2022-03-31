@@ -8,8 +8,9 @@
 import UIKit
 import AVFoundation
 
-class PermissionCamera: UIViewController {
+class PermissionCamera: UIViewController, UINavigationControllerDelegate {
     private var onSuccess: ((String) -> ())? = nil
+    var modalVC: UIViewController?
 
     let backButton: UIButton = {
         let button = UIButton()
@@ -66,6 +67,15 @@ class PermissionCamera: UIViewController {
 
     public func setOnSuccess(onSuccess: @escaping (String) -> ()) {
         self.onSuccess = onSuccess
+    }
+
+    init(modalVC: UIViewController? = nil) {
+        self.modalVC = modalVC
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func viewDidLoad() {
@@ -131,7 +141,11 @@ class PermissionCamera: UIViewController {
         confirm.addTarget(self, action: #selector(proceedWithCameraAccess), for: .touchUpInside)
 
         if AVCaptureDevice.authorizationStatus(for: AVMediaType.video) == AVAuthorizationStatus.authorized {
-            self.navigationController?.popViewController(animated: true)
+            if modalVC != nil {
+                dismiss(animated: true)
+            } else {
+                navigationController?.popViewController(animated: true)
+            }
         }
     }
 
@@ -140,24 +154,33 @@ class PermissionCamera: UIViewController {
     }
 
     @objc func back() {
-        let authStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
-        if authStatus == AVAuthorizationStatus.denied {
-            if PayME.isRecreateNavigationController {
-                PayME.currentVC?.dismiss(animated: true)
-            } else {
-                var navigationArray = navigationController!.viewControllers
-                navigationArray.remove(at: navigationArray.count - 2)
-                navigationController?.viewControllers = navigationArray
+        if modalVC != nil {
+            dismiss(animated: true)
+
+        } else {
+            let authStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
+            if authStatus == AVAuthorizationStatus.denied {
+                if PayME.isRecreateNavigationController {
+                    PayME.currentVC?.dismiss(animated: true)
+                } else {
+                    var navigationArray = navigationController!.viewControllers
+                    navigationArray.remove(at: navigationArray.count - 2)
+                    navigationController?.viewControllers = navigationArray
+                }
             }
+            navigationController?.popViewController(animated: true)
         }
-        navigationController?.popViewController(animated: true)
     }
 
     @objc func proceedWithCameraAccess() {
         // handler in .requestAccess is needed to process user's answer to our request
         AVCaptureDevice.requestAccess(for: .video) { success in
-            if success { // if request is granted (success is true)
-                self.navigationController?.popViewController(animated: true)
+            if success { // if request is granted (success is true)\
+                if (self.modalVC != nil) {
+                    self.dismiss(animated: true)
+                } else {
+                    self.navigationController?.popViewController(animated: true)
+                }
             } else { // if request is denied (success is false)
                 DispatchQueue.main.async {
                     UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)

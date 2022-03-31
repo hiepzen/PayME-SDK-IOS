@@ -27,6 +27,7 @@ class PayMEFunction {
     private var storeImage: String = ""
     private var kycMode: [String: Bool]? = nil
     private var webKey = ""
+    var showScanModule: Bool = false
     var authenCreditLink: String = ""
     static var language = PayME.Language.VIETNAMESE
 
@@ -493,6 +494,16 @@ class PayMEFunction {
                             return key == "sdk.web.secretKey"
                         }) {
                             self.webKey = configWebKey["value"] as? String ?? ""
+                        }
+
+                        if let scanModuleConfig = configs.first(where: {config in
+                            let key = (config["key"] as? String) ?? ""
+                            return key == "sdk.scanModule.enable"
+                        }) {
+                            let enableAppIds = (scanModuleConfig["value"] as? [String: [Int]])?["appId"]
+                            self.showScanModule = enableAppIds?.first(where: { appId in
+                                appId == Int(self.appId) ?? 0
+                            }) != nil
                         }
 
                         onSuccess(result)

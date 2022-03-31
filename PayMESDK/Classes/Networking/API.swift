@@ -206,7 +206,9 @@ class API {
                             "kyc.mode.enable",
                             "credit.sacom.auth.link",
                             "service.main.visible",
-                            "sdk.web.secretKey"]
+                            "sdk.web.secretKey",
+                            "sdk.scanModule.enable"
+            ]
         ]
         let json: [String: Any] = [
             "query": GraphQuery.getSettingQuery,

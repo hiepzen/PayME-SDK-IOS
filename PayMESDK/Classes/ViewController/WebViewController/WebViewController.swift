@@ -61,6 +61,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
     var getContacts: String = "getContacts"
     var onOpenSetting: String = "onOpenSetting"
     var showButtonCloseNapas: String = "showButtonCloseNapas"
+    var onPressScanCard: String = "onPressScanCard"
     var form = ""
     var imageFront: UIImage?
     var imageBack: UIImage?
@@ -175,6 +176,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
         userController.add(self, name: getContacts)
         userController.add(self, name: onOpenSetting)
         userController.add(self, name: showButtonCloseNapas)
+        userController.add(self, name: onPressScanCard)
         userController.addUserScript(getZoomDisableScript())
 
         let config = WKWebViewConfiguration()
@@ -461,6 +463,16 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                 UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
             }
         }
+        if message.name == onPressScanCard {
+            let scanCardController = CardScannerViewController(currentVC: self)
+            scanCardController.startScanner(onSuccess: { data in
+                if let json = try? JSONSerialization.data(withJSONObject: data) {
+                    if let jsonObj = String(data: json, encoding: String.Encoding.utf8) {
+                        self.onScanCard(card: jsonObj)
+                    }
+                }
+            }, onFailed: { e in print(e) })
+        }
     }
 
 
@@ -619,9 +631,16 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
                            window.onContacts(\(contacts));
                            true; // note: this is required, or you'll sometimes get silent failures
                          """
+        DispatchQueue.main.async {
+            self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
+        }
+    }
 
-        print("minh khoa")
-        print(injectedJS)
+    func onScanCard(card: String) {
+        let injectedJS = """
+                           window.onScanCard(\(card));
+                           true; // note: this is required, or you'll sometimes get silent failures
+                         """
         DispatchQueue.main.async {
             self.webView.evaluateJavaScript("(function() {\n" + injectedJS + ";\n})();")
         }

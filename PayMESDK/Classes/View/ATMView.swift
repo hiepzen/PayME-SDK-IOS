@@ -6,8 +6,15 @@
 //
 
 import Foundation
+import SVGKit
+
+protocol ATMViewDelegate {
+    func isShowScan() -> Bool
+    func onPressScanCard()
+}
 
 class ATMView: UIView {
+    var delegate: ATMViewDelegate?
     init() {
         super.init(frame: CGRect.zero)
         translatesAutoresizingMaskIntoConstraints = false
@@ -58,8 +65,6 @@ class ATMView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-
-
     func updateUIByMethod(orderTransaction: OrderTransaction) {
         button.setTitle("confirm".localize(), for: .normal)
         guard let method = orderTransaction.paymentMethod else { return }
@@ -72,6 +77,15 @@ class ATMView: UIView {
         methodView.content = method.label
         methodView.note = nil
         methodView.methodDescription = method.feeDescription
+        if delegate != nil {
+            if delegate!.isShowScan() == true {
+                let imageSVG = SVGKImage(for: ATMView.self, named: "iconScanCard")
+                imageSVG?.fillColor(color: UIColor(hexString: PayME.configColor[0]), opacity: 1)
+                cardInput.updateExtraIcon(iconImage: imageSVG?.uiImage, onPress: {
+                    self.delegate?.onPressScanCard()
+                })
+            }
+        }
         switch method.type {
         case MethodType.WALLET.rawValue:
             methodView.title = "walletBalance".localize()
@@ -147,6 +161,13 @@ class ATMView: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 20
+        button.backgroundColor = .clear
+        return button
+    }()
+
+    let scanCardButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = .clear
         return button
     }()

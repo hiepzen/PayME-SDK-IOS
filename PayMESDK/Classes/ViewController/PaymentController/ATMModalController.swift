@@ -24,10 +24,12 @@ class ConfirmationModal: UIViewController {
     let orderTransaction: OrderTransaction
     let isShowResultUI: Bool
     let paymentPresentation: PaymentPresentation
+    var paymentVC: UIViewController?
 
     var payActionByMethod = {}
     let orderView: OrderView
 
+    private var scannedCard: [String:String]? = nil
     private var cardWithoutSpace: String = ""
 
     init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool, paymentPresentation: PaymentPresentation,
@@ -50,6 +52,7 @@ class ConfirmationModal: UIViewController {
                     logoUrl: nil, isFullInfo: false)
         }
         super.init(nibName: nil, bundle: nil)
+        atmView.delegate = self
     }
 
     func setListBank(listBank: [Bank] = []) {
@@ -338,6 +341,11 @@ class ConfirmationModal: UIViewController {
             issuerCreditDetect = nil
             atmView.cardInput.resetExtraInfo()
         }
+        if (scannedCard != nil) {
+            atmView.nameInput.textInput.text = scannedCard!["cardHolder"]
+            atmView.dateInput.textInput.text = scannedCard!["cardValidDate"]
+        }
+        scannedCard = nil
     }
 
     func updateContentSize() {
@@ -357,6 +365,13 @@ class ConfirmationModal: UIViewController {
                         bankDetect = bank
                         atmView.dateInput.updateTitle(bank.requiredDateString.uppercased())
                         atmView.cardInput.updateExtraInfo(url: "https://static.payme.vn/image_bank/image_method/method\(bank.swiftCode)@2x.png")
+                        if (scannedCard != nil) {
+                            if (bank.requiredDateString == "expiredDate".localize()) {
+                                atmView.dateInput.textInput.text = scannedCard!["cardExpiredDate"]
+                            } else {
+                                atmView.dateInput.textInput.text = scannedCard!["cardValidDate"]
+                            }
+                        }
                         break
                     }
                 }
@@ -380,21 +395,34 @@ class ConfirmationModal: UIViewController {
                 let succeeded = bankNameRes["succeeded"] as! Bool
                 if (succeeded == true) {
                     let name = bankNameRes["accountName"] as! String
-                    self.atmView.nameInput.textInput.text = name
-                    self.updateContentSize()
+                    if (name.count > 0) {
+                        self.atmView.nameInput.textInput.text = name
+                    } else if (self.scannedCard != nil) {
+                        self.atmView.nameInput.textInput.text = self.scannedCard!["cardHolder"]
+                    } else {
+                        self.atmView.nameInput.textInput.text = ""
+                    }
+                } else if (self.scannedCard != nil) {
+                    self.atmView.nameInput.textInput.text = self.scannedCard!["cardHolder"]
                 } else {
                     self.atmView.nameInput.textInput.text = ""
-                    self.updateContentSize()
                 }
+                self.updateContentSize()
+                self.scannedCard = nil
             }, onError: { error in
-                self.atmView.nameInput.textInput.text = ""
+                if (self.scannedCard != nil) {
+                    self.atmView.nameInput.textInput.text = self.scannedCard!["cardHolder"]
+                } else {
+                    self.atmView.nameInput.textInput.text = ""
+                }
                 self.updateContentSize()
                 print(error)
+                self.scannedCard = nil
             })
         } else {
             atmView.nameInput.textInput.text = ""
+            scannedCard = nil
         }
-
     }
 
     let scrollView: UIScrollView = {
@@ -469,5 +497,39 @@ extension ConfirmationModal: UITextFieldDelegate {
             atmView.cvvInput.updateState(state: .normal)
         default: break
         }
+    }
+}
+
+extension ConfirmationModal: ATMViewDelegate {
+    func isShowScan() -> Bool {
+        payMEFunction.showScanModule
+    }
+
+    func onPressScanCard() {
+        scannedCard = nil
+        let cardScannerController = CardScannerViewController(currentVC: paymentVC ?? self)
+        cardScannerController.startScanner(onSuccess: { data in
+            print(data)
+            if (self.orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue) {
+                self.issuerCreditDetect = nil
+                self.atmView.cardInput.resetExtraInfo()
+            } else {
+                self.bankDetect = nil
+                self.atmView.dateInput.updateTitle("releaseDate".localize().uppercased())
+            }
+            self.atmView.cardInput.updateExtraInfo(data: "")
+            self.atmView.nameInput.textInput.text = ""
+            self.atmView.dateInput.textInput.text = ""
+            self.atmView.cardInput.updateState(state: .normal)
+            self.atmView.nameInput.updateState(state: .normal)
+            self.atmView.dateInput.updateState(state: .normal)
+
+            self.scannedCard = data
+            self.atmView.cardInput.textInput.text = data["cardNumber"]
+            self.atmView.cardInput.textInput.sendActions(for: .editingChanged)
+
+        }, onFailed: { e in
+            print(e)
+        })
     }
 }

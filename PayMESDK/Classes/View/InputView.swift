@@ -9,6 +9,10 @@ class InputView: UIView {
     var placeholder: String = ""
     var keyboardType: UIKeyboardType = .default
     var errorMessage: String = ""
+    var extraIcon: UIButton = UIButton(frame: .zero)
+    var onPressIcon: () -> () = {}
+
+    var extraImageTrailing: NSLayoutConstraint?
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -42,10 +46,11 @@ class InputView: UIView {
     }()
 
     init(title: String, placeholder: String = "", keyboardType: UIKeyboardType = .default, state: InputState = .normal,
-         isAutoCapitalization: Bool = false) {
+         isAutoCapitalization: Bool = false, extraIcon: UIButton = UIButton(frame: CGRect.zero)) {
         self.title = title
         self.placeholder = placeholder
         self.keyboardType = keyboardType
+        self.extraIcon = extraIcon
         super.init(frame: CGRect.zero)
         setupUI()
         updateState(state: state)
@@ -64,6 +69,7 @@ class InputView: UIView {
 
         addSubview(titleLabel)
         addSubview(textInput)
+        addSubview(extraIcon)
         addSubview(extraLabel)
         addSubview(extraImage)
         titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
@@ -78,12 +84,24 @@ class InputView: UIView {
         extraLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 4).isActive = true
         extraLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
 
+        extraIcon.translatesAutoresizingMaskIntoConstraints = false
+        extraIcon.topAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
+        extraIcon.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        extraIcon.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        extraIcon.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+
         extraImage.topAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
-        extraImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
+        extraImageTrailing = extraImage.trailingAnchor.constraint(equalTo: extraIcon.leadingAnchor, constant: -12)
+        extraImageTrailing?.isActive = true
         extraImage.heightAnchor.constraint(equalToConstant: 20).isActive = true
         extraImage.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        extraIcon.addTarget(self, action: #selector(onPressIconObjc), for: .touchUpInside)
 
         addDoneButtonOnKeyboard()
+    }
+
+    @objc private func onPressIconObjc() {
+        onPressIcon()
     }
 
     func addDoneButtonOnKeyboard() {
@@ -103,6 +121,24 @@ class InputView: UIView {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func updateExtraIcon(iconImage: UIImage?, onPress: @escaping () -> () = {}) {
+        extraIcon.setImage(iconImage, for: .normal)
+        if (iconImage != nil) {
+            extraIcon.isHidden = false
+            extraImageTrailing?.isActive = false
+            extraImageTrailing = extraImage.trailingAnchor.constraint(equalTo: extraIcon.leadingAnchor, constant: -12)
+            extraImageTrailing?.isActive = true
+            onPressIcon = onPress
+        } else {
+            extraIcon.isHidden = true
+            extraImageTrailing?.isActive = false
+            extraImageTrailing = extraImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16)
+            extraImageTrailing?.isActive = true
+        }
+        updateConstraints()
+        layoutIfNeeded()
     }
 
     func updateState(state: InputState = .normal) {
