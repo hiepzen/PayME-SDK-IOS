@@ -40,6 +40,11 @@ Pod::Spec.new do |s|
         'PayMESDK' => ['PayMESDK/Resource/*.png','PayMESDK/Resource/*.json', 'PayMESDK/Resource/*.svg', 'PayMESDK/Resource/*.lproj']
   }
 
+  s.pod_target_xcconfig = {
+      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
+    }
+    s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+
   # s.public_header_files = 'Pod/**/*.h'
   s.frameworks = 'UIKit', 'WebKit', 'Foundation', 'Security'
   s.dependency 'CryptoSwift', '1.3.2'
