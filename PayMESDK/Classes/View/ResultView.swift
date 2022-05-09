@@ -245,8 +245,17 @@ class ResultView: UIView {
                     ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime],
                     ["key": "method".localize(), "value": "qrPay".localize()],
                 ])
+            case MethodType.VIET_QR.rawValue:
+                paymentView = InformationView(data: [
+                    ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],
+                    ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime],
+                    ["key": "method".localize(), "value": "vietQR".localize()],
+                ])
             default:
-                paymentView = InformationView(data: [])
+                paymentView = InformationView(data: [
+                    ["key": "transactionCode".localize(), "value": result.transactionInfo.transaction],
+                    ["key": "transactionTime".localize(), "value": result.transactionInfo.transactionTime],
+                ])
                 break
             }
 

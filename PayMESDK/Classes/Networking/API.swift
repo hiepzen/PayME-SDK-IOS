@@ -799,6 +799,61 @@ class API {
         onRequest(url, path, params, onSuccess, onError, onPaymeError)
     }
 
+    func getVietQRBankList(
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> (),
+            onPaymeError: @escaping (String) -> () = { s in
+            }
+    ) {
+        let url = urlGraphQL(env: env)
+        let path = "/graphql"
+        let variables: [String: Any] = [:]
+        let json: [String: Any] = [
+            "query": GraphQuery.getVietQRBankListQuery,
+            "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
+    }
+
+    func createVietQR(
+            storeId: Int?, userName: String?, orderId: String, note: String, amount: Int,
+            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+            onError: @escaping (Dictionary<String, AnyObject>) -> (),
+            onPaymeError: @escaping (String) -> () = { s in
+            }
+    ) {
+        let url = urlGraphQL(env: env)
+        let path = "/graphql"
+        var payInput: [String: Any] = [
+            "clientId": clientId,
+            "amount": amount,
+            "orderId": orderId,
+            "payment": [
+                "vietQR": [
+                    "active": true,
+                ]
+            ]
+        ]
+        if (storeId != nil) {
+            payInput.updateValue(storeId, forKey: "storeId")
+        }
+        if userName != nil {
+            payInput.updateValue(userName, forKey: "userName")
+        }
+        if (note != "") {
+            payInput.updateValue(note, forKey: "note")
+        }
+
+        let variables: [String: Any] = ["payInput": payInput]
+        let json: [String: Any] = [
+            "query": GraphQuery.createVietQRQuery,
+            "variables": variables,
+        ]
+        let params = try? JSONSerialization.data(withJSONObject: json)
+        onRequest(url, path, params, onSuccess, onError, onPaymeError)
+    }
+
     func registerClient(
             onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
             onError: @escaping (Dictionary<String, AnyObject>) -> (),

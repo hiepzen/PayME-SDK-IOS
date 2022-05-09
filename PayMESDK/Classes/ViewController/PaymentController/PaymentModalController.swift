@@ -166,11 +166,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                         self.showMethods(paymentState.methods ?? self.data)
                     }
                     if paymentState.state == State.ATM {
-                        self.setupUIConfirm(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
+                        self.setupUIWithBanks(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.BANK_TRANSFER {
                         self.listBankManual = paymentState.listBankManual ?? self.listBankManual
-                        self.setupUIConfirm(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
+                        self.setupUIWithBanks(banks: paymentState.banks ?? self.listBank, order: paymentState.orderTransaction)
                     }
                     if paymentState.state == State.BANK_SEARCH {
                         self.setupUISearchBank(orderTransaction: paymentState.orderTransaction)
@@ -183,6 +183,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     }
                     if paymentState.state == State.BANK_QR_CODE_PG {
                         self.openWebviewVNPay(qrContent: paymentState.qrContent!)
+                    }
+                    if paymentState.state == State.VIET_QR {
+                        self.setupUIVietQR(order: paymentState.orderTransaction, transactionInformation: paymentState.error?.transactionInformation)
                     }
                     if paymentState.state == State.ERROR {
                         let responseError = paymentState.error!
@@ -241,6 +244,16 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     var timer: Timer?
     var count = 0
+
+    private func callVietQRHistory(transactionInfo: TransactionInformation?) {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
+            if let transInfo = transactionInfo {
+                self.paymentPresentation.getTransactionInfo(transactionInfo: transInfo, orderTransaction: self.orderTransaction)
+            }
+        }
+        timer?.fire()
+    }
 
     private func callCreditHistory(transactionInfo: TransactionInformation?) {
         timer?.invalidate()
@@ -507,6 +520,11 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
                     orderTransaction.paymentMethod = method
                     onSubmitMethod(method)
                     break
+                case PayCode.VIET_QR.rawValue:
+                    let method = PaymentMethod(type: MethodType.VIET_QR.rawValue, title: "vietQR".localize())
+                    orderTransaction.paymentMethod = method
+                    onSubmitMethod(method)
+                    break
 //                case PayCode.VN_PAY.rawValue:
 //                    let method = PaymentMethod(type: MethodType.BANK_QR_CODE_PG.rawValue, title: "bankQRCode")
 //                    orderTransaction.paymentMethod = method
@@ -586,7 +604,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         panModalTransition(to: .longForm)
     }
 
-    func setupUIConfirm(banks: [Bank], order: OrderTransaction?) {
+    func setupUIWithBanks(banks: [Bank], order: OrderTransaction?) {
         removeSpinner()
         view.endEditing(false)
 
@@ -624,6 +642,44 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         modalHeight = viewHeight
         panModalSetNeedsLayoutUpdate()
         panModalTransition(to: .longForm)
+    }
+    func setupUIVietQR(order: OrderTransaction?, transactionInformation: TransactionInformation?) {
+        guard let orderTransaction = order else { return }
+        removeSpinner()
+        view.endEditing(false)
+        searchBankController.view.isHidden = true
+        viewVietQRListBank.view.isHidden = true
+        methodsView.isHidden = true
+        bankTransResultView.isHidden = true
+        UIScrollView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
+            self.confirmController.view.isHidden = false
+        })
+        if (atmHeightConstraint?.constant == nil) {
+            atmHeightConstraint = confirmController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
+            atmHeightConstraint?.isActive = true
+        }
+        if let orderTransaction = order {
+            confirmController.atmView.updateUIByMethod(orderTransaction: orderTransaction)
+        }
+        confirmController.updateContentSize()
+        confirmController.view.layoutIfNeeded()
+        let temp = footer.bounds.size.height
+                + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
+        let atmHeight = min(confirmController.scrollView.contentSize.height, screenSize.height - temp)
+        atmHeightConstraint?.constant = atmHeight
+
+        footerTopConstraint?.isActive = false
+        footerTopConstraint = footer.topAnchor.constraint(equalTo: confirmController.view.bottomAnchor)
+        footerTopConstraint?.isActive = true
+        updateViewConstraints()
+        view.layoutIfNeeded()
+        let viewHeight = confirmController.view.bounds.size.height
+                + footer.bounds.size.height
+        modalHeight = viewHeight
+        panModalSetNeedsLayoutUpdate()
+        panModalTransition(to: .longForm)
+
+        callVietQRHistory(transactionInfo: transactionInformation)
     }
 
     func showMethods(_ methods: [PaymentMethod]) {
@@ -913,6 +969,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         case MethodType.BANK_QR_CODE_PG.rawValue:
             let task = paymentPresentation.payVNQRCode(orderTransaction: orderTransaction, redirectURL: redirectURLVNPay)
             sessionList.append(task)
+            break
+        case MethodType.VIET_QR.rawValue:
+            paymentPresentation.createVietQR(orderTransaction: orderTransaction)
             break
         default:
             toastMessError(title: "", message: "Tính năng đang được xây dựng.") { [self] alertAction in

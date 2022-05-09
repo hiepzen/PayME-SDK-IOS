@@ -23,7 +23,6 @@ class BankTransferView: UIView {
         vStackContainer.addArrangedSubview(seperator)
         vStackContainer.addArrangedSubview(info)
         vStackContainer.addArrangedSubview(transferInfo)
-//        vStackContainer.addArrangedSubview(openVietQRBanksButton)
 
         bankContainer.addSubview(titleLabel)
         bankContainer.addSubview(contentLabel)
@@ -57,10 +56,6 @@ class BankTransferView: UIView {
 
         bankLogo.heightAnchor.constraint(equalToConstant: 32).isActive = true
         bankLogo.widthAnchor.constraint(equalToConstant: 64).isActive = true
-
-
-
-//        openVietQRBanksButton.addTarget(self, action: #selector(onPressVietQR), for: .touchUpInside)
 
         bottomAnchor.constraint(equalTo: vStackContainer.bottomAnchor).isActive = true
     }
@@ -115,12 +110,7 @@ class BankTransferView: UIView {
         ]))
         normalText1.append(normalText2)
         info.attributedText = normalText1
-
-//        let divider = UIView(frame: .zero)
-//        transferInfo.addSubview(divider)
         transferInfo.addSubview(paymeInfo)
-//        divider.topAnchor.constraint(equalTo: hStack.bottomAnchor, constant: 4).isActive = true
-//        divider.widthAnchor.constraint(equalTo: transferInfo.widthAnchor).isActive = true
         paymeInfo.topAnchor.constraint(equalTo: hStack.bottomAnchor, constant: 4).isActive = true
         paymeInfo.leadingAnchor.constraint(equalTo: transferInfo.leadingAnchor).isActive = true
         paymeInfo.trailingAnchor.constraint(equalTo: transferInfo.trailingAnchor).isActive = true

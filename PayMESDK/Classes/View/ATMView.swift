@@ -26,6 +26,7 @@ class ATMView: UIView {
         vStack.addArrangedSubview(nameInput)
         vStack.addArrangedSubview(hStack)
         vStack.addArrangedSubview(contentView)
+        vStack.addArrangedSubview(vietQRView)
         hStack.addArrangedSubview(dateInput)
         hStack.addArrangedSubview(cvvInput)
         cvvInput.textInput.isSecureTextEntry = true
@@ -58,6 +59,7 @@ class ATMView: UIView {
         nameInput.isHidden = true
         cvvInput.isHidden = true
         contentView.isHidden = true
+        vietQRView.isHidden = true
         bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 16).isActive = true
     }
 
@@ -73,6 +75,7 @@ class ATMView: UIView {
         nameInput.isHidden = true
         cvvInput.isHidden = true
         contentView.isHidden = true
+        vietQRView.isHidden = true
         methodView.title = method.title
         methodView.content = method.label
         methodView.note = nil
@@ -130,6 +133,12 @@ class ATMView: UIView {
             cvvInput.isHidden = false
             methodView.image.image = UIImage(for: Method.self, named: "iconCreditCard")
             dateInput.updateTitle("expiredDate".localize().uppercased())
+        case MethodType.VIET_QR.rawValue:
+            button.isHidden = true
+            vietQRView.isHidden = false
+            methodView.image.image = UIImage(for: Method.self, named: "logoVietQr")
+            vietQRView.updateInfo(data: method.dataVietQR, orderTransaction: orderTransaction)
+            break
         default:
             methodView.image.image = UIImage(for: MethodView.self, named: "iconWallet")
             break
@@ -179,6 +188,7 @@ class ATMView: UIView {
     let methodView: MethodView = MethodView(isSelectable: false)
 
     var contentView = BankTransferView()
+    var vietQRView = VietQRView()
 }
 
 

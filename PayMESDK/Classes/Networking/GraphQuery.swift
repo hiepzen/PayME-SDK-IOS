@@ -334,6 +334,43 @@ class GraphQuery {
                                     }
                                   }
                                   """
+  static let getVietQRBankListQuery = """
+                                      mutation GetListVietQR {
+                                        OpenEWallet {
+                                          Payment {
+                                            GetListVietQR {
+                                              swiftCode
+                                              isVietQR
+                                            }
+                                          }
+                                        }
+                                      }
+                                      """
+  static let createVietQRQuery = """
+                                 mutation Pay($payInput: OpenEWalletPaymentPayInput!) {
+                                   OpenEWallet {
+                                     Payment {
+                                       Pay(input: $payInput) {
+                                         succeeded
+                                         message
+                                          history {
+                                           payment {
+                                             transaction
+                                           }
+                                           createdAt
+                                         }
+                                         payment {
+                                           ... on PaymentVietQRResponsed {
+                                             state
+                                             message
+                                             qrContent
+                                           }
+                                         }
+                                       }
+                                     }
+                                   }
+                                 }
+                                 """
     static let registerClientQuery = """
                                      mutation registerClientQuery($registerInput: ClientRegisterInput!) {
                                        Client {

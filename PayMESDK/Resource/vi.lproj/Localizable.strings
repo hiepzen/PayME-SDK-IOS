@@ -139,6 +139,8 @@
 "done" = "Xong";
 "cancelTransaction" = "Hủy giao dịch";
 "processingTransaction" = "Giao dịch đang được xử lý";
+"vietQR" = "VietQR";
+"scanVietQRDescription" = "Quét VietQR để chuyển khoản";
 
 
 

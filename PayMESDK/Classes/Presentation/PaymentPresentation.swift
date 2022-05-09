@@ -870,6 +870,99 @@ class PaymentPresentation {
         }, onPaymeError: onPaymeError)
     }
 
+    func getVietQRBank(orderTransaction: OrderTransaction) {
+        request.getBankList(onSuccess: { bankListResponse in
+            let banks = bankListResponse["Setting"]!["banks"] as! [[String: AnyObject]]
+            var listBank: [Bank] = []
+            for bank in banks {
+                if bank["depositable"] as? Bool ?? false && ((bank["cardNumberLength"] as? Int) != nil) && ((bank["cardPrefix"] as? String) != nil) {
+                    var dateString: String
+                    if (bank["requiredDate"] as? String ?? "") == "EXPIRED_DATE" {
+                        dateString = "expiredDate".localize()
+                    } else {
+                        dateString = "releaseDate".localize()
+                    }
+                    let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int,
+                            cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String,
+                            shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String,
+                            isVietQr: bank["vietQRAccepted"] as? Bool ?? false,
+                            requiredDateString: dateString
+                    )
+                    listBank.append(temp)
+                }
+            }
+            if orderTransaction.paymentMethod?.type == MethodType.BANK_TRANSFER.rawValue {
+                let vietQRBank: [Bank] = listBank.filter {
+                    $0.isVietQr == true
+                }
+                self.getListBankManual(orderTransaction: orderTransaction, listSettingBank: vietQRBank)
+            } else {
+                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: listBank, orderTransaction: orderTransaction))
+            }
+        }, onError: { bankListError in
+            self.onError(bankListError)
+        }, onPaymeError: onPaymeError)
+    }
+
+    func createVietQR(orderTransaction: OrderTransaction) {
+        request.createVietQR(storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, note: orderTransaction.note, amount: orderTransaction.amount,
+                onSuccess: { response in
+                    let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
+                    if let payInfo = paymentInfo["Pay"] as? [String: AnyObject] {
+                        var formatDate = ""
+                        var transactionNumber = ""
+                        if let history = payInfo["history"] as? [String: AnyObject] {
+                            if let createdAt = history["createdAt"] as? String {
+                                if let date = toDate(dateString: createdAt) {
+                                    formatDate = toDateString(date: date)
+                                }
+                            }
+                            if let payment = history["payment"] as? [String: AnyObject] {
+                                if let transaction = payment["transaction"] as? String {
+                                    transactionNumber = transaction
+                                }
+                            }
+                        }
+                        if let payment = payInfo["payment"] as? [String: AnyObject] {
+                            if let vietQRState = payment["state"] as? String, let vietQRCode = payment["qrContent"] as? String {
+                                if vietQRState == "REQUIRED_TRANSFER" {
+                                    self.request.getVietQRBankList(onSuccess: { data in
+                                        if let bankList = (data["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["GetListVietQR"] as? [AnyObject] {
+                                            let vietQRBanks = (bankList.filter({ ($0["isVietQR"] as? Bool) == true && $0["swiftCode"] != nil})).map({ $0["swiftCode"] as! String })
+                                            let dataVietQR = VietQRInformation(qrContent: vietQRCode, banks: vietQRBanks)
+                                            orderTransaction.paymentMethod?.dataVietQR = dataVietQR
+                                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .VIET_QR, orderTransaction: orderTransaction,
+                                                    error: ResponseError(code: .REQUIRED_VERIFY,
+                                                            transactionInformation: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate))
+                                            ))
+                                        }
+                                    }, onError: { e in print(e)})
+                                } else {
+                                    let message = payment["message"] as? String
+                                    let result = Result(
+                                            type: ResultType.FAIL,
+                                            failReasonLabel: message ?? "hasError".localize(),
+                                            orderTransaction: orderTransaction,
+                                            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                                            extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
+                                    )
+                                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                }
+                            }
+                        }
+                    }
+
+                },
+                onError: { error in
+                    self.onError(error)
+                    if let code = error["code"] as? Int {
+                        if (code == 401) {
+                            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                        }
+                    }},
+                onPaymeError: onPaymeError)
+    }
+
     func getFee(orderTransaction: OrderTransaction) {
         let payment: [String: Any]? = {
             switch orderTransaction.paymentMethod?.type {

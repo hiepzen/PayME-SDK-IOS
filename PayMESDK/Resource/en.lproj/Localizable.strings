@@ -139,6 +139,8 @@ số tiền ";
 "manualBankNotFound" = "Không tìm thấy danh sách ngân hàng thụ hưởng";
 "cancelTransaction" = "Hủy giao dịch";
 "processingTransaction" = "Giao dịch đang được xử lý";
+"vietQR" = "VietQR";
+"scanVietQRDescription" = "Quét VietQR để chuyển khoản";
 
 
 

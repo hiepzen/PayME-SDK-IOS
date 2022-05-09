@@ -16,6 +16,7 @@ public enum PayCode: String {
     case MOMO = "MOMO"
     case ZALO_PAY = "ZALO_PAY"
     case MANUAL_BANK = "MANUAL_BANK"
+    case VIET_QR = "VIET_QR"
 }
 
 enum MethodType: String {
@@ -33,6 +34,7 @@ enum MethodType: String {
     case BANK_QR_CODE_PG = "BANK_QR_CODE_PG"
     case ZALOPAY_PG = "ZALOPAY_PG"
     case CREDIT_BALANCE = "CREDIT_BALANCE"
+    case VIET_QR = "VIET_QR"
 }
 
 class PaymentData {
@@ -56,6 +58,7 @@ class PaymentMethod {
     var dataBankTransfer: BankManual?
     var dataCreditCard: CreditCardInfomation?
     var dataCreditWallet: CreditWalletInformation?
+    var dataVietQR: VietQRInformation?
 
     init(
         type: String,
@@ -68,7 +71,8 @@ class PaymentMethod {
         dataBank: BankInformation? = nil,
         dataBankTransfer: BankManual? = nil,
         dataCreditCard: CreditCardInfomation? = nil,
-        dataCreditWallet: CreditWalletInformation? = nil
+        dataCreditWallet: CreditWalletInformation? = nil,
+        dataVietQR: VietQRInformation? = nil
     ) {
         self.type = type
         self.title = title
@@ -81,6 +85,7 @@ class PaymentMethod {
         self.dataBankTransfer = dataBankTransfer
         self.dataCreditCard = dataCreditCard
         self.dataCreditWallet = dataCreditWallet
+        self.dataVietQR = dataVietQR
     }
 }
 
