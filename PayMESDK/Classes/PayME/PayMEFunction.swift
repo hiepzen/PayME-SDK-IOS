@@ -288,7 +288,7 @@ class PayMEFunction {
     }
 
     func getPaymentMethods(
-            _ storeId: Int,
+            _ storeId: Int?,
             _ onSuccess: @escaping ([Dictionary<String, Any>]) -> (),
             _ onError: @escaping (Dictionary<String, AnyObject>) -> ()
     ) {

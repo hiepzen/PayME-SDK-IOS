@@ -732,9 +732,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             if (moneyPay.text != "") {
                 let amount = Int(moneyPay.text!)
                 let amountPay = amount!
-                var storeId = 9
+                var storeId: Int? = 9
                 if currentEnv == PayME.Env.SANDBOX {
-                    storeId = 10581207
+                    storeId = nil
                 }
                 if currentEnv == PayME.Env.PRODUCTION {
                     storeId = 57956431

@@ -51,7 +51,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     let placeholderView = UIView()
     let activityIndicator = UIActivityIndicatorView(style: .white)
 
-
     let payMEFunction: PayMEFunction
     let orderTransaction: OrderTransaction
     let paymentPresentation: PaymentPresentation
@@ -494,9 +493,6 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
     func getListMethods() {
         paymentPresentation.getListMethods(payCode: payCode, onSuccess: { [self] paymentMethods in
-            if payCode != PayCode.VN_PAY.rawValue {
-                activityIndicator.removeFromSuperview()
-            }
             data = paymentMethods
             if paymentMethods.count > 0 {
                 switch payCode {
@@ -644,9 +640,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         panModalTransition(to: .longForm)
     }
     func setupUIVietQR(order: OrderTransaction?, transactionInformation: TransactionInformation?) {
-        guard let orderTransaction = order else { return }
         removeSpinner()
         view.endEditing(false)
+        guard let orderTransaction = order else { return }
         searchBankController.view.isHidden = true
         viewVietQRListBank.view.isHidden = true
         methodsView.isHidden = true
@@ -683,6 +679,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     }
 
     func showMethods(_ methods: [PaymentMethod]) {
+        activityIndicator.removeFromSuperview()
         if data.count == 0 {
             PaymentModalController.isShowCloseModal = false
             dismiss(animated: true) {
