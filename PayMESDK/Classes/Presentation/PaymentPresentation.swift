@@ -18,6 +18,7 @@ enum ResponseErrorCode {
     case INVALID_OTP
     case OVER_QUOTA
     case SERVER_ERROR
+    case DEACTIVATED_ACCOUNT
 }
 
 struct ResponseError {

@@ -442,7 +442,7 @@ class WebViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler,
             if let dictionary = message.body as? [String: AnyObject] {
                 removeSpinner()
                 let code = dictionary["code"] as! Int
-                if (code == 401) {
+                if (code == 401 || code == 405) {
                     onCloseWebview()
                     payMEFunction?.resetInitState()
                 }
