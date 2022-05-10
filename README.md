@@ -164,6 +164,7 @@ Tham số <code>kycInfo</code>
 | **Hằng số**   | **Mã lỗi** | **Giải thích**                                               |
 | :------------ | :----------- | :----------------------------------------------------------- |
 | <code>EXPIRED</code> | <code>401</code>          | ***token*** hết hạn sử dụng |
+| <code>DDEACTIVATED_ACCOUNT</code> | <code>405</code>          | Tài khoản đã bị vô hiệu hoá |
 | <code>NETWORK</code>  | <code>-1</code>          | Kết nối mạng bị sự cố |
 | <code>SYSTEM</code>   | <code>-2</code>           | Lỗi hệ thống |
 | <code>LIMIT</code>   | <code>-3</code>           | Lỗi số dư không đủ để thực hiện giao dịch |
