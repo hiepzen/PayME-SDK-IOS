@@ -165,6 +165,7 @@ kycInfo parameter
 **Constant** | **Error Code** | **Explanation** |
 | :----------- | :---------- |:-------------------------------------------------------------|
 | EXPIRED | 401 | ***token*** expired |
+| DEACTIVATED_ACCOUNT | 405 | Account is deactivated |
 | NETWORK | -1 | Network connection problem |
 | SYSTEM | -2 | System Error |
 | LIMIT | -3 | Error of insufficient balance to make a transaction |
