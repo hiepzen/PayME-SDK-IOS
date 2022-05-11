@@ -732,18 +732,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             if (moneyPay.text != "") {
                 let amount = Int(moneyPay.text!)
                 let amountPay = amount!
-                var storeId: Int? = 9
-                if currentEnv == PayME.Env.SANDBOX {
-                    storeId = nil
-                }
-                if currentEnv == PayME.Env.PRODUCTION {
-                    storeId = 57956431
-                }
-                if currentEnv == PayME.Env.STAGING {
-                    storeId = 223
-                }
                 let redirectUrl = "paymesdk://\(Bundle.main.bundleIdentifier ?? "")/success"
-                payME!.pay(currentVC: self, storeId: storeId, userName: nil, orderId: String(Date().timeIntervalSince1970), amount: amountPay,
+                payME!.pay(currentVC: self, storeId: nil, userName: nil, orderId: String(Date().timeIntervalSince1970), amount: amountPay,
                         note: "Nội dung đơn hàng", payCode: curPayCode, extraData: nil, isShowResultUI: true,
                         onSuccess: { success in
                     Log.custom.push(title: "pay", message: success)
