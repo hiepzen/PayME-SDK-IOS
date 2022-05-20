@@ -108,6 +108,8 @@ class API {
                                 default:
                                     onError(["code": 500 as AnyObject, "message": "Something went wrong" as AnyObject])
                                 }
+                            } else {
+                                onError(["code": 500 as AnyObject, "message": "Lỗi hệ thống (Upload not found)" as AnyObject])
                             }
                         }
                     }
@@ -187,6 +189,8 @@ class API {
                                 default:
                                     onError(["code": 500 as AnyObject, "message": "Something went wrong" as AnyObject])
                                 }
+                            } else {
+                                onError(["code": 500 as AnyObject, "message": "Lỗi hệ thống (Upload not found)" as AnyObject])
                             }
                         }
                     }
