@@ -164,7 +164,7 @@ Tham số <code>kycInfo</code>
 | **Hằng số**   | **Mã lỗi** | **Giải thích**                                               |
 | :------------ | :----------- | :----------------------------------------------------------- |
 | <code>EXPIRED</code> | <code>401</code>          | ***token*** hết hạn sử dụng |
-| <code>DDEACTIVATED_ACCOUNT</code> | <code>405</code>          | Tài khoản đã bị vô hiệu hoá |
+| <code>DEACTIVATED_ACCOUNT</code> | <code>405</code>          | Tài khoản đã bị vô hiệu hoá |
 | <code>NETWORK</code>  | <code>-1</code>          | Kết nối mạng bị sự cố |
 | <code>SYSTEM</code>   | <code>-2</code>           | Lỗi hệ thống |
 | <code>LIMIT</code>   | <code>-3</code>           | Lỗi số dư không đủ để thực hiện giao dịch |
@@ -183,7 +183,7 @@ Tham số <code>kycInfo</code>
 
 Có 2 trường hợp
 - Dùng để login lần đầu tiên ngay sau khi khởi tạo <code>PayME</code>.
-- Dùng khi <code>accessToken</code> hết hạn, khi gọi hàm của SDK mà trả về mã lỗi <code>ResponseCode.EXPIRED</code>, lúc này app cần gọi <code>login</code> lại để lấy <code>accessToken</code> dùng cho các chức năng khác.
+- Dùng khi <code>accessToken</code> hết hạn, khi gọi hàm của SDK mà trả về mã lỗi <code>ResponseCode.EXPIRED hoặc ResponseCode.DEACTIVATED_ACCOUNT</code>, lúc này app cần gọi <code>login</code> lại để lấy <code>accessToken</code> dùng cho các chức năng khác.
 
 Sau khi gọi <code>login()</code> thành công rồi thì mới gọi các chức năng khác của SDK ( <code>openWallet</code>, <code>pay</code> ... )
 
@@ -424,7 +424,7 @@ public func pay(
 ```
 | Tham số                                                      | **Bắt buộc** | **Giá trị**                                               | 
 | :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| <code>payCode</code> | Yes          | <code>PAYME</code> <code>ATM</code> <code>CREDIT</code> <code>MANUAL_BANK</code>  |
+| <code>payCode</code> | Yes          | [Danh sách phương thức thanh toán](#danh-sách-phương-thức-thanh-toán)  |
 | <code>userName</code> | No          | Tên tài khoản |
 | <code>storeId</code> | No | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
 
@@ -572,6 +572,15 @@ Chuyển đổi ngôn ngữ của sdk
 ```swift
 public func setLanguage(language: PayME.Language) -> ()
 ```
+
+## Danh sách phương thức thanh toán
+| **payCode** | **Phương thức thanh toán** |
+| :------------| :-------------|
+| PAYME  | Thanh toán ví PayME |
+| ATM  | Thanh toán thẻ ATM Nội địa |
+| MANUAL_BANK  | Thanh toán chuyển khoản ngân hàng |
+| CREDIT  | Thanh toán thẻ tín dụng |
+| VIET_QR  | Thanh toán VietQR |
 
 ## Ghi chú
 
