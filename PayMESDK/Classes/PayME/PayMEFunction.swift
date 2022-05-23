@@ -327,7 +327,7 @@ class PayMEFunction {
                         let userName = (detect["userName"] as? String) ?? ""
                         let onSuccessPay = isStartDirectFromUser ? { dictionary in
                         } : onSuccess
-                        let currentViewController = PayME.currentVC ?? currentVC
+                        let currentViewController = currentVC
                         self.payAction(
                                 currentVC: currentViewController, storeId: storeId, userName: userName, orderId: orderId, amount: amount,
                                 note: note, payCode: payCode, extraData: nil,
