@@ -11,6 +11,7 @@ import SVGKit
 protocol ATMViewDelegate {
     func isShowScan() -> Bool
     func onPressScanCard()
+    func onWriteImage(isSuccess: Bool)
 }
 
 class ATMView: UIView {
@@ -88,6 +89,7 @@ class ATMView: UIView {
                     self.delegate?.onPressScanCard()
                 })
             }
+            vietQRView.onSaveImage = delegate?.onWriteImage ?? { param in }
         }
         switch method.type {
         case MethodType.WALLET.rawValue:

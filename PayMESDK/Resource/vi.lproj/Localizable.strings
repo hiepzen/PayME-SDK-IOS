@@ -141,7 +141,10 @@
 "processingTransaction" = "Giao dịch đang được xử lý";
 "vietQR" = "VietQR";
 "scanVietQRDescription" = "Quét VietQR để chuyển khoản";
-
+"downloadQr" = "Tải mã thanh toán";
+"permissionMemory" = "Cho phép truy cập bộ nhớ ảnh của bạn";
+"permissionMemoryDescription" = "Bạn hãy cho phép truy cập bộ nhớ ảnh trong phần Cài Đặt của hệ thống để tiếp tục";
+"downloadQrSucceeded" = "Tải mã thanh toán thành công";
 
 
 

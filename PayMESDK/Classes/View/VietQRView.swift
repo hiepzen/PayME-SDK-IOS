@@ -39,6 +39,8 @@ class VietQRBankItem: UICollectionViewCell {
 class VietQRView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
   var supportedBanks: [String] = []
   var listHeight: NSLayoutConstraint? = nil
+  var qrImage: UIImage? = nil
+  var onSaveImage: (Bool) -> () = { param in }
 
   init () {
     super.init(frame: .zero)
@@ -53,6 +55,7 @@ class VietQRView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
     vStackContainer.addArrangedSubview(seperator)
     vStackContainer.addArrangedSubview(titleLabel)
     vStackContainer.addArrangedSubview(qrContainer)
+    vStackContainer.addArrangedSubview(downloadQrButton)
     vStackContainer.addArrangedSubview(UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 16)))
     vStackContainer.addArrangedSubview(contentLabel)
     vStackContainer.addArrangedSubview(collectionView)
@@ -69,6 +72,8 @@ class VietQRView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
     qrImageView.widthAnchor.constraint(equalToConstant: 126).isActive = true
     qrImageView.centerXAnchor.constraint(equalTo: qrContainer.centerXAnchor).isActive = true
 
+    downloadQrButton.addTarget(self, action: #selector(onPressDownloadQr), for: .touchUpInside)
+
     if (listHeight?.constant == nil) {
       listHeight = collectionView.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
       listHeight?.isActive = true
@@ -80,9 +85,10 @@ class VietQRView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
   func updateInfo(data: VietQRInformation?, orderTransaction: OrderTransaction) {
     guard let qrCode = data?.qrContent else { return }
     if qrCode != "" {
-      let logo = UIImage(for: BankQrView.self, named: "logoVietQr")?.resize(newSize: CGSize(width: 8, height: 8))
+      let logo = UIImage(for: BankQrView.self, named: "logoVietQr")?.resize(newSize: CGSize(width: 264, height: 264))
       if let qrImage = qrCode.generateQRImage(withLogo: logo) {
         qrImageView.image = qrImage
+        self.qrImage = qrImage
       }
     }
 
@@ -92,10 +98,19 @@ class VietQRView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
       listHeight?.constant = collectionView.collectionViewLayout.collectionViewContentSize.height
       layoutIfNeeded()
     }
-
+    downloadQrButton.isHidden = (qrImage == nil)
     updateConstraints()
     layoutIfNeeded()
     seperator.createDashedLine( from: CGPoint(x: 0, y: 0), to: CGPoint(x: seperator.frame.size.width, y: 0), color: UIColor(142, 142, 142), strokeLength: 2, gapLength: 2, width: 1)
+  }
+
+  @objc func onPressDownloadQr() {
+    guard let qrImageToSave = qrImage else { return }
+    UIImageWriteToSavedPhotosAlbum(qrImageToSave, self, #selector(onSaved), nil)
+  }
+
+  @objc func onSaved(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+      onSaveImage((error == nil))
   }
 
   var qrView: BankQrView? = nil
@@ -135,6 +150,18 @@ class VietQRView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
     label.font = .systemFont(ofSize: 12, weight: .regular)
     label.text = "openVietQRBankList".localize()
     return label
+  }()
+
+  let downloadQrButton: UIButton = {
+    let button = UIButton()
+    button.translatesAutoresizingMaskIntoConstraints = false
+    button.setAttributedTitle(NSAttributedString(string: "downloadQr".localize(),
+            attributes: [
+              .font: UIFont.systemFont(ofSize: 14, weight: .regular),
+              .foregroundColor: UIColor(hexString: PayME.configColor[0]),
+              .underlineStyle: NSUnderlineStyle.single.rawValue
+            ]), for: .normal)
+    return button
   }()
 
   let seperator = UIView()

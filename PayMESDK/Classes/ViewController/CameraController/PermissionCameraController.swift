@@ -7,10 +7,15 @@
 
 import UIKit
 import AVFoundation
+enum PermissionType {
+    case CAMERA
+    case MEMORY
+}
 
 class PermissionCamera: UIViewController, UINavigationControllerDelegate {
     private var onSuccess: ((String) -> ())? = nil
     var modalVC: UIViewController?
+    var type: PermissionType?
 
     let backButton: UIButton = {
         let button = UIButton()
@@ -69,8 +74,9 @@ class PermissionCamera: UIViewController, UINavigationControllerDelegate {
         self.onSuccess = onSuccess
     }
 
-    init(modalVC: UIViewController? = nil) {
+    init(modalVC: UIViewController? = nil, permissionType: PermissionType? = PermissionType.CAMERA) {
         self.modalVC = modalVC
+        type = permissionType
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -80,7 +86,7 @@ class PermissionCamera: UIViewController, UINavigationControllerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColor(29, 29, 39)
+        view.backgroundColor = UIColor(29, 29, 39)
 
         view.addSubview(backButton)
         view.addSubview(containerView)
@@ -90,8 +96,8 @@ class PermissionCamera: UIViewController, UINavigationControllerDelegate {
         containerView.addSubview(contentLabel)
         containerView.addSubview(confirm)
 
-        titleLabel.text = "permissionContent".localize()
-        contentLabel.text = "permissionContent1".localize()
+        titleLabel.text = (type == PermissionType.CAMERA) ? "permissionContent".localize() : "permissionMemory".localize()
+        contentLabel.text = (type == PermissionType.CAMERA) ? "permissionContent1".localize() : "permissionMemoryDescription".localize()
 
         if #available(iOS 11, *) {
             let guide = view.safeAreaLayoutGuide
@@ -156,7 +162,6 @@ class PermissionCamera: UIViewController, UINavigationControllerDelegate {
     @objc func back() {
         if modalVC != nil {
             dismiss(animated: true)
-
         } else {
             let authStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
             if authStatus == AVAuthorizationStatus.denied {
@@ -174,19 +179,31 @@ class PermissionCamera: UIViewController, UINavigationControllerDelegate {
 
     @objc func proceedWithCameraAccess() {
         // handler in .requestAccess is needed to process user's answer to our request
-        AVCaptureDevice.requestAccess(for: .video) { success in
-            if success { // if request is granted (success is true)\
-                if (self.modalVC != nil) {
-                    self.dismiss(animated: true)
-                } else {
-                    self.navigationController?.popViewController(animated: true)
-                }
-            } else { // if request is denied (success is false)
-                DispatchQueue.main.async {
-                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+        switch type {
+        case .CAMERA:
+            AVCaptureDevice.requestAccess(for: .video) { success in
+                if success { // if request is granted (success is true)\
+                    if (self.modalVC != nil) {
+                        self.dismiss(animated: true)
+                    } else {
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                } else { // if request is denied (success is false)
+                    DispatchQueue.main.async {
+                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                    }
                 }
             }
+            break
+        case .MEMORY:
+            DispatchQueue.main.async {
+                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+            }
+            break
+        case .none:
+            break
         }
+
     }
 
     override func viewDidLayoutSubviews() {
