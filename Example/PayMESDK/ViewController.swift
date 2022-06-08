@@ -733,7 +733,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 let amount = Int(moneyPay.text!)
                 let amountPay = amount!
                 let redirectUrl = "paymesdk://\(Bundle.main.bundleIdentifier ?? "")/success"
-                payME!.pay(currentVC: self, storeId: nil, userName: nil, orderId: String(Date().timeIntervalSince1970), amount: amountPay,
+                payME!.pay(currentVC: self, storeId: nil, userName: userNameField.text, orderId: String(Date().timeIntervalSince1970), amount: amountPay,
                         note: "Nội dung đơn hàng", payCode: curPayCode, extraData: nil, isShowResultUI: true,
                         onSuccess: { success in
                     Log.custom.push(title: "pay", message: success)
