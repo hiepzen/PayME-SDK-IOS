@@ -671,10 +671,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             if (qrPayString.text != "") {
                payME!.payQRCode(currentVC: self, qr: qrPayString.text!, payCode: curPayCode,
                        onSuccess: { success in
-                            Log.custom.push(title: "payQRCode", message: success)
+                            Log.custom.push(title: "payQRCode Success", message: success)
                        },
                        onError: { error in
-                        Log.custom.push(title: "payQRCode", message: error)
+                        Log.custom.push(title: "payQRCode Error", message: error)
                         if let code = error["code"] as? Int {
                             if (code != PayME.ResponseCode.USER_CANCELLED) {
                                 let message = error["message"] as? String
@@ -706,9 +706,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
     @objc func scanQR() {
         payME!.scanQR(currentVC: self, payCode: curPayCode, onSuccess: { response in
-            Log.custom.push(title: "payQRCode", message: response)
+            Log.custom.push(title: "payQRCode Success", message: response)
         }, onError: { error in
-            Log.custom.push(title: "payQRCode", message: error)
+            Log.custom.push(title: "payQRCode Error", message: error)
             if let code = error["code"] as? Int {
                 if (code != PayME.ResponseCode.USER_CANCELLED) {
                     let message = error["message"] as? String

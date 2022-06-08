@@ -327,11 +327,13 @@ class PayMEFunction {
                         let userName = (detect["userName"] as? String) ?? ""
                         let onSuccessPay = isStartDirectFromUser ? { dictionary in
                         } : onSuccess
+                        let onErrorPay = isStartDirectFromUser ? { dictionary in
+                        } : onError
                         let currentViewController = currentVC
                         self.payAction(
                                 currentVC: currentViewController, storeId: storeId, userName: userName, orderId: orderId, amount: amount,
                                 note: note, payCode: payCode, extraData: nil,
-                                isShowResultUI: true, onSuccess: onSuccessPay, onError: onError
+                                isShowResultUI: true, onSuccess: onSuccessPay, onError: onErrorPay
                         )
                     } else {
                         currentVC.presentModal(QRNotFound())
@@ -350,10 +352,6 @@ class PayMEFunction {
             PayME.currentVC = currentVC
 
             navigationAdapter(currentVC: currentVC, navigateVC: qrScan)
-
-            if isStartDirectFromUser {
-                onSuccess([:])
-            }
         }
     }
 
