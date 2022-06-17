@@ -551,7 +551,7 @@ class ServiceConfig {
 
 ### openService()
 
-Mở WebSDK để thanh toán dịch vụ. ( Tính năng đang được xây dựng )
+Mở WebSDK để thanh toán dịch vụ
 
 ```swift
 public func openService(

@@ -536,7 +536,7 @@ class ServiceConfig {
 
 ### openService()
 
-Open WebSDK to pay for services. (Feature under development)
+Open WebSDK to pay for services
 
 ```swift
 public func openService(
