@@ -253,6 +253,32 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return textField
     }()
 
+    let serviceButton: UIButton = {
+        let button = UIButton()
+        button.layer.borderColor = UIColor.black.cgColor
+        button.layer.borderWidth = 0.5
+        button.layer.cornerRadius = 10
+        button.backgroundColor = UIColor.white
+        button.setTitle("Mở dịch vụ", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    let serviceText: UITextField = {
+        let textField = UITextField()
+        textField.layer.borderColor = UIColor.black.cgColor
+        textField.layer.borderWidth = 0.5
+        textField.backgroundColor = UIColor.white
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.placeholder = "Nhập service"
+        textField.text = "WATE"
+        textField.setLeftPaddingPoints(10)
+        textField.keyboardType = .numberPad
+        return textField
+    }()
+
     let withDrawButton: UIButton = {
         let button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
@@ -604,6 +630,30 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
     }
 
+    @objc func serviceAction(sender: UIButton!) {
+        if (self.connectToken != "") {
+            if (serviceText.text != "") {
+                let service = serviceText.text
+                self.payME!.openService(currentVC: self, amount: nil, description: nil, extraData: nil, service: ServiceConfig(service!, ""), onSuccess: { success in
+                    Log.custom.push(title: "open Service", message: success)
+                }, onError: { error in
+                    Log.custom.push(title: "openService", message: error)
+                    if let code = error["code"] as? Int {
+                        if (code != PayME.ResponseCode.USER_CANCELLED) {
+                            let message = error["message"] as? String
+                            self.toastMess(title: "Lỗi", value: message)
+                        }
+                    }
+                })
+            } else {
+                toastMess(title: "Lỗi", value: "Nhập service")
+
+            }
+        } else {
+            toastMess(title: "Lỗi", value: "Vui lòng tạo connect token trước")
+        }
+    }
+
     @objc func withDrawAction(sender: UIButton!) {
         if (connectToken != "") {
             if (moneyWithDraw.text != "") {
@@ -917,6 +967,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         sdkContainer.addSubview(qrPayString)
         sdkContainer.addSubview(depositButton)
         sdkContainer.addSubview(moneyDeposit)
+        sdkContainer.addSubview(serviceButton)
+        sdkContainer.addSubview(serviceText)
         sdkContainer.addSubview(withDrawButton)
         sdkContainer.addSubview(moneyWithDraw)
         sdkContainer.addSubview(payButton)
@@ -934,6 +986,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
         phoneTextField.delegate = self
         moneyDeposit.delegate = self
+        serviceText.delegate = self
         moneyWithDraw.delegate = self
         moneyPay.delegate = self
         envList.delegate = self
@@ -1111,8 +1164,19 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         moneyTransfer.leadingAnchor.constraint(equalTo: transferButton.trailingAnchor, constant: 10).isActive = true
         moneyTransfer.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         moneyTransfer.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
+        serviceButton.topAnchor.constraint(equalTo: transferButton.bottomAnchor, constant: 20).isActive = true
+        serviceButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
+        serviceButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        serviceButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        serviceButton.addTarget(self, action: #selector(serviceAction), for: .touchUpInside)
 
-        getServiceButton.topAnchor.constraint(equalTo: transferButton.bottomAnchor, constant: 10).isActive = true
+        serviceText.topAnchor.constraint(equalTo: transferButton.bottomAnchor, constant: 20).isActive = true
+        serviceText.leadingAnchor.constraint(equalTo: serviceButton.trailingAnchor, constant: 10).isActive = true
+        serviceText.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
+        serviceText.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
+        getServiceButton.topAnchor.constraint(equalTo: serviceButton.bottomAnchor, constant: 10).isActive = true
         getServiceButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
         getServiceButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
         getServiceButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
