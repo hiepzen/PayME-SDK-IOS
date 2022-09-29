@@ -109,7 +109,7 @@
 "secureWithCertificate" = "Bảo mật với chứng chỉ ";
 "resendOTP" = "Gửi lại OTP";
 "wrongOTP" = "OTP không chính xác";
-"OTPContent" = "Nhập mã OTP đã được gửi qua số điện thoại đăng ký thẻ";
+"OTPContent" = "Nhập mã OTP đã được gửi qua số điện thoại đăng ký";
 "bankTransferContent1" = "Vui lòng chuyển tiền nhanh 24/7
  số tiền ";
 "bankTransferContent2" = "tới:";

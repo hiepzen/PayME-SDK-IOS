@@ -461,6 +461,15 @@ class PayMEFunction {
                             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "cantAccessServiceConfig".localize() as AnyObject])
                         }
 
+                        if let configPayMEPay = configs.first(where: { config in
+                            let key = (config["key"] as? String) ?? ""
+                            return key == "limit.payment.password"
+                        }) {
+                            PaymentModalController.passwordLimit = configPayMEPay["value"]!["max"] as? Int
+                        } else {
+                            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "cantAccessServiceConfig".localize() as AnyObject])
+                        }
+
                         if let configKYCMode = configs.first(where: { config in
                             let key = (config["key"] as? String) ?? ""
                             return key == "kyc.mode.enable"

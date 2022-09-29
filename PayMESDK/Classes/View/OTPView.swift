@@ -168,8 +168,8 @@ internal class OTPView: UIView {
         onPressSendOTP()
     }
 
-    func updateBankName(name: String) {
-        roleLabel.text = "Nhập mã OTP \(name) đã được gửi qua số điện thoại đăng ký thẻ"
+    func updateDescription(description: String) {
+        roleLabel.text = description
     }
 
 
