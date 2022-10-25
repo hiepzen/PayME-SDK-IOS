@@ -295,6 +295,7 @@ class GraphQuery {
                                           GetPaymentMethod(input: $getPaymentMethodInput) {
                                             succeeded
                                             message
+                                            remainingQuota
                                             methods {
                                               methodId
                                               type

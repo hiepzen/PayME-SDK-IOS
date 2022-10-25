@@ -55,7 +55,7 @@ class API {
   private let appToken: String
   private let connectToken: String
   private let deviceId: String
-  private var storeId: Int? = 0
+  private var storeId: Int?
 
   init(_ publicKey: String, _ privateKey: String, _ env: PayME.Env, _ appToken: String,
        _ connectToken: String, _ deviceId: String, _ appId: String) {
@@ -738,7 +738,9 @@ class API {
       "serviceType": "OPEN_EWALLET_PAYMENT",
     ] as [String: Any]
     if storeId != nil {
-      input.updateValue(["storeId": storeId], forKey: "extraData")
+      input.updateValue(["storeId": storeId!, "isQuotaReceive": true], forKey: "extraData")
+    } else {
+      input.updateValue(["isQuotaReceive": true], forKey: "extraData")
     }
     if payCode != "" {
       input.updateValue(payCode, forKey: "payCode")
@@ -750,6 +752,7 @@ class API {
       "query": GraphQuery.getTranferMethodsQuery,
       "variables": variables,
     ]
+    print("QUOTA:", json)
     let params = try? JSONSerialization.data(withJSONObject: json)
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
   }
@@ -1088,9 +1091,18 @@ class API {
     if (env == PayME.Env.DEV) {
       request.setOnRequest(onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) })
     } else {
-      request.setOnRequestCrypto(onError: { error in onError(error) },
-        onSuccess: { data in onSuccess(data) },
-        onPaymeError: { message in onPaymeError(message) }
+      request.setOnRequestCrypto(onError: { error in
+        print("[ERROR] ", error)
+        onError(error)
+      },
+        onSuccess: { data in
+          print("[RESPONSE] ", data)
+          onSuccess(data)
+        },
+        onPaymeError: { message in
+          print("[PAYME_ERROR] ", message)
+          onPaymeError(message)
+        }
       )
     }
   }

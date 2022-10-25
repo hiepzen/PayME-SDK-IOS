@@ -95,7 +95,7 @@
 "acroAccountNum" = "STK";
 "cardHolder" = "Tên tài khoản";
 "acroCardHolder" = "Chủ TK";
-"linkedAccount" = "Tài khoản liên kết";
+"linkedAccount" = "Nguồn tiền liên kết";
 "bankCard" = "Thẻ ATM";
 "cardNumber" = "Số thẻ";
 "inputCardNumber" = "Nhập số thẻ ở mặt trước thẻ";
