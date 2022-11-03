@@ -203,6 +203,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     return button
   }()
 
+  let getQuotaButton: UIButton = {
+    let button = UIButton()
+    button.layer.borderColor = UIColor.black.cgColor
+    button.layer.borderWidth = 0.5
+    button.layer.cornerRadius = 10
+    button.backgroundColor = UIColor.white
+    button.setTitle("Kiểm tra hạn mức giao dịch", for: .normal)
+    button.setTitleColor(UIColor.black, for: .normal)
+    button.translatesAutoresizingMaskIntoConstraints = false
+    return button
+  }()
+
   let openHistoryButton: UIButton = {
     let button = UIButton()
     button.layer.borderColor = UIColor.black.cgColor
@@ -562,6 +574,19 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     logoutButton.backgroundColor = UIColor.gray
   }
 
+  @objc func onGetQuota() {
+    payME!.getRemainingQuota(onSuccess: { value in
+      self.toastMess(title: "Hạn mức còn lại", value: String(describing: value))
+    }, onError: { error in
+      Log.custom.push(title: "Open wallet", message: error)
+      if let code = error["code"] as? Int {
+        if (code != PayME.ResponseCode.USER_CANCELLED) {
+          let message = error["message"] as? String
+          self.toastMess(title: "Lỗi", value: message)
+        }
+      }
+    })
+  }
 
   @objc func openWalletAction(sender: UIButton!) {
     if (self.connectToken != "") {
@@ -963,6 +988,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     sdkContainer.addSubview(openWalletButton)
     sdkContainer.addSubview(openHistoryButton)
     sdkContainer.addSubview(userNameField)
+    sdkContainer.addSubview(getQuotaButton)
     sdkContainer.addSubview(payCodeLabel)
     sdkContainer.addSubview(payCodeDropDown)
     sdkContainer.addSubview(payCodeList)
@@ -1101,9 +1127,16 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     userNameField.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10).isActive = true
     userNameField.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
-    payCodeLabel.topAnchor.constraint(equalTo: userNameField.bottomAnchor, constant: 10).isActive = true
+    NSLayoutConstraint.activate([
+      getQuotaButton.topAnchor.constraint(equalTo: userNameField.bottomAnchor, constant: 10),
+      getQuotaButton.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10),
+      getQuotaButton.trailingAnchor.constraint(equalTo: sdkContainer.trailingAnchor, constant: -10)
+    ])
+    getQuotaButton.addTarget(self, action: #selector(onGetQuota), for: .touchUpInside)
+
+    payCodeLabel.topAnchor.constraint(equalTo: getQuotaButton.bottomAnchor, constant: 10).isActive = true
     payCodeLabel.leadingAnchor.constraint(equalTo: sdkContainer.leadingAnchor, constant: 10).isActive = true
-    payCodeDropDown.topAnchor.constraint(equalTo: userNameField.bottomAnchor, constant: 10).isActive = true
+    payCodeDropDown.topAnchor.constraint(equalTo: getQuotaButton.bottomAnchor, constant: 10).isActive = true
     payCodeDropDown.leadingAnchor.constraint(equalTo: payCodeLabel.trailingAnchor, constant: 10).isActive = true
     payCodeDropDown.heightAnchor.constraint(equalToConstant: 30).isActive = true
     payCodeDropDown.widthAnchor.constraint(equalToConstant: 200).isActive = true

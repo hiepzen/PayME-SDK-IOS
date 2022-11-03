@@ -1,6 +1,6 @@
 PayME SDK là bộ thư viện để các app có thể tương tác với PayME Platform. PayME SDK bao gồm các chức năng chính như sau:
 
-- Hệ thống đăng nhập, eKYC thông qua tài khoản ví PayME 
+- Hệ thống đăng nhập, eKYC thông qua tài khoản ví PayME
 - Hỗ trợ app lấy thông tin số dư ví PayME
 - Chức năng nạp rút từ ví PayME.
 
@@ -27,31 +27,32 @@ Sau đó chạy lệnh <code>pod install</code> để hoàn tất cài dặt
 
 **Info.plist**
 
-Update file Info.plist của app với những key như sau (giá trị của string có thể thay đổi, đây là các message hiển thị khi yêu cầu người dùng cấp quyền tương ứng):
+Update file Info.plist của app với những key như sau (giá trị của string có thể thay đổi, đây là các message hiển thị
+khi yêu cầu người dùng cấp quyền tương ứng):
 
 ```swift
-<key>NSCameraUsageDescription</key>
-<string>Need to access your camera to capture a photo add and update profile picture.</string>
-<key>NSPhotoLibraryAddUsageDescription</key>
-<string>Need to access your library to add a photo or videoo off kyc video</string>
-<key>NSPhotoLibraryUsageDescription</key>
-<string>Need to access your photo library to select a photo add and update profile picture</string>
-<key>NSContactsUsageDescription</key>
-<string>Need to access your contact</string>
+<key > NSCameraUsageDescription </ key>
+<string > Need to access your camera to capture a photo add and update profile picture .</ string>
+<key > NSPhotoLibraryAddUsageDescription </ key>
+<string > Need to access your library to add a photo or videoo off kyc video </ string>
+<key > NSPhotoLibraryUsageDescription </ key>
+<string > Need to access your photo library to select a photo add and update profile picture </ string>
+<key > NSContactsUsageDescription </ key>
+<string > Need to access your contact </ string>
 ```
 
 **Nếu không sử dụng tính năng danh bạ thì thêm vào cuối podfile**
 
 ```ruby
 post_install do |installer|
-   installer.pods_project.targets.each do |target|
-       if target.name == 'PayMESDK'
-           target.build_configurations.each do |config|
-             config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] ||= '$(inherited)'
-             config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] << 'IGNORE_CONTACT'
-           end
-       end
-   end
+  installer.pods_project.targets.each do |target|
+    if target.name == 'PayMESDK'
+      target.build_configurations.each do |config|
+        config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] ||= '$(inherited)'
+        config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] << 'IGNORE_CONTACT'
+      end
+    end
+  end
 end
 ```
 
@@ -75,13 +76,13 @@ Chuẩn mã hóa: RSA-512bit. Có thể dùng tool sau để sinh ra [tại đâ
 Trước khi sử dụng PayME SDK cần gọi phương thức khởi tạo một lần duy nhất để khởi tạo SDK.
 
 ```swift
-let payme = PayME(appToken : "AppToken", 
-                  publicKey: "PublicKey", 
-                  connectToken : "ConnectToken",
-                  appPrivateKey : "AppPrivateKey", 
-                  language: PayME.Language.VIETNAMESE,
-                  configColor : ["#07A922"],
-                  env: PayME.Env.SANDBOX
+let payme = PayME(appToken: "AppToken",
+  publicKey: "PublicKey",
+  connectToken: "ConnectToken",
+  appPrivateKey: "AppPrivateKey",
+  language: PayME.Language.VIETNAMESE,
+  configColor: ["#07A922"],
+  env: PayME.Env.SANDBOX
 )
 ```
 
@@ -91,8 +92,8 @@ Trong đó các thông số có dạng:
 
 - publicKey: là public key được PayME cung cấp cho mỗi app riêng biệt.
 
--   configColor : là tham số màu để có thể thay đổi màu sắc giao dịch ví PayME, kiểu dữ liệu là chuỗi với định dạng #rrggbb. Nếu như truyền 2 màu thì giao diện PayME sẽ gradient theo 2 màu truyền vào.
-
+- configColor : là tham số màu để có thể thay đổi màu sắc giao dịch ví PayME, kiểu dữ liệu là chuỗi với định dạng
+  # rrggbb. Nếu như truyền 2 màu thì giao diện PayME sẽ gradient theo 2 màu truyền vào.
 
 ![image](../master/assets/configColor.png?raw=true)
 
@@ -101,19 +102,23 @@ Cách tạo **connectToken**:
 connectToken cần để truyền gọi api từ tới PayME và sẽ được tạo từ hệ thống backend của app tích hợp. Cấu trúc như sau:
 
 ```swift
-connectToken = AES256("{ timestamp: "2021-01-20T06:53:07.621Z", 
-                         userId : "ABC", 
-                         phone : "0909998877" }" 
-                      + secretKey )
+connectToken = AES256("{ timestamp: "2021 - 01 - 20T06:53:07.621Z", 
+userId: "ABC",
+phone: "0909998877" }" 
+  + secretKey )
 ```
 
 | **Tham số**   | **Bắt buộc** | **Giải thích**                                               |
 | :------------ | :----------- | :----------------------------------------------------------- |
-| **timestamp** | Yes          | Thời gian tạo ra connectToken theo định dạng iSO 8601 , Dùng để xác định thời gian timeout cùa connectToken. Ví dụ 2021-01-20T06:53:07.621Z |
-| ***userId***  | Yes          | là giá trị cố định duy nhất tương ứng với mỗi tài khoản khách hàng ở dịch vụ, thường giá trị này do server hệ thống được tích hợp cấp cho PayME SDK |
-| ***phone***   | Yes           | Số điện thoại của hệ thống tích hợp, nếu hệ thống không dùng số điện thoại thì có thể không cần truyền lên hoặc truyền null |
+| **
+timestamp** | Yes          | Thời gian tạo ra connectToken theo định dạng iSO 8601 , Dùng để xác định thời gian timeout cùa connectToken. Ví dụ 2021-01-20T06:53:07.621Z |
+| ***
+userId***  | Yes          | là giá trị cố định duy nhất tương ứng với mỗi tài khoản khách hàng ở dịch vụ, thường giá trị này do server hệ thống được tích hợp cấp cho PayME SDK |
+| ***
+phone***   | Yes           | Số điện thoại của hệ thống tích hợp, nếu hệ thống không dùng số điện thoại thì có thể không cần truyền lên hoặc truyền null |
 
-Trong đó ***AES*** là hàm mã hóa theo thuật toán AES. Tùy vào ngôn ngữ ở server mà bên hệ thống dùng thư viện tương ứng. Xem thêm tại đây https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
+Trong đó ***AES*** là hàm mã hóa theo thuật toán AES. Tùy vào ngôn ngữ ở server mà bên hệ thống dùng thư viện tương ứng.
+Xem thêm tại đây https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
 
 Cách tạo **connectToken bao gồm thông tin KYC** ( Dành cho các đối tác có thệ thống KYC riêng ):
 
@@ -121,26 +126,27 @@ Cách tạo **connectToken bao gồm thông tin KYC** ( Dành cho các đối t�
 // example 
 
 connectToken = AES256("{
-    userId: "ABC",
-    phone: "0909998877",
-    timestamp: "2021-01-20T06:53:07.621Z",
-    kycInfo: {
-        {
-            fullname: "Nguyen Van A",
-            gender: "MALE",
-            birthday: "1995-01-20T06:53:07.621Z",
-            address: "1 Nguyen Co Thach",
-            identifyType: "CMND",
-            identifyNumber: "123456789",
-            issuedAt: "2012-01-20T06:53:07.621Z",
-            placeOfIssue: "Hai Duong",
-            video: "https://..../202/Co-29vnK6.mp4",
-            face: "https://.../photo/2015/04/_480.jpg",
-            image: {
-              front: "https://.../photo/2015/04/_480.jpg",
-              back: "https://.../photo/2015/04/_480.jpg",
-            }}
-        }
+userId: "ABC",
+phone: "0909998877",
+timestamp: "2021-01-20T06:53:07.621Z",
+kycInfo: {
+  {
+    fullname: "Nguyen Van A",
+    gender: "MALE",
+    birthday: "1995-01-20T06:53:07.621Z",
+    address: "1 Nguyen Co Thach",
+    identifyType: "CMND",
+    identifyNumber: "123456789",
+    issuedAt: "2012-01-20T06:53:07.621Z",
+    placeOfIssue: "Hai Duong",
+    video: "https://..../202/Co-29vnK6.mp4",
+    face: "https://.../photo/2015/04/_480.jpg",
+    image: {
+    front: "https://.../photo/2015/04/_480.jpg",
+    back: "https://.../photo/2015/04/_480.jpg",
+  }
+  }
+}
 }" + secretKey )
 ```
 
@@ -159,6 +165,7 @@ Tham số <code>kycInfo</code>
 | face | No          |   đường dẫn tới ảnh chụp khuôn mặt |
 | front | No          |   đường dẫn tới ảnh mặt trước giấy tờ |
 | back | No          |   đường dẫn tới ảnh mặt sau giấy tờ |
+
 ## Mã lỗi của PayME SDK
 
 | **Hằng số**   | **Mã lỗi** | **Giải thích**                                               |
@@ -182,10 +189,14 @@ Tham số <code>kycInfo</code>
 ### login()
 
 Có 2 trường hợp
-- Dùng để login lần đầu tiên ngay sau khi khởi tạo <code>PayME</code>.
-- Dùng khi <code>accessToken</code> hết hạn, khi gọi hàm của SDK mà trả về mã lỗi <code>ResponseCode.EXPIRED hoặc ResponseCode.DEACTIVATED_ACCOUNT</code>, lúc này app cần gọi <code>login</code> lại để lấy <code>accessToken</code> dùng cho các chức năng khác.
 
-Sau khi gọi <code>login()</code> thành công rồi thì mới gọi các chức năng khác của SDK ( <code>openWallet</code>, <code>pay</code> ... )
+- Dùng để login lần đầu tiên ngay sau khi khởi tạo <code>PayME</code>.
+- Dùng khi <code>accessToken</code> hết hạn, khi gọi hàm của SDK mà trả về mã lỗi <code>ResponseCode.EXPIRED hoặc
+  ResponseCode.DEACTIVATED_ACCOUNT</code>, lúc này app cần gọi <code>login</code> lại để lấy <code>accessToken</code>
+  dùng cho các chức năng khác.
+
+Sau khi gọi <code>login()</code> thành công rồi thì mới gọi các chức năng khác của SDK ( <code>openWallet</code>, <code>
+pay</code> ... )
 
 ```swift
 public func login(
@@ -194,17 +205,18 @@ public func login(
 ) -> ()
 ```
 
-Khi login thành công sẽ được trả về 1 enum <code>KYCState</code> chứa thông tin như sau: 
+Khi login thành công sẽ được trả về 1 enum <code>KYCState</code> chứa thông tin như sau:
 
 ```swift
 public enum KYCState {
-        case NOT_ACTIVATED
-        case NOT_KYC
-        case KYC_APPROVED
+  case NOT_ACTIVATED
+  case NOT_KYC
+  case KYC_APPROVED
 }
 ```
 
-Các tính năng như nạp tiền, rút tiền, pay chỉ thực hiện được khi đã kích hoạt ví và gửi định danh thành công. Tức là khi login sẽ được trả về enum <code>KYCState</code> với case là <code>KYC_APPROVED</code>.
+Các tính năng như nạp tiền, rút tiền, pay chỉ thực hiện được khi đã kích hoạt ví và gửi định danh thành công. Tức là khi
+login sẽ được trả về enum <code>KYCState</code> với case là <code>KYC_APPROVED</code>.
 
 ### logout()
 
@@ -225,14 +237,14 @@ public func close() -> ()
 ### openWallet() - Mở UI chức năng PayME tổng hợp
 
 ```swift
-public func openWallet( 
-   currentVC : UIViewController, 
-   action : Action, 
-   amount: Int?, 
-   description: String?, 
-   extraData: String?,
-   onSuccess: (Dictionary<String, AnyObject>) -> (),
-   onError: (Dictionary<String, AnyObject>) -> ()
+public func openWallet(
+  currentVC: UIViewController,
+  action: Action,
+  amount: Int?,
+  description: String?,
+  extraData: String?,
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
@@ -240,26 +252,33 @@ public func openWallet(
 
 ```swift
   enum Action: String {
-      case OPEN = "OPEN"
-      case DEPOSIT = "DEPOSIT"
-      case WITHDRAW = "WITHDRAW"
-      case TRANSFER = "TRANSFER"
-  }
+  case OPEN = "OPEN"
+  case DEPOSIT = "DEPOSIT"
+  case WITHDRAW = "WITHDRAW"
+  case TRANSFER = "TRANSFER"
+}
 ```
 
-Hàm này được gọi khi từ app tích hợp khi muốn gọi 1 chức năng PayME bằng cách truyền vào tham số <code>Action</code> như trên.
+Hàm này được gọi khi từ app tích hợp khi muốn gọi 1 chức năng PayME bằng cách truyền vào tham số <code>Action</code> như
+trên.
 
 #### Tham số
 
-| **Tham số**                                                  | **Bắt buộc** | **Giải thích**                                               |
-| :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| <code>currentVC</code> | Yes          | ViewController để PayME SDK dựa vào đó tự mở giao diện của PayME lên. |
-| <code>action</code> | Yes          | <ul><li>OPEN : Dùng để mở giao diện ví PayME WebView và không thực hiện hành động nào đặc biệt.</li><li>DEPOSIT: Dùng để mở giao diện ví PayME và thực hiện chức năng nạp tiền PayME sẽ xử lý và có thông báo thành công thất bại trên UI của PayME. Ngoài ra sẽ trả về cho app tích hợp kết quả nếu muốn tự hiển thị và xử lý trên app.</li><li>WITHDRAW: Dùng để mở giao diện ví PayME và thực hiện chức năng rút tiền PayME sẽ xử lý và có thông báo thành công thất bại trên UI của PayME. Ngoài ra sẽ trả về cho app tích hợp kết quả nếu muốn tự hiển thị và xử lý trên app.</li></ul> |
-| <code>amount</code> | No           | Dùng trong trường hợp action là Deposit/Withdraw thì truyền vào số tiền |
-| <code>description</code> | No           | Truyền mô tả của giao dịch nếu có                            |
-| <code>extraData</code> | No           | Khi thực hiện Deposit hoặc Withdraw thì app tích hợp cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IBN lại hệ thống backend app tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết đối với hệ thống app tích hợp. |
-| <code>onSuccess</code> | Yes          | Dùng để bắt callback khi thực hiện giao dịch thành công từ PayME SDK |
-| <code>onError</code> | Yes          | Dùng để bắt callback khi có lỗi xảy ra trong quá trình gọi PayME SDK |
+| **Tham số**                                                  | **Bắt buộc** | **Giải thích**
+| | :----------------------------------------------------------- | :----------- | :
+----------------------------------------------------------- | | <code>currentVC</code> | Yes | ViewController để PayME
+SDK dựa vào đó tự mở giao diện của PayME lên. | | <code>action</code> | Yes | <ul><li>OPEN : Dùng để mở giao diện ví
+PayME WebView và không thực hiện hành động nào đặc biệt.</li><li>DEPOSIT: Dùng để mở giao diện ví PayME và thực hiện
+chức năng nạp tiền PayME sẽ xử lý và có thông báo thành công thất bại trên UI của PayME. Ngoài ra sẽ trả về cho app tích
+hợp kết quả nếu muốn tự hiển thị và xử lý trên app.</li><li>WITHDRAW: Dùng để mở giao diện ví PayME và thực hiện chức
+năng rút tiền PayME sẽ xử lý và có thông báo thành công thất bại trên UI của PayME. Ngoài ra sẽ trả về cho app tích hợp
+kết quả nếu muốn tự hiển thị và xử lý trên app.</li></ul> | | <code>amount</code> | No | Dùng trong trường hợp action là
+Deposit/Withdraw thì truyền vào số tiền | | <code>description</code> | No | Truyền mô tả của giao dịch nếu có | | <code>
+extraData</code> | No | Khi thực hiện Deposit hoặc Withdraw thì app tích hợp cần truyền thêm các dữ liệu khác nếu muốn
+để hệ thông backend PayME có thể IBN lại hệ thống backend app tích hợp đối chiều. Ví dụ : transactionID của giao dịch
+hay bất kỳ dữ liệu nào cần thiết đối với hệ thống app tích hợp. | | <code>onSuccess</code> | Yes | Dùng để bắt callback
+khi thực hiện giao dịch thành công từ PayME SDK | | <code>onError</code> | Yes | Dùng để bắt callback khi có lỗi xảy ra
+trong quá trình gọi PayME SDK |
 
 Ví dụ :
 
@@ -267,29 +286,29 @@ Ví dụ :
 import PayMESDK
 
 class ViewController: UIViewController {
-    let payME: PayME
-    
-    @IBAction func click(_ sender: Any) {
-	payME.openWallet(
-		currentVC: self,
-		action: Action.OPEN, 
-		amount: nil, 
-		description : nil,
-		extraData: nil
-	)
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        payME = PayME(  
-		appID: appID, 
-		publicKey: self.PUBLIC_KEY, 
-		connectToken: self.connectToken, 
-		appPrivateKey: self.PRIVATE_KEY, 
-		env: currentEnv, 
-		configColor: ["#75255b", "#a81308"]
-	)
-    }
+  let payME: PayME
+
+  @IBAction func click(_ sender: Any) {
+    payME.openWallet(
+      currentVC: self,
+      action: Action.OPEN,
+      amount: nil,
+      description: nil,
+      extraData: nil
+    )
+  }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    payME = PayME(
+      appID: appID,
+      publicKey: self.PUBLIC_KEY,
+      connectToken: self.connectToken,
+      appPrivateKey: self.PRIVATE_KEY,
+      env: currentEnv,
+      configColor: ["#75255b", "#a81308"]
+    )
+  }
 }
 ```
 
@@ -297,69 +316,72 @@ class ViewController: UIViewController {
 
 ```swift
 public func deposit(
-    currentVC : UIViewController, 
-    amount: Int?, 
-    description: String?, 
-    extraData: String?,
-    closeWhenDone: Bool = false,
-    onSuccess: (Dictionary<String, AnyObject>) -> (),
-    onError: (Dictionary<String, AnyObject>) -> ()
+  currentVC: UIViewController,
+  amount: Int?,
+  description: String?,
+  extraData: String?,
+  closeWhenDone: Bool = false,
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> () 
 ```
 
 Hàm này có ý nghĩa giống như khi gọi <code>openWallet</code> với action <code>Action.DEPOSIT</code>
 
-| **Tham số**                                                  | **Mặc định** | **Giải thích**                                               |
-| :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| <code>closeWhenDone</code> | <code>false</code>          | <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
+| **Tham số**                                                  | **Mặc định** | **Giải thích**
+| | :----------------------------------------------------------- | :----------- | :
+----------------------------------------------------------- | | <code>closeWhenDone</code> | <code>false</code>
+| <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
 
 ### withdraw() - Rút tiền
 
 ```swift
 public func withdraw(
-    currentVC : UIViewController, 
-    amount: Int?, 
-    description: String?, 
-    extraData: String?,
-    closeWhenDone: Bool = false,
-    onSuccess: (Dictionary<String, AnyObject>) -> (),
-    onError: (Dictionary<String, AnyObject>) -> ()
+  currentVC: UIViewController,
+  amount: Int?,
+  description: String?,
+  extraData: String?,
+  closeWhenDone: Bool = false,
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
 Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action là <code>Action.WITHDRAW</code>
 
-| **Tham số**                                                  | **Mặc định** | **Giải thích**                                               |
-| :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| <code>closeWhenDone</code> | <code>false</code>          | <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
+| **Tham số**                                                  | **Mặc định** | **Giải thích**
+| | :----------------------------------------------------------- | :----------- | :
+----------------------------------------------------------- | | <code>closeWhenDone</code> | <code>false</code>
+| <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
 
 ### transfer() - Chuyển tiền
 
 ```swift
 public func transfer(
-    currentVC : UIViewController, 
-    amount: Int?, 
-    description: String?, 
-    extraData: String?,
-    closeWhenDone: Bool = false,
-    onSuccess: (Dictionary<String, AnyObject>) -> (),
-    onError: (Dictionary<String, AnyObject>) -> ()
+  currentVC: UIViewController,
+  amount: Int?,
+  description: String?,
+  extraData: String?,
+  closeWhenDone: Bool = false,
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
 Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action là <code>Action.TRANSFER</code>
 
-| **Tham số**                                                  | **Mặc định** | **Giải thích**                                               |
-| :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| <code>closeWhenDone</code> | <code>false</code>          | <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
+| **Tham số**                                                  | **Mặc định** | **Giải thích**
+| | :----------------------------------------------------------- | :----------- | :
+----------------------------------------------------------- | | <code>closeWhenDone</code> | <code>false</code>
+| <code>true</code>: Đóng SDK khi hoàn tất giao dịch |
 
 ### openHistory() - Mở lịch sử giao dịch
 
 ```swift
 public func openHistory(
-    currentVC : UIViewController,
-    onSuccess: (Dictionary<String, AnyObject>) -> (),
-    onError: (Dictionary<String, AnyObject>) -> ()
+  currentVC: UIViewController,
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
@@ -369,64 +391,68 @@ Hàm này có ý nghĩa giống như gọi <code>openWallet</code> với action 
 
 Hàm này được dùng khi app cần thanh toán 1 khoản tiền từ ví PayME đã được kích hoạt.
 
-⚠️ version 0.1.65 trở về trước: 
+⚠️ version 0.1.65 trở về trước:
 
 ```swift
 public func pay(
-    currentVC : UIViewController,
-    storeId: Int,
-    orderId: Int,
-    amount: Int,
-    note: String?,
-    paymentMethodID: Int?,
-    extraData: String?,
-    isShowResultUI: Bool = true,
-    onSuccess: (Dictionary<String, AnyObject>) -> (),
-    onError: (Dictionary<String, AnyObject>) -> ()
+  currentVC: UIViewController,
+  storeId: Int,
+  orderId: Int,
+  amount: Int,
+  note: String?,
+  paymentMethodID: Int?,
+  extraData: String?,
+  isShowResultUI: Bool = true,
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
-| Tham số                                                      | **Bắt buộc** | **Giải thích**                                               |
-| :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| <code>currentVC</code> | Yes          | ViewController để PayME SDK dựa vào đó tự mở giao diện của PayME lên. |
-| <code>amount</code> | Yes          | Số tiền cần thanh toán bên app truyền qua cho SDK            |
-| <code>extraData</code> | Yes          | Khi thực hiện thanh toán thì app cần truyền thêm các dữ liệu khác nếu muốn để hệ thông backend PayME có thể IPN lại hệ thống backend tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất kỳ dữ liệu nào cần thiết. |
-| <code>storeId</code> | Yes | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
-| <code>orderId</code> | Yes | Mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch (tối đa 22 kí tự) |
-| <code>note</code> | No | Mô tả giao dịch từ phía đối tác |
-| <code>isShowResultUI</code> | No | Đã có giá trị default là <code>true</code>, với ý nghĩa là khi có kết quả thanh toán thì sẽ hiển thị màn hình thành công, thất bại. Khi truyền giá trị là false thì sẽ không có màn hình thành công, thất bại. |
-| <code>onSuccess</code> | Yes | Callback trả kết quả khi thành công |
-| <code>onError</code> | Yes | Callback trả kết quả khi thất bại |
+| Tham số | **Bắt buộc** | **Giải thích**                                               | | :
+----------------------------------------------------------- | :----------- | :
+----------------------------------------------------------- | | <code>currentVC</code> | Yes | ViewController để PayME
+SDK dựa vào đó tự mở giao diện của PayME lên. | | <code>amount</code> | Yes | Số tiền cần thanh toán bên app truyền qua
+cho SDK | | <code>extraData</code> | Yes | Khi thực hiện thanh toán thì app cần truyền thêm các dữ liệu khác nếu muốn để
+hệ thông backend PayME có thể IPN lại hệ thống backend tích hợp đối chiều. Ví dụ : transactionID của giao dịch hay bất
+kỳ dữ liệu nào cần thiết. | | <code>storeId</code> | Yes | ID của store phía công thanh toán thực hiên giao dịch thanh
+toán | | <code>orderId</code> | Yes | Mã giao dịch của đối tác, cần duy nhất trên mỗi giao dịch (tối đa 22 kí tự) |
+| <code>note</code> | No | Mô tả giao dịch từ phía đối tác | | <code>isShowResultUI</code> | No | Đã có giá trị default
+là <code>true</code>, với ý nghĩa là khi có kết quả thanh toán thì sẽ hiển thị màn hình thành công, thất bại. Khi truyền
+giá trị là false thì sẽ không có màn hình thành công, thất bại. | | <code>onSuccess</code> | Yes | Callback trả kết quả
+khi thành công | | <code>onError</code> | Yes | Callback trả kết quả khi thất bại |
 
-Trong trường hợp app tích hợp cần lấy số dư để tự hiển thị lên UI trên app thì có thể dùng hàm <code>getWalletInfo()</code>
+Trong trường hợp app tích hợp cần lấy số dư để tự hiển thị lên UI trên app thì có thể dùng hàm <code>
+getWalletInfo()</code>
 , hàm này không hiển thị UI của PayME SDK
 
-- Khi thanh toán bằng ví PayME thì yêu cầu tài khoản đã kích hoạt,định danh và số dư trong ví phải lớn hơn số tiền thanh toán
+- Khi thanh toán bằng ví PayME thì yêu cầu tài khoản đã kích hoạt,định danh và số dư trong ví phải lớn hơn số tiền thanh
+  toán
 - Thông tin tài khoản lấy qua hàm <code>getAccountInfo()</code>
 - Thông tin số dư lấy qua hàm <code>getWalletInfo()</code>
 
-:warning: version 0.1.66 trở đi: 
+:warning: version 0.1.66 trở đi:
 
 ```swift
 public func pay(
-    currentVC : UIViewController,
-    storeId: Int?,
-    userName: String?,
-    orderId: Int,
-    amount: Int,
-    note: String?,
-    payCode: String,
-    extraData: String?,
-    isShowResultUI: Bool = true,
-    onSuccess: (Dictionary<String, AnyObject>) -> (),
-    onError: (Dictionary<String, AnyObject>) -> ()
+  currentVC: UIViewController,
+  storeId: Int?,
+  userName: String?,
+  orderId: Int,
+  amount: Int,
+  note: String?,
+  payCode: String,
+  extraData: String?,
+  isShowResultUI: Bool = true,
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
-| Tham số                                                      | **Bắt buộc** | **Giá trị**                                               | 
-| :----------------------------------------------------------- | :----------- | :----------------------------------------------------------- |
-| <code>payCode</code> | Yes          | [Danh sách phương thức thanh toán](#danh-sách-phương-thức-thanh-toán)  |
-| <code>userName</code> | No          | Tên tài khoản |
-| <code>storeId</code> | No | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
+
+| Tham số | **Bắt buộc** | **Giá trị**                                               | | :
+----------------------------------------------------------- | :----------- | :
+----------------------------------------------------------- | | <code>payCode</code> | Yes
+| [Danh sách phương thức thanh toán](#danh-sách-phương-thức-thanh-toán)  | | <code>userName</code> | No | Tên tài khoản
+| | <code>storeId</code> | No | ID của store phía công thanh toán thực hiên giao dịch thanh toán |
 
 Lưu ý : Chỉ có userName hoặc storeId, nếu dùng userName thì để storeId = nil và ngược lại
 
@@ -434,19 +460,22 @@ Lưu ý : Chỉ có userName hoặc storeId, nếu dùng userName thì để sto
 
 ```swift
 public func scanQR(
-            currentVC: UIViewController,
-	    payCode: String,
-            onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-            onError: @escaping (Dictionary<String, AnyObject>) -> ()
+  currentVC: UIViewController,
+  payCode: String,
+  onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+  onError: @escaping (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 
 ```
-Định dạng QR : 
+
+Định dạng QR :
+
 ```swift
-let qrString =  "{$type}|${storeId?}|${action}|${amount}|${note}|${orderId}|${userName?}"
+let qrString = "{$type}|${storeId?}|${action}|${amount}|${note}|${orderId}|${userName?}"
 ```
 
-Ví dụ  : 
+Ví dụ  :
+
 ```swift
 let qrString = "OPENEWALLET|54938607|PAYMENT|20000|Chuyentien|2445562323|DEMO)"
 ```
@@ -462,12 +491,12 @@ let qrString = "OPENEWALLET|54938607|PAYMENT|20000|Chuyentien|2445562323|DEMO)"
 
 ```swift
 public func payQRCode(
-	currentVC: UIViewController, 
-	qr: String,
-	payCode: String,
-	isShowResultUI: Bool,
-    	onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-	onError: @escaping (Dictionary<String, AnyObject>) -> ()
+  currentVC: UIViewController,
+  qr: String,
+  payCode: String,
+  isShowResultUI: Bool,
+  onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
+  onError: @escaping (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
@@ -480,9 +509,9 @@ Hàm này được gọi khi từ app tích hợp khi muốn mở modal định 
 
 ```swift
 public func openKYC(
-	currentVC: UIViewController,
-        onSuccess: ([Dictionary<String, AnyObject>]) -> (),
-        onError: (Dictionary<String, AnyObject>) -> ()
+  currentVC: UIViewController,
+  onSuccess: ([Dictionary<String, AnyObject>]) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
@@ -490,12 +519,13 @@ public func openKYC(
 
 ```swift
 public func getWalletInfo(
-        onSuccess: (Dictionary<String, AnyObject>) -> (),
-        onError: (Dictionary<String, AnyObject>) -> ()
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
-- Trong trường hợp lỗi thì hàm sẽ trả về message lỗi tại hàm <code>onError</code> , khi đó app có thể hiển thị <code>balance</code> là 0.
+- Trong trường hợp lỗi thì hàm sẽ trả về message lỗi tại hàm <code>onError</code> , khi đó app có thể hiển thị <code>
+  balance</code> là 0.
 
 - Trong trường hợp thành công SDK trả về thông tin như sau:
 
@@ -523,8 +553,8 @@ App có thể dùng được tính này sau khi khởi tạo SDK để biết đ
 
 ```swift
 public func getAccountInfo(
-    onSuccess: (Dictionary<String, AnyObject>) -> (),
-    onError: (Dictionary<String, AnyObject>) -> ()
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
@@ -534,18 +564,20 @@ Dùng để xác định các dịch vụ có thể dùng SDK để thanh toán 
 
 ```swift
 public func getSupportedServices(
-            onSuccess: ([ServiceConfig]) -> (),
-            onError: (Dictionary<String, AnyObject>) -> ()
+  onSuccess: ([ServiceConfig]) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
 ```swift
 class ServiceConfig {
-	...
-	public func getCode() -> String
-	
-   	public func getDescription() -> String
-	...
+...
+
+  public func getCode() -> String
+
+  public func getDescription() -> String
+
+...
 }
 ```
 
@@ -555,13 +587,13 @@ Mở WebSDK để thanh toán dịch vụ
 
 ```swift
 public func openService(
-        currentVC : UIViewController,
-        amount: Int?,
-        description: String?,
-        extraData: String?,
-        service: ServiceConfig,
-        onSuccess: (Dictionary<String, AnyObject>) -> (),
-        onError: (Dictionary<String, AnyObject>) -> ()
+  currentVC: UIViewController,
+  amount: Int?,
+  description: String?,
+  extraData: String?,
+  service: ServiceConfig,
+  onSuccess: (Dictionary<String, AnyObject>) -> (),
+  onError: (Dictionary<String, AnyObject>) -> ()
 ) -> ()
 ```
 
@@ -573,7 +605,21 @@ Chuyển đổi ngôn ngữ của sdk
 public func setLanguage(language: PayME.Language) -> ()
 ```
 
+### getRemainingQuota()
+
+Lấy hạn mức giao dịch thanh toán
+
+⚠️ Từ version 0.9.57
+
+```swift
+ public func getRemainingQuota(
+  onSuccess: @escaping (Int) -> (),
+  onError: @escaping (Dictionary<String, AnyObject>) -> ()
+) -> ()
+```
+
 ## Danh sách phương thức thanh toán
+
 | **payCode** | **Phương thức thanh toán** |
 | :------------| :-------------|
 | PAYME  | Thanh toán ví PayME |
@@ -587,4 +633,5 @@ public func setLanguage(language: PayME.Language) -> ()
 ### Làm việc với use_framework!
 
 - react-native-permission: https://github.com/zoontek/react-native-permissions#workaround-for-use_frameworks-issues
-- Google Map iOS Util: https://github.com/googlemaps/google-maps-ios-utils/blob/b721e95a500d0c9a4fd93738e83fc86c2a57ac89/Swift.md
+- Google Map iOS
+  Util: https://github.com/googlemaps/google-maps-ios-utils/blob/b721e95a500d0c9a4fd93738e83fc86c2a57ac89/Swift.md
