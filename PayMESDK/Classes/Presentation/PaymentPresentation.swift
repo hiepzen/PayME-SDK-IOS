@@ -829,7 +829,7 @@ class PaymentPresentation {
             continue
           }
           let methodInformation = PaymentMethod(
-            type: methodType, title: item["title"] as! String, label: item["label"] as! String
+            type: methodType, title: item["title"] as? String ?? "", label: item["label"] as? String ?? ""
           )
           if methodType == "WALLET" {
             methodInformation.dataWallet = WalletInformation(balance: 0)

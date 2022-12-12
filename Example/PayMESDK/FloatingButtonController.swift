@@ -16,7 +16,7 @@ class FloatingButtonController: UIViewController {
         window.isHidden = false
         window.rootViewController = self
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow(note:)), name: .UIKeyboardDidShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow(note:)), name: UIResponder.keyboardDidShowNotification, object: nil)
     }
     
     private let window = FloatingButtonWindow()

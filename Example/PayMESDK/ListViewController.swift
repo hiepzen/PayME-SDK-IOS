@@ -90,7 +90,7 @@ class ModalController: UIViewController, UITableViewDataSource, UITableViewDeleg
     override func viewDidAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if ((logListData.count - 1) > 0) {
-            logContainer.scrollToRow(at: IndexPath(row: logListData.count - 1, section: 0), at: UITableViewScrollPosition.bottom, animated: true)
+          logContainer.scrollToRow(at: IndexPath(row: logListData.count - 1, section: 0), at: UITableView.ScrollPosition.bottom, animated: true)
             
         }
     }

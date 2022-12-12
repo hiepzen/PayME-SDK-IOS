@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   s.author           = { 'HuyOpen' => 'huytq@payme.vn' }
   s.source           = { :git => 'https://github.com/PayME-Tech/PayME-SDK-IOS.git', :tag => s.version.to_s }
 
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '11.0'
 
   s.source_files = 'PayMESDK/Classes/**/*'
 
@@ -48,7 +48,7 @@ Pod::Spec.new do |s|
   s.dependency 'CryptoSwift', '1.3.2'
   s.dependency 'SwiftyRSA', '1.5'
   s.dependency 'Alamofire'
-  s.dependency 'lottie-ios'
+  s.dependency 'lottie-ios', '< 4.0'
   s.dependency 'RxSwift'
   s.dependency 'RxCocoa'
   s.dependency 'SVGKit'

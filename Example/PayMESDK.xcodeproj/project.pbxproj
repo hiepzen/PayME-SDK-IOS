@@ -23,12 +23,12 @@
 
 /* Begin PBXFileReference section */
 		18EFD36B79A2D8201A5221D0 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		1A94455197E9788A249F4432 /* Pods-PayMESDK_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PayMESDK_Example.release.xcconfig"; path = "Target Support Files/Pods-PayMESDK_Example/Pods-PayMESDK_Example.release.xcconfig"; sourceTree = "<group>"; };
 		2016408425B1990600B84552 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		2016408F25B5784C00B84552 /* FloatingButtonController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingButtonController.swift; sourceTree = "<group>"; };
 		2016409125B6867300B84552 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		2016409325B6BCFF00B84552 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		2048643025C7ECB300BA4AEC /* EnvironmentSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSettings.swift; sourceTree = "<group>"; };
+		39C93776C881A4825A03FFA5 /* Pods-PayMESDK_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PayMESDK_Example.debug.xcconfig"; path = "Target Support Files/Pods-PayMESDK_Example/Pods-PayMESDK_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		4B578284507BDE8E91EBCCB0 /* PayMESDK.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = PayMESDK.podspec; path = ../PayMESDK.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		51D1ACA6B52098FAAAC4EE39 /* Pods_PayMESDK_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PayMESDK_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		528E222B25BFEEEA007767C0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -41,10 +41,8 @@
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
-		7BA0A4D32A154EC9E34544FD /* Pods-PayMESDK_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PayMESDK_Example.debug.xcconfig"; path = "Target Support Files/Pods-PayMESDK_Example/Pods-PayMESDK_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		7E46AD60846705535216C8DC /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
-		8C6FF5AF5662C324F6FD4F0A /* Pods-PayMESDK_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PayMESDK_Tests.debug.xcconfig"; path = "Target Support Files/Pods-PayMESDK_Tests/Pods-PayMESDK_Tests.debug.xcconfig"; sourceTree = "<group>"; };
-		B03BDB04B3363103C013782B /* Pods-PayMESDK_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PayMESDK_Tests.release.xcconfig"; path = "Target Support Files/Pods-PayMESDK_Tests/Pods-PayMESDK_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		C2ABAD8FD2FA21F76B8C746D /* Pods-PayMESDK_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PayMESDK_Example.release.xcconfig"; path = "Target Support Files/Pods-PayMESDK_Example/Pods-PayMESDK_Example.release.xcconfig"; sourceTree = "<group>"; };
 		D8C08C12E6C273C7B06BD5BD /* Pods_PayMESDK_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PayMESDK_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -67,8 +65,8 @@
 				607FACD21AFB9204008FA782 /* Example for PayMESDK */,
 				607FACE81AFB9204008FA782 /* Tests */,
 				607FACD11AFB9204008FA782 /* Products */,
-				7C3D1E03D79DFCF32B2C99D9 /* Pods */,
 				AD2976B83A850D0A88288C39 /* Frameworks */,
+				F3F7F869640DA8E8022F9906 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -135,17 +133,6 @@
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
-		7C3D1E03D79DFCF32B2C99D9 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				7BA0A4D32A154EC9E34544FD /* Pods-PayMESDK_Example.debug.xcconfig */,
-				1A94455197E9788A249F4432 /* Pods-PayMESDK_Example.release.xcconfig */,
-				8C6FF5AF5662C324F6FD4F0A /* Pods-PayMESDK_Tests.debug.xcconfig */,
-				B03BDB04B3363103C013782B /* Pods-PayMESDK_Tests.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		AD2976B83A850D0A88288C39 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -153,6 +140,16 @@
 				51D1ACA6B52098FAAAC4EE39 /* Pods_PayMESDK_Tests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F3F7F869640DA8E8022F9906 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				39C93776C881A4825A03FFA5 /* Pods-PayMESDK_Example.debug.xcconfig */,
+				C2ABAD8FD2FA21F76B8C746D /* Pods-PayMESDK_Example.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -247,8 +244,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "
-";
+			shellScript = "\n";
 		};
 		53310E72D944EF4E5901258F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -459,7 +455,7 @@
 		};
 		607FACF01AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7BA0A4D32A154EC9E34544FD /* Pods-PayMESDK_Example.debug.xcconfig */;
+			baseConfigurationReference = 39C93776C881A4825A03FFA5 /* Pods-PayMESDK_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -467,6 +463,7 @@
 				CURRENT_PROJECT_VERSION = 139;
 				DEVELOPMENT_TEAM = JHVD9NA6RN;
 				INFOPLIST_FILE = PayMESDK/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -477,14 +474,14 @@
 				PRODUCT_NAME = "PayMESDK Demo";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		607FACF11AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1A94455197E9788A249F4432 /* Pods-PayMESDK_Example.release.xcconfig */;
+			baseConfigurationReference = C2ABAD8FD2FA21F76B8C746D /* Pods-PayMESDK_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -494,6 +491,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = JHVD9NA6RN;
 				INFOPLIST_FILE = PayMESDK/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -505,7 +503,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "PayME SDK Example";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

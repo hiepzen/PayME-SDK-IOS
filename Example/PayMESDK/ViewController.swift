@@ -477,8 +477,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     let params = try? JSONSerialization.data(withJSONObject: data)
     let aes = try? AES(key: Array(secretKey.utf8), blockMode: CBC(iv: [UInt8](repeating: 0, count: 16)), padding: .pkcs5)
     let dataEncrypted = try? aes?.encrypt(Array(String(data: params!, encoding: .utf8)!.utf8))
-    print(dataEncrypted??.toBase64() ?? "")
-    return dataEncrypted??.toBase64() ?? ""
+    return dataEncrypted?.toBase64() ?? ""
   }
 
   // generate token ( demo, don't apply this to your code, generate from your server)
@@ -875,7 +874,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
   }
 
   @objc func keyboardWillShow(notification: NSNotification) {
-    guard let keyboardSize = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+    guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
 
       // if keyboard size is not available for some reason, dont do anything
       return
@@ -962,8 +961,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
   override func viewDidLoad() {
     super.viewDidLoad()
     hideKeyboardWhenTappedAround()
-    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
 
     view.addSubview(environment)
     view.addSubview(dropDown)
@@ -1009,9 +1008,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     sdkContainer.addSubview(kycButton)
 
 
-    view.bringSubview(toFront: envList)
-    view.bringSubview(toFront: langList)
-    sdkContainer.bringSubview(toFront: payCodeList)
+    view.bringSubviewToFront(envList)
+    view.bringSubviewToFront(langList)
+    sdkContainer.bringSubviewToFront(payCodeList)
 
     phoneTextField.delegate = self
     moneyDeposit.delegate = self
@@ -1300,7 +1299,7 @@ extension UIViewController {
   func showSpinner(onView: UIView) {
     let spinnerView = UIView.init(frame: onView.bounds)
     spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
-    let ai = UIActivityIndicatorView.init(activityIndicatorStyle: .whiteLarge)
+    let ai = UIActivityIndicatorView.init(style: .whiteLarge)
     ai.startAnimating()
     ai.center = spinnerView.center
 
