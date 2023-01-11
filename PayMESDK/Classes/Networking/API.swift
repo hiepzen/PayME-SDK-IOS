@@ -837,10 +837,10 @@ class API {
   ) {
     let url = urlGraphQL(env: env)
     let path = "/graphql"
-    let variables: [String: Any] = [:]
+//    let variables: [String: Any] = [:]
     let json: [String: Any] = [
       "query": GraphQuery.getBankListQuery,
-      "variables": variables,
+//      "variables": variables,
     ]
     let params = try? JSONSerialization.data(withJSONObject: json)
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
@@ -1172,7 +1172,8 @@ class API {
         }
       } else {
         DispatchQueue.main.async {
-          onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nỗi tới server" as AnyObject])
+          print("[ERROR] CAN_NOT_JSON_DECRYPT_SUBSCRIPTION")
+          onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nối tới server" as AnyObject])
           return
         }
       }

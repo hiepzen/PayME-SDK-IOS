@@ -59,7 +59,7 @@ public class NetworkRequestGraphQL {
               return
             }
           } else {
-            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nỗi tới server" as AnyObject])
+            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nối tới server" as AnyObject])
             return
           }
         }
@@ -192,6 +192,7 @@ public class NetworkRequestGraphQL {
             }
           } else {
             DispatchQueue.main.async {
+              print("[ERROR] NO_CODE")
               onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nối tới server" as AnyObject])
               onPaymeError("Không thể kết nối tới server")
               return
@@ -199,6 +200,7 @@ public class NetworkRequestGraphQL {
           }
         } else {
           DispatchQueue.main.async {
+            print("[ERROR] NO_API_MESSAGE")
             onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nối tới server" as AnyObject])
             onPaymeError("Không thể kết nối tới server")
             return
@@ -262,8 +264,9 @@ public class NetworkRequestGraphQL {
           }
         } else {
           DispatchQueue.main.async {
-            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nỗi tới server" as AnyObject])
-            onPaymeError("Không thể kết nỗi tới server")
+            print("[ERROR] CAN_NOT_JSON_REST")
+            onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nối tới server" as AnyObject])
+            onPaymeError("Không thể kết nối tới server")
             return
           }
         }
@@ -286,7 +289,7 @@ public class NetworkRequestGraphQL {
     str = str.replacingOccurrences(of: "\\\"}", with: "\"}")
 
     let detect = """
-                 {"data":{"Setting":{"configs"
+                 {"data":{"Setting":{
                  """
     if (str.contains(detect)) {
       str = str.replacingOccurrences(of: "\"{", with: "{")
