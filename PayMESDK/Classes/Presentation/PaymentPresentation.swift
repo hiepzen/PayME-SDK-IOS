@@ -955,34 +955,32 @@ class PaymentPresentation {
             }
           }
           if let payment = payInfo["payment"] as? [String: AnyObject] {
-            if let vietQRState = payment["state"] as? String, let vietQRCode = payment["qrContent"] as? String {
-              if vietQRState == "REQUIRED_TRANSFER" {
-                self.request.getVietQRBankList(onSuccess: { data in
-                  if let bankList = (data["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["GetListVietQR"] as? [AnyObject] {
-                    let vietQRBanks = (bankList.filter({ ($0["isVietQR"] as? Bool) == true && $0["swiftCode"] != nil })).map({ $0["swiftCode"] as! String })
-                    let dataVietQR = VietQRInformation(qrContent: vietQRCode, banks: vietQRBanks)
-                    orderTransaction.paymentMethod?.dataVietQR = dataVietQR
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .VIET_QR, orderTransaction: orderTransaction,
-                      error: ResponseError(code: .REQUIRED_VERIFY,
-                        transactionInformation: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate))
-                    ))
-                  }
-                }, onError: { e in print(e) })
-              } else {
-                let message = payment["message"] as? String
-                let result = Result(
-                  type: ResultType.FAIL,
-                  failReasonLabel: message ?? "hasError".localize(),
-                  orderTransaction: orderTransaction,
-                  transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
-                  extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
-                )
-                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-              }
+            let vietQRState = payment["state"] as? String
+            if vietQRState == "REQUIRED_TRANSFER", let vietQRCode = payment["qrContent"] as? String {
+              self.request.getVietQRBankList(onSuccess: { data in
+                if let bankList = (data["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["GetListVietQR"] as? [AnyObject] {
+                  let vietQRBanks = (bankList.filter({ ($0["isVietQR"] as? Bool) == true && $0["swiftCode"] != nil })).map({ $0["swiftCode"] as! String })
+                  let dataVietQR = VietQRInformation(qrContent: vietQRCode, banks: vietQRBanks)
+                  orderTransaction.paymentMethod?.dataVietQR = dataVietQR
+                  self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .VIET_QR, orderTransaction: orderTransaction,
+                    error: ResponseError(code: .REQUIRED_VERIFY,
+                      transactionInformation: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate))
+                  ))
+                }
+              }, onError: { e in print(e) })
+            } else {
+              let message = payment["message"] as? String
+              let result = Result(
+                type: ResultType.FAIL,
+                failReasonLabel: message ?? "hasError".localize(),
+                orderTransaction: orderTransaction,
+                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
+              )
+              self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
             }
           }
         }
-
       },
       onError: { error in
         self.onError(error)
