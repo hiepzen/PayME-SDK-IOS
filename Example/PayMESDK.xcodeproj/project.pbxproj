@@ -148,7 +148,6 @@
 				39C93776C881A4825A03FFA5 /* Pods-PayMESDK_Example.debug.xcconfig */,
 				C2ABAD8FD2FA21F76B8C746D /* Pods-PayMESDK_Example.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -244,7 +243,8 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\n";
+			shellScript = "
+";
 		};
 		53310E72D944EF4E5901258F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -460,7 +460,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 139;
+				CURRENT_PROJECT_VERSION = 140;
 				DEVELOPMENT_TEAM = JHVD9NA6RN;
 				INFOPLIST_FILE = PayMESDK/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -487,7 +487,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 139;
+				CURRENT_PROJECT_VERSION = 140;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = JHVD9NA6RN;
 				INFOPLIST_FILE = PayMESDK/Info.plist;
