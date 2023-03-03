@@ -81,6 +81,7 @@ class ATMView: UIView {
         methodView.content = method.label
         methodView.note = nil
         methodView.methodDescription = method.feeDescription
+        methodView.image.load(url: method.iconUrl)
         if delegate != nil {
             if delegate!.isShowScan() == true {
                 let imageSVG = SVGKImage(for: ATMView.self, named: "iconScanCard")
@@ -94,7 +95,6 @@ class ATMView: UIView {
         switch method.type {
         case MethodType.WALLET.rawValue:
             methodView.title = "walletBalance".localize()
-            methodView.image.image = UIImage(for: PaymentModalController.self, named: "iconWallet")
             let balance = method.dataWallet?.balance ?? 0
             methodView.content = "(\(formatMoney(input: balance))đ)"
             break
@@ -116,16 +116,13 @@ class ATMView: UIView {
             cardInput.isHidden = false
             dateInput.isHidden = false
             nameInput.isHidden = false
-            methodView.image.image = UIImage(for: MethodView.self, named: "iconAtm")
             dateInput.updateTitle("releaseDate".localize().uppercased())
             break
         case MethodType.BANK_QR_CODE.rawValue:
-            methodView.image.image = UIImage(for: MethodView.self, named: "iconQRBank")
             break
         case MethodType.BANK_TRANSFER.rawValue:
             button.setTitle("confirmBankTransfer".localize(), for: .normal)
             contentView.isHidden = false
-            methodView.image.image = UIImage(for: Method.self, named: "iconBankTransfer")
             contentView.updateInfo(bank: method.dataBankTransfer, orderTransaction: orderTransaction)
             break
         case MethodType.CREDIT_CARD.rawValue:
@@ -133,16 +130,13 @@ class ATMView: UIView {
             nameInput.isHidden = false
             dateInput.isHidden = false
             cvvInput.isHidden = false
-            methodView.image.image = UIImage(for: Method.self, named: "iconCreditCard")
             dateInput.updateTitle("expiredDate".localize().uppercased())
         case MethodType.VIET_QR.rawValue:
             button.isHidden = true
             vietQRView.isHidden = false
-            methodView.image.image = UIImage(for: Method.self, named: "logoVietQr")
             vietQRView.updateInfo(data: method.dataVietQR, orderTransaction: orderTransaction)
             break
         default:
-            methodView.image.image = UIImage(for: MethodView.self, named: "iconWallet")
             break
         }
         methodView.updateUI()

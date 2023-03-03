@@ -301,6 +301,7 @@ class GraphQuery {
                                               type
                                               title
                                               label
+                                              iconUrl
                                               fee
                                               minFee
                                               feeDescription
@@ -391,6 +392,7 @@ class GraphQuery {
                                              state
                                              message
                                              qrContent
+                                             banks { bankName bankShortName bankNumber fullName branch content }
                                            }
                                          }
                                        }

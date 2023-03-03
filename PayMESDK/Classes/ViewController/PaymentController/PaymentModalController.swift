@@ -1,14 +1,14 @@
-import UIKit
 import CommonCrypto
 import RxSwift
 import SafariServices
+import UIKit
 
 class PaymentModalController: UINavigationController, PanModalPresentable, UITableViewDelegate, UITableViewDataSource, KAPinFieldDelegate, OTPInputDelegate {
   func pinField(_ field: OTPInput, didFinishWith code: String) {
-    if (field == otpView.otpView) {
+    if field == otpView.otpView {
       showSpinner(onView: view)
       otpView.txtErrorMessage.isHidden = true
-      if (orderTransaction.paymentMethod?.type == "WALLET") {
+      if orderTransaction.paymentMethod?.type == "WALLET" {
         paymentPresentation.verifyPayMEOTP(OTP: code, orderTransaction: orderTransaction)
       } else {
         paymentPresentation.transferByLinkedBank(transaction: transaction, orderTransaction: orderTransaction, linkedId: (orderTransaction.paymentMethod?.dataLinked?.linkedId)!, OTP: code)
@@ -17,7 +17,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
   }
 
   func pinField(_ field: KAPinField, didFinishWith code: String) {
-    if (field == securityCode.otpView) {
+    if field == securityCode.otpView {
       showSpinner(onView: view)
       securityCode.txtErrorMessage.isHidden = true
       paymentPresentation.createSecurityCode(password: sha256(string: code)!, orderTransaction: orderTransaction)
@@ -71,14 +71,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
   private var searchBankHeightConstraint: NSLayoutConstraint?
   private var viewVietQRHeightConstraint: NSLayoutConstraint?
 
-  var safeAreaInset: UIEdgeInsets? = nil
+  var safeAreaInset: UIEdgeInsets?
 
   let orderView: UIView
 
   init(
     payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, payCode: String, isShowResultUI: Bool,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> ()
+    onSuccess: @escaping ([String: AnyObject]) -> (),
+    onError: @escaping ([String: AnyObject]) -> ()
   ) {
     self.payMEFunction = payMEFunction
     self.orderTransaction = orderTransaction
@@ -97,14 +97,14 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     )
     if orderTransaction.isShowHeader {
       orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
-        serviceCode: self.orderTransaction.orderId,
-        note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
-        logoUrl: self.orderTransaction.storeImage, isFullInfo: true)
+                            serviceCode: self.orderTransaction.orderId,
+                            note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
+                            logoUrl: self.orderTransaction.storeImage, isFullInfo: true)
     } else {
       orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
-        serviceCode: self.orderTransaction.orderId,
-        note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
-        logoUrl: "", isFullInfo: false)
+                            serviceCode: self.orderTransaction.orderId,
+                            note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
+                            logoUrl: "", isFullInfo: false)
     }
     payData = PaymentData(payCode: payCode, methods: [])
 
@@ -123,7 +123,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     paymentPresentation.onPaymeError = { message in
       self.removeSpinner()
       if message != "" {
-        self.toastMessError(title: "error".localize(), message: message) { action in
+        self.toastMessError(title: "error".localize(), message: message) { _ in
 //                    self.dismiss(animated: true, completion: nil)
         }
       }
@@ -314,8 +314,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     removeSpinner()
     let webViewController = WebViewController(payMEFunction: nil, nibName: "WebView", bundle: nil, needHandleNetwork: true)
     webViewController.form = responseError.html
-    if ((orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "" ||
-      (orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? "") != "") {
+    if (orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "" ||
+      (orderTransaction.paymentMethod?.dataCreditCard?.issuer ?? "") != ""
+    {
       transactionInfo = responseError.transactionInformation
       webViewController.setOnNavigateToHost { host in
         if host.contains("payme.vn") == true {
@@ -324,7 +325,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         }
       }
     } else {
-      webViewController.setOnSuccessWebView(onSuccessWebView: { responseFromWebView in
+      webViewController.setOnSuccessWebView(onSuccessWebView: { _ in
         webViewController.dismiss(animated: true)
         var transaction = ""
         if let paymentInfo = responseError.paymentInformation!["history"]?["payment"] as? [String: AnyObject] {
@@ -362,7 +363,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     guard let order = orderTransaction else {
       return
     }
-    let webViewController = WebViewController(payMEFunction: self.payMEFunction, nibName: "WebView", bundle: nil, needHandleNetwork: true, hasSpinnerHandle: false)
+    let webViewController = WebViewController(payMEFunction: payMEFunction, nibName: "WebView", bundle: nil, needHandleNetwork: true, hasSpinnerHandle: false)
     webViewController.form = html
     webViewController.loadView()
     var payTimer: Timer? = Timer.scheduledTimer(withTimeInterval: 7, repeats: false) { [self] tmr in
@@ -370,7 +371,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
       tmr.invalidate()
     }
     webViewController.setOnNavigateToHost { [self] host in
-      if host == "authenticated" && payTimer?.isValid == true {
+      if host == "authenticated", payTimer?.isValid == true {
         payTimer?.invalidate()
         payTimer = nil
         onPayCredit(order)
@@ -505,27 +506,22 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
           button.isEnabled = false
           button.removeGradient()
           payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.METHODS, methods: paymentMethods))
-          break
         case PayCode.ATM.rawValue:
-          let method = PaymentMethod(type: MethodType.BANK_CARD.rawValue, title: "bankCard".localize())
+          let method = paymentMethods[0].cloneWith(type: MethodType.BANK_CARD.rawValue)
           orderTransaction.paymentMethod = method
           onSubmitMethod(method)
-          break
         case PayCode.CREDIT.rawValue:
-          let method = PaymentMethod(type: MethodType.CREDIT_CARD.rawValue, title: "creditCard".localize())
+          let method = paymentMethods[0].cloneWith(type: MethodType.CREDIT_CARD.rawValue)
           orderTransaction.paymentMethod = method
           onSubmitMethod(method)
-          break
         case PayCode.MANUAL_BANK.rawValue:
-          let method = PaymentMethod(type: MethodType.BANK_TRANSFER.rawValue, title: "bankTransfer".localize())
+          let method = paymentMethods[0].cloneWith(type: MethodType.BANK_TRANSFER.rawValue)
           orderTransaction.paymentMethod = method
           onSubmitMethod(method)
-          break
         case PayCode.VIET_QR.rawValue:
-          let method = PaymentMethod(type: MethodType.VIET_QR.rawValue, title: "vietQR".localize())
+          let method = paymentMethods[0].cloneWith(type: MethodType.VIET_QR.rawValue)
           orderTransaction.paymentMethod = method
           onSubmitMethod(method)
-          break
 //                case PayCode.VN_PAY.rawValue:
 //                    let method = PaymentMethod(type: MethodType.BANK_QR_CODE_PG.rawValue, title: "bankQRCode")
 //                    orderTransaction.paymentMethod = method
@@ -534,14 +530,13 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         default:
           PaymentModalController.isShowCloseModal = false
           dismiss(animated: true) {
-            onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "notFoundPayCode".localize() as AnyObject])
+            self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "notFoundPayCode".localize() as AnyObject])
           }
-          break
         }
       } else {
         PaymentModalController.isShowCloseModal = false
         dismiss(animated: true) {
-          onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "notFoundPayCode".localize() as AnyObject])
+          self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": "notFoundPayCode".localize() as AnyObject])
         }
       }
     }, onError: { error in
@@ -561,7 +556,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     searchBankController.view.isHidden = false
     otpView.isHidden = true
     searchBankController.updateListBank(listBankManual)
-    if (searchBankHeightConstraint?.constant == nil) {
+    if searchBankHeightConstraint?.constant == nil {
       searchBankHeightConstraint = searchBankController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
       searchBankHeightConstraint?.isActive = true
     }
@@ -588,7 +583,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     viewVietQRListBank.view.isHidden = false
     otpView.isHidden = true
     viewVietQRListBank.updateListBank(banks)
-    if (viewVietQRHeightConstraint?.constant == nil) {
+    if viewVietQRHeightConstraint?.constant == nil {
       viewVietQRHeightConstraint = viewVietQRListBank.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
       viewVietQRHeightConstraint?.isActive = true
     }
@@ -618,7 +613,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     UIScrollView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
       self.confirmController.view.isHidden = false
     })
-    if (atmHeightConstraint?.constant == nil) {
+    if atmHeightConstraint?.constant == nil {
       atmHeightConstraint = confirmController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
       atmHeightConstraint?.isActive = true
     }
@@ -658,7 +653,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     UIScrollView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews], animations: {
       self.confirmController.view.isHidden = false
     })
-    if (atmHeightConstraint?.constant == nil) {
+    if atmHeightConstraint?.constant == nil {
       atmHeightConstraint = confirmController.view.heightAnchor.constraint(equalToConstant: .greatestFiniteMagnitude)
       atmHeightConstraint?.isActive = true
     }
@@ -700,7 +695,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     UIView.transition(with: methodsView, duration: 0.5, options: [.transitionCrossDissolve, .showHideTransitionViews]) {
       self.methodsView.isHidden = false
     }
-    if (tableHeightConstraint?.constant == nil) {
+    if tableHeightConstraint?.constant == nil {
       tableHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: CGFloat.greatestFiniteMagnitude)
       tableHeightConstraint?.isActive = true
       tableView.reloadData()
@@ -754,7 +749,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     guard let orderTrans = order else {
       return
     }
-    self.orderTransaction = orderTrans
+    orderTransaction = orderTrans
   }
 
   func setupUIOverQuota(_ message: String) {
@@ -782,7 +777,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     viewVietQRListBank.view.isHidden = true
     otpView.isHidden = false
     view.addSubview(otpView)
-    if (orderTransaction.paymentMethod?.type == "WALLET") {
+    if orderTransaction.paymentMethod?.type == "WALLET" {
       paymentPresentation.sendPayMEOTP()
       otpView.updateDescription(description: "Nhập mã OTP đã được gửi qua số điện thoại đăng ký ví PayME")
     } else {
@@ -803,7 +798,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     otpView.startCountDown(from: 60)
     otpView.onPressSendOTP = {
       self.otpView.startCountDown(from: 120)
-      if (self.orderTransaction.paymentMethod?.type == "WALLET") {
+      if self.orderTransaction.paymentMethod?.type == "WALLET" {
         self.paymentPresentation.sendPayMEOTP()
       }
     }
@@ -833,8 +828,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
       PayME.currentVC!.dismiss(animated: true)
       self.payMEFunction.openWallet(
         false, PayME.currentVC!, PayME.Action.FORGOT_PASSWORD, nil, nil,
-        nil, "", false, { dictionary in },
-        { dictionary in }
+        nil, "", false, { _ in },
+        { _ in }
       )
     }
     securityCode.otpView.becomeFirstResponder()
@@ -849,7 +844,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     otpView.isHidden = true
     securityCode.isHidden = true
     PaymentModalController.isShowCloseModal = false
-    if (isShowResultUI == true) {
+    if isShowResultUI == true {
       view.addSubview(resultView)
       resultView.translatesAutoresizingMaskIntoConstraints = false
       resultView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
@@ -932,7 +927,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
 
   func panModalDidDismiss() {
     subscription?.dispose()
-    if (PaymentModalController.isShowCloseModal == true) {
+    if PaymentModalController.isShowCloseModal == true {
       onError(["code": PayME.ResponseCode.USER_CANCELLED as AnyObject, "message": "" as AnyObject])
     }
 
@@ -950,8 +945,8 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     PayME.currentVC!.dismiss(animated: true)
     payMEFunction.openWallet(
       false, PayME.currentVC!, action, amount, orderTransaction.note,
-      orderTransaction.extraData, "", false, { dictionary in },
-      { dictionary in }
+      orderTransaction.extraData, "", false, { _ in },
+      { _ in }
     )
   }
 
@@ -966,7 +961,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     switch method.type {
     case MethodType.WALLET.rawValue:
       if let limitShowOTP = PaymentModalController.passwordLimit {
-        if (orderTransaction.total > limitShowOTP) {
+        if orderTransaction.total > limitShowOTP {
           setupOTP()
         } else {
           setupSecurity()
@@ -974,45 +969,37 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
       } else {
         setupSecurity()
       }
-      break
     case MethodType.LINKED.rawValue:
       setupSecurity()
-      break
     case MethodType.CREDIT_BALANCE.rawValue:
       setupSecurity()
-      break
     case MethodType.BANK_CARD.rawValue:
       paymentPresentation.getLinkBank(orderTransaction: orderTransaction)
-      break
     case MethodType.BANK_TRANSFER.rawValue:
       showSpinner(onView: view)
       paymentPresentation.getLinkBank(orderTransaction: orderTransaction)
-      break
     case MethodType.CREDIT_CARD.rawValue:
       payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ATM, banks: nil, orderTransaction: orderTransaction))
-      break
     case MethodType.BANK_QR_CODE_PG.rawValue:
       let task = paymentPresentation.payVNQRCode(orderTransaction: orderTransaction, redirectURL: redirectURLVNPay)
       sessionList.append(task)
-      break
     case MethodType.VIET_QR.rawValue:
       paymentPresentation.createVietQR(orderTransaction: orderTransaction)
-      break
     default:
-      toastMessError(title: "", message: "Tính năng đang được xây dựng.") { [self] alertAction in
+      toastMessError(title: "", message: "Tính năng đang được xây dựng.") { [self] _ in
         dismiss(animated: true)
       }
     }
   }
 
   @objc func onAppEnterForeground(notification: NSNotification) {
-    if securityCode.isDescendant(of: view) && !securityCode.isHidden {
+    if securityCode.isDescendant(of: view), !securityCode.isHidden {
       securityCode.otpView.becomeFirstResponder()
     }
-    if otpView.isDescendant(of: view) && !otpView.isHidden {
+    if otpView.isDescendant(of: view), !otpView.isHidden {
       otpView.otpView.becomeFirstResponder()
     }
-    if !confirmController.view.isHidden && !confirmController.atmView.cardInput.isHidden {
+    if !confirmController.view.isHidden, !confirmController.atmView.cardInput.isHidden {
       confirmController.atmView.cardInput.textInput.becomeFirstResponder()
     }
     if isPendingVNPAY && orderTransaction.transactionInformation != nil {
@@ -1035,34 +1022,34 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
       modalHeight = keyboardSize.height + otpView.bounds.size.height + footer.bounds.size.height - (safeAreaInset?.bottom ?? 0)
     } else if securityCode.isDescendant(of: view) {
       modalHeight = keyboardSize.height + securityCode.bounds.size.height + footer.bounds.size.height - (safeAreaInset?.bottom ?? 0)
-    } else if confirmController.view.isDescendant(of: view) && confirmController.view.isHidden == false {
+    } else if confirmController.view.isDescendant(of: view), confirmController.view.isHidden == false {
       if #available(iOS 11.0, *) {
         modalHeight = min(keyboardSize.height + confirmController.view.bounds.size.height + footer.bounds.size.height,
-          view.safeAreaLayoutGuide.layoutFrame.height)
+                          view.safeAreaLayoutGuide.layoutFrame.height)
       } else {
         modalHeight = min(keyboardSize.height + confirmController.view.bounds.size.height + footer.bounds.size.height,
-          screenSize.height)
+                          screenSize.height)
       }
       let temp = footer.bounds.size.height
         + keyboardSize.height
       let controllerViewHeight = min(confirmController.scrollView.contentSize.height, modalHeight! - temp)
       atmHeightConstraint?.constant = controllerViewHeight
-    } else if searchBankController.view.isDescendant(of: view) && searchBankController.view.isHidden == false {
+    } else if searchBankController.view.isDescendant(of: view), searchBankController.view.isHidden == false {
       let temp = keyboardSize.height + (searchBankHeightConstraint?.constant ?? 0)
       if #available(iOS 11.0, *) {
         modalHeight = min(temp,
-          view.safeAreaLayoutGuide.layoutFrame.height)
+                          view.safeAreaLayoutGuide.layoutFrame.height)
       } else {
         modalHeight = min(temp, screenSize.height)
       }
       let temp2 = keyboardSize.height
       let searchHeight = min(searchBankController.updateSizeHeight(), modalHeight! - temp2)
       searchBankHeightConstraint?.constant = searchHeight
-    } else if viewVietQRListBank.view.isDescendant(of: view) && viewVietQRListBank.view.isHidden == false {
+    } else if viewVietQRListBank.view.isDescendant(of: view), viewVietQRListBank.view.isHidden == false {
       let temp = keyboardSize.height + (viewVietQRHeightConstraint?.constant ?? 0)
       if #available(iOS 11.0, *) {
         modalHeight = min(temp,
-          view.safeAreaLayoutGuide.layoutFrame.height)
+                          view.safeAreaLayoutGuide.layoutFrame.height)
       } else {
         modalHeight = min(temp, screenSize.height)
       }
@@ -1091,7 +1078,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         rect = rect.union(view.frame)
       }
       modalHeight = contentRect.height
-    } else if confirmController.view.isDescendant(of: view) && confirmController.view.isHidden == false {
+    } else if confirmController.view.isDescendant(of: view), confirmController.view.isHidden == false {
       let temp = footer.bounds.size.height
         + (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
       let atmHeight = min(confirmController.scrollView.contentSize.height, screenSize.height - temp)
@@ -1105,7 +1092,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
       let viewHeight = confirmController.view.bounds.size.height
         + footer.bounds.size.height
       modalHeight = viewHeight
-    } else if searchBankController.view.isDescendant(of: view) && searchBankController.view.isHidden == false {
+    } else if searchBankController.view.isDescendant(of: view), searchBankController.view.isHidden == false {
       let temp = (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
       let searchHeight = min(searchBankController.updateSizeHeight(), screenSize.height - temp)
       searchBankHeightConstraint?.constant = searchHeight
@@ -1114,7 +1101,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
       view.layoutIfNeeded()
       let viewHeight = searchHeight
       modalHeight = viewHeight
-    } else if viewVietQRListBank.view.isDescendant(of: view) && viewVietQRListBank.view.isHidden == false {
+    } else if viewVietQRListBank.view.isDescendant(of: view), viewVietQRListBank.view.isHidden == false {
       let temp = (safeAreaInset?.bottom ?? 0) + (safeAreaInset?.top ?? 0) + CGFloat(34)
       let searchHeight = min(viewVietQRListBank.updateSizeHeight(), screenSize.height - temp)
       viewVietQRHeightConstraint?.constant = searchHeight
@@ -1130,7 +1117,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     panModalTransition(to: .shortForm)
   }
 
-  func toastMessError(title: String, message: String, handler: ((UIAlertAction) -> Void)? = nil) {
+  func toastMessError(title: String, message: String, handler: ((UIAlertAction) -> ())? = nil) {
     let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
     alert.addAction(UIAlertAction(title: "understood".localize(), style: UIAlertAction.Style.default, handler: handler))
     present(alert, animated: true, completion: nil)
@@ -1180,6 +1167,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
   override var preferredStatusBarStyle: UIStatusBarStyle {
     .lightContent
   }
+
   var panScrollable: UIScrollView? {
     nil
   }
@@ -1242,7 +1230,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
         return nil
       } else if payMEFunction.kycState != "APPROVED" {
         PayME.currentVC?.dismiss(animated: true) {
-          self.payMEFunction.KYC(PayME.currentVC!, {}, { dictionary in })
+          self.payMEFunction.KYC(PayME.currentVC!, {}, { _ in })
         }
         return nil
       } else {
@@ -1273,6 +1261,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
     cell.methodView.updateSelectState(isSelected: false)
   }
 
+  @available(*, unavailable)
   required init?(coder aDecoder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
@@ -1289,11 +1278,9 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
       }
     }
     let result = digestData.map {
-        String(format: "%02hhx", $0)
-      }
-      .joined()
+      String(format: "%02hhx", $0)
+    }
+    .joined()
     return result
   }
 }
-
-

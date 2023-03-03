@@ -80,7 +80,8 @@ func toastMess(title: String, message: String) {
     PayME.currentVC?.present(alert, animated: true, completion: nil)
 }
 
-func toDateString(date: Date) -> String {
+func toDateString(date: Date?) -> String {
+  guard let date = date else { return "" }
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "HH:mm dd/MM/yyyy"
     print(dateFormatter.string(from: date))
@@ -90,7 +91,6 @@ func toDateString(date: Date) -> String {
 func toDate(dateString: String) -> Date? {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-    print(dateFormatter.date(from: dateString) as Any)
     return dateFormatter.date(from: dateString)
 }
 

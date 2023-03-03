@@ -27,12 +27,12 @@ struct ResponseError {
   var transaction: String
   var html: String
   var transactionInformation: TransactionInformation?
-  var paymentInformation: Dictionary<String, AnyObject>?
+  var paymentInformation: [String: AnyObject]?
 
   init(
     code: ResponseErrorCode, message: String = "", transaction: String = "", html: String = "",
     transactionInformation: TransactionInformation? = nil,
-    paymentInformation: Dictionary<String, AnyObject>? = nil
+    paymentInformation: [String: AnyObject]? = nil
   ) {
     self.code = code
     self.message = message
@@ -46,8 +46,8 @@ struct ResponseError {
 class PaymentPresentation {
   private let paymentViewModel: PaymentViewModel
   private let request: API
-  private let onSuccess: (Dictionary<String, AnyObject>) -> ()
-  private let onError: (Dictionary<String, AnyObject>) -> ()
+  private let onSuccess: ([String: AnyObject]) -> ()
+  private let onError: ([String: AnyObject]) -> ()
   var onPaymeError: (String) -> ()
   private let accessToken: String
   private let kycState: String
@@ -55,9 +55,9 @@ class PaymentPresentation {
   init(
     request: API, paymentViewModel: PaymentViewModel,
     accessToken: String, kycState: String,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> (),
+    onError: @escaping ([String: AnyObject]) -> (),
+    onPaymeError: @escaping (String) -> () = { _ in
     }
   ) {
     self.request = request
@@ -73,7 +73,7 @@ class PaymentPresentation {
       }
       if code == PayME.ResponseCode.SYSTEM {
         paymentViewModel.paymentSubject.onNext(PaymentState(state: .ERROR,
-          error: ResponseError(code: .SERVER_ERROR, message: dictionary["message"] as? String ?? "hasError".localize())))
+                                                            error: ResponseError(code: .SERVER_ERROR, message: dictionary["message"] as? String ?? "hasError".localize())))
       } else {
         onError(dictionary)
       }
@@ -105,7 +105,7 @@ class PaymentPresentation {
           }
         }
 
-        if (succeeded == true) {
+        if succeeded == true {
           let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
           let responseSuccess = [
             "payment": ["transaction": paymentInfo["transaction"] as? String]
@@ -130,99 +130,100 @@ class PaymentPresentation {
       },
       onError: { error in
         if let code = error["code"] as? Int {
-          if (code == 401) {
+          if code == 401 {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
           }
         }
         self.onError(error)
       },
-      onPaymeError: onPaymeError)
+      onPaymeError: onPaymeError
+    )
   }
 
   func paymentCreditWallet(securityCode: String, orderTransaction: OrderTransaction) {
     request.creditWallet(storeId: orderTransaction.storeId, orderId: orderTransaction.orderId, securityCode: securityCode, supplierLinkedId: orderTransaction.paymentMethod?.dataCreditWallet?.supplierLinkedId ?? "", extraData: orderTransaction.extraData, note: orderTransaction.note, amount: orderTransaction.amount,
-      onSuccess: { response in
-        let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
-        let payInfo = paymentInfo["Pay"] as! [String: AnyObject]
-        let message = payInfo["message"] as! String
-        let succeeded = payInfo["succeeded"] as! Bool
-        var formatDate = ""
-        var transactionNumber = ""
-        if let history = payInfo["history"] as? [String: AnyObject] {
-          if let createdAt = history["createdAt"] as? String {
-            if let date = toDate(dateString: createdAt) {
-              formatDate = toDateString(date: date)
-            }
-          }
-          if let payment = history["payment"] as? [String: AnyObject] {
-            if let transaction = payment["transaction"] as? String {
-              transactionNumber = transaction
-            }
-          }
-        }
+                         onSuccess: { response in
+                           let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
+                           let payInfo = paymentInfo["Pay"] as! [String: AnyObject]
+                           let message = payInfo["message"] as! String
+                           let succeeded = payInfo["succeeded"] as! Bool
+                           var formatDate = ""
+                           var transactionNumber = ""
+                           if let history = payInfo["history"] as? [String: AnyObject] {
+                             if let createdAt = history["createdAt"] as? String {
+                               if let date = toDate(dateString: createdAt) {
+                                 formatDate = toDateString(date: date)
+                               }
+                             }
+                             if let payment = history["payment"] as? [String: AnyObject] {
+                               if let transaction = payment["transaction"] as? String {
+                                 transactionNumber = transaction
+                               }
+                             }
+                           }
 
-        if (succeeded == true) {
-          let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
-          let responseSuccess = [
-            "payment": ["transaction": paymentInfo["transaction"] as? String]
-          ] as [String: AnyObject]
-          let result = Result(
-            type: ResultType.SUCCESS,
-            orderTransaction: orderTransaction,
-            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
-            extraData: responseSuccess
-          )
-          self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-        } else {
-          let result = Result(
-            type: ResultType.FAIL,
-            failReasonLabel: message,
-            orderTransaction: orderTransaction,
-            transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
-            extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject]
-          )
-          self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-        }
-      },
-      onError: { error in
-        if let code = error["code"] as? Int {
-          if (code == 401) {
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-          }
-        }
-        self.onError(error)
-      },
-      onPaymeError: onPaymeError)
+                           if succeeded == true {
+                             let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
+                             let responseSuccess = [
+                               "payment": ["transaction": paymentInfo["transaction"] as? String]
+                             ] as [String: AnyObject]
+                             let result = Result(
+                               type: ResultType.SUCCESS,
+                               orderTransaction: orderTransaction,
+                               transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                               extraData: responseSuccess
+                             )
+                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                           } else {
+                             let result = Result(
+                               type: ResultType.FAIL,
+                               failReasonLabel: message,
+                               orderTransaction: orderTransaction,
+                               transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                               extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject]
+                             )
+                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                           }
+                         },
+                         onError: { error in
+                           if let code = error["code"] as? Int {
+                             if code == 401 {
+                               self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                             }
+                           }
+                           self.onError(error)
+                         },
+                         onPaymeError: onPaymeError)
   }
 
   func sendPayMEOTP() {
     request.sendPayMEOTP(onSuccess: { data in print(data) }, onError: { error in
       if let code = error["code"] as? Int {
-        if (code == 401) {
+        if code == 401 {
           self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
         }
       }
       self.onError(error)
     },
-      onPaymeError: onPaymeError)
+    onPaymeError: onPaymeError)
   }
 
   func verifyPayMEOTP(OTP: String, orderTransaction: OrderTransaction) {
     request.verifyPayMEOTP(OTP: OTP, onSuccess: { response in
       let data = JSON(response)["Account"]["SecurityCode"]["CreateCodeByOTP"]
-      if (data["succeeded"].boolValue) {
+      if data["succeeded"].boolValue {
         let securityCode = data["securityCode"].stringValue
         self.paymentPayMEMethod(securityCode: securityCode, orderTransaction: orderTransaction)
       }
     }, onError: { error in
       if let code = error["code"] as? Int {
-        if (code == 401) {
+        if code == 401 {
           self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
         }
       }
       self.onError(error)
     },
-      onPaymeError: onPaymeError)
+    onPaymeError: onPaymeError)
   }
 
   func transferByLinkedBank(transaction: String, orderTransaction: OrderTransaction, linkedId: Int, OTP: String) {
@@ -251,7 +252,7 @@ class PaymentPresentation {
               }
             }
           }
-          if (succeeded == true) {
+          if succeeded == true {
             let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
             let responseSuccess = [
               "payment": ["transaction": paymentInfo["transaction"] as? String]
@@ -289,19 +290,20 @@ class PaymentPresentation {
       },
       onError: { error in
         if let code = error["code"] as? Int {
-          if (code == 401) {
+          if code == 401 {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
           }
         }
         self.onError(error)
       },
-      onPaymeError: onPaymeError)
+      onPaymeError: onPaymeError
+    )
   }
 
   func authenCreditCard(orderTransaction: OrderTransaction) {
     var cardNum = ""
-    var exp: String = ""
-    var linkedId: Int? = nil
+    var exp = ""
+    var linkedId: Int?
     if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
       cardNum = orderTransaction.paymentMethod?.dataCreditCard?.cardNumber ?? ""
       linkedId = nil
@@ -312,59 +314,60 @@ class PaymentPresentation {
       exp = ""
     }
     request.authenCreditCard(cardNumber: cardNum, expiredAt: exp, linkedId: linkedId,
-      onSuccess: { response in
-        let data = JSON(response)
-        if let isSucceeded = data["CreditCardLink"]["AuthCreditCard"]["succeeded"].bool,
-           let refId = data["CreditCardLink"]["AuthCreditCard"]["referenceId"].string,
-           let html = data["CreditCardLink"]["AuthCreditCard"]["html"].string,
-           let isAuth = data["CreditCardLink"]["AuthCreditCard"]["isAuth"].bool {
-          if isSucceeded == true {
-            if isAuth == true {
-              if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
-                orderTransaction.paymentMethod?.dataCreditCard?.referenceId = refId
-              } else if orderTransaction.paymentMethod?.type == MethodType.LINKED.rawValue {
-                orderTransaction.paymentMethod?.dataLinked?.referenceId = refId
-              }
-              let realHtml = "<html><body onload=\"document.forms[0].submit();\">\(html)</body></html>"
-              self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, orderTransaction: orderTransaction,
-                error: ResponseError(code: ResponseErrorCode.REQUIRED_AUTHEN_CARD, html: realHtml))
-              )
-            } else {
-              if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
-                self.payCreditCard(orderTransaction: orderTransaction)
-              } else {
-                self.paymentLinkedMethod(orderTransaction: orderTransaction)
-              }
-            }
-          } else {
-            let result = Result(
-              type: ResultType.FAIL,
-              failReasonLabel: data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize(),
-              orderTransaction: orderTransaction,
-              transactionInfo: TransactionInformation(transaction: orderTransaction.orderId, transactionTime: toDateString(date: Date())),
-              extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject]
-            )
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-          }
-        } else {
-          let result = Result(
-            type: ResultType.FAIL,
-            failReasonLabel: data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize(),
-            orderTransaction: orderTransaction,
-            transactionInfo: TransactionInformation(transaction: orderTransaction.orderId, transactionTime: toDateString(date: Date())),
-            extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject]
-          )
-          self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-        }
-      },
-      onError: { error in
-        self.onError(error)
-        if let code = error["code"] as? Int {
-          if (code == 401) {
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-          }
-        }
-      }, onPaymeError: onPaymeError)
+                             onSuccess: { response in
+                               let data = JSON(response)
+                               if let isSucceeded = data["CreditCardLink"]["AuthCreditCard"]["succeeded"].bool,
+                                  let refId = data["CreditCardLink"]["AuthCreditCard"]["referenceId"].string,
+                                  let html = data["CreditCardLink"]["AuthCreditCard"]["html"].string,
+                                  let isAuth = data["CreditCardLink"]["AuthCreditCard"]["isAuth"].bool
+                               {
+                                 if isSucceeded == true {
+                                   if isAuth == true {
+                                     if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+                                       orderTransaction.paymentMethod?.dataCreditCard?.referenceId = refId
+                                     } else if orderTransaction.paymentMethod?.type == MethodType.LINKED.rawValue {
+                                       orderTransaction.paymentMethod?.dataLinked?.referenceId = refId
+                                     }
+                                     let realHtml = "<html><body onload=\"document.forms[0].submit();\">\(html)</body></html>"
+                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, orderTransaction: orderTransaction,
+                                                                                              error: ResponseError(code: ResponseErrorCode.REQUIRED_AUTHEN_CARD, html: realHtml))
+                                     )
+                                   } else {
+                                     if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+                                       self.payCreditCard(orderTransaction: orderTransaction)
+                                     } else {
+                                       self.paymentLinkedMethod(orderTransaction: orderTransaction)
+                                     }
+                                   }
+                                 } else {
+                                   let result = Result(
+                                     type: ResultType.FAIL,
+                                     failReasonLabel: data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize(),
+                                     orderTransaction: orderTransaction,
+                                     transactionInfo: TransactionInformation(transaction: orderTransaction.orderId, transactionTime: toDateString(date: Date())),
+                                     extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject]
+                                   )
+                                   self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                 }
+                               } else {
+                                 let result = Result(
+                                   type: ResultType.FAIL,
+                                   failReasonLabel: data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize(),
+                                   orderTransaction: orderTransaction,
+                                   transactionInfo: TransactionInformation(transaction: orderTransaction.orderId, transactionTime: toDateString(date: Date())),
+                                   extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (data["CreditCardLink"]["AuthCreditCard"]["message"].string ?? "hasError".localize()) as AnyObject]
+                                 )
+                                 self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                               }
+                             },
+                             onError: { error in
+                               self.onError(error)
+                               if let code = error["code"] as? Int {
+                                 if code == 401 {
+                                   self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                                 }
+                               }
+                             }, onPaymeError: onPaymeError)
   }
 
   func paymentLinkedMethod(orderTransaction: OrderTransaction) {
@@ -394,7 +397,7 @@ class PaymentPresentation {
             }
           }
           let succeeded = payInfo["succeeded"] as! Bool
-          if (succeeded == true) {
+          if succeeded == true {
             let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
             let responseSuccess = [
               "payment": ["transaction": paymentInfo["transaction"] as? String]
@@ -409,12 +412,12 @@ class PaymentPresentation {
           } else {
             if let payment = payInfo["payment"] as? [String: AnyObject] {
               let state = (payment["state"] as? String) ?? ""
-              if (state == "REQUIRED_OTP") {
+              if state == "REQUIRED_OTP" {
                 let transaction = payment["transaction"] as! String
                 self.paymentViewModel.paymentSubject.onNext(
                   PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.REQUIRED_OTP, transaction: transaction))
                 )
-              } else if (state == "REQUIRED_VERIFY") {
+              } else if state == "REQUIRED_VERIFY" {
                 if let html = payment["html"] as? String {
                   let realHtml = (orderTransaction.paymentMethod?.dataLinked?.swiftCode != nil ? html : "<html><body onload=\"document.forms[0].submit();\">\(html)</body></html>")
                   self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
@@ -457,65 +460,67 @@ class PaymentPresentation {
       onError: { flowError in
         self.onError(flowError)
         if let code = flowError["code"] as? Int {
-          if (code == 401) {
+          if code == 401 {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
           }
         }
       },
-      onPaymeError: onPaymeError)
+      onPaymeError: onPaymeError
+    )
   }
 
   func createSecurityCode(password: String, orderTransaction: OrderTransaction) {
     request.createSecurityCode(password: password,
-      onSuccess: { securityInfo in
-        let account = securityInfo["Account"]!["SecurityCode"] as! [String: AnyObject]
-        let securityResponse = account["CreateCodeByPassword"] as! [String: AnyObject]
-        let securitySucceeded = securityResponse["succeeded"] as! Bool
-        if (securitySucceeded == true) {
-          let securityCode = securityResponse["securityCode"] as! String
-          let methodType = orderTransaction.paymentMethod?.type
-          if methodType == "WALLET" {
-            self.paymentPayMEMethod(securityCode: securityCode, orderTransaction: orderTransaction)
-          }
-          if methodType == "LINKED" {
-            if (orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "" {
-              self.authenCreditCard(orderTransaction: orderTransaction)
-            } else {
-              self.paymentLinkedMethod(orderTransaction: orderTransaction)
-            }
-          }
-          if methodType == "CREDIT_BALANCE" {
-            self.paymentCreditWallet(
-              securityCode: securityCode,
-              orderTransaction: orderTransaction)
-          }
-        } else {
-          let message = securityResponse["message"] as! String
-          let code = securityResponse["code"] as! String
-          if (code == "PASSWORD_INVALID" || code == "PASSWORD_RETRY_TIMES_OVER") {
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
-              code: ResponseErrorCode.PASSWORD_INVALID, message: message
-            )))
-          } else {
-            let result = Result(
-              type: ResultType.FAIL,
-              failReasonLabel: message,
-              orderTransaction: orderTransaction,
-              transactionInfo: TransactionInformation(),
-              extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject]
-            )
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-          }
-        }
-      },
-      onError: { error in
-        if let code = error["code"] as? Int {
-          if (code == 401) {
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-          }
-        }
-        self.onError(error)
-      }, onPaymeError: onPaymeError)
+                               onSuccess: { securityInfo in
+                                 let account = securityInfo["Account"]!["SecurityCode"] as! [String: AnyObject]
+                                 let securityResponse = account["CreateCodeByPassword"] as! [String: AnyObject]
+                                 let securitySucceeded = securityResponse["succeeded"] as! Bool
+                                 if securitySucceeded == true {
+                                   let securityCode = securityResponse["securityCode"] as! String
+                                   let methodType = orderTransaction.paymentMethod?.type
+                                   if methodType == "WALLET" {
+                                     self.paymentPayMEMethod(securityCode: securityCode, orderTransaction: orderTransaction)
+                                   }
+                                   if methodType == "LINKED" {
+                                     if (orderTransaction.paymentMethod?.dataLinked?.issuer ?? "") != "" {
+                                       self.authenCreditCard(orderTransaction: orderTransaction)
+                                     } else {
+                                       self.paymentLinkedMethod(orderTransaction: orderTransaction)
+                                     }
+                                   }
+                                   if methodType == "CREDIT_BALANCE" {
+                                     self.paymentCreditWallet(
+                                       securityCode: securityCode,
+                                       orderTransaction: orderTransaction
+                                     )
+                                   }
+                                 } else {
+                                   let message = securityResponse["message"] as! String
+                                   let code = securityResponse["code"] as! String
+                                   if code == "PASSWORD_INVALID" || code == "PASSWORD_RETRY_TIMES_OVER" {
+                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
+                                       code: ResponseErrorCode.PASSWORD_INVALID, message: message
+                                     )))
+                                   } else {
+                                     let result = Result(
+                                       type: ResultType.FAIL,
+                                       failReasonLabel: message,
+                                       orderTransaction: orderTransaction,
+                                       transactionInfo: TransactionInformation(),
+                                       extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject]
+                                     )
+                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                   }
+                                 }
+                               },
+                               onError: { error in
+                                 if let code = error["code"] as? Int {
+                                   if code == 401 {
+                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                                   }
+                                 }
+                                 self.onError(error)
+                               }, onPaymeError: onPaymeError)
   }
 
   func payBankTransfer(orderTransaction: OrderTransaction) {
@@ -539,9 +544,7 @@ class PaymentPresentation {
                 if let transaction = payment["transaction"] as? String {
                   transactionNumber = transaction
                 }
-
               }
-
             }
             if let bankTranferState = payment["bankTranferState"] as? String {
               if bankTranferState == "SUCCEEDED" {
@@ -575,7 +578,7 @@ class PaymentPresentation {
       onError: { error in
         self.onError(error)
         if let code = error["code"] as? Int {
-          if (code == 401) {
+          if code == 401 {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
           }
         }
@@ -591,7 +594,8 @@ class PaymentPresentation {
       onSuccess: { success in
         let data = JSON(success)
         if let qrContent = data["OpenEWallet"]["Payment"]["Pay"]["payment"]["qrContent"].string,
-           let transaction = data["OpenEWallet"]["Payment"]["Pay"]["history"]["payment"]["transaction"].string {
+           let transaction = data["OpenEWallet"]["Payment"]["Pay"]["history"]["payment"]["transaction"].string
+        {
           orderTransaction.transactionInformation = TransactionInformation(transaction: transaction)
           self.paymentViewModel.paymentSubject.onNext(PaymentState(
             state: State.BANK_QR_CODE_PG, orderTransaction: orderTransaction, qrContent: qrContent
@@ -612,7 +616,7 @@ class PaymentPresentation {
         print(error)
         self.onError(error)
         if let code = error["code"] as? Int {
-          if (code == 401) {
+          if code == 401 {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
           }
         }
@@ -649,7 +653,7 @@ class PaymentPresentation {
             }
           }
           let succeeded = payInfo["succeeded"] as! Bool
-          if (succeeded == true) {
+          if succeeded == true {
             let paymentInfo = payInfo["history"]!["payment"] as! [String: AnyObject]
             let responseSuccess = [
               "payment": ["transaction": paymentInfo["transaction"] as? String]
@@ -663,7 +667,7 @@ class PaymentPresentation {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
           } else {
             let statePay = payInfo["payment"] as? [String: AnyObject]
-            if (statePay == nil) {
+            if statePay == nil {
               let message = payInfo["message"] as? String
               let result = Result(
                 type: ResultType.FAIL,
@@ -676,7 +680,7 @@ class PaymentPresentation {
               return
             }
             let state = statePay?["state"] as? String ?? ""
-            if (state == "REQUIRED_VERIFY") {
+            if state == "REQUIRED_VERIFY" {
               if let html = statePay!["html"] as? String {
                 self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
                   code: ResponseErrorCode.REQUIRED_VERIFY,
@@ -706,165 +710,165 @@ class PaymentPresentation {
       onError: { error in
         self.onError(error)
         if let code = error["code"] as? Int {
-          if (code == 401) {
+          if code == 401 {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
           }
         }
       },
-      onPaymeError: onPaymeError)
+      onPaymeError: onPaymeError
+    )
   }
 
   func payCreditCard(orderTransaction: OrderTransaction) {
     request.transferCreditCard(storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, extraData: orderTransaction.extraData,
-      note: orderTransaction.note, cardNumber: orderTransaction.paymentMethod!.dataCreditCard!.cardNumber,
-      cardHolder: orderTransaction.paymentMethod!.dataCreditCard!.cardHolder,
-      expiredAt: orderTransaction.paymentMethod!.dataCreditCard!.expiredAt, cvv: orderTransaction.paymentMethod!.dataCreditCard!.cvv,
-      refId: orderTransaction.paymentMethod!.dataCreditCard?.referenceId ?? "", amount: orderTransaction.amount,
-      onSuccess: { success in
-        let payment = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
-        if let payInfo = payment["Pay"] as? [String: AnyObject] {
-          var formatDate = ""
-          var transactionNumber = ""
-          var cardNumber = ""
-          if let history = payInfo["history"] as? [String: AnyObject] {
-            if let createdAt = history["createdAt"] as? String {
-              if let date = toDate(dateString: createdAt) {
-                formatDate = toDateString(date: date)
-              }
-            }
-            if let payment = history["payment"] as? [String: AnyObject] {
-              if let transaction = payment["transaction"] as? String {
-                transactionNumber = transaction
-              }
-              if let description = payment["description"] as? String {
-                cardNumber = description
-              }
-            }
-          }
-          let succeeded = payInfo["succeeded"] as? Bool ?? false
-          let statePay = payInfo["payment"] as? [String: AnyObject]
-          if (succeeded == true) && statePay != nil {
-            let state = statePay!["state"] as? String
-            if let transState = state {
-              if transState == "SUCCEEDED" {
-                let paymentInfo = payInfo["history"]!["payment"] as? [String: AnyObject]
-                let responseSuccess = [
-                  "payment": ["transaction": paymentInfo?["transaction"] as? String]
-                ] as [String: AnyObject]
-                let result = Result(
-                  type: ResultType.SUCCESS,
-                  orderTransaction: orderTransaction,
-                  transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
-                  extraData: responseSuccess
-                )
-                self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-              }
-            }
-          } else {
-            if statePay != nil {
-              let state = statePay!["state"] as? String
-              let message = statePay!["message"] as? String
-              if let transState = state {
-                if (transState == "REQUIRED_VERIFY") {
-                  if let html = statePay!["html"] as? String {
-                    let realHtml = "<html><body onload=\"document.forms[0].submit();\">\(html)</body></html>"
-                    self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
-                      code: ResponseErrorCode.REQUIRED_VERIFY,
-                      html: realHtml,
-                      transactionInformation: TransactionInformation(
-                        transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber
-                      ),
-                      paymentInformation: payInfo
-                    )))
-                  }
-                } else {
-                  let result = Result(
-                    type: ResultType.FAIL,
-                    failReasonLabel: message ?? "hasError".localize(),
-                    orderTransaction: orderTransaction,
-                    transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
-                    extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
-                  )
-                  self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-                }
-                return
-              }
-            }
-            let message = payInfo["message"] as? String
-            let result = Result(
-              type: ResultType.FAIL,
-              failReasonLabel: message ?? "hasError".localize(),
-              orderTransaction: orderTransaction,
-              transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
-              extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
-            )
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-          }
-        } else {
-          self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
-        }
-      },
-      onError: { error in
-        self.onError(error)
-        if let code = error["code"] as? Int {
-          if (code == 401) {
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-          }
-        }
-      }, onPaymeError: onPaymeError
-    )
+                               note: orderTransaction.note, cardNumber: orderTransaction.paymentMethod!.dataCreditCard!.cardNumber,
+                               cardHolder: orderTransaction.paymentMethod!.dataCreditCard!.cardHolder,
+                               expiredAt: orderTransaction.paymentMethod!.dataCreditCard!.expiredAt, cvv: orderTransaction.paymentMethod!.dataCreditCard!.cvv,
+                               refId: orderTransaction.paymentMethod!.dataCreditCard?.referenceId ?? "", amount: orderTransaction.amount,
+                               onSuccess: { success in
+                                 let payment = success["OpenEWallet"]!["Payment"] as! [String: AnyObject]
+                                 if let payInfo = payment["Pay"] as? [String: AnyObject] {
+                                   var formatDate = ""
+                                   var transactionNumber = ""
+                                   var cardNumber = ""
+                                   if let history = payInfo["history"] as? [String: AnyObject] {
+                                     if let createdAt = history["createdAt"] as? String {
+                                       if let date = toDate(dateString: createdAt) {
+                                         formatDate = toDateString(date: date)
+                                       }
+                                     }
+                                     if let payment = history["payment"] as? [String: AnyObject] {
+                                       if let transaction = payment["transaction"] as? String {
+                                         transactionNumber = transaction
+                                       }
+                                       if let description = payment["description"] as? String {
+                                         cardNumber = description
+                                       }
+                                     }
+                                   }
+                                   let succeeded = payInfo["succeeded"] as? Bool ?? false
+                                   let statePay = payInfo["payment"] as? [String: AnyObject]
+                                   if succeeded == true, statePay != nil {
+                                     let state = statePay!["state"] as? String
+                                     if let transState = state {
+                                       if transState == "SUCCEEDED" {
+                                         let paymentInfo = payInfo["history"]!["payment"] as? [String: AnyObject]
+                                         let responseSuccess = [
+                                           "payment": ["transaction": paymentInfo?["transaction"] as? String]
+                                         ] as [String: AnyObject]
+                                         let result = Result(
+                                           type: ResultType.SUCCESS,
+                                           orderTransaction: orderTransaction,
+                                           transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                           extraData: responseSuccess
+                                         )
+                                         self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                       }
+                                     }
+                                   } else {
+                                     if statePay != nil {
+                                       let state = statePay!["state"] as? String
+                                       let message = statePay!["message"] as? String
+                                       if let transState = state {
+                                         if transState == "REQUIRED_VERIFY" {
+                                           if let html = statePay!["html"] as? String {
+                                             let realHtml = "<html><body onload=\"document.forms[0].submit();\">\(html)</body></html>"
+                                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(
+                                               code: ResponseErrorCode.REQUIRED_VERIFY,
+                                               html: realHtml,
+                                               transactionInformation: TransactionInformation(
+                                                 transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber
+                                               ),
+                                               paymentInformation: payInfo
+                                             )))
+                                           }
+                                         } else {
+                                           let result = Result(
+                                             type: ResultType.FAIL,
+                                             failReasonLabel: message ?? "hasError".localize(),
+                                             orderTransaction: orderTransaction,
+                                             transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                             extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
+                                           )
+                                           self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                         }
+                                         return
+                                       }
+                                     }
+                                     let message = payInfo["message"] as? String
+                                     let result = Result(
+                                       type: ResultType.FAIL,
+                                       failReasonLabel: message ?? "hasError".localize(),
+                                       orderTransaction: orderTransaction,
+                                       transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate, cardNumber: cardNumber),
+                                       extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
+                                     )
+                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                   }
+                                 } else {
+                                   self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
+                                 }
+                               },
+                               onError: { error in
+                                 self.onError(error)
+                                 if let code = error["code"] as? Int {
+                                   if code == 401 {
+                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                                   }
+                                 }
+                               }, onPaymeError: onPaymeError)
   }
 
   func getListMethods(
     payCode: String = "",
-    onSuccess: @escaping ([PaymentMethod]) -> Void,
-    onError: @escaping (Dictionary<String, AnyObject>) -> Void
+    onSuccess: @escaping ([PaymentMethod]) -> (),
+    onError: @escaping ([String: AnyObject]) -> ()
   ) {
     request.getTransferMethods(payCode: payCode,
-      onSuccess: { response in
-        let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
-        var methods: [PaymentMethod] = []
-        for (_, item) in items.enumerated() {
-          guard let methodType = item["type"] as? String else {
-            continue
-          }
-          let methodInformation = PaymentMethod(
-            type: methodType, title: item["title"] as? String ?? "", label: item["label"] as? String ?? ""
-          )
-          if methodType == "WALLET" {
-            methodInformation.dataWallet = WalletInformation(balance: 0)
-          }
-          if methodType == "LINKED" {
-            methodInformation.dataLinked = LinkedInformation(
-              swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as? String,
-              linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int,
-              issuer: (item["data"] as! [String: AnyObject])["issuer"] as? String ?? ""
-            )
-          }
-          if methodType == "CREDIT_BALANCE" {
-            methodInformation.dataCreditWallet = CreditWalletInformation(
-              supplierLinkedId: (item["data"] as! [String: AnyObject])["supplierLinkedId"] as? String
-            )
-          }
-          methods.append(methodInformation)
-        }
-        guard let method = methods.first(where: { $0.type == "WALLET" }) else {
-          onSuccess(methods)
-          return
-        }
-        if self.accessToken != "" && self.kycState == "APPROVED" {
-          self.request.getWalletInfo(onSuccess: { response in
-            let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as? Int ?? 0
-            method.dataWallet?.balance = balance
-            onSuccess(methods)
-          }, onError: { error in onError(error) })
-        } else {
-          onSuccess(methods)
-        }
+                               onSuccess: { response in
+                                 let items = (response["Utility"]!["GetPaymentMethod"] as! [String: AnyObject])["methods"] as! [[String: AnyObject]]
+                                 var methods: [PaymentMethod] = []
+                                 for (_, item) in items.enumerated() {
+                                   guard let methodType = item["type"] as? String else {
+                                     continue
+                                   }
+                                   let methodInformation = PaymentMethod(
+                                     type: methodType, title: item["title"] as? String ?? "", label: item["label"] as? String ?? "", iconUrl: item["iconUrl"] as? String ?? ""
+                                   )
+                                   if methodType == "WALLET" {
+                                     methodInformation.dataWallet = WalletInformation(balance: 0)
+                                   }
+                                   if methodType == "LINKED" {
+                                     methodInformation.dataLinked = LinkedInformation(
+                                       swiftCode: (item["data"] as! [String: AnyObject])["swiftCode"] as? String,
+                                       linkedId: (item["data"] as! [String: AnyObject])["linkedId"] as! Int,
+                                       issuer: (item["data"] as! [String: AnyObject])["issuer"] as? String ?? ""
+                                     )
+                                   }
+                                   if methodType == "CREDIT_BALANCE" {
+                                     methodInformation.dataCreditWallet = CreditWalletInformation(
+                                       supplierLinkedId: (item["data"] as! [String: AnyObject])["supplierLinkedId"] as? String
+                                     )
+                                   }
+                                   methods.append(methodInformation)
+                                 }
+                                 guard let method = methods.first(where: { $0.type == "WALLET" }) else {
+                                   onSuccess(methods)
+                                   return
+                                 }
+                                 if self.accessToken != "", self.kycState == "APPROVED" {
+                                   self.request.getWalletInfo(onSuccess: { response in
+                                     let balance = (response["Wallet"] as! [String: AnyObject])["balance"] as? Int ?? 0
+                                     method.dataWallet?.balance = balance
+                                     onSuccess(methods)
+                                   }, onError: { error in onError(error) })
+                                 } else {
+                                   onSuccess(methods)
+                                 }
 
-      },
-      onError: { error in onError(error) },
-      onPaymeError: onPaymeError)
+                               },
+                               onError: { error in onError(error) },
+                               onPaymeError: onPaymeError)
   }
 
   func getLinkBank(orderTransaction: OrderTransaction) {
@@ -872,7 +876,7 @@ class PaymentPresentation {
       let banks = bankListResponse["Setting"]!["banks"] as! [[String: AnyObject]]
       var listBank: [Bank] = []
       for bank in banks {
-        if bank["depositable"] as? Bool ?? false && ((bank["cardNumberLength"] as? Int) != nil) && ((bank["cardPrefix"] as? String) != nil) {
+        if bank["depositable"] as? Bool ?? false, (bank["cardNumberLength"] as? Int) != nil, (bank["cardPrefix"] as? String) != nil {
           var dateString: String
           if (bank["requiredDate"] as? String ?? "") == "EXPIRED_DATE" {
             dateString = "expiredDate".localize()
@@ -880,11 +884,10 @@ class PaymentPresentation {
             dateString = "releaseDate".localize()
           }
           let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int,
-            cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String,
-            shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String,
-            isVietQr: bank["vietQRAccepted"] as? Bool ?? false,
-            requiredDateString: dateString
-          )
+                          cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String,
+                          shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String,
+                          isVietQr: bank["vietQRAccepted"] as? Bool ?? false,
+                          requiredDateString: dateString)
           listBank.append(temp)
         }
       }
@@ -906,7 +909,7 @@ class PaymentPresentation {
       let banks = bankListResponse["Setting"]!["banks"] as! [[String: AnyObject]]
       var listBank: [Bank] = []
       for bank in banks {
-        if bank["depositable"] as? Bool ?? false && ((bank["cardNumberLength"] as? Int) != nil) && ((bank["cardPrefix"] as? String) != nil) {
+        if bank["depositable"] as? Bool ?? false, (bank["cardNumberLength"] as? Int) != nil, (bank["cardPrefix"] as? String) != nil {
           var dateString: String
           if (bank["requiredDate"] as? String ?? "") == "EXPIRED_DATE" {
             dateString = "expiredDate".localize()
@@ -914,11 +917,10 @@ class PaymentPresentation {
             dateString = "releaseDate".localize()
           }
           let temp = Bank(id: bank["id"] as! Int, cardNumberLength: bank["cardNumberLength"] as! Int,
-            cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String,
-            shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String,
-            isVietQr: bank["vietQRAccepted"] as? Bool ?? false,
-            requiredDateString: dateString
-          )
+                          cardPrefix: bank["cardPrefix"] as! String, enName: bank["enName"] as! String, viName: bank["viName"] as! String,
+                          shortName: bank["shortName"] as! String, swiftCode: bank["swiftCode"] as! String,
+                          isVietQr: bank["vietQRAccepted"] as? Bool ?? false,
+                          requiredDateString: dateString)
           listBank.append(temp)
         }
       }
@@ -937,60 +939,42 @@ class PaymentPresentation {
 
   func createVietQR(orderTransaction: OrderTransaction) {
     request.createVietQR(storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, note: orderTransaction.note, amount: orderTransaction.amount,
-      onSuccess: { response in
-        let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
-        if let payInfo = paymentInfo["Pay"] as? [String: AnyObject] {
-          var formatDate = ""
-          var transactionNumber = ""
-          if let history = payInfo["history"] as? [String: AnyObject] {
-            if let createdAt = history["createdAt"] as? String {
-              if let date = toDate(dateString: createdAt) {
-                formatDate = toDateString(date: date)
-              }
-            }
-            if let payment = history["payment"] as? [String: AnyObject] {
-              if let transaction = payment["transaction"] as? String {
-                transactionNumber = transaction
-              }
-            }
-          }
-          if let payment = payInfo["payment"] as? [String: AnyObject] {
-            let vietQRState = payment["state"] as? String
-            if vietQRState == "REQUIRED_TRANSFER", let vietQRCode = payment["qrContent"] as? String {
-              self.request.getVietQRBankList(onSuccess: { data in
-                if let bankList = (data["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["GetListVietQR"] as? [AnyObject] {
-                  let vietQRBanks = (bankList.filter({ ($0["isVietQR"] as? Bool) == true && $0["swiftCode"] != nil })).map({ $0["swiftCode"] as! String })
-                  let dataVietQR = VietQRInformation(qrContent: vietQRCode, banks: vietQRBanks)
-                  orderTransaction.paymentMethod?.dataVietQR = dataVietQR
-                  self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .VIET_QR, orderTransaction: orderTransaction,
-                    error: ResponseError(code: .REQUIRED_VERIFY,
-                      transactionInformation: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate))
-                  ))
-                }
-              }, onError: { e in print(e) })
-            } else {
-              let message = payment["message"] as? String
-              let result = Result(
-                type: ResultType.FAIL,
-                failReasonLabel: message ?? "hasError".localize(),
-                orderTransaction: orderTransaction,
-                transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
-                extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
-              )
-              self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-            }
-          }
-        }
-      },
-      onError: { error in
-        self.onError(error)
-        if let code = error["code"] as? Int {
-          if (code == 401) {
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-          }
-        }
-      },
-      onPaymeError: onPaymeError)
+                         onSuccess: { response in
+                           let paymentInfo = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
+                           let payInfo = JSON(paymentInfo["Pay"] as? [String: AnyObject] ?? [:])
+                           let history = payInfo["history"]
+                           let formatDate = history["createdAt"].string != nil ? toDateString(date: toDate(dateString: history["createdAt"].stringValue)) : ""
+                           let transactionNumber = history["payment"]["transaction"].stringValue
+                           let payment = payInfo["payment"]
+                           if payment["state"].stringValue == "REQUIRED_TRANSFER", let vietQRCode = payment["qrContent"].string {
+                             let paymeBank = payment["banks"].arrayValue[0]
+                             let dataVietQR = VietQRInformation(qrContent: vietQRCode, manualInfo: paymeBank.dictionary != nil ? PayMEQRTransfer(bankName: paymeBank["bankName"].stringValue, shortBankName: paymeBank["bankShortName"].stringValue, bankNumber: paymeBank["bankNumber"].stringValue, accountName: paymeBank["fullName"].stringValue, branchName: paymeBank["branch"].stringValue, content: paymeBank["content"].stringValue) : nil)
+                             orderTransaction.paymentMethod?.dataVietQR = dataVietQR
+                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: .VIET_QR, orderTransaction: orderTransaction,
+                                                                                      error: ResponseError(code: .REQUIRED_VERIFY,
+                                                                                                           transactionInformation: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate))))
+                           } else {
+                             let message = payment["message"].string
+                             let result = Result(
+                               type: ResultType.FAIL,
+                               failReasonLabel: message ?? "hasError".localize(),
+                               orderTransaction: orderTransaction,
+                               transactionInfo: TransactionInformation(transaction: transactionNumber, transactionTime: formatDate),
+                               extraData: ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (message ?? "hasError".localize()) as AnyObject]
+                             )
+                             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                           }
+
+                         },
+                         onError: { error in
+                           self.onError(error)
+                           if let code = error["code"] as? Int {
+                             if code == 401 {
+                               self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                             }
+                           }
+                         },
+                         onPaymeError: onPaymeError)
   }
 
   func getFee(orderTransaction: OrderTransaction) {
@@ -1028,10 +1012,9 @@ class PaymentPresentation {
         if let state = (response["Utility"]!["GetFee"] as? [String: AnyObject])?["state"] as? String {
           if state == "OVER_DAY_QUOTA" || state == "OVER_MONTH_QUOTA" {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR,
-              error: ResponseError(code: ResponseErrorCode.OVER_QUOTA,
-                message: (response["Utility"]!["GetFee"] as? [String: AnyObject])?["message"] as? String ??
-                  "overQuota".localize()
-              )))
+                                                                     error: ResponseError(code: ResponseErrorCode.OVER_QUOTA,
+                                                                                          message: (response["Utility"]!["GetFee"] as? [String: AnyObject])?["message"] as? String ??
+                                                                                            "overQuota".localize())))
             return
           }
         }
@@ -1044,7 +1027,7 @@ class PaymentPresentation {
       }
     }, onError: { error in
       if let code = error["code"] as? Int {
-        if (code == 401) {
+        if code == 401 {
           self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
         }
       }
@@ -1056,55 +1039,55 @@ class PaymentPresentation {
     transactionInfo: TransactionInformation, orderTransaction: OrderTransaction, isAcceptPending: Bool = false
   ) -> URLSessionDataTask? {
     request.getTransactionInfo(transaction: transactionInfo.transaction,
-      onSuccess: { response in
-        let payment = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
-        if let transInfo = payment["GetTransactionInfo"] as? [String: AnyObject] {
-          let state = transInfo["state"] as? String ?? ""
-          _ = transInfo["message"] as? String
-          if let total: Int = transInfo["total"] as? Int {
-            orderTransaction.total = total
-          }
-          if let fee = transInfo["fee"] as? Int {
-            orderTransaction.paymentMethod?.fee = fee
-          }
+                               onSuccess: { response in
+                                 let payment = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
+                                 if let transInfo = payment["GetTransactionInfo"] as? [String: AnyObject] {
+                                   let state = transInfo["state"] as? String ?? ""
+                                   _ = transInfo["message"] as? String
+                                   if let total: Int = transInfo["total"] as? Int {
+                                     orderTransaction.total = total
+                                   }
+                                   if let fee = transInfo["fee"] as? Int {
+                                     orderTransaction.paymentMethod?.fee = fee
+                                   }
 
-          let result: Result? = {
-            print("minh khoa")
-            print(state)
-            if state == "PENDING" {
-              if isAcceptPending {
-                let responseError = ["code": PayME.ResponseCode.PAYMENT_PENDING as AnyObject] as [String: AnyObject]
-                let textPending = "Cần thời gian thêm để xử lý. Vui lòng không thực hiện lại tránh bị trùng. Liên hệ CSKH để hỗ trợ 1900 88 66 65"
-                return Result(type: ResultType.PENDING, failReasonLabel: textPending, orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
-              } else {
-                return nil
-              }
-            } else if state == "SUCCEEDED" {
-              let responseSuccess = [
-                "payment": ["transaction": transInfo["transaction"] as? String]
-              ] as [String: AnyObject]
-              return Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseSuccess)
-            } else {
-              let responseError = ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject,
-                                   "message": (transInfo["reason"] as? String ?? "hasError".localize()) as AnyObject] as [String: AnyObject]
-              return Result(type: ResultType.FAIL, failReasonLabel: transInfo["reason"] as? String ?? "",
-                orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
-            }
-          }()
-          if result != nil {
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
-          }
-        }
-      },
-      onError: { error in
-        if let code = error["code"] as? Int {
-          if (code == 401) {
-            self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
-          }
-        }
-        self.onError(error)
-      },
-      onPaymeError: onPaymeError)
+                                   let result: Result? = {
+                                     print("minh khoa")
+                                     print(state)
+                                     if state == "PENDING" {
+                                       if isAcceptPending {
+                                         let responseError = ["code": PayME.ResponseCode.PAYMENT_PENDING as AnyObject] as [String: AnyObject]
+                                         let textPending = "Cần thời gian thêm để xử lý. Vui lòng không thực hiện lại tránh bị trùng. Liên hệ CSKH để hỗ trợ 1900 88 66 65"
+                                         return Result(type: ResultType.PENDING, failReasonLabel: textPending, orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
+                                       } else {
+                                         return nil
+                                       }
+                                     } else if state == "SUCCEEDED" {
+                                       let responseSuccess = [
+                                         "payment": ["transaction": transInfo["transaction"] as? String]
+                                       ] as [String: AnyObject]
+                                       return Result(type: ResultType.SUCCESS, orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseSuccess)
+                                     } else {
+                                       let responseError = ["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject,
+                                                            "message": (transInfo["reason"] as? String ?? "hasError".localize()) as AnyObject] as [String: AnyObject]
+                                       return Result(type: ResultType.FAIL, failReasonLabel: transInfo["reason"] as? String ?? "",
+                                                     orderTransaction: orderTransaction, transactionInfo: transactionInfo, extraData: responseError)
+                                     }
+                                   }()
+                                   if result != nil {
+                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.RESULT, result: result))
+                                   }
+                                 }
+                               },
+                               onError: { error in
+                                 if let code = error["code"] as? Int {
+                                   if code == 401 {
+                                     self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
+                                   }
+                                 }
+                                 self.onError(error)
+                               },
+                               onPaymeError: onPaymeError)
   }
 
   func getListBankManual(orderTransaction: OrderTransaction, listSettingBank: [Bank]) {
@@ -1112,7 +1095,8 @@ class PaymentPresentation {
       storeId: orderTransaction.storeId, userName: orderTransaction.userName, orderId: orderTransaction.orderId, amount: orderTransaction.amount,
       onSuccess: { response in
         guard let payInfo = (response["OpenEWallet"]!["Payment"] as? [String: AnyObject])?["Pay"]
-          as? [String: AnyObject] else {
+          as? [String: AnyObject]
+        else {
           self.onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "hasError".localize() as AnyObject])
           return
         }
@@ -1120,7 +1104,7 @@ class PaymentPresentation {
           self.onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": (payInfo["message"] as? String ?? "hasError".localize()) as AnyObject])
           return
         }
-        if (isSucceed == false) {
+        if isSucceed == false {
           PaymentModalController.isShowCloseModal = false
           if let message = payInfo["message"] as? String {
             PayME.currentVC!.dismiss(animated: true) {
@@ -1177,7 +1161,7 @@ class PaymentPresentation {
       },
       onError: { error in
         if let code = error["code"] as? Int {
-          if (code == 401) {
+          if code == 401 {
             self.paymentViewModel.paymentSubject.onNext(PaymentState(state: State.ERROR, error: ResponseError(code: ResponseErrorCode.EXPIRED)))
           }
         }

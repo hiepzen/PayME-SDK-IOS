@@ -752,7 +752,6 @@ class API {
       "query": GraphQuery.getTranferMethodsQuery,
       "variables": variables,
     ]
-    print("QUOTA:", json)
     let params = try? JSONSerialization.data(withJSONObject: json)
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
   }

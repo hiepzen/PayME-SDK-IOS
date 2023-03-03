@@ -304,7 +304,6 @@ class PayMEFunction {
   func getRemainingQuota(_ onSuccess: @escaping (Int) -> (), _ onError: @escaping (Dictionary<String, AnyObject>) -> ()) {
     request.getTransferMethods(payCode: "", onSuccess: { response in
       guard let quota = (response["Utility"]!["GetPaymentMethod"] as! Dictionary<String, AnyObject>)["remainingQuota"] as? Int else {
-        print("QUOTA ERR", (response["Utility"]!["GetPaymentMethod"] as! Dictionary<String, AnyObject>)["remainingQuota"])
         return
       }
       onSuccess(quota)
