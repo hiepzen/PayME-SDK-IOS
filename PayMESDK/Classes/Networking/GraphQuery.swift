@@ -189,19 +189,35 @@ class GraphQuery {
                                          }
                                          """
   static let readQRContentQuery = """
-                                  mutation readQRContentQuery($detectInput: OpenEWalletPaymentDetectInput!) {
+                                  mutation DetectQR($detectInput: OpenEWalletPaymentDetectInput!) {
                                     OpenEWallet {
                                       Payment {
-                                        Detect(input: $detectInput) {
-                                          action
+                                        DetectV2(input: $detectInput) {
                                           succeeded
                                           message
-                                          type
-                                          storeId
-                                          amount
-                                          note
-                                          orderId
-                                          userName
+                                          qrInfo {
+                                            __typename
+                                            ...on DefaultQR {
+                                              type
+                                              storeId
+                                              action
+                                              amount
+                                              note
+                                              orderId
+                                              userName
+                                            }
+                                            ... on VietQR {
+                                              note
+                                              binCode
+                                              bankNumber
+                                              amount
+                                              fullname
+                                              swiftCode
+                                              bankName
+                                              isNapas
+                                              isWithdrawable
+                                            }
+                                          }
                                         }
                                       }
                                     }
