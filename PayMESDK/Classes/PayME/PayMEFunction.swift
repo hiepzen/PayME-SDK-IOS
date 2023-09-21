@@ -365,6 +365,7 @@ class PayMEFunction {
                             let swiftCode = (qrInfo["swiftCode"] as? String) ?? ""
                             let fullname = (qrInfo["fullname"] as? String) ?? ""
                             let bankNumber = (qrInfo["bankNumber"] as? String) ?? ""
+                            let note = (qrInfo["note"] as? String) ?? ""
 
                             let extraData: [String: Any] = [
                                 "swiftCode": swiftCode,
@@ -377,7 +378,7 @@ class PayMEFunction {
                             {
                                 let formattedExtraData = jsonString.replacingOccurrences(of: "\\", with: "\\\\")
                                     .replacingOccurrences(of: "\"", with: "\\\"")
-                                self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, "Chuyen len web", formattedExtraData, "", false, { _ in }, { error in print("lỗi r \(error)") })
+                                self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, note, formattedExtraData, "", false, { _ in }, { error in print("lỗi r \(error)") })
                                 print(formattedExtraData)
                             } else {
                                 print("Không thể chuyển đổi extraData thành chuỗi JSON")
@@ -434,9 +435,9 @@ class PayMEFunction {
                 if typename == "DefaultQR" {
                     let storeId = (qrInfo["storeId"] as? Int) ?? 0
                     let orderId = (qrInfo["orderId"] as? String) ?? ""
-
                     let note = (qrInfo["note"] as? String) ?? ""
                     let userName = (qrInfo["userName"] as? String) ?? ""
+
                     self.payAction(currentVC: currentVC, storeId: storeId, userName: userName, orderId: orderId, amount: amount, note: note,
                                    payCode: payCode, extraData: nil, isShowResultUI: isShowResultUI,
                                    onSuccess: onSuccess, onError: onError)
