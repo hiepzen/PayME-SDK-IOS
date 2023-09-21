@@ -189,35 +189,19 @@ class GraphQuery {
                                          }
                                          """
   static let readQRContentQuery = """
-                                  mutation DetectQR($detectInput: OpenEWalletPaymentDetectInput!) {
+                                  mutation readQRContentQuery($detectInput: OpenEWalletPaymentDetectInput!) {
                                     OpenEWallet {
                                       Payment {
-                                        DetectV2(input: $detectInput) {
+                                        Detect(input: $detectInput) {
+                                          action
                                           succeeded
                                           message
-                                          qrInfo {
-                                            __typename
-                                            ...on DefaultQR {
-                                              type
-                                              storeId
-                                              action
-                                              amount
-                                              note
-                                              orderId
-                                              userName
-                                            }
-                                            ... on VietQR {
-                                              note
-                                              binCode
-                                              bankNumber
-                                              amount
-                                              fullname
-                                              swiftCode
-                                              bankName
-                                              isNapas
-                                              isWithdrawable
-                                            }
-                                          }
+                                          type
+                                          storeId
+                                          amount
+                                          note
+                                          orderId
+                                          userName
                                         }
                                       }
                                     }

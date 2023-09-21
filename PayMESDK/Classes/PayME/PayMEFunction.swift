@@ -327,58 +327,25 @@ class PayMEFunction {
           return
         }
         self.request.readQRContent(qrContent: response, onSuccess: { response in
-            let payment = response["OpenEWallet"]!["Payment"] as! Dictionary<String, AnyObject>
-                let detect = payment["DetectV2"] as! Dictionary<String, AnyObject>
-                let succeeded = detect["succeeded"] as! Bool
-                let message = detect["message"] as? String ?? "hasError".localize()
-                let qrInfo = detect["qrInfo"] as! Dictionary<String, AnyObject>
-                  
-                let typename = qrInfo["__typename"] as! String
-
-                guard let amountString = qrInfo["amount"] as? String else {
-                    return
-                }
-                let amount = Int(amountString) ?? 0
-
-                let onSuccessPay = isStartDirectFromUser ? { dictionary in
-                      } : onSuccess
-                      let onErrorPay = isStartDirectFromUser ? { dictionary in
-                      } : onError
-                      let currentViewController = currentVC
-            
-                if (succeeded == true) {
-                    if(typename=="DefaultQR")
-                    {
-                        let storeId = (qrInfo["storeId"] as? Int) ?? 0
-                        let orderId = (qrInfo["orderId"] as? String) ?? ""
-                        
-                        let note = (qrInfo["note"] as? String) ?? ""
-                        let userName = (qrInfo["userName"] as? String) ?? ""
-                        self.payAction(
-                                     currentVC: currentViewController, storeId: storeId, userName: userName, orderId: orderId, amount: amount,
-                                     note: note, payCode: payCode, extraData: nil,
-                                     isShowResultUI: true, onSuccess: onSuccessPay, onError: onErrorPay)
-                    }
-                    else if(typename=="VietQR"){
-                        let swiftCode = (qrInfo["swiftCode"] as? String) ?? ""
-                        let fullname = (qrInfo["fullname"] as? String) ?? ""
-                        let bankNumber = (qrInfo["bankNumber"] as? String) ?? ""
-
-                        let extraData: [String: Any] = [
-                            "swiftCode": swiftCode,
-                            "fullname": fullname,
-                            "bankNumber": bankNumber
-                        ]
-
-                        if let jsonData = try? JSONSerialization.data(withJSONObject: extraData, options: []),
-                           let jsonString = String(data: jsonData, encoding: .utf8) {
-                            let formattedExtraData = "{\"extraData\":\(jsonString)}"
-                            self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, "Chuyen len web", formattedExtraData, "", false, { dictionary in }, {error in print("lỗi r \(error)")})
-                            print(formattedExtraData)
-                        } else {
-                            print("Không thể chuyển đổi extraData thành chuỗi JSON")
-                        }
-                    }
+          let payment = response["OpenEWallet"]!["Payment"] as! Dictionary<String, AnyObject>
+          let detect = payment["Detect"] as! Dictionary<String, AnyObject>
+          let succeeded = detect["succeeded"] as! Bool
+          if (succeeded == true) {
+            let storeId = (detect["storeId"] as? Int) ?? 0
+            let orderId = (detect["orderId"] as? String) ?? ""
+            let amount = (detect["amount"] as? Int) ?? 0
+            let note = (detect["note"] as? String) ?? ""
+            let userName = (detect["userName"] as? String) ?? ""
+            let onSuccessPay = isStartDirectFromUser ? { dictionary in
+            } : onSuccess
+            let onErrorPay = isStartDirectFromUser ? { dictionary in
+            } : onError
+            let currentViewController = currentVC
+            self.payAction(
+              currentVC: currentViewController, storeId: storeId, userName: userName, orderId: orderId, amount: amount,
+              note: note, payCode: payCode, extraData: nil,
+              isShowResultUI: true, onSuccess: onSuccessPay, onError: onErrorPay
+            )
           } else {
             currentVC.presentModal(QRNotFound())
           }
@@ -412,49 +379,18 @@ class PayMEFunction {
     }
     request.readQRContent(qrContent: qr, onSuccess: { response in
       let payment = response["OpenEWallet"]!["Payment"] as! Dictionary<String, AnyObject>
-      let detect = payment["DetectV2"] as! Dictionary<String, AnyObject>
+      let detect = payment["Detect"] as! Dictionary<String, AnyObject>
       let succeeded = detect["succeeded"] as! Bool
       let message = detect["message"] as? String ?? "hasError".localize()
-      let qrInfo = detect["qrInfo"] as! Dictionary<String, AnyObject>
-        
-      let typename = qrInfo["__typename"] as! String
-
-      guard let amountString = qrInfo["amount"] as? String else {
-          return
-      }
-      let amount = Int(amountString) ?? 0
-
       if (succeeded == true) {
-          if(typename=="DefaultQR")
-          {
-              let storeId = (qrInfo["storeId"] as? Int) ?? 0
-              let orderId = (qrInfo["orderId"] as? String) ?? ""
-              
-              let note = (qrInfo["note"] as? String) ?? ""
-              let userName = (qrInfo["userName"] as? String) ?? ""
-              self.payAction(currentVC: currentVC, storeId: storeId, userName: userName, orderId: orderId, amount: amount, note: note,
-                payCode: payCode, extraData: nil, isShowResultUI: isShowResultUI,
-                onSuccess: onSuccess, onError: onError)
-          }
-          else if(typename=="VietQR"){
-              let swiftCode = (qrInfo["swiftCode"] as? String) ?? ""
-              let fullname = (qrInfo["fullname"] as? String) ?? ""
-              let bankNumber = (qrInfo["bankNumber"] as? String) ?? ""
-
-              let extraData: [String: Any] = [
-                  "swiftCode": swiftCode,
-                  "fullname": fullname,
-                  "bankNumber": bankNumber
-              ]
-              if let jsonData = try? JSONSerialization.data(withJSONObject: extraData, options: []),
-                 let jsonString = String(data: jsonData, encoding: .utf8) {
-                  let formattedExtraData = "{\"extraData\":\(jsonString)}"
-                  self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, "Chuyen len web", formattedExtraData, "", false, { dictionary in }, {error in print("lỗi r \(error)")})
-                  print(formattedExtraData)
-              } else {
-                  print("Không thể chuyển đổi extraData thành chuỗi JSON")
-              }
-          }
+        let storeId = (detect["storeId"] as? Int) ?? 0
+        let orderId = (detect["orderId"] as? String) ?? ""
+        let amount = (detect["amount"] as? Int) ?? 0
+        let note = (detect["note"] as? String) ?? ""
+        let userName = (detect["userName"] as? String) ?? ""
+        self.payAction(currentVC: currentVC, storeId: storeId, userName: userName, orderId: orderId, amount: amount, note: note,
+          payCode: payCode, extraData: nil, isShowResultUI: isShowResultUI,
+          onSuccess: onSuccess, onError: onError)
       } else {
         onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
       }
