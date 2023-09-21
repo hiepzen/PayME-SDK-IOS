@@ -207,7 +207,8 @@ class PayMEFunction {
             "serviceCode": "\(serviceCode)",
             "amount": \(checkIntNil(input: amount)),
             "closeWhenDone": \(closeWhenDone),
-            "description": "\(description ?? "")"
+            "description": "\(description ?? "")",
+            "extraData": "\(extraData ?? "")"
           },
           "env": "\(env.rawValue)",
           "showLog": "\(isShowLog)"
@@ -216,7 +217,8 @@ class PayMEFunction {
 
       print("minh khoa")
       print(data)
-
+      print(urlWebview(env: env) + "\(encryptAES(data))")
+        
       webViewController.setURLRequest(urlWebview(env: env) + "\(encryptAES(data))")
       webViewController.setOnSuccessCallback(onSuccess: onSuccess)
       webViewController.setOnErrorCallback(onError: onError)
@@ -347,8 +349,7 @@ class PayMEFunction {
                       let currentViewController = currentVC
             
                 if (succeeded == true) {
-                    if(typename=="DefaultQR")
-                    {
+                    if (typename == "DefaultQR") {
                         let storeId = (qrInfo["storeId"] as? Int) ?? 0
                         let orderId = (qrInfo["orderId"] as? String) ?? ""
                         
@@ -358,8 +359,7 @@ class PayMEFunction {
                                      currentVC: currentViewController, storeId: storeId, userName: userName, orderId: orderId, amount: amount,
                                      note: note, payCode: payCode, extraData: nil,
                                      isShowResultUI: true, onSuccess: onSuccessPay, onError: onErrorPay)
-                    }
-                    else if(typename=="VietQR"){
+                    } else if (typename == "VietQR") {
                         let swiftCode = (qrInfo["swiftCode"] as? String) ?? ""
                         let fullname = (qrInfo["fullname"] as? String) ?? ""
                         let bankNumber = (qrInfo["bankNumber"] as? String) ?? ""
@@ -378,6 +378,8 @@ class PayMEFunction {
                         } else {
                             print("Không thể chuyển đổi extraData thành chuỗi JSON")
                         }
+                    } else {
+                        currentVC.presentModal(QRNotFound())
                     }
           } else {
             currentVC.presentModal(QRNotFound())
@@ -425,8 +427,7 @@ class PayMEFunction {
       let amount = Int(amountString) ?? 0
 
       if (succeeded == true) {
-          if(typename=="DefaultQR")
-          {
+          if (typename == "DefaultQR") {
               let storeId = (qrInfo["storeId"] as? Int) ?? 0
               let orderId = (qrInfo["orderId"] as? String) ?? ""
               
@@ -435,11 +436,11 @@ class PayMEFunction {
               self.payAction(currentVC: currentVC, storeId: storeId, userName: userName, orderId: orderId, amount: amount, note: note,
                 payCode: payCode, extraData: nil, isShowResultUI: isShowResultUI,
                 onSuccess: onSuccess, onError: onError)
-          }
-          else if(typename=="VietQR"){
+          } else if (typename == "VietQR") {
               let swiftCode = (qrInfo["swiftCode"] as? String) ?? ""
               let fullname = (qrInfo["fullname"] as? String) ?? ""
               let bankNumber = (qrInfo["bankNumber"] as? String) ?? ""
+              let note = (qrInfo["note"] as? String) ?? ""
 
               let extraData: [String: Any] = [
                   "swiftCode": swiftCode,
@@ -448,12 +449,16 @@ class PayMEFunction {
               ]
               if let jsonData = try? JSONSerialization.data(withJSONObject: extraData, options: []),
                  let jsonString = String(data: jsonData, encoding: .utf8) {
-                  let formattedExtraData = "{\"extraData\":\(jsonString)}"
-                  self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, "Chuyen len web", formattedExtraData, "", false, { dictionary in }, {error in print("lỗi r \(error)")})
+                  print("dattttt")
+                  print("\(jsonString)")
+                  let formattedExtraData = "\(jsonString)"
+                  self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, note, formattedExtraData, "", false, { dictionary in }, {error in print("lỗi r \(error)")})
                   print(formattedExtraData)
               } else {
                   print("Không thể chuyển đổi extraData thành chuỗi JSON")
               }
+          } else {
+              onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])
           }
       } else {
         onError(["code": PayME.ResponseCode.PAYMENT_ERROR as AnyObject, "message": message as AnyObject])

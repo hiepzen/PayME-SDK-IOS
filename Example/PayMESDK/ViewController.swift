@@ -348,7 +348,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     textField.backgroundColor = UIColor.white
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.placeholder = "Nhập QR"
-    textField.text = "OPENEWALLET|37048160|PAYMENT|20000|Chuyentien|2445562323jjkvffvbbbb"
+    textField.text = "00020101021238600010A00000072701300006970400011697040000000000180208QRIBFTTA5303704540750000005802VN62120808Xin chao6304857B"
     textField.setLeftPaddingPoints(10)
     return textField
   }()

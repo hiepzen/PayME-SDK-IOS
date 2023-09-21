@@ -197,7 +197,7 @@ class GraphQuery {
                                           message
                                           qrInfo {
                                             __typename
-                                            ...on DefaultQR {
+                                            ... on DefaultQR {
                                               type
                                               storeId
                                               action
