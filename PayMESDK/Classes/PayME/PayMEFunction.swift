@@ -451,7 +451,8 @@ class PayMEFunction {
                  let jsonString = String(data: jsonData, encoding: .utf8) {
                   print("dattttt")
                   print("\(jsonString)")
-                  let formattedExtraData = "\(jsonString)"
+                  let formattedExtraData = jsonString.replacingOccurrences(of: "\\", with: "\\\\")
+                                                       .replacingOccurrences(of: "\"", with: "\\\"")
                   self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, note, formattedExtraData, "", false, { dictionary in }, {error in print("lỗi r \(error)")})
                   print(formattedExtraData)
               } else {
