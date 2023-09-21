@@ -754,7 +754,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @objc func onPayQR(sender: UIButton!) {
         if connectToken != "" {
             if qrPayString.text != "" {
-                payME!.payQRCode(currentVC: self, qr: qrPayString.text!, payCode: curPayCode,
+                payME!.payQRCode(currentVC: self, qr: qrPayString.text!, payCode: curPayCode, isShowResultUI: false,
                                  onSuccess: { success in
                                      Log.custom.push(title: "payQRCode Success", message: success)
                                  },
