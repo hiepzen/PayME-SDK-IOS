@@ -378,7 +378,7 @@ class PayMEFunction {
                             {
                                 let formattedExtraData = jsonString.replacingOccurrences(of: "\\", with: "\\\\")
                                     .replacingOccurrences(of: "\"", with: "\\\"")
-                                self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, note, formattedExtraData, "", false, { _ in }, { error in print("lỗi r \(error)") })
+                                self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, note, formattedExtraData, "", false, onSuccessPay, onErrorPay)
                                 print(formattedExtraData)
                             } else {
                                 print("Không thể chuyển đổi extraData thành chuỗi JSON")
@@ -457,8 +457,7 @@ class PayMEFunction {
                     {
                         let formattedExtraData = jsonString.replacingOccurrences(of: "\\", with: "\\\\")
                             .replacingOccurrences(of: "\"", with: "\\\"")
-                        self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, note, formattedExtraData, "", !isShowResultUI, { _ in }, { error in print("lỗi r \(error)") })
-                        print(formattedExtraData)
+                        self.openWallet(false, currentVC, PayME.Action.TRANSFER, amount, note, formattedExtraData, "", !isShowResultUI, onSuccess, onError)
                     } else {
                         print("Không thể chuyển đổi extraData thành chuỗi JSON")
                     }
